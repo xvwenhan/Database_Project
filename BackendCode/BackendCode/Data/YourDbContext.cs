@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using WebAPI.Models;
+using BackendCode.Models;
 
 
-namespace WebApi1.Data
+namespace BackendData.Data
 {
     public class YourDbContext : DbContext
     {
