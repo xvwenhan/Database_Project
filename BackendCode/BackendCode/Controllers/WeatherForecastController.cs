@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
-using WebApi1.Data;
+using BackendCode.Data;
 
-namespace WebApi1.Controllers
+namespace BackendCode.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
