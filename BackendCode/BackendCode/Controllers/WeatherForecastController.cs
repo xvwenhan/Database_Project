@@ -21,8 +21,8 @@ namespace BackendCode.Controllers
         {
             try
             {
-                var ruleCodes = string.IsNullOrEmpty(cust) ? _dbContext.ACCOUNT
-                    .ToList() : _dbContext.ACCOUNT.Where(code => code.ACCOUNT_ID == cust)
+                var ruleCodes = string.IsNullOrEmpty(cust) ? _dbContext.ACCOUNTS
+                    .ToList() : _dbContext.ACCOUNTS.Where(code => code.ACCOUNT_ID == cust)
                     .ToList();
 
                 return Ok(ruleCodes);

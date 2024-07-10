@@ -21,7 +21,7 @@ namespace Account.Controllers
         [HttpGet("/register")]
         public IActionResult UserRegister(string u_name,string p_number,string passwd)
         {
-            var tempAccount = _dbContext.ACCOUNT.FirstOrDefault(a => a.PHONE_NUMBER == p_number);
+            var tempAccount = _dbContext.ACCOUNTS.FirstOrDefault(a => a.PHONE_NUMBER == p_number);
             if (tempAccount != null)//如果该手机号存在
             {
                 return BadRequest($"该手机号已经被注册");//返回账号已存在
@@ -33,9 +33,9 @@ namespace Account.Controllers
                 string a = _userId.ToString();
                 string uidb = "U" + a;
 
-                _dbContext.ACCOUNT.Add(new BackendCode.Models.ACCOUNT(){
+                _dbContext.ACCOUNTS.Add(new BackendCode.Models.ACCOUNT(){
                     ACCOUNT_ID = uidb,
-                    USERNAME = u_name,
+                    USER_NAME = u_name,
                     PHONE_NUMBER = p_number,
                     PASSWORD = passwd
                     
@@ -49,7 +49,7 @@ namespace Account.Controllers
         [HttpGet("/login")]
         public IActionResult Login(string uid_orp_number, string passwd)
         {
-            var tempAccount = _dbContext.ACCOUNT.FirstOrDefault(a => a.ACCOUNT_ID == uid_orp_number);
+            var tempAccount = _dbContext.ACCOUNTS.FirstOrDefault(a => a.ACCOUNT_ID == uid_orp_number);
             if (tempAccount != null)//如果该uid存在
             {
                 if (tempAccount.PASSWORD == passwd)
@@ -63,7 +63,7 @@ namespace Account.Controllers
             }
             else//如果uid不存在
             {
-                var temp2Account = _dbContext.ACCOUNT.FirstOrDefault(a => a.PHONE_NUMBER == uid_orp_number);
+                var temp2Account = _dbContext.ACCOUNTS.FirstOrDefault(a => a.PHONE_NUMBER == uid_orp_number);
                 if (tempAccount != null)//如果该电话号码存在
                 {
                     if (tempAccount.PASSWORD == passwd)

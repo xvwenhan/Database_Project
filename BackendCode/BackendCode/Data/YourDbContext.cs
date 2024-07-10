@@ -58,9 +58,9 @@ namespace BackendCode.Data
             modelBuilder.Entity<ADMINISTRATOR>(entity =>
             {
                 entity.ToTable("ADMINISTRATOR");
-                entity.HasKey(e => e.ACCOUNT_ID);
+                //entity.HasKey(e => e.ACCOUNT_ID);
                 entity.Property(e => e.PERMISSION_LEVEL)
-                       .HasColumnType("NUMBER(1)");
+                       .HasColumnType("INT");
                 entity.HasOne<ACCOUNT>()
                        .WithOne()
                        .HasForeignKey<ADMINISTRATOR>(e => e.ACCOUNT_ID)
@@ -70,7 +70,7 @@ namespace BackendCode.Data
             modelBuilder.Entity<BUYER>(entity =>
             {
                 entity.ToTable("BUYER");
-                entity.HasKey(e => e.ACCOUNT_ID);
+                //entity.HasKey(e => e.ACCOUNT_ID);
 
                 entity.Property(e => e.GENDER)
                       .HasMaxLength(10)
@@ -97,7 +97,7 @@ namespace BackendCode.Data
             modelBuilder.Entity<STORE>(entity =>
             {
                 entity.ToTable("STORE");
-                entity.HasKey(e => e.ACCOUNT_ID);
+                //entity.HasKey(e => e.ACCOUNT_ID);
 
                 entity.Property(e => e.ACCOUNT_ID)
                       .HasMaxLength(100)
