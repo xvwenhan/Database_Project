@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using BackendCode.Models;
-using System;
 
 namespace BackendCode.Data
 {
@@ -58,7 +57,7 @@ namespace BackendCode.Data
             modelBuilder.Entity<ADMINISTRATOR>(entity =>
             {
                 entity.ToTable("ADMINISTRATOR");
-                entity.HasKey(e => e.ACCOUNT_ID);
+               
                 entity.Property(e => e.PERMISSION_LEVEL)
                        .HasColumnType("NUMBER(1)");
                 entity.HasOne<ACCOUNT>()
@@ -70,7 +69,6 @@ namespace BackendCode.Data
             modelBuilder.Entity<BUYER>(entity =>
             {
                 entity.ToTable("BUYER");
-                entity.HasKey(e => e.ACCOUNT_ID);
 
                 entity.Property(e => e.GENDER)
                       .HasMaxLength(10)
@@ -97,7 +95,6 @@ namespace BackendCode.Data
             modelBuilder.Entity<STORE>(entity =>
             {
                 entity.ToTable("STORE");
-                entity.HasKey(e => e.ACCOUNT_ID);
 
                 entity.Property(e => e.ACCOUNT_ID)
                       .HasMaxLength(100)
@@ -129,7 +126,6 @@ namespace BackendCode.Data
                       .HasConstraintName("A_A_FK1");
             });
 
-
             modelBuilder.Entity<BUYER_PRODUCT_BOOKMARK>(entity =>
             {
                 entity.ToTable("BUYER_PRODUCT_BOOKMARK");
@@ -156,7 +152,6 @@ namespace BackendCode.Data
                       .HasForeignKey(e => e.PRODUCT_ID)
                       .HasConstraintName("P_P_FK3");
             });
-
 
             modelBuilder.Entity<BUYER_STORE_BOOKMARK>(entity =>
             {
@@ -340,7 +335,302 @@ namespace BackendCode.Data
                       .HasConstraintName("P_P_FK");
             });
 
+            modelBuilder.Entity<PRODUCT>(entity =>
+            {
+                entity.HasKey(e => e.PRODUCT_ID);
 
+                entity.ToTable("PRODUCT");
+
+                entity.Property(e => e.PRODUCT_ID)
+                    .HasMaxLength(100)
+                    .IsRequired();
+
+                entity.Property(e => e.PRODUCT_NAME)
+                    .HasMaxLength(50)
+                    .IsRequired();
+
+                entity.Property(e => e.PRODUCT_PRICE)
+                    .HasColumnType("NUMBER(7,2)")
+                    .IsRequired();
+
+                entity.Property(e => e.SALE_OR_NOT)
+                    .HasColumnType("NUMBER(1)")
+                    .IsRequired();
+
+                entity.Property(e => e.TAG)
+                    .HasMaxLength(50)
+                    .IsRequired();
+
+                entity.Property(e => e.DESCRIBTION)
+                    .HasMaxLength(200)
+                    .IsRequired();
+
+                entity.Property(e => e.ACCOUNT_ID)
+                    .HasMaxLength(100)
+                    .IsRequired();
+
+                entity.HasOne<STORE>()
+                    .WithMany()
+                    .HasForeignKey(e => e.ACCOUNT_ID)
+                    .HasConstraintName("PRODUCT_FK");
+            });
+
+            modelBuilder.Entity<WALLET>(entity =>
+            {
+                entity.HasKey(e => e.ACCOUNT_ID);
+
+                entity.ToTable("WALLET");
+
+                entity.Property(e => e.ACCOUNT_ID)
+                    .HasMaxLength(100)
+                    .IsRequired();
+
+                entity.Property(e => e.BALANCE)
+                    .HasColumnType("NUMBER(10,2)")
+                    .IsRequired()
+                    .HasDefaultValue(0);
+
+                entity.HasOne<ACCOUNT>()
+                    .WithOne()
+                    .HasForeignKey<WALLET>(e => e.ACCOUNT_ID)
+                    .HasConstraintName("WALLET_FK");
+            });
+
+            modelBuilder.Entity<RETURN>(entity =>
+            {
+                entity.HasKey(e => e.ORDER_ID);
+
+                entity.ToTable("RETURN");
+
+                entity.Property(e => e.ORDER_ID)
+                    .HasMaxLength(100)
+                    .IsRequired();
+
+                entity.Property(e => e.RETURN_TIME)
+                    .HasColumnType("TIMESTAMP(6)");
+
+                entity.Property(e => e.RETURN_REASON)
+                    .HasMaxLength(100);
+
+                entity.Property(e => e.RETURN_STATUS)
+                    .HasMaxLength(100);
+
+                entity.HasOne<ORDERS>()
+                    .WithOne()
+                    .HasForeignKey<RETURN>(e => e.ORDER_ID)
+                    .HasConstraintName("RETURN_FK");
+            });
+
+            modelBuilder.Entity<SET_UP_MARKETPLACE>(entity =>
+            {
+                entity.HasKey(a => new { a.MARKET_ID, a.ADMINISTRATOR_ACCOUNT_ID });
+
+                entity.ToTable("SET_UP_MARKETPLACE");
+
+                entity.Property(e => e.MARKET_ID)
+                    .HasMaxLength(100)
+                    .IsRequired();
+
+                entity.Property(e => e.ADMINISTRATOR_ACCOUNT_ID)
+                    .HasMaxLength(100)
+                    .IsRequired();
+
+                entity.HasOne<MARKET>()
+                    .WithOne()
+                    .HasForeignKey<SET_UP_MARKETPLACE>(e => e.MARKET_ID)
+                    .HasConstraintName("M_M_FK5");
+
+                entity.HasOne<ADMINISTRATOR>()
+                    .WithOne()
+                    .HasForeignKey<SET_UP_MARKETPLACE>(e => e.ADMINISTRATOR_ACCOUNT_ID)
+                    .HasConstraintName("A_A_FK2");
+            });
+
+            modelBuilder.Entity<POST>(entity =>
+            {
+                entity.HasKey(e => e.POST_ID);
+
+                entity.ToTable("POST");
+
+                entity.Property(e => e.POST_ID)
+                    .HasMaxLength(100)
+                    .IsRequired();
+
+                entity.Property(e => e.RELEASE_TIME)
+                    .HasColumnType("TIMESTAMP(6)");
+
+                entity.Property(e => e.POST_CONTENT)
+                    .HasMaxLength(200);
+
+                entity.Property(p => p.NUMBER_OF_LIKES)
+                    .HasColumnType("NUMBER(10)");
+
+                entity.Property(p => p.NUMBER_OF_COMMENTS)
+                    .HasColumnType("NUMBER(10)");
+
+                entity.Property(p => p.ACCOUNT_ID)
+                    .HasMaxLength(100)
+                    .IsRequired();
+
+                entity.HasOne<BUYER>()
+                    .WithMany()
+                    .HasForeignKey(e => e.ACCOUNT_ID)
+                    .HasConstraintName("POST_FK");
+            });
+
+            modelBuilder.Entity<ORDERS>(entity =>
+            {
+                entity.HasKey(e => e.ORDER_ID);
+
+                entity.ToTable("ORDERS");
+
+                entity.Property(e => e.ORDER_ID)
+                    .HasMaxLength(100)
+                    .IsRequired();
+
+                entity.Property(e => e.PRODUCT_ID)
+                    .HasMaxLength(100);
+
+                entity.Property(e => e.TOTAL_PAY)
+                    .HasColumnType("NUMBER(7, 2)");
+
+                entity.Property(e => e.ACTUAL_PAY)
+                    .HasColumnType("NUMBER(7, 2)");
+
+                entity.Property(e => e.ORDER_STATUS)
+                    .HasMaxLength(40);
+
+                entity.Property(e => e.CREATE_TIME)
+                    .HasColumnType("TIMESTAMP(6)");
+
+                entity.Property(e => e.RECIEVING_TIME)
+                    .HasColumnType("TIMESTAMP(6)");
+
+                entity.Property(e => e.DELIVERY_NUMBER)
+                    .HasMaxLength(100);
+
+                entity.Property(e => e.SCORE)
+                    .HasColumnType("NUMBER(2, 1)")
+                    .HasDefaultValue(0);
+
+                entity.Property(e => e.REMARK)
+                    .HasMaxLength(200);
+
+                entity.Property(e => e.BONUS_CREDITS)
+                    .HasColumnType("NUMBER(4)");
+
+                entity.Property(e => e.RETURN_OR_NOT)
+                    .HasColumnType("NUMBER(1)");
+
+                entity.Property(e => e.BUYER_ACCOUNT_ID)
+                    .HasMaxLength(100);
+
+                entity.Property(e => e.STORE_ACCOUNT_ID)
+                    .HasMaxLength(100);
+
+                entity.HasOne<PRODUCT>()
+                    .WithOne()
+                    .HasForeignKey<ORDERS>(e => e.PRODUCT_ID)
+                    .HasConstraintName("O_P_FK");
+
+                entity.HasOne<BUYER>()
+                    .WithOne()
+                    .HasForeignKey<ORDERS>(e => e.BUYER_ACCOUNT_ID)
+                    .HasConstraintName("O_B_FK");
+
+                entity.HasOne<STORE>()
+                    .WithMany()
+                    .HasForeignKey(e => e.STORE_ACCOUNT_ID)
+                    .HasConstraintName("S_S_FK");
+            });
+
+            modelBuilder.Entity<REPORT>(entity =>
+            {
+                entity.HasKey(e => e.REPORT_ID);
+
+                entity.ToTable("REPORT");
+
+                entity.Property(e => e.REPORT_ID)
+                    .HasMaxLength(100)
+                    .IsRequired();
+
+                entity.Property(e => e.REPORTING_TIME)
+                    .HasColumnType("TIMESTAMP(6)");
+
+                entity.Property(e => e.REPORTING_REASON)
+                    .HasMaxLength(200);
+
+                entity.Property(e => e.AUDIT_TIME)
+                    .HasColumnType("TIMESTAMP(6)");
+
+                entity.Property(e => e.AUDIT_RESULTS)
+                    .HasMaxLength(10);
+
+                entity.Property(e => e.ADMINISTRATOR_ACCOUNT_ID)
+                    .HasMaxLength(100);
+
+                entity.HasOne<ADMINISTRATOR>()
+                    .WithMany()
+                    .HasForeignKey(e => e.ADMINISTRATOR_ACCOUNT_ID)
+                    .HasConstraintName("REPORT_FK");
+            });
+
+            modelBuilder.Entity<MARKET_STORE>(entity =>
+            {
+                entity.HasKey(e => new { e.MARKET_ID, e.STORE_ACCOUNT_ID });
+
+                entity.ToTable("MARKET_STORE");
+
+                entity.Property(e => e.MARKET_ID)
+                    .HasMaxLength(100)
+                    .IsRequired();
+
+                entity.Property(e => e.STORE_ACCOUNT_ID)
+                    .HasMaxLength(100)
+                    .IsRequired();
+
+                entity.Property(e => e.IN_OR_NOT)
+                    .HasColumnType("NUMBER(1)")
+                    .IsRequired();
+
+                entity.HasOne<MARKET>()
+                    .WithMany()
+                    .HasForeignKey(e => e.MARKET_ID)
+                    .HasConstraintName("M_M_FK1");
+
+                entity.HasOne<STORE>()
+                    .WithMany()
+                    .HasForeignKey(e => e.STORE_ACCOUNT_ID)
+                    .HasConstraintName("S_S_FK1");
+            });
+
+            modelBuilder.Entity<SUBMIT_AUTHENTICATION>(entity =>
+            {
+                entity.HasKey(e => new { e.ADMINISTRATOR_ACCOUNT_ID, e.STORE_ACCOUNT_ID });
+
+                entity.ToTable("SUBMIT_AUTHENTICATION");
+
+                entity.Property(e => e.STORE_ACCOUNT_ID)
+                    .HasMaxLength(100)
+                    .IsRequired();
+
+                entity.Property(e => e.ADMINISTRATOR_ACCOUNT_ID)
+                    .HasMaxLength(100)
+                    .IsRequired();
+
+                entity.Property(e => e.AUTHENTICATION)
+                    .HasMaxLength(200);
+
+                entity.HasOne<STORE>()
+                    .WithOne()
+                    .HasForeignKey<SUBMIT_AUTHENTICATION>(e => e.STORE_ACCOUNT_ID)
+                    .HasConstraintName("S_S_FK3");
+
+                entity.HasOne<ADMINISTRATOR>()
+                    .WithMany()
+                    .HasForeignKey(e => e.ADMINISTRATOR_ACCOUNT_ID)
+                    .HasConstraintName("A_A_FK");
+            });
         }
     }
 }

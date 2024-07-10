@@ -1,9 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-
-namespace BackendCode.Models
+﻿namespace BackendCode.Models
 {
-    [Table("BUYER_PRODUCT_BOOKMARK")]
     public class BUYER_PRODUCT_BOOKMARK
     {
         public string BUYER_ACCOUNT_ID { get; set; }
