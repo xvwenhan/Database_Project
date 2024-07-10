@@ -13,7 +13,7 @@ namespace BackendCode.Models
         public string PRODUCT_ID { get; set; }
 
         /* 折扣价格 */
-        public float? DISCOUNT_PRICE { get; set; }
+        public decimal? DISCOUNT_PRICE { get; set; }
 
         public virtual MARKET MARKET { get; set; }
         public virtual PRODUCT PRODUCT { get; set; }

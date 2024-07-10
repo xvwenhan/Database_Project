@@ -6,20 +6,14 @@ namespace BackendCode.Models
     [Table("SUBMIT_AUTHENTICATION")]
     public class SUBMIT_AUTHENTICATION
     {
-        [Column("STORE_ACCOUNT_ID")]
         public string? STORE_ACCOUNT_ID { get; set; }
 
-        [Column("ADMINISTRATOR_ACCOUNT_ID")]
         public string? ADMINISTRATOR_ACCOUNT_ID { get; set; }
 
-        [Required]
-        [Column("AUTHENTICATION")]
         public string? AUTHENTICATION { get; set; }
 
-        [ForeignKey("STORE_ACCOUNT_ID")]
         public STORE STORE { get; set; }
 
-        [ForeignKey("ADMINISTRATOR_ACCOUNT_ID")]
-        public ADMINISTRATOR ADMINISTRATOR { get; set; }
+        public virtual ADMINISTRATOR ADMINISTRATOR { get; set; }
     }
 }
