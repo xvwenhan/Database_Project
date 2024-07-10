@@ -1,6 +1,6 @@
 ﻿namespace BackendCode.Models
 {
-    public class BUYER:ACCOUNT
+    public class BUYER : ACCOUNT
     {
         public string GENDER { get; set; }
         public int? AGE { get; set; } // AGE 可以为空

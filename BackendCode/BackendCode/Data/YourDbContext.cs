@@ -59,7 +59,7 @@ namespace BackendCode.Data
                 entity.ToTable("ADMINISTRATOR");
                
                 entity.Property(e => e.PERMISSION_LEVEL)
-                       .HasColumnType("NUMBER(1)");
+                       .HasColumnType("NUMBER(2)");
                 entity.HasOne<ACCOUNT>()
                        .WithOne()
                        .HasForeignKey<ADMINISTRATOR>(e => e.ACCOUNT_ID)
@@ -511,7 +511,7 @@ namespace BackendCode.Data
 
                 entity.Property(e => e.SCORE)
                     .HasColumnType("NUMBER(2, 1)")
-                    .HasDefaultValue(0);
+                    .HasDefaultValue(new decimal(0.0));
 
                 entity.Property(e => e.REMARK)
                     .HasMaxLength(200);
