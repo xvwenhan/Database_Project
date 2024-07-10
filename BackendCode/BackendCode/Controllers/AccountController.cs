@@ -46,15 +46,41 @@ namespace Account.Controllers
 
         }
 
-       /* [HttpGet("/login")]
-        public IActionResult IndexTest(string? user_name, string phone_number, string passwd)
+        [HttpGet("/login")]
+        public IActionResult Login(string uid_orp_number, string passwd)
         {
-            _dbContext.ACCOUNT.Add(new BackendCode.Models.ACCOUNT() { ACCOUNT_ID = "1", USERNAME = user_name, PHONE_NUMBER = phone_number, PASSWORD = passwd });
-            _dbContext.SaveChanges();
-            var list = _dbContext.ACCOUNT.ToList();
-
-            return Ok(list);
-        }*/
+            var tempAccount = _dbContext.ACCOUNT.FirstOrDefault(a => a.ACCOUNT_ID == uid_orp_number);
+            if (tempAccount != null)//如果该uid存在
+            {
+                if (tempAccount.PASSWORD == passwd)
+                {
+                    return Ok(1);
+                }
+                else
+                {
+                    return BadRequest($"密码输入错误，请重新输入！");
+                }
+            }
+            else//如果uid不存在
+            {
+                var temp2Account = _dbContext.ACCOUNT.FirstOrDefault(a => a.PHONE_NUMBER == uid_orp_number);
+                if (tempAccount != null)//如果该电话号码存在
+                {
+                    if (tempAccount.PASSWORD == passwd)
+                    {
+                        return Ok(1);
+                    }
+                    else
+                    {
+                        return BadRequest($"密码输入错误，请重新输入！");
+                    }
+                }
+                else//uid和电话号码都不存在
+                {
+                    return BadRequest("该账号尚未注册，请先注册");
+                }
+            }
+        }
     }
 }
 
