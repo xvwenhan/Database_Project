@@ -6,14 +6,7 @@ namespace BackendCode.Models
     [Table("ACCOUNT")] //ACCOUNT表
     public class ACCOUNT
     {
-        [Key]
-        [Column("ACCOUNT_ID")]
-        [StringLength(100)]
         public string ACCOUNT_ID { get; set; }
-
-
-        [MaxLength(20)]
-        [Column("USER_NAME")]
         public string? USERNAME { get; set; }
 
         [Column("PHONE_NUMBER")]
