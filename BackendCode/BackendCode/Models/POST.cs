@@ -4,7 +4,7 @@
     {
         public string POST_ID { get; set; }
         public DateTime? RELEASE_TIME { get; set; }
-        public string? POST_CONTENT { get; set; }]
+        public string? POST_CONTENT { get; set; }
         public int? NUMBER_OF_LIKES { get; set; }
         public int? NUMBER_OF_COMMENTS { get; set; }
         public string ACCOUNT_ID { get; set; }
