@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using BackendCode.Models;
+using System.Reflection.Metadata;
 
 namespace BackendCode.Data
 {
@@ -33,21 +34,25 @@ namespace BackendCode.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            //// 配置TPT 表继承策略
+            /* 配置TPT表继承策略 */
             modelBuilder.Entity<ACCOUNT>(entity =>
             {
                 entity.ToTable("ACCOUNT");
+
                 entity.HasKey(e => e.ACCOUNT_ID);
 
                 entity.Property(e => e.ACCOUNT_ID)
                       .HasMaxLength(100)
                       .HasColumnType("VARCHAR2(100)");
+
                 entity.Property(e => e.USER_NAME)
                        .HasMaxLength(20)
                        .HasColumnType("VARCHAR2(20)");
+
                 entity.Property(e => e.PHONE_NUMBER)
                        .HasMaxLength(50)
                        .HasColumnType("VARCHAR2(50)");
+
                 entity.Property(e => e.PASSWORD)
                        .HasMaxLength(15)
                        .HasColumnType("VARCHAR2(15)")
@@ -57,9 +62,10 @@ namespace BackendCode.Data
             modelBuilder.Entity<ADMINISTRATOR>(entity =>
             {
                 entity.ToTable("ADMINISTRATOR");
-               
+
                 entity.Property(e => e.PERMISSION_LEVEL)
                        .HasColumnType("NUMBER(2)");
+
                 entity.HasOne<ACCOUNT>()
                        .WithOne()
                        .HasForeignKey<ADMINISTRATOR>(e => e.ACCOUNT_ID)
@@ -130,7 +136,8 @@ namespace BackendCode.Data
             {
                 entity.ToTable("BUYER_PRODUCT_BOOKMARK");
 
-                entity.HasKey(e => new { e.BUYER_ACCOUNT_ID, e.PRODUCT_ID });
+                entity.HasKey(e => new { e.BUYER_ACCOUNT_ID, e.PRODUCT_ID })
+                      .HasName("BUYER_PRODUCT_BOOKMARK_PK");
 
                 entity.Property(e => e.BUYER_ACCOUNT_ID)
                       .HasMaxLength(100)
@@ -147,9 +154,9 @@ namespace BackendCode.Data
                       .HasForeignKey(e => e.BUYER_ACCOUNT_ID)
                       .HasConstraintName("B_B_FK4");
 
-                entity.HasOne<PRODUCT>()
+                entity.HasOne(p => p.PRODUCT)
                       .WithMany()
-                      .HasForeignKey(e => e.PRODUCT_ID)
+                      .HasForeignKey(p => p.PRODUCT_ID)
                       .HasConstraintName("P_P_FK3");
             });
 
@@ -209,9 +216,9 @@ namespace BackendCode.Data
                       .HasForeignKey(e => e.BUYER_ACCOUNT_ID)
                       .HasConstraintName("B_B_FK1");
 
-                entity.HasOne<POST>()
+                entity.HasOne(p => p.POST)
                       .WithMany()
-                      .HasForeignKey(e => e.POST_ID)
+                      .HasForeignKey(p => p.POST_ID)
                       .HasConstraintName("P_P_FK1");
             });
 
@@ -241,14 +248,14 @@ namespace BackendCode.Data
                       .HasForeignKey(e => e.BUYER_ACCOUNT_ID)
                       .HasConstraintName("B_B_FK3");
 
-                entity.HasOne<POST>()
+                entity.HasOne(p => p.POST)
                       .WithMany()
-                      .HasForeignKey(e => e.POST_ID)
+                      .HasForeignKey(p => p.POST_ID)
                       .HasConstraintName("P_P_FK_3");
 
-                entity.HasOne<REPORT>()
+                entity.HasOne(r => r.REPORT)
                       .WithMany()
-                      .HasForeignKey(e => e.REPORT_ID)
+                      .HasForeignKey(r => r.REPORT_ID)
                       .HasConstraintName("R_R_FK");
             });
 
@@ -273,9 +280,9 @@ namespace BackendCode.Data
                       .HasForeignKey(e => e.BUYER_ACCOUNT_ID)
                       .HasConstraintName("B_B_FK2");
 
-                entity.HasOne<POST>()
+                entity.HasOne(p => p.POST)
                       .WithMany()
-                      .HasForeignKey(e => e.POST_ID)
+                      .HasForeignKey(p => p.POST_ID)
                       .HasConstraintName("P_P_FK2");
             });
 
@@ -324,14 +331,14 @@ namespace BackendCode.Data
                 entity.Property(e => e.DISCOUNT_PRICE)
                       .HasColumnType("NUMBER(7,2)");
 
-                entity.HasOne<MARKET>()
+                entity.HasOne(m => m.MARKET)
                       .WithMany()
                       .HasForeignKey(e => e.MARKET_ID)
                       .HasConstraintName("M_M_FK");
 
-                entity.HasOne<PRODUCT>()
+                entity.HasOne(p => p.PRODUCT)
                       .WithMany()
-                      .HasForeignKey(e => e.PRODUCT_ID)
+                      .HasForeignKey(p => p.PRODUCT_ID)
                       .HasConstraintName("P_P_FK");
             });
 
@@ -343,6 +350,7 @@ namespace BackendCode.Data
 
                 entity.Property(e => e.PRODUCT_ID)
                     .HasMaxLength(100)
+                    .HasColumnType("VARCHAR2(100)")
                     .IsRequired();
 
                 entity.Property(e => e.PRODUCT_NAME)
@@ -390,9 +398,9 @@ namespace BackendCode.Data
                     .IsRequired()
                     .HasDefaultValue(0);
 
-                entity.HasOne<ACCOUNT>()
+                entity.HasOne(a => a.ACCOUNT)
                     .WithOne()
-                    .HasForeignKey<WALLET>(e => e.ACCOUNT_ID)
+                    .HasForeignKey<WALLET>(a => a.ACCOUNT_ID)
                     .HasConstraintName("WALLET_FK");
             });
 
@@ -435,9 +443,9 @@ namespace BackendCode.Data
                     .HasMaxLength(100)
                     .IsRequired();
 
-                entity.HasOne<MARKET>()
+                entity.HasOne(m => m.MARKET)
                     .WithOne()
-                    .HasForeignKey<SET_UP_MARKETPLACE>(e => e.MARKET_ID)
+                    .HasForeignKey<SET_UP_MARKETPLACE>(m => m.MARKET_ID)
                     .HasConstraintName("M_M_FK5");
 
                 entity.HasOne<ADMINISTRATOR>()
@@ -528,9 +536,9 @@ namespace BackendCode.Data
                 entity.Property(e => e.STORE_ACCOUNT_ID)
                     .HasMaxLength(100);
 
-                entity.HasOne<PRODUCT>()
+                entity.HasOne(p => p.PRODUCT)
                     .WithOne()
-                    .HasForeignKey<ORDERS>(e => e.PRODUCT_ID)
+                    .HasForeignKey<ORDERS>(p => p.PRODUCT_ID)
                     .HasConstraintName("O_P_FK");
 
                 entity.HasOne<BUYER>()
@@ -593,9 +601,9 @@ namespace BackendCode.Data
                     .HasColumnType("NUMBER(1)")
                     .IsRequired();
 
-                entity.HasOne<MARKET>()
+                entity.HasOne(m => m.MARKET)
                     .WithMany()
-                    .HasForeignKey(e => e.MARKET_ID)
+                    .HasForeignKey(m => m.MARKET_ID)
                     .HasConstraintName("M_M_FK1");
 
                 entity.HasOne<STORE>()

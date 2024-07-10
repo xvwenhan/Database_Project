@@ -33,7 +33,7 @@ namespace BackendCode.Models
         public string STORE_ACCOUNT_ID { get; set; }
 
         // 导航属性
-        public PRODUCT Product { get; set; }
+        public PRODUCT PRODUCT { get; set; }
 
         public BUYER BUYER { get; set; }
         public STORE STORE { get; set; }
