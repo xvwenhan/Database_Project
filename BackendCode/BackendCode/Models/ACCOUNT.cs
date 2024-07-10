@@ -1,9 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-
-namespace BackendCode.Models
+﻿namespace BackendCode.Models
 {
-    [Table("ACCOUNT")] //ACCOUNT表
     public class ACCOUNT
     {
         public string ACCOUNT_ID { get; set; }
@@ -13,5 +9,3 @@ namespace BackendCode.Models
 
     }
 }
-
-
