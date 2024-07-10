@@ -8,7 +8,7 @@ namespace BackendCode.Models
     {
         [Key]
         [Column("ACCOUNT_ID")]
-        public string? ACCOUNT_ID { get; set; }
+        public string ACCOUNT_ID { get; set; }
 
         [Required]
         [Column("BALANCE")]

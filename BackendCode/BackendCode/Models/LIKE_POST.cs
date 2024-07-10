@@ -7,13 +7,11 @@ namespace BackendCode.Models
     public class LIKE_POST
     {
         /* 买家ID */
-        [Key]
         [ForeignKey("BUYER")]
         [Column("BUYER_ACCOUNT_ID")]
         public string BUYER_ACCOUNT_ID { get; set; }
 
         /* 帖子ID */
-        [Key]
         [ForeignKey("POST")]
         [Column("POST_ID")]
         public string POST_ID { get; set; }

@@ -6,11 +6,9 @@ namespace BackendCode.Models
     [Table("SUBMIT_AUTHENTICATION")]
     public class SUBMIT_AUTHENTICATION
     {
-        [Key]
         [Column("STORE_ACCOUNT_ID")]
         public string? STORE_ACCOUNT_ID { get; set; }
 
-        [Key]
         [Column("ADMINISTRATOR_ACCOUNT_ID")]
         public string? ADMINISTRATOR_ACCOUNT_ID { get; set; }
 

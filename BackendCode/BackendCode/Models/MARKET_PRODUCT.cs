@@ -7,13 +7,11 @@ namespace BackendCode.Models
     public class MARKET_PRODUCT
     {
         /* 市集ID */
-        [Key]
         [ForeignKey("MARKET")]
         [Column("MARKET_ID")]
         public string MARKET_ID { get; set; }
 
         /* 商品ID */
-        [Key]
         [ForeignKey("PRODUCT")]
         [Column("PRODUCT_ID")]
         public string PRODUCT_ID { get; set; }
