@@ -46,8 +46,8 @@ namespace BackendCode.Data
                        .HasMaxLength(20)
                        .HasColumnType("VARCHAR2(20)");
                 entity.Property(e => e.PHONE_NUMBER)
-                       .HasMaxLength(11)
-                       .HasColumnType("CHAR(11)");
+                       .HasMaxLength(50)
+                       .HasColumnType("VARCHAR2(50)");
                 entity.Property(e => e.PASSWORD)
                        .HasMaxLength(15)
                        .HasColumnType("VARCHAR2(15)")
