@@ -9,6 +9,6 @@
         public string? AUDIT_RESULTS { get; set; }
         public string? ADMINISTRATOR_ACCOUNT_ID { get; set; }
 
-        public ADMINISTRATOR Administrator { get; set; }
+        public ADMINISTRATOR ADMINISTRATOR { get; set; }
     }
 }
