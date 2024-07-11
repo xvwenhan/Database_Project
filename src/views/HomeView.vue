@@ -68,12 +68,12 @@
         </div>
     </div>
     
-    <Test v-else />
+    <HomeCategory v-else />
   </template>
   
   <script setup lang="ts">
   import Navbar from '../components/Navbar.vue';
-  import Test from './test.vue';
+  import HomeCategory from './HomeCategory.vue';
   import { ref, onMounted, onBeforeUnmount } from 'vue';
   
   const currentAdIndex = ref(0);
