@@ -7,14 +7,29 @@ import Forum from '../views/ForumView.vue'
 import Cart from '../views/CartView.vue'
 import Ordercentre from '../views/OrdercentreView.vue'
 import Personalcentre from '../views/PersonalcentreView.vue'
+import Login from '../views/LoginView.vue'
+import LoginAndRegister from '../views/LoginAndRegisterView.vue'
+import ReleasePost from '../views/ReleasePost.vue'
+import AdminHeaderSec from '../components/AdminHeaderSec.vue'
+import PlatformInfo from '../views/PlatformInfo.vue';
+import MerchantCertification from '../views/MerchantCertification.vue';
+import MarketManagement from '../views/MarketManagement.vue';
+import ReportManagement from '../views/ReportManagement.vue';
+import AdminSidebarMenu from '../components/AdminSidebarMenu.vue'
+import Test from '../views/test.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',
-      name: 'Navbar',
-      component: Navbar
+      name: 'HomeView',
+      component: HomeView
+    },
+    {
+      path: '/loginandregister',
+      name: 'LoginAndRegister',
+      component: LoginAndRegister
     },
     {
       path: '/home',
@@ -22,7 +37,7 @@ const router = createRouter({
       component: HomeView
     },
     {
-      path: '/merchandise',
+      path: '/merchandise/:category',
       name: 'Merchabdise',
       component: Merchabdise
     },
@@ -50,6 +65,45 @@ const router = createRouter({
       path: '/personalcentre',
       name: 'Personalcentre',
       component: Personalcentre
+    },
+    {
+      path: '/login',
+      name: 'Login',
+      component: Login
+    },
+    {
+      path: '/releasepost',
+      name: 'ReleasePost',
+      component: ReleasePost
+    },
+    {
+      path: '/adminheadersec',
+      name: 'AdminHeaderSec',
+      component: AdminHeaderSec
+    },
+    { path: '/platform-info', 
+      name: 'PlatformInfo', 
+      component: PlatformInfo 
+    },
+    { path: '/merchant-certification', 
+      name: 'MerchantCertification', 
+      component: MerchantCertification 
+    },
+    { path: '/market-management', 
+      name: 'MarketManagement', 
+      component: MarketManagement 
+    },
+    { path: '/report-management', 
+      name: 'ReportManagement', 
+      component: ReportManagement 
+    },
+    { path: '/adminsidebarmenu', 
+      name: 'AdminSidebarMenu', 
+      component: AdminSidebarMenu 
+    },
+    { path: '/test', 
+      name: 'Test', 
+      component: Test 
     },
     {
       path: '/about',

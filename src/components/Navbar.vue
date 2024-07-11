@@ -29,7 +29,7 @@
 
   const menuItems = reactive([
     { text: "首页", link: "/home" },
-    { text: "商品", link: "/merchandise" },
+    { text: "商品", link: "/merchandise/1" },
     { text: "市集", link: "/bazaar" },
     { text: "论坛", link: "/forum" },
     { text: "购物车", link: "/cart" },
@@ -46,7 +46,7 @@
   }
   
   html, body {
-    overflow-x: hidden; /* 禁止全局横向滚动 */
+    overflow-x: hidden; 
   }
   
   .navbar {
