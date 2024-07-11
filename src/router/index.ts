@@ -16,7 +16,6 @@ import MerchantCertification from '../views/MerchantCertification.vue';
 import MarketManagement from '../views/MarketManagement.vue';
 import ReportManagement from '../views/ReportManagement.vue';
 import AdminSidebarMenu from '../components/AdminSidebarMenu.vue'
-import Test from '../views/test.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -100,10 +99,6 @@ const router = createRouter({
     { path: '/adminsidebarmenu', 
       name: 'AdminSidebarMenu', 
       component: AdminSidebarMenu 
-    },
-    { path: '/test', 
-      name: 'Test', 
-      component: Test 
     },
     {
       path: '/about',
