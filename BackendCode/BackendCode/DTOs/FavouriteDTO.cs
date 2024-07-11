@@ -1,5 +1,7 @@
-﻿namespace BackendCode.DTOs.Favourite
+﻿//有关收藏的DTO
+namespace BackendCode.DTOs.Favourite
 {
+    //返回所有用户收藏商品的DTO
     public class FavouriteProductsDTO
     {
         public string? BuyerId { get; set; }
@@ -11,6 +13,7 @@
         
     }
 
+    //返回所有用户收藏店铺的DTO
     public class FavouriteStoresDTO
     {
         public string? BuyerId { get; set; }
