@@ -1,48 +1,48 @@
 <template>
   <div class="container">
   <img
-    src="@/assets/arrow_left.svg"
+    src="@/assets/mmy/arrow_left.svg"
     class="arrow-button1"
     @click="setAd((currentAdIndex - 1 + numAds) % numAds)"
   />
   <img
-    src="@/assets/arrow_right.svg"
+    src="@/assets/mmy/arrow_right.svg"
     class="arrow-button2"
     @click="setAd((currentAdIndex + 1) % numAds)"
   />
   <img
     v-show="currentAdIndex!==0"
-    src= "@/assets/knot.svg"
+    src= "@/assets/mmy/knot.svg"
     class="knot1"
     @click="setAd(0)"
   />
   <img
     v-show="currentAdIndex===0"
-    src= "@/assets/active_knot.svg"
+    src= "@/assets/mmy/active_knot.svg"
     class="knot1"
     @click="setAd(0)"
   />
   <img
     v-show="currentAdIndex!==1"
-    src="@/assets/knot.svg"
+    src="@/assets/mmy/knot.svg"
     class="knot2"
     @click="setAd(1)"
   />
   <img
     v-show="currentAdIndex===1"
-    src="@/assets/active_knot.svg"
+    src="@/assets/mmy/active_knot.svg"
     class="knot2"
     @click="setAd(1)"
   />
   <img
     v-show="currentAdIndex!==2"
-    src="@/assets/knot.svg"
+    src="@/assets/mmy/knot.svg"
     class="knot3"
     @click="setAd(2)"
   />
   <img
     v-show="currentAdIndex===2"
-    src="@/assets/active_knot.svg"
+    src="@/assets/mmy/active_knot.svg"
     class="knot3"
     @click="setAd(2)"
   />
@@ -51,17 +51,17 @@
   <div class="ad">
     <img
       v-show="currentAdIndex === 0"
-      src="@/assets/ad1.png"
+      src="@/assets/mmy/ad1.png"
       class="ad_discount"
     />
     <img
       v-show="currentAdIndex === 1"
-      src="@/assets/ad2.png"
+      src="@/assets/mmy/ad2.png"
       class="ad_discount"
     />
     <img
       v-show="currentAdIndex === 2"
-      src="@/assets/ad3.png"
+      src="@/assets/mmy/ad3.png"
       class="ad_discount"
     />
     
@@ -75,9 +75,9 @@ import { ref , onMounted} from 'vue';
 const currentAdIndex = ref(0); 
 const numAds = 3; 
 // const adImages = [
-//   '@/assets/ad_discount.png',
-//   '@/assets/ad2.png',
-//   '@/assets/ad3.png',
+//   '@/assets/mmy/ad_discount.png',
+//   '@/assets/mmy/ad2.png',
+//   '@/assets/mmy/ad3.png',
 // ];
 // 定义定时器函数
 const startTimer = () => {
