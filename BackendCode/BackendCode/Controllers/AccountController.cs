@@ -24,12 +24,12 @@ namespace Account.Controllers
 
         //注册
         //前端自行完成用户名等为空的错误判断
-        
 
-        /*[HttpGet("/login")]
+
+        [HttpGet("/login")]
         public IActionResult Login(string uid_orp_number, string passwd)
         {
-            var tempAccount = _dbContext.ACCOUNTS.FirstOrDefault(a => a.ACCOUNT_ID == uid_orp_number);
+            var tempAccount = _dbContext.BUYERS.FirstOrDefault(a => a.ACCOUNT_ID == uid_orp_number);
             if (tempAccount != null)//如果该uid存在
             {
                 if (tempAccount.PASSWORD == passwd)
@@ -43,10 +43,10 @@ namespace Account.Controllers
             }
             else//如果uid不存在
             {
-                var temp2Account = _dbContext.ACCOUNTS.FirstOrDefault(a => a.PHONE_NUMBER == uid_orp_number);
-                if (tempAccount != null)//如果该电话号码存在
+                var temp2Account = _dbContext.BUYERS.FirstOrDefault(a => a.PHONE_NUMBER == uid_orp_number);
+                if (temp2Account != null)//如果该电话号码存在
                 {
-                    if (tempAccount.PASSWORD == passwd)
+                    if (temp2Account.PASSWORD == passwd)
                     {
                         return Ok(1);
                     }
@@ -60,7 +60,7 @@ namespace Account.Controllers
                     return BadRequest("该账号尚未注册，请先注册");
                 }
             }
-        }*/
+        }
     }
 }
 
