@@ -23,9 +23,24 @@
   </template>
   
   <script setup>
-  import { reactive } from 'vue';
+  ///////////////////////////////////////////////////////////////学姐版本
+  // import { reactive } from 'vue';
+  // import { ElIcon } from 'element-plus'
+  // import { Plus } from '@element-plus/icons-vue'  // 确保正确导入 Plus 图标
+  
+
+  ////////////////////////////////////////////////////////////广告页测试
+  import { reactive, toRefs } from 'vue';
   import { ElIcon } from 'element-plus'
   import { Plus } from '@element-plus/icons-vue'  // 确保正确导入 Plus 图标
+  import { defineProps } from 'vue';
+  const props = defineProps({
+  textColor: {
+    type: String,
+    default: '#333'
+  }
+});
+
 
   const menuItems = reactive([
     { text: "首页", link: "/home" },
@@ -118,13 +133,19 @@
     margin: 0;
     padding: 0;
   }
-  
-  .navbar-item .nav-link {
+  /* ////////////////////////////学姐之前版本 */
+  /* .navbar-item .nav-link {
     text-decoration: none;
     color: #333;
     padding: 5px 10px;
   }
-  
+   */
+   /* ///////////////////////////广告页测试 */
+   .navbar-item .nav-link {
+    text-decoration: none;
+    color: inherit; /* 使用 inherit 以继承父级颜色 */
+    padding: 5px 10px;
+  }
   .navbar-item .nav-link.active {
     border-bottom: 2px solid red;
   }
