@@ -1,4 +1,4 @@
-﻿namespace BackendCode.Models
+﻿namespace BackendCode.DTOs.LoginModel
 {
     public class LoginModel
     {

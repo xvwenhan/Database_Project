@@ -1,6 +1,6 @@
 ﻿using BackendCode.Data;
 using Microsoft.AspNetCore.Mvc;
-using BackendCode.Models;
+using BackendCode.DTOs.LoginModel;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;

@@ -69,7 +69,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-//app.UseAuthentication(); // 必须在 UseAuthorization 之前调用.用于正确配置身份验证中间件
+app.UseAuthentication(); // 必须在 UseAuthorization 之前调用.用于正确配置身份验证中间件
 app.UseAuthorization();
 
 app.MapControllers();
