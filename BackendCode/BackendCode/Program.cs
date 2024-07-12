@@ -35,12 +35,12 @@ builder.Services.AddCors(options =>
                                                     // 但它为什么和AllowAnyOrigin()只能用一个？？？*/
                });
 
-    /*    options.AddPolicy("AllowSpecificOrigin",
-               builder => builder
-                   .WithOrigins("http://localhost:8081") // 允许的前端地址   mmy:http://100.79.96.89:8080
-                   .AllowAnyHeader()
-                   .AllowAnyMethod()
-                   .AllowCredentials());*/
+    options.AddPolicy("AllowSpecificOrigin",
+           builder => builder
+               .WithOrigins("http://localhost:8080") // 允许的前端地址   mmy:http://100.79.96.89:8080
+               .AllowAnyHeader()
+               .AllowAnyMethod()
+               .AllowCredentials());
 });
 
 
@@ -65,7 +65,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
     app.UseCors("AllowAnyOrigin");
-    //app.UseCors("AllowSpecificOrigin");// 使用 CORS 中间件
+    app.UseCors("AllowSpecificOrigin");// 使用 CORS 中间件
 }
 
 app.UseHttpsRedirection();
