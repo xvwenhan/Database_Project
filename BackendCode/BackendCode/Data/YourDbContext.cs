@@ -632,6 +632,10 @@ namespace BackendCode.Data
                 entity.Property(e => e.AUTHENTICATION)
                     .HasMaxLength(200);
 
+                entity.Property(e => e.STATUS)
+                    .HasColumnType("NUMBER(1)")
+                    .IsRequired();
+
                 entity.HasOne(s => s.STORE)
                     .WithOne()
                     .HasForeignKey<SUBMIT_AUTHENTICATION>(s => s.STORE_ACCOUNT_ID)

@@ -21,12 +21,13 @@ namespace BackendCode.Controllers
 
         //HTTP GET方法 获取指定产品的图片
         [HttpGet("GetProductImage")] 
-        public IActionResult GetProductImage(string productId)
+        public IActionResult GetProductImage()
         {
+            string productId = "";
             //检查产品ID是否为空或null
             if (string.IsNullOrEmpty(productId))
             {
-                return BadRequest("Product ID is required.");
+                return Ok("Product ID is required.");
             }
 
             try

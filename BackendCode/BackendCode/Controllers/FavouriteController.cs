@@ -3,10 +3,10 @@ using Microsoft.EntityFrameworkCore;
 using BackendCode.Data;
 using BackendCode.DTOs.Favourite;
 
-namespace YourNamespace.Controllers
+namespace Favourite.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/Favourite/[controller]")]
     public class FavouriteController : ControllerBase
     {
         private readonly YourDbContext _dbContext;
