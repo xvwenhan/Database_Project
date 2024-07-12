@@ -6,11 +6,11 @@ namespace BackendCode.DTOs.Administrator
     {
         public string? StoreId { get; set; }
         public string? Authentication { get; set; }
-        public bool? Status { get; set; }
+        public string? Status { get; set; }
 
     }
 
-    //返回所有用户收藏店铺的DTO
+    //
     public class FavouriteStoresDTO
     {
         public string? BuyerId { get; set; }

@@ -116,8 +116,7 @@ namespace BackendCode.Data
                       .IsRequired();
 
                 entity.Property(e => e.CERTIFICATION)
-                      .HasMaxLength(12)
-                      .HasColumnType("VARCHAR2(12)")
+                      .HasColumnType("NUMBER(1)")
                       .IsRequired();
 
                 entity.Property(e => e.ADDRESS)
@@ -633,8 +632,7 @@ namespace BackendCode.Data
                     .HasMaxLength(200);
 
                 entity.Property(e => e.STATUS)
-                    .HasColumnType("NUMBER(1)")
-                    .IsRequired();
+                    .HasMaxLength(10);
 
                 entity.HasOne(s => s.STORE)
                     .WithOne()
