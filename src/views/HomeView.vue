@@ -202,6 +202,5 @@ const stopTimer = () => {
   display: block;
   margin: auto;
 }
-
   </style>
   
