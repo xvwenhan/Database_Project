@@ -6,6 +6,57 @@
       <div class="content">
         <hr>
         <div class="main-container">
+          <div class="form-container">
+            <h2>市集设置</h2>
+            <el-form>
+              <el-row :gutter="100">
+                <el-col :span="7">
+                  <el-form-item label="市集主题">
+                    <el-input v-model="formData.topic"></el-input>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="7"> 
+                  <el-form-item label="选择类型">
+                    <el-select v-model="formData.selectedOptions" multiple placeholder="将向以下类型商家发送邀请" style="width: 300px;">
+                      <el-option
+                        v-for="item in options"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value">
+                      </el-option>
+                    </el-select>
+                  </el-form-item>
+                </el-col>
+              </el-row>
+              <el-row :gutter="100">
+                <el-col :span="7">
+                  <el-form-item label="开始时间">
+                    <el-input type="date" v-model="formData.start" placeholder="请选择日期"></el-input>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="7">
+                  <el-form-item label="结束时间">
+                    <el-input type="date" v-model="formData.end" placeholder="请选择日期"></el-input>
+                  </el-form-item>
+                </el-col>
+              </el-row>
+              <el-row :gutter="100">
+                <el-col :span="20"> 
+                  <el-form-item label="市集信息">
+                    <el-input type="textarea" v-model="formData.detail" style="width: 30%; min-height: 10px;" placeholder="请输入市集相关信息"> </el-input>
+                  </el-form-item>
+                </el-col>
+              </el-row>
+              <el-form-item label="图片上传">
+                <input type="file" @change="handleFileUpload" accept=".png, .jpg">
+              </el-form-item>
+              <el-form-item>
+                <el-button @click="handleSubmit" type="primary" >提交</el-button>
+              </el-form-item>
+            </el-form>      
+          </div>
+
+
           <div class="table-container">
             <h2>市集管理</h2>
             <el-table :data="paginatedData">
@@ -14,7 +65,8 @@
                 <el-table-column prop="end" label="结束时间"></el-table-column>
                 <el-table-column label="操作">
                 <template #default="scope">
-                  <el-button @click="search(scope.row.id)" >查看详情</el-button>
+                  <el-button @click="search(scope.row.id)" type="primary">查看详情</el-button>
+                  <!-- 删除按钮待添加（删除还未开始的市集） -->
                 </template>
               </el-table-column>
             </el-table>
@@ -42,29 +94,6 @@
               </div>
             </div>
           </div>
-
-          <div class="form-container">
-            <h2>市集设置</h2>
-            <form @submit.prevent="handleSubmit">
-              <div class="form-group">
-                <label for="topic">主题：</label>
-                <input type="text" id="topic" v-model="formData.topic" required />
-              </div>
-              <div class="form-group">
-                <label for="detail">信息：</label>
-                <textarea id="detail" v-model="formData.detail" required></textarea>
-              </div>
-              <div class="form-group">
-                <label for="start">开始时间：</label>
-                <input type="date" id="start" v-model="formData.start" required  />
-              </div>
-              <div class="form-group">
-                <label for="end">结束时间：</label>
-                <input type="date" id="end" v-model="formData.end" required />
-              </div>
-              <button type="submit">提交</button>
-            </form>
-          </div>
         </div>
         
       </div>
@@ -77,7 +106,7 @@
 import AdminSidebarMenu from '../components/AdminSidebarMenu.vue'
 import AdminHeaderSec from '../components/AdminHeaderSec.vue'
 import { reactive, ref, computed } from 'vue';
-import { ElTable, ElTableColumn, ElPagination , ElButton , ElDialog} from 'element-plus';
+import { ElTable, ElTableColumn, ElPagination, ElButton, ElDialog, ElForm, ElFormItem, ElInput, ElRow, ElCol, ElSelect, ElOption, ElMessage } from 'element-plus';
 import 'element-plus/dist/index.css';
 
 
@@ -93,6 +122,11 @@ const dataArr = reactive([
   { id: 7, start: "2024-1-12", end: "2024-1-12", detail:"7这是市集详情这是市集详情这是市集详情这是市集详情"},
   { id: 8, start: "2024-1-12", end: "2024-1-12", detail:"8这是市集详情这是市集详情这是市集详情这是市集详情"},
   { id: 9, start: "2024-1-12", end: "2024-1-12", detail:"9这是市集详情这是市集详情这是市集详情这是市集详情"},
+]);
+const options = ref([
+  { value: 'option1', label: '家居' },
+  { value: 'option2', label: '文具' },
+  { value: 'option3', label: '装饰' }
 ]);
 
 // 页面大小及当前页数
@@ -128,25 +162,40 @@ const formData = reactive({
   topic: '',
   start: '',
   end: '',
-  detail: ''
+  detail: '',
+  selectedOptions:[],
+  img:''
 });
+
+const handleFileUpload = (event) => {
+  const file = event.target.files[0];
+  formData.img = file;
+};
 
 const submitted = ref(false);
 
 const handleSubmit = () => {
-  if(formData.end<=formData.start){
-        alert("结束时间不能早于开始时间")
+  for (const key in formData) {
+    if (formData[key] === '') {
+      ElMessage.error("表单不可有空")
+      return
+    }
+  }
+  if(formData.end <= formData.start){
+    ElMessage.error("结束时间不能早于开始时间")
+    return
   }
   else{
     submitted.value = true;
-    console.log('表单数据:', formData);
+    ElMessage.success("提交成功")
   }
   formData.topic='';
   formData.start='';
   formData.end='';
   formData.detail='';
+  formData.img='';
+  formData.selectedOptions=[];
 };
-
 
 </script>
 
@@ -188,33 +237,6 @@ h2 {
   justify-content: center;
 }
 
-/* .form-container {
-  width: 1200px;
-  border: 1px solid #464646;
-} */
- 
-.form-group {
-  margin-bottom: 1rem;
-  padding: 0 20px ;
-}
-
-input, textarea {
-  padding: 5px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-sizing: border-box;
-}
-
-button {
-  padding: 0.5rem 1rem;
-  background-color: #7e92ed;
-  color: white;
-  border: none;
-  cursor: pointer;
-}
-button:hover {
-  background-color: #455391;
-}
 
 </style>
   

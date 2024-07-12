@@ -108,7 +108,7 @@
   }
   </script>
   
-  <style>
+  <style scoped>
   .container {
     background-color: rgb(36, 63, 51);
     height: 100vh;

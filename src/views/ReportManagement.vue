@@ -4,13 +4,44 @@
     <div class="main-content">
       <AdminHeaderSec />
       <div class="content">
-        
+
         <hr>
         <div class="report-management">
           <h2>举报管理</h2>
-          
-        </div>
+          <el-table :data="paginatedData">
+              <el-table-column prop="id" label="举报账号id"></el-table-column>
+              <el-table-column prop="time" label="举报时间"></el-table-column>
+              <el-table-column prop="state" label="审核状态"></el-table-column>
+              <el-table-column label="操作">
+              <template #default="scope">
+                <el-button @click="search(scope.row.id)" type="primary">查看详情</el-button>
+                <el-button @click="delete_post(scope.row.id)" :disabled="scope.row.state === '已处理'" type="danger">删除帖子</el-button>
+                <el-button @click="ignore_report(scope.row.id)" :disabled="scope.row.state === '已处理'" type="warning">忽略</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
 
+          <el-dialog v-model="dialogVisible" title="举报详情" width="60%" >
+            <p>未排版数据</p>
+            <p>{{ selectedDetail }}</p>
+          </el-dialog>
+
+          <div class="pagination-container">
+            <div class="pagination">
+              <div style="text-align: center;">
+                <span>共 {{ totalItems }} 条</span>
+              </div>          
+              <el-pagination
+                background
+                layout="prev, pager, next"
+                :total="totalItems"
+                :page-size="pageSize"
+                @current-change="handlePageChange"
+                :current-page="currentPage">
+              </el-pagination>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -20,6 +51,71 @@
 <script setup>
 import AdminSidebarMenu from '../components/AdminSidebarMenu.vue'
 import AdminHeaderSec from '../components/AdminHeaderSec.vue'
+import { reactive, ref, computed} from 'vue';
+import { ElTable, ElTableColumn, ElPagination, ElButton, ElDialog, ElMessage } from 'element-plus';
+import 'element-plus/dist/index.css';
+
+// 页面大小及当前页数
+const pageSize = ref(8);
+const currentPage = ref(1);
+
+const totalItems = computed(() => report.length);
+
+// 处理并分页后的数据
+const paginatedData = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value;
+  const end = start + pageSize.value;
+  return report.slice(start, end);
+});
+
+const handlePageChange = (page) => {
+  currentPage.value = page;
+};
+
+// dialog（详情窗口）相关变量
+const dialogVisible = ref(false);
+const selectedDetail = reactive({
+  id: '',
+  time: '',
+  reason: '',
+  post: '',
+  state:''
+});
+
+//测试数据
+const report =reactive([
+  {id:12345,time:"20:12 2024-7-11",reason:"举报理由举报理由巴拉巴拉",post:"帖子内容帖子内容",state:"未审核"},
+  {id:23456,time:"20:15 2024-7-11",reason:"举报理由举报理由巴拉巴拉",post:"帖子内容帖子内容",state:"未审核"},
+  {id:34567,time:"20:17 2024-7-11",reason:"举报理由举报理由巴拉巴拉",post:"帖子内容帖子内容",state:"未审核"},
+  {id:45678,time:"20:10 2024-7-11",reason:"举报理由举报理由巴拉巴拉",post:"帖子内容帖子内容",state:"未审核"},
+  {id:56789,time:"20:33 2024-7-11",reason:"举报理由举报理由巴拉巴拉",post:"帖子内容帖子内容",state:"未审核"},
+  {id:67890,time:"20:42 2024-7-11",reason:"举报理由举报理由巴拉巴拉",post:"帖子内容帖子内容",state:"未审核"}
+])
+
+const search = (id) => {
+  const post = report.find(post => post.id === id);
+  if (post) {
+    Object.assign(selectedDetail, post);
+    dialogVisible.value = true;
+  }
+};
+
+const delete_post = (id) => {
+  const post = report.find(post => post.id === id);
+  if (post) {
+    //删除帖子的实现
+    ElMessage.error("帖子已删除")
+    post.state="已处理"
+  }
+};
+
+const ignore_report= (id) => {
+  const post = report.find(post => post.id === id);
+  if (post) {
+    ElMessage.success("处理完成")
+    post.state="已处理"
+  }
+};
 
 </script>
 
@@ -53,7 +149,14 @@ h2 {
 .report-management {
   background-color: #ffffff;
   padding: 0 10px;
-  text-align: left; /* 确保文本对齐样式 */
-  color: #000000; /* 确保文本颜色 */
+}
+
+.pagination-container {
+  display: flex;
+  justify-content: center;
+}
+
+.pagination {
+  max-width: 100%;
 }
 </style>

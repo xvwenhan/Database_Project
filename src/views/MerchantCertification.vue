@@ -12,9 +12,11 @@
             <el-table :data="paginatedData">
               <el-table-column prop="Account_ID" label="商家账号"></el-table-column>
               <el-table-column prop="state" label="申请状态"></el-table-column>
+              <!-- 待添加认证图片展示 -->
               <el-table-column label="操作">
                 <template #default="scope">
                   <el-button @click="pass(scope.row.Account_ID)" :disabled="scope.row.state === 'pass'" type="primary">通过申请</el-button>
+                  <!-- 待添加拒绝按钮 -->
                 </template>
               </el-table-column>
             </el-table>
@@ -55,13 +57,8 @@
 import AdminSidebarMenu from '../components/AdminSidebarMenu.vue'
 import AdminHeaderSec from '../components/AdminHeaderSec.vue'
 import { reactive, ref, computed } from 'vue';
-import { ElTable, ElTableColumn, ElPagination, ElButton } from 'element-plus';
+import { ElTable, ElTableColumn, ElPagination, ElButton, ElMessage } from 'element-plus';
 import 'element-plus/dist/index.css';
-// import Viewer from 'v-viewer'
-// import 'viewerjs/dist/viewer.css'
-
-// import Vue from 'vue'
-//   Vue.use(Viewer)
 
 //测试数组
 const dataArr = reactive([
@@ -88,6 +85,7 @@ const dataArr = reactive([
 const pass = (id) => {
   const store = dataArr.find(store => store.Account_ID === id);
   if (store) {
+    ElMessage.success("处理完成")
     store.state = "通过";
   }
 }
