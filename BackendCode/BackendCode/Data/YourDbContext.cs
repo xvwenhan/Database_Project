@@ -116,8 +116,7 @@ namespace BackendCode.Data
                       .IsRequired();
 
                 entity.Property(e => e.CERTIFICATION)
-                      .HasMaxLength(12)
-                      .HasColumnType("VARCHAR2(12)")
+                      .HasColumnType("NUMBER(1)")
                       .IsRequired();
 
                 entity.Property(e => e.ADDRESS)
@@ -483,6 +482,10 @@ namespace BackendCode.Data
                     .HasMaxLength(100)
                     .IsRequired();
 
+                entity.Property(p => p.POST_TITLE)
+                         .HasMaxLength(40)
+                         .IsRequired();
+
                 entity.HasOne(b => b.BUYER)
                     .WithMany()
                     .HasForeignKey(b => b.ACCOUNT_ID)
@@ -631,6 +634,9 @@ namespace BackendCode.Data
 
                 entity.Property(e => e.AUTHENTICATION)
                     .HasMaxLength(200);
+
+                entity.Property(e => e.STATUS)
+                    .HasMaxLength(10);
 
                 entity.HasOne(s => s.STORE)
                     .WithOne()
