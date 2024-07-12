@@ -1,3 +1,4 @@
+<!-- 管理员页面的市集管理 -->
 <template>
   <div class="container">
     <AdminSidebarMenu />

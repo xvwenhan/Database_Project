@@ -1,3 +1,4 @@
+<!-- 买家用户页面的头部 -->
 <template>
     <nav class="navbar">
       <div class="line top-line"></div>

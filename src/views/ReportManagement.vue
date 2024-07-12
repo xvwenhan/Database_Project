@@ -1,3 +1,4 @@
+<!-- 管理员页面的举报管理 -->
 <template>
   <div class="container">
     <AdminSidebarMenu />
