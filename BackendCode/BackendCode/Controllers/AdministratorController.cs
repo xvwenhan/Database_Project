@@ -76,9 +76,17 @@ namespace Administrator.Controllers
             }
 
             // 保存更改
-            await _dbContext.SaveChangesAsync();
-
-            return Ok($"Authentication status updated successfully:{temp.STATUS}");
+            try
+            {
+                await _dbContext.SaveChangesAsync();
+                return Ok($"Authentication status updated successfully:{temp.STATUS}");
+            }
+            catch (DbUpdateException ex)
+            {
+                // 捕获数据库更新异常并返回错误消息
+                return StatusCode(500, $"An error occurred while updating the database: {ex.Message}");
+            }
+            
         }
     }
 

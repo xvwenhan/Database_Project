@@ -4,10 +4,6 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
-builder.Services.AddControllers();
-
 //使用cookie
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
@@ -24,23 +20,12 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 //解决跨域问题
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAnyOrigin",
-               builder =>
-               {
-                   builder.AllowAnyOrigin()
-                       .AllowAnyMethod()
-                       .AllowAnyHeader();
-
-                   /*     builder.AllowCredentials(); // 允许携带凭据。需要下一个microsoft.aspnetcore.cor包才能用.
-                                                    // 但它为什么和AllowAnyOrigin()只能用一个？？？*/
-               });
-
-    /*    options.AddPolicy("AllowSpecificOrigin",
+    options.AddPolicy("AllowSpecificOrigin",
                builder => builder
-                   .WithOrigins("http://localhost:8081") // 允许的前端地址   mmy:http://100.79.96.89:8080
+                   .WithOrigins("http://localhost:8080")
                    .AllowAnyHeader()
                    .AllowAnyMethod()
-                   .AllowCredentials());*/
+                   .AllowCredentials());
 });
 
 
@@ -61,11 +46,10 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    //app.UseDeveloperExceptionPage();//新加的 不知道干啥的
+    app.UseDeveloperExceptionPage();//新加的 不知道干啥的
     app.UseSwagger();
     app.UseSwaggerUI();
-    app.UseCors("AllowAnyOrigin");
-    //app.UseCors("AllowSpecificOrigin");// 使用 CORS 中间件
+    app.UseCors("AllowSpecificOrigin");// 使用 CORS 中间件
 }
 
 app.UseHttpsRedirection();

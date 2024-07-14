@@ -20,7 +20,6 @@ namespace Account.Controllers
 {
     /*调试说明：账号密码都是007 */
     [ApiController]
-    [EnableCors("AllowSpecificOrigin")] // 应用 CORS 策略到整个控制器////////////////
     [Route("api/[controller]")]
     public class AccountController : ControllerBase
     {
@@ -37,6 +36,7 @@ namespace Account.Controllers
         {
             // 验证用户名和密码
             var user = _context.BUYERS.FirstOrDefault(u => u.ACCOUNT_ID == model.Username);
+
             if (user != null && VerifyPassword(model.Password, user.PASSWORD))
             {
                 var claims = new List<Claim>
