@@ -17,6 +17,7 @@ namespace Administrator.Controllers
         }
 
         [HttpGet("GetAllAuthentication")]
+        //[HttpPost("GetAllAuthentication")]
         public async Task<IActionResult> GetAllAuthenticationAsync(string adminId)
         {
 
@@ -27,6 +28,7 @@ namespace Administrator.Controllers
 
             if (authentications == null || !authentications.Any())
             {
+                Console.WriteLine("进入进入进入");
                 return NotFound("No authentication found for the given administrator.");
             }
 

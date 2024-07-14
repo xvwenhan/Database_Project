@@ -4,20 +4,20 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//Ê¹ÓÃcookie
+//Ê¹ï¿½ï¿½cookie
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
-        options.LoginPath = "/api/account/login"; // ÉèÖÃµÇÂ¼Â·¾¶
-        options.AccessDeniedPath = "/api/account/accessdenied"; // ÉèÖÃ¾Ü¾ø·ÃÎÊÂ·¾¶
-        options.ExpireTimeSpan = TimeSpan.FromMinutes(60); // ÉèÖÃCookie¹ýÆÚÊ±¼ä
+        options.LoginPath = "/api/account/login"; // ï¿½ï¿½ï¿½Ãµï¿½Â¼Â·ï¿½ï¿½
+        options.AccessDeniedPath = "/api/account/accessdenied"; // ï¿½ï¿½ï¿½Ã¾Ü¾ï¿½ï¿½ï¿½ï¿½ï¿½Â·ï¿½ï¿½
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(60); // ï¿½ï¿½ï¿½ï¿½Cookieï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½
 
         options.Cookie.HttpOnly = true;
         options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-        options.Cookie.SameSite = SameSiteMode.None; // ÔÊÐí¿çÓò Cookie
+        options.Cookie.SameSite = SameSiteMode.None; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Cookie
     });
 
-//½â¾ö¿çÓòÎÊÌâ
+//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigin",
@@ -46,14 +46,14 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseDeveloperExceptionPage();//ÐÂ¼ÓµÄ ²»ÖªµÀ¸ÉÉ¶µÄ
+    app.UseDeveloperExceptionPage();//ï¿½Â¼Óµï¿½ ï¿½ï¿½Öªï¿½ï¿½ï¿½ï¿½É¶ï¿½ï¿½
     app.UseSwagger();
     app.UseSwaggerUI();
-    app.UseCors("AllowSpecificOrigin");// Ê¹ÓÃ CORS ÖÐ¼ä¼þ
+    app.UseCors("AllowSpecificOrigin");// Ê¹ï¿½ï¿½ CORS ï¿½Ð¼ï¿½ï¿½
 }
 
 app.UseHttpsRedirection();
-app.UseAuthentication(); // ±ØÐëÔÚ UseAuthorization Ö®Ç°µ÷ÓÃ.ÓÃÓÚÕýÈ·ÅäÖÃÉí·ÝÑéÖ¤ÖÐ¼ä¼þ
+app.UseAuthentication(); // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ UseAuthorization Ö®Ç°ï¿½ï¿½ï¿½ï¿½.ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¤ï¿½Ð¼ï¿½ï¿½
 app.UseAuthorization();
 
 app.MapControllers();

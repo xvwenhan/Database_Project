@@ -50,6 +50,7 @@ namespace Account.Controllers
 
                 var authProperties = new AuthenticationProperties
                 {
+                    
                     // 可以在此处设置额外的 Cookie 属性
                 };
 

@@ -482,6 +482,10 @@ namespace BackendCode.Data
                     .HasMaxLength(100)
                     .IsRequired();
 
+                entity.Property(p => p.POST_TITLE)
+                         .HasMaxLength(40)
+                         .IsRequired();
+
                 entity.HasOne(b => b.BUYER)
                     .WithMany()
                     .HasForeignKey(b => b.ACCOUNT_ID)
