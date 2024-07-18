@@ -1,4 +1,3 @@
-<!-- 管理员页面的头部 -->
 <template>
   <header class="header">
     <div class="logo">

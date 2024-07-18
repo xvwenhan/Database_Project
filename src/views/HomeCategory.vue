@@ -1,4 +1,3 @@
-<!-- 买家用户首页中的主页分类 -->
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
 import Navbar from '../components/Navbar.vue';

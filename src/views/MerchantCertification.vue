@@ -1,4 +1,3 @@
-<!-- 管理员页面的商家认证 -->
 <template>
   <div class="container1">
     <AdminSidebarMenu />

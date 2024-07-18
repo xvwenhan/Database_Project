@@ -16,7 +16,6 @@ import MerchantCertification from '../views/MerchantCertification.vue';
 import MarketManagement from '../views/MarketManagement.vue';
 import ReportManagement from '../views/ReportManagement.vue';
 import AdminSidebarMenu from '../components/AdminSidebarMenu.vue'
-import MerchantPage from '../views/MerchantPage.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -100,30 +99,6 @@ const router = createRouter({
     { path: '/adminsidebarmenu', 
       name: 'AdminSidebarMenu', 
       component: AdminSidebarMenu 
-    },
-    { path: '/merchantpage', 
-      name: 'MerchantPage', 
-      component: MerchantPage 
-    },
-    {
-      path: '/businesshomepage',
-      name: 'BusinessHomePage',
-      component: () => import('../views/BusinessHomePage.vue')
-    },
-    {
-      path: '/businessordermanage',
-      name: 'BusinessOrderManage',
-      component: () => import('../views/BusinessOrderManage.vue')
-    },
-    {
-      path: '/businesscommodity',
-      name: 'BusinessCommodity',
-      component: () => import('../views/BusinessCommodity.vue')
-    },
-    {
-      path: '/businessmarket',
-      name: 'BusinessMarket',
-      component: () => import('../views/BusinessMarket.vue')
     },
     {
       path: '/about',

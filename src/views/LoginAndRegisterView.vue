@@ -1,4 +1,4 @@
-<!-- 登录注册页面 -->
+
 <!-- npm install animate.css --save -->
 <!-- el-put中，v-model用来双向绑定数据，clearable提供清除按钮，show-password可以调节可见性 -->
 <template>

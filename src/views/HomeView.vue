@@ -1,4 +1,3 @@
-<!-- 买家用户首页页面的广告 -->
 <template>
     <div v-if="!isTestPage">
         <Navbar class="narbar"/>

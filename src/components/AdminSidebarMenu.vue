@@ -1,4 +1,3 @@
-<!-- 管理员页面的侧边栏 -->
 <template>
     <aside class="sidebar">
       <nav>

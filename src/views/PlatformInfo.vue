@@ -1,4 +1,3 @@
-<!-- 管理员页面的平台信息 -->
 <template>
   <div class="container">
     <AdminSidebarMenu />

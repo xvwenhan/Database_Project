@@ -1,4 +1,3 @@
-<!-- 买家用户的商品页面 -->
 <script setup lang="ts">
 import Navbar from '../components/Navbar.vue';
 import { ref, computed, watch } from 'vue';

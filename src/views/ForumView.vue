@@ -1,4 +1,3 @@
-<!-- 买家用户的论坛页面 -->
 <script setup lang="ts">
 import Navbar from '../components/Navbar.vue';
 import { ref, computed, reactive } from 'vue';
