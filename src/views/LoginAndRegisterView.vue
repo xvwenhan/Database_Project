@@ -176,7 +176,7 @@ const clearData=()=>{
   verificationCode.value='';
   realVerificationCode.value='';
 }
-
+///////////////////////通信最终版
 const message = ref('');
 const login = async () => {
   try {
