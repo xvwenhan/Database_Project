@@ -41,11 +41,11 @@
   }
 });
 
-
   const menuItems = reactive([
     { text: "首页", link: "/home" },
     { text: "商品", link: "/merchandise/1" },
     { text: "市集", link: "/bazaar" },
+    // { text: "市集", link: "/loginandregister" },//仅链接作测试用
     { text: "论坛", link: "/forum" },
     { text: "购物车", link: "/cart" },
     { text: "订单中心", link: "/ordercentre" },

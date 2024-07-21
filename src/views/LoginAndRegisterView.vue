@@ -37,6 +37,10 @@
         ></el-input>
         <div>
           <label class="forget-password" @click="handleForgetPassword">忘记密码?</label>
+          <!-- 两功能测试 -->
+          <!-- <label class="forget-password" @click="show_protected">点击访问受保护数据</label>
+          <label class="forget-password" @click="log_out">点击登出</label> -->
+
         </div>
           <el-button type="success" round style="background-color: #257b5e; letter-spacing: 5px; width: 250px; margin-left: 10px;margin-top:20px" @click="login">登录</el-button>
         </div>
@@ -129,6 +133,8 @@ import 'animate.css';
 import { ref ,reactive} from 'vue';
 import 'element-plus/dist/index.css';
 import { ElInput, ElButton ,ElMessage} from 'element-plus';
+import axiosInstance from '../components/axios';
+
 // 输入变量
 const userType = ref('buyer');
 const loginEmail = ref('');
@@ -150,7 +156,7 @@ const styleObj = ref({
   borderbottomleftradius: '0px',
   rightDis: '0px'
 });
-//预定义数组
+//前端测试用：预定义数组
 const dataArr=reactive([
   {email:"123456@qq.com",psw:"123456"},
   {email:"654321@qq.com",psw:"654321"}
@@ -170,21 +176,68 @@ const clearData=()=>{
   verificationCode.value='';
   realVerificationCode.value='';
 }
-const login = () => {
-      const user = dataArr.find(us =>loginEmail.value===us.email);
-      if(!loginEmail.value||!password.value){
-        ElMessage.error('请保证不为空');
-      } else if(!validateEmail(loginEmail.value)){
-        ElMessage.error('邮箱格式不正确');
-      } else if (!user) {
-        ElMessage.error('邮箱不存在');
-      } else if (user.psw !== password.value) {
-        ElMessage.error('密码不正确');
-      } else {
-        ElMessage.success('登录成功');
-      }
-    };
 
+const message = ref('');
+const login = async () => {
+  try {
+    const response = await axiosInstance.post('/Account/login', {
+      "username": loginEmail.value,
+      "password": password.value,
+    });
+    message.value = response.data.message;
+  } catch (error) {
+    if (error.response) {
+      message.value = error.response.data.message;
+    } else {
+      message.value = '登陆失败';
+    }
+  }
+  console.log(message.value);
+};
+////////////////////////////访问受保护数据测试
+// const show_protected = async () => {
+//   try {
+//     const response = await axiosInstance.get('/Account/protected');
+//     message.value = response.data.message;
+//   } catch (error) {
+//     if (error.response) {
+//       message.value = error.response.data.message;
+//     } else {
+//       message.value = '访问受保护数据失败';
+//     }
+//   }
+//   console.log(message.value);
+// };
+//////////////////////////////////////////////登出功能测试，后续可加在别的地方
+// const log_out = async () => {
+//   try {
+//     const response = await axiosInstance.post('/Account/logout');
+//     message.value = response.data.message;
+//   } catch (error) {
+//     if (error.response) {
+//       message.value = error.response.data.message;
+//     } else {
+//       message.value = '登出账号失败';
+//     }
+//   }
+//   console.log(message.value);
+// };
+
+/////////////////////////////////////////////仅用于记录登录逻辑
+// const login = () => {
+//       const user = dataArr.find(us =>loginEmail.value===us.email);
+//       if(!loginEmail.value||!password.value){
+//         ElMessage.error('请保证不为空');
+//       } else if(!validateEmail(loginEmail.value)){
+//         ElMessage.error('邮箱格式不正确');
+//       } else if (!user) {
+//         ElMessage.error('邮箱不存在');
+//       } else if (user.psw !== password.value) {
+//         ElMessage.error('密码不正确');
+//       } else {
+//         ElMessage.success('登录成功');
+//       }
+//     };
 const register=()=>{
       const user=dataArr.find(us=>us.email==registerEmail.value);
       if(!registerEmail.value||!newPassword.value||!confirmPassword.value||!verificationCode.value){
