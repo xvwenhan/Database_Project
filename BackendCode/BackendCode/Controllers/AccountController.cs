@@ -1,12 +1,12 @@
 ﻿using BackendCode.Data;
 using Microsoft.AspNetCore.Mvc;
 using BackendCode.DTOs.LoginModel;
-using Microsoft.Extensions.Logging;
+/*using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
 using System.Net;
 using System.Net.Mail;
-using System.Threading.Tasks;
+using System.Threading.Tasks;*/
 /////以下是为了cookie新加的
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -15,10 +15,11 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Cors;///
 ///以下是为了哈希新加的
 using System.Security.Cryptography;
+using System.Net.Mail;
+using System.Net;
 
 namespace Account.Controllers
 {
-    /*调试说明：账号密码都是007 */
     [ApiController]
     [Route("api/[controller]")]
     public class AccountController : ControllerBase
@@ -34,15 +35,19 @@ namespace Account.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
+            Console.WriteLine("coming");
+            Console.WriteLine(model.username);
             // 验证用户名和密码
-            var user = _context.BUYERS.FirstOrDefault(u => u.ACCOUNT_ID == model.Username);
-
-            if (user != null && VerifyPassword(model.Password, user.PASSWORD))
+            //查看是否为买家
+            var user = _context.BUYERS.FirstOrDefault(u => u.ACCOUNT_ID == model.username);
+            if (user != null && VerifyPassword(model.password, user.PASSWORD))
             {
                 var claims = new List<Claim>
                 {
-                    new Claim(ClaimTypes.Name, user.USER_NAME),
-                    new Claim(ClaimTypes.NameIdentifier, user.ACCOUNT_ID)
+                    //new Claim(ClaimTypes.Name, user.USER_NAME),
+                    new Claim(ClaimTypes.NameIdentifier, user.ACCOUNT_ID),
+                    new Claim("UserRole", "买家") // 添加用户角色的 Claim为买家
+                    //注意，这里的值若为空就会引发后端报错。因此最好携带主码
                 };
 
                 var claimsIdentity = new ClaimsIdentity(
@@ -50,7 +55,6 @@ namespace Account.Controllers
 
                 var authProperties = new AuthenticationProperties
                 {
-                    
                     // 可以在此处设置额外的 Cookie 属性
                 };
 
@@ -62,6 +66,59 @@ namespace Account.Controllers
                 return Ok(new { Message = "登录成功！" });
             }
 
+            //查看是否为卖家
+            var user2 = _context.STORES.FirstOrDefault(u => u.ACCOUNT_ID == model.username);
+            if (user2 != null && VerifyPassword(model.password, user2.PASSWORD))
+            {
+                var claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.NameIdentifier, user2.ACCOUNT_ID),
+                    new Claim("UserRole", "卖家") // 添加用户角色的 Claim为卖家
+                    //注意，这里的值若为空就会引发后端报错。因此最好携带主码
+                };
+
+                var claimsIdentity = new ClaimsIdentity(
+                    claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+                var authProperties = new AuthenticationProperties
+                {
+                    // 可以在此处设置额外的 Cookie 属性
+                };
+
+                await HttpContext.SignInAsync(
+                    CookieAuthenticationDefaults.AuthenticationScheme,
+                    new ClaimsPrincipal(claimsIdentity),
+                    authProperties);
+
+                return Ok(new { Message = "登录成功！" });
+            }
+
+            //查看是否为管理员
+            var user3 = _context.ADMINISTRATORS.FirstOrDefault(u => u.ACCOUNT_ID == model.username);
+            if (user3 != null && VerifyPassword(model.password, user3.PASSWORD))
+            {
+                var claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.NameIdentifier, user3.ACCOUNT_ID),
+                    new Claim("UserRole", "管理员") // 添加用户角色的 Claim为管理员
+                    //注意，这里的值若为空就会引发后端报错。因此最好携带主码
+                };
+
+                var claimsIdentity = new ClaimsIdentity(
+                    claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+                var authProperties = new AuthenticationProperties
+                {
+                    // 可以在此处设置额外的 Cookie 属性
+                };
+
+                await HttpContext.SignInAsync(
+                    CookieAuthenticationDefaults.AuthenticationScheme,
+                    new ClaimsPrincipal(claimsIdentity),
+                    authProperties);
+
+                return Ok(new { Message = "登录成功！" });
+            }
             // 如果验证失败
             return Unauthorized(new { Message = "Invalid login attempt" });
         }
@@ -70,16 +127,27 @@ namespace Account.Controllers
         [Authorize]
         public async Task<IActionResult> Logout()
         {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userRole = User.FindFirst("UserRole")?.Value;
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return Ok(new { Message = "Logout successful" });
+            return Ok(new
+            {
+                UserId = userId,
+                UserRole = userRole,
+                Message = "登出账号成功！"
+            });
+            //return Ok(new { Message = "登出账号成功！" });
         }
 
         //仅做测试之用，无cookie进不去
+        //当用户访问受保护的端点时，ASP.NET Core 会自动将 Claims 从 Cookie 中提取到 HttpContext.User
         [HttpGet("protected")]
         [Authorize]
         public IActionResult Protected()
         {
-            return Ok(new { Message = "This is a protected endpoint" });
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userRole = User.FindFirst("UserRole")?.Value;
+            return Ok(new { Message = $"{userRole}{userId}成功进入受保护端点！" });
         }
 
         //后面这个函数要替换成哈希助手中的验证函数
@@ -91,7 +159,7 @@ namespace Account.Controllers
 
 
         //为方便测试还没加邮箱验证
-        [HttpPost("password-reset")]
+        [HttpPost("password_reset")]
         public IActionResult PasswordReset(string accountId, string newPassword)
         {
             var user = _context.BUYERS.FirstOrDefault(u => u.ACCOUNT_ID == accountId);
@@ -100,7 +168,47 @@ namespace Account.Controllers
             return Ok("密码重置成功！");
         }
 
+        // 发送邮箱验证码,前端判断验证码是否正确
+        [HttpGet("/send_verification_code")]
+        public IActionResult SendVerificationCode(string email)
+        {
+            MailMessage message = new MailMessage();
+
+            // 设置发件人,发件人需要与设置的邮件发送服务器的邮箱一致
+            MailAddress fromAddr = new MailAddress("1239716933@qq.com");
+            message.From = fromAddr;
+            // 设置收件人,可添加多个,添加方法与下面的一样
+            message.To.Add(email);
+            // 设置邮件标题
+            message.Subject = "注册验证码";
+            // 设置邮件内容
+            Random r = new Random();
+            var _verificationCode = r.Next(1000, 10000).ToString();
+            message.Body = "您好，您的验证码为 " + _verificationCode;
+
+            // 设置邮件发送服务器,服务器根据你使用的邮箱而不同,可以到相应的邮箱管理后台查看
+            SmtpClient client = new SmtpClient("smtp.qq.com", 25);
+            // 设置发送人的邮箱账号和授权码
+            client.Credentials = new NetworkCredential("1239716933@qq.com", "tgfcpyibnajfhiac");
+
+            // 启用ssl,也就是安全发送
+            client.EnableSsl = true;
+            // 发送邮件
+            try
+            {
+                client.Send(message);
+                return Ok(new { message="验证码已发送",verificationCode=_verificationCode });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("验证码发送失败: " + ex.Message);
+            }
+        }
+
+
+
     }
+
     //哈希密码助手（这块代码目前没用过）
     public class PasswordHelper
     {
@@ -164,44 +272,7 @@ namespace Account.Controllers
         this._logger = logger;
     }
 
-    // 发送邮箱验证码
-    [HttpGet("/send-verification-code")]
-    public IActionResult SendVerificationCode(string email)
-    {
-        MailMessage message = new MailMessage();
-
-        // 设置发件人,发件人需要与设置的邮件发送服务器的邮箱一致
-        MailAddress fromAddr = new MailAddress("1239716933@qq.com");
-        message.From = fromAddr;
-        // 设置收件人,可添加多个,添加方法与下面的一样
-        message.To.Add(email);
-        // 设置邮件标题
-        message.Subject = "注册验证码";
-        // 设置邮件内容
-        Random r = new Random();
-        _verificationCode = r.Next(1000, 10000).ToString();
-        _email = email;
-        message.Body = "您好，您的验证码为 " + _verificationCode;
-
-        // 设置邮件发送服务器,服务器根据你使用的邮箱而不同,可以到相应的邮箱管理后台查看
-        SmtpClient client = new SmtpClient("smtp.qq.com", 25);
-        // 设置发送人的邮箱账号和授权码
-        client.Credentials = new NetworkCredential("1239716933@qq.com", "tgfcpyibnajfhiac");
-
-        // 启用ssl,也就是安全发送
-        client.EnableSsl = true;
-        // 发送邮件
-        try
-        {
-            client.Send(message);
-            return Ok("验证码已发送");
-        }
-        catch (Exception ex)
-        {
-            return BadRequest("验证码发送失败: " + ex.Message);
-        }
-    }
-
+    
 
     [HttpGet("/already-registered")]
     public IActionResult test_register(string email)
