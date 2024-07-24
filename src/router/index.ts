@@ -126,6 +126,16 @@ const router = createRouter({
       component: () => import('../views/BusinessMarket.vue')
     },
     {
+      path: '/messageview',
+      name: 'MessageView',
+      component: () => import('../views/MessageView.vue')
+    },
+    {
+      path: '/viewpost',
+      name: 'ViewPost',
+      component: () => import('../views/ViewPost.vue')
+    },
+    {
       path: '/about',
       name: 'about',
       // route level code-splitting
@@ -135,5 +145,4 @@ const router = createRouter({
     }
   ]
 })
-
 export default router
