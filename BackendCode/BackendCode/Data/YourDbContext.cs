@@ -49,7 +49,7 @@ namespace BackendCode.Data
                        .HasMaxLength(20)
                        .HasColumnType("VARCHAR2(20)");
 
-                entity.Property(e => e.PHONE_NUMBER)
+                entity.Property(e => e.EMAIL)
                        .HasMaxLength(50)
                        .HasColumnType("VARCHAR2(50)");
 

@@ -1,22 +1,18 @@
 ﻿using BackendCode.Data;
 using Microsoft.AspNetCore.Mvc;
 using BackendCode.DTOs.LoginModel;
-/*using Microsoft.Extensions.Logging;
-using System;
-using System.Linq;
-using System.Net;
-using System.Net.Mail;
-using System.Threading.Tasks;*/
-/////以下是为了cookie新加的
+//以下是为了cookie新加的
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
-using Microsoft.AspNetCore.Cors;///
-///以下是为了哈希新加的
+//以下是为了哈希新加的
 using System.Security.Cryptography;
 using System.Net.Mail;
 using System.Net;
+using Microsoft.EntityFrameworkCore;
+//以下是为了使用ID生成器和哈希等
+using BackendCode.Services;
 
 namespace Account.Controllers
 {
@@ -31,22 +27,22 @@ namespace Account.Controllers
             _context = context;
         }
 
-        //后面这个登录要替换成下面被注释掉的登录函数（这个不需要发邮箱，测试起来比较简便）
+        /*登录：
+         * 支持用户使用ID或者邮箱作为用户名进行登录
+         * 将用户的ID 邮箱 身份装入cookie*/
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
-            Console.WriteLine("coming");
-            Console.WriteLine(model.username);
-            // 验证用户名和密码
             //查看是否为买家
-            var user = _context.BUYERS.FirstOrDefault(u => u.ACCOUNT_ID == model.username);
+            var user = _context.BUYERS.FirstOrDefault(u => u.ACCOUNT_ID == model.username || u.EMAIL == model.username);
             if (user != null && VerifyPassword(model.password, user.PASSWORD))
             {
                 var claims = new List<Claim>
                 {
                     //new Claim(ClaimTypes.Name, user.USER_NAME),
                     new Claim(ClaimTypes.NameIdentifier, user.ACCOUNT_ID),
-                    new Claim("UserRole", "买家") // 添加用户角色的 Claim为买家
+                    new Claim("UserRole", "买家"), // 添加用户角色的 Claim为买家
+                    new Claim("UserEmail", user.EMAIL) // 添加用户邮箱
                     //注意，这里的值若为空就会引发后端报错。因此最好携带主码
                 };
 
@@ -63,17 +59,18 @@ namespace Account.Controllers
                     new ClaimsPrincipal(claimsIdentity),
                     authProperties);
 
-                return Ok(new { Message = "登录成功！" });
+                return Ok(new { Message = "登录成功！",Role="买家" });
             }
 
             //查看是否为卖家
-            var user2 = _context.STORES.FirstOrDefault(u => u.ACCOUNT_ID == model.username);
+            var user2 = _context.STORES.FirstOrDefault(u => u.ACCOUNT_ID == model.username || u.EMAIL == model.username);
             if (user2 != null && VerifyPassword(model.password, user2.PASSWORD))
             {
                 var claims = new List<Claim>
                 {
                     new Claim(ClaimTypes.NameIdentifier, user2.ACCOUNT_ID),
-                    new Claim("UserRole", "卖家") // 添加用户角色的 Claim为卖家
+                    new Claim("UserRole", "商家"), // 添加用户角色的 Claim为商家
+                    new Claim("UserEmail", user.EMAIL) // 添加用户邮箱
                     //注意，这里的值若为空就会引发后端报错。因此最好携带主码
                 };
 
@@ -90,17 +87,18 @@ namespace Account.Controllers
                     new ClaimsPrincipal(claimsIdentity),
                     authProperties);
 
-                return Ok(new { Message = "登录成功！" });
+                return Ok(new { Message = "登录成功！",Role="商家" });
             }
 
             //查看是否为管理员
-            var user3 = _context.ADMINISTRATORS.FirstOrDefault(u => u.ACCOUNT_ID == model.username);
+            var user3 = _context.ADMINISTRATORS.FirstOrDefault(u => u.ACCOUNT_ID == model.username || u.EMAIL == model.username);
             if (user3 != null && VerifyPassword(model.password, user3.PASSWORD))
             {
                 var claims = new List<Claim>
                 {
                     new Claim(ClaimTypes.NameIdentifier, user3.ACCOUNT_ID),
-                    new Claim("UserRole", "管理员") // 添加用户角色的 Claim为管理员
+                    new Claim("UserRole", "管理员"), // 添加用户角色的 Claim为管理员
+                    new Claim("UserEmail", user.EMAIL) // 添加用户邮箱
                     //注意，这里的值若为空就会引发后端报错。因此最好携带主码
                 };
 
@@ -117,12 +115,15 @@ namespace Account.Controllers
                     new ClaimsPrincipal(claimsIdentity),
                     authProperties);
 
-                return Ok(new { Message = "登录成功！" });
+                return Ok(new { Message = "登录成功！",Role="管理员" });
             }
             // 如果验证失败
-            return Unauthorized(new { Message = "Invalid login attempt" });
+            if(user!=null ||user2!=null||user3!=null)
+                return Unauthorized(new { Message = "密码错误！" });
+            return Unauthorized(new { Message = "账号不存在！请先注册" });
         }
 
+        /*登出：使用户cookie失效*/
         [HttpPost("logout")]
         [Authorize]
         public async Task<IActionResult> Logout()
@@ -139,8 +140,10 @@ namespace Account.Controllers
             //return Ok(new { Message = "登出账号成功！" });
         }
 
-        //仅做测试之用，无cookie进不去
-        //当用户访问受保护的端点时，ASP.NET Core 会自动将 Claims 从 Cookie 中提取到 HttpContext.User
+        /*访问受保护端点：
+         * 仅做测试之用，无cookie进不去
+         * 当用户访问受保护的端点时，ASP.NET Core 会自动将 Claims 从 Cookie 中提取到 HttpContext.User
+         */
         [HttpGet("protected")]
         [Authorize]
         public IActionResult Protected()
@@ -150,32 +153,34 @@ namespace Account.Controllers
             return Ok(new { Message = $"{userRole}{userId}成功进入受保护端点！" });
         }
 
-        //后面这个函数要替换成哈希助手中的验证函数
+        /*密码验证：
+         * 后面这个函数要替换成哈希助手中的验证函数*/
         private bool VerifyPassword(string password, string storedHash)
         {
             // 实现你的密码验证逻辑（例如哈希比较，这里直接比较了先）
             return password == storedHash;
         }
 
-
-        //为方便测试还没加邮箱验证
+        /*修改密码：
+         * 输入用户名（邮箱或ID）及新密码*/
         [HttpPost("password_reset")]
-        public IActionResult PasswordReset(string accountId, string newPassword)
+        public IActionResult PasswordReset([FromBody] LoginModel model)
         {
-            var user = _context.BUYERS.FirstOrDefault(u => u.ACCOUNT_ID == accountId);
-            user.PASSWORD = newPassword;
+            var user = _context.BUYERS.FirstOrDefault(u => u.ACCOUNT_ID == model.username || u.EMAIL ==model.username);
+            user.PASSWORD = model.password;
             _context.SaveChanges();
             return Ok("密码重置成功！");
         }
 
-        // 发送邮箱验证码,前端判断验证码是否正确
+        /*向指定邮箱发送邮箱验证码
+         * 由前端判断验证码是否正确*/
         [HttpGet("/send_verification_code")]
         public IActionResult SendVerificationCode(string email)
         {
             MailMessage message = new MailMessage();
 
             // 设置发件人,发件人需要与设置的邮件发送服务器的邮箱一致
-            MailAddress fromAddr = new MailAddress("1239716933@qq.com");
+            MailAddress fromAddr = new MailAddress("1473030672@qq.com");
             message.From = fromAddr;
             // 设置收件人,可添加多个,添加方法与下面的一样
             message.To.Add(email);
@@ -184,12 +189,14 @@ namespace Account.Controllers
             // 设置邮件内容
             Random r = new Random();
             var _verificationCode = r.Next(1000, 10000).ToString();
-            message.Body = "您好，您的验证码为 " + _verificationCode;
+            message.Body = "您好，您正在注册非遗平台账号，您的验证码为 " + _verificationCode;
 
             // 设置邮件发送服务器,服务器根据你使用的邮箱而不同,可以到相应的邮箱管理后台查看
+            //SmtpClient client = new SmtpClient("smtp.outlook.com", 587);
             SmtpClient client = new SmtpClient("smtp.qq.com", 25);
             // 设置发送人的邮箱账号和授权码
-            client.Credentials = new NetworkCredential("1239716933@qq.com", "tgfcpyibnajfhiac");
+            client.Credentials = new NetworkCredential("1473030672@qq.com", "pxdzrvnwxffdbafa");
+            //client.Credentials = new NetworkCredential("1239716933@qq.com", "tgfcpyibnajfhiac");
 
             // 启用ssl,也就是安全发送
             client.EnableSsl = true;
@@ -202,6 +209,56 @@ namespace Account.Controllers
             catch (Exception ex)
             {
                 return BadRequest("验证码发送失败: " + ex.Message);
+            }
+        }
+
+        /*注册：*/
+        [HttpPost("/register")]
+        public IActionResult UserRegister([FromBody] RegisterModel model)
+        {
+            Random random = new();
+            int _userId = random.Next(1, 10000000);
+            string a = _userId.ToString();
+            string uidb = a;
+            //ID的生成要使用ID生成器 待修改
+            if (model.role == "买家") {
+                uidb = "U" + uidb;
+                _context.BUYERS.Add(new BackendCode.Models.BUYER()
+                {
+                    ACCOUNT_ID = uidb,
+                    EMAIL = model.email,
+                    PASSWORD = model.password
+                });
+                _context.SaveChanges();
+            }
+            else if (model.role == "商家")
+            {
+                uidb = "S" + uidb;
+                _context.STORES.Add(new BackendCode.Models.STORE()
+                {
+                    ACCOUNT_ID = uidb,
+                    EMAIL = model.email,
+                    PASSWORD = model.password
+                });
+                _context.SaveChanges();
+            }
+           
+            return Ok(uidb);
+        }
+
+        /*检查注册状态*/
+        [HttpGet("/check_register")]
+        public IActionResult CheckRegister(string email)
+        {
+
+            var userExists = _context.ACCOUNTS.Any(u => u.EMAIL == email);
+            if (userExists)
+            {
+                return BadRequest(new { message = "邮箱已经存在，不能重复注册！" });
+            }
+            else
+            {
+                return Ok(new { message = "邮箱未被注册" });
             }
         }
 
@@ -258,116 +315,13 @@ namespace Account.Controllers
 }
 
 
-//邮箱我单独拆出来了
-
-/*public class LoginController : ControllerBase
+/*if (ModelState.IsValid)
 {
-    private readonly YourDbContext _dbContext;
-    private readonly ILogger<LoginController> _logger;
-    private static string _verificationCode;
-    private static string _email;
-    public LoginController(YourDbContext dbContext, ILogger<LoginController> logger)
-    {
-        this._dbContext = dbContext;
-        this._logger = logger;
-    }
-
-    
-
-    [HttpGet("/already-registered")]
-    public IActionResult test_register(string email)
-    {
-        var tempAccount = _dbContext.BUYERS.FirstOrDefault(a => a.PHONE_NUMBER == email);//要改这里
-        if (tempAccount != null) // 如果该邮箱已存在
-        {
-            return BadRequest("该邮箱已经被注册");
-        }
-        return Ok("邮箱未被注册过账号，可以注册");
-    }
-
-    //注册
-    //前端自行完成用户名等为空的错误判断
-    [HttpGet("/register")]
-    public IActionResult UserRegister(string code, string u_name, string p_number,string email, string passwd, string u_gender, int u_age, string u_address)
-    {
-        // 验证验证码
-        if (code != _verificationCode || p_number != _email)
-        {
-            return BadRequest("验证码错误或邮箱不匹配");
-        }
-        Random random = new();
-        int _userId = random.Next(1, 10000000);
-        string a = _userId.ToString();
-        string uidb = "U" + a;
-
-        _dbContext.BUYERS.Add(new BackendCode.Models.BUYER()
-        {
-            ACCOUNT_ID = uidb,
-            USER_NAME = u_name,
-            PHONE_NUMBER = p_number,
-            PASSWORD = passwd,
-            ADDRESS = u_address,
-            GENDER = u_gender,
-            AGE = u_age,
-            TOTAL_CREDITS = 0
-        });
-        _dbContext.SaveChanges();
-        return Ok(uidb);
-    }
-
-    [HttpGet("/login")]
-    public async Task<IActionResult> Login(string uid_orp_number, string passwd)
-    {
-        var tempAccount = _dbContext.BUYERS.FirstOrDefault(a => a.ACCOUNT_ID == uid_orp_number);
-        if (tempAccount != null)//如果该uid存在
-        {
-            if (tempAccount.PASSWORD == passwd)
-            {
-            }
-            else
-            {
-                return BadRequest($"密码输入错误，请重新输入！");
-            }
-        }
-        else//如果uid不存在
-        {
-            var temp2Account = _dbContext.BUYERS.FirstOrDefault(a => a.PHONE_NUMBER == uid_orp_number);
-            if (temp2Account != null)//如果该电话号码存在
-            {
-                if (temp2Account.PASSWORD == passwd)
-                {
-                }
-                else
-                {
-                    return BadRequest($"密码输入错误，请重新输入！");
-                }
-            }
-            else//uid和电话号码都不存在
-            {
-                return BadRequest("该账号尚未注册，请先注册");
-            }
-        }
-
-        var claims = new List<Claim>
-                {
-                    new Claim(ClaimTypes.Name,uid_orp_number),
-                    new Claim(ClaimTypes.NameIdentifier, uid_orp_number)//要改，在乱写
-                };
-
-        var claimsIdentity = new ClaimsIdentity(
-            claims, CookieAuthenticationDefaults.AuthenticationScheme);
-
-        var authProperties = new AuthenticationProperties
-        {
-            // 可以在此处设置额外的 Cookie 属性
-        };
-
-        await HttpContext.SignInAsync(
-            CookieAuthenticationDefaults.AuthenticationScheme,
-            new ClaimsPrincipal(claimsIdentity),
-            authProperties);
-
-        return Ok(new { Message = "登录成功！" });
-    }
+    // 如果模型验证成功，执行注册逻辑
+    return Ok(new { message = "Registration successful" });
+}
+else
+{
+    // 如果模型验证失败，返回错误信息
+    return BadRequest(ModelState);
 }*/
-

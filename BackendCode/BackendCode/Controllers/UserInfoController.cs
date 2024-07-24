@@ -34,7 +34,7 @@ namespace UserInfo.Controllers
             {
                 Id = infos.ACCOUNT_ID,
                 UserName = infos.USER_NAME,
-                PhoneNumber = infos.PHONE_NUMBER,
+                EMAIL = infos.EMAIL,
                 Gender = infos.GENDER,
                 Age = infos.AGE,
                 TotalCredits = infos.TOTAL_CREDITS,
