@@ -6,11 +6,9 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
-//以下是为了哈希新加的
-using System.Security.Cryptography;
+//邮件
 using System.Net.Mail;
 using System.Net;
-using Microsoft.EntityFrameworkCore;
 //以下是为了使用ID生成器和哈希等
 using BackendCode.Services;
 
@@ -21,10 +19,13 @@ namespace Account.Controllers
     public class AccountController : ControllerBase
     {
         private readonly YourDbContext _context;
+        public string filePath = "./Services/account_id.txt";
+        public IdGenerator idGenerator;
 
         public AccountController(YourDbContext context)
         {
             _context = context;
+            idGenerator = new IdGenerator(filePath);
         }
 
         /*登录：
@@ -59,7 +60,7 @@ namespace Account.Controllers
                     new ClaimsPrincipal(claimsIdentity),
                     authProperties);
 
-                return Ok(new { Message = "登录成功！",Role="买家" });
+                return Ok(new { Message = "登录成功！", Role = "买家" });
             }
 
             //查看是否为卖家
@@ -87,7 +88,7 @@ namespace Account.Controllers
                     new ClaimsPrincipal(claimsIdentity),
                     authProperties);
 
-                return Ok(new { Message = "登录成功！",Role="商家" });
+                return Ok(new { Message = "登录成功！", Role = "商家" });
             }
 
             //查看是否为管理员
@@ -115,10 +116,10 @@ namespace Account.Controllers
                     new ClaimsPrincipal(claimsIdentity),
                     authProperties);
 
-                return Ok(new { Message = "登录成功！",Role="管理员" });
+                return Ok(new { Message = "登录成功！", Role = "管理员" });
             }
             // 如果验证失败
-            if(user!=null ||user2!=null||user3!=null)
+            if (user != null || user2 != null || user3 != null)
                 return Unauthorized(new { Message = "密码错误！" });
             return Unauthorized(new { Message = "账号不存在！请先注册" });
         }
@@ -166,7 +167,7 @@ namespace Account.Controllers
         [HttpPost("password_reset")]
         public IActionResult PasswordReset([FromBody] LoginModel model)
         {
-            var user = _context.BUYERS.FirstOrDefault(u => u.ACCOUNT_ID == model.username || u.EMAIL ==model.username);
+            var user = _context.BUYERS.FirstOrDefault(u => u.ACCOUNT_ID == model.username || u.EMAIL == model.username);
             user.PASSWORD = model.password;
             _context.SaveChanges();
             return Ok("密码重置成功！");
@@ -204,7 +205,7 @@ namespace Account.Controllers
             try
             {
                 client.Send(message);
-                return Ok(new { message="验证码已发送",verificationCode=_verificationCode });
+                return Ok(new { message = "验证码已发送", verificationCode = _verificationCode });
             }
             catch (Exception ex)
             {
@@ -216,19 +217,26 @@ namespace Account.Controllers
         [HttpPost("/register")]
         public IActionResult UserRegister([FromBody] RegisterModel model)
         {
-            Random random = new();
-            int _userId = random.Next(1, 10000000);
-            string a = _userId.ToString();
-            string uidb = a;
-            //ID的生成要使用ID生成器 待修改
-            if (model.role == "买家") {
+
+            string newId = idGenerator.GetNextId();
+            Console.WriteLine("生成的ID: " + newId);
+
+            /*            Random random = new();
+                        int _userId = random.Next(1, 10000000);
+                        string a = _userId.ToString();
+                        string uidb = a;*/
+
+            string uidb = newId;
+            if (model.role == "买家")
+            {
                 uidb = "U" + uidb;
                 _context.BUYERS.Add(new BackendCode.Models.BUYER()
                 {
                     ACCOUNT_ID = uidb,
                     EMAIL = model.email,
-                    PASSWORD = model.password
-                });
+                    PASSWORD = model.password,
+                    TOTAL_CREDITS = 0
+                }) ;
                 _context.SaveChanges();
             }
             else if (model.role == "商家")
@@ -242,7 +250,7 @@ namespace Account.Controllers
                 });
                 _context.SaveChanges();
             }
-           
+
             return Ok(uidb);
         }
 
@@ -264,53 +272,6 @@ namespace Account.Controllers
 
 
 
-    }
-
-    //哈希密码助手（这块代码目前没用过）
-    public class PasswordHelper
-    {
-        private const int SaltSize = 16; // 128 bit
-        private const int KeySize = 32; // 256 bit
-        private const int Iterations = 10000;
-
-        public static string HashPassword(string password)
-        {
-            using (var rng = new RNGCryptoServiceProvider())
-            {
-                var salt = new byte[SaltSize];
-                rng.GetBytes(salt);
-
-                using (var pbkdf2 = new Rfc2898DeriveBytes(password, salt, Iterations))
-                {
-                    var key = pbkdf2.GetBytes(KeySize);
-                    var hash = new byte[SaltSize + KeySize];
-                    Array.Copy(salt, 0, hash, 0, SaltSize);
-                    Array.Copy(key, 0, hash, SaltSize, KeySize);
-
-                    return Convert.ToBase64String(hash);
-                }
-            }
-        }
-
-        public static bool VerifyPassword(string password, string hashedPassword)
-        {
-            var hashBytes = Convert.FromBase64String(hashedPassword);
-            var salt = new byte[SaltSize];
-            Array.Copy(hashBytes, 0, salt, 0, SaltSize);
-
-            using (var pbkdf2 = new Rfc2898DeriveBytes(password, salt, Iterations))
-            {
-                var key = pbkdf2.GetBytes(KeySize);
-                for (int i = 0; i < KeySize; i++)
-                {
-                    if (hashBytes[i + SaltSize] != key[i])
-                    {
-                        return false;
-                    }
-                }
-            }
-            return true;
-        }//之后需要替换密码验证 变成这个
     }
 }
 

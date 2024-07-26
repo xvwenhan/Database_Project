@@ -23,7 +23,7 @@ namespace BackendCode.Controllers
             _context = context;
         }
         // 发布帖子
-        [HttpPost]
+        [HttpPost("make_post")]
         [Authorize]
         public async Task<IActionResult> CreatePost([FromBody] PostModel post)
         {
@@ -49,7 +49,7 @@ namespace BackendCode.Controllers
         }
 
         // 删除帖子 不需要进行身份验证（方便管理员删） 用户只能删自己的帖子，所以不会出问题
-        [HttpDelete("{PostId}")]
+        [HttpDelete("delete_post")]
         [Authorize]
         public async Task<IActionResult> DeletePost(int PostId)
         {
@@ -64,7 +64,7 @@ namespace BackendCode.Controllers
         }
 
         // 添加评论
-        [HttpPost("{PostId}/add_comment")]
+        [HttpPost("add_comment")]
         public async Task<IActionResult> AddComment([FromBody] CommentModel comment)
         {
             //从cookie中提取用户ID
@@ -140,3 +140,64 @@ namespace BackendCode.Controllers
 
     }
 }
+
+
+
+/*[HttpPost("make_post")]
+[Authorize]
+public async Task<IActionResult> CreatePost([FromForm] PostModel post)
+{
+    // 确保模型有效
+    if (!ModelState.IsValid)
+    {
+        return BadRequest(ModelState);
+    }
+
+    // 从cookie中提取用户ID
+    var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    if (userId == null)
+    {
+        return Unauthorized();
+    }
+
+    // 创建新的帖子
+    var newPost = new POST
+    {
+        POST_ID = Guid.NewGuid().ToString(), // 使用 Guid 生成唯一的 POST_ID
+        RELEASE_TIME = DateTime.UtcNow,
+        POST_TITLE = post.PostTitle,
+        POST_CONTENT = post.PostContent,
+        NUMBER_OF_LIKES = 0,
+        NUMBER_OF_COMMENTS = 0,
+        ACCOUNT_ID = userId.ToString(),
+        Images = new List<PostImage>() // 初始化图片集合
+    };
+
+    // 处理图片上传
+    if (post.Images != null && post.Images.Any())
+    {
+        foreach (var image in post.Images)
+        {
+            using (var memoryStream = new MemoryStream())
+            {
+                await image.CopyToAsync(memoryStream);
+                var imageData = memoryStream.ToArray();
+
+                var postImage = new PostImage
+                {
+                    PostId = newPost.POST_ID,
+                    ImageData = imageData,
+                    ImageContentType = image.ContentType
+                };
+
+                newPost.Images.Add(postImage);
+            }
+        }
+    }
+
+    _context.POSTS.Add(newPost);
+    await _context.SaveChangesAsync();
+
+    return Ok(newPost); // 返回信息中含有帖子ID和图片信息
+}
+*/
