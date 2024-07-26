@@ -305,9 +305,12 @@ namespace BackendCode.Data
                 entity.Property(e => e.END_TIME)
                       .HasColumnType("TIMESTAMP(6)");
 
-                entity.Property(e => e.DISCOUNT_REQUIREMENT)
-                      .HasMaxLength(50)
-                      .HasColumnType("VARCHAR2(50)");
+                entity.Property(e => e.DETAIL)
+                      .HasMaxLength(500)
+                      .HasColumnType("VARCHAR2(500)");
+                entity.Property(e => e.POSTERIMG)
+                    .HasColumnType("BLOB")
+                    .IsRequired();
             });
 
             modelBuilder.Entity<MARKET_PRODUCT>(entity =>

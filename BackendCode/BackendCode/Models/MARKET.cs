@@ -6,6 +6,7 @@
         public string? THEME { get; set; }
         public DateTime? START_TIME { get; set; }
         public DateTime? END_TIME { get; set; }
-        public string? DISCOUNT_REQUIREMENT { get; set; }
+        public string? DETAIL { get; set; }
+        public byte[]? POSTERIMG { get; set; }
     }
 }
