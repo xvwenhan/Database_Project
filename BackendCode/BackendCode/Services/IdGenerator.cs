@@ -1,12 +1,12 @@
 ﻿namespace BackendCode.Services
 {
-    public class UniqueIdGenerator
+    public class IdGenerator
     {
         private readonly string _filePath;
         private readonly object _lock = new object();
         private int _currentId;
 
-        public UniqueIdGenerator(string filePath)
+        public IdGenerator(string filePath)
         {
             _filePath = filePath;
             _currentId = ReadCurrentIdFromFile();
@@ -44,18 +44,6 @@
         {
             File.WriteAllText(_filePath, id.ToString());
         }
-    }
-
-
-
-
-
-
-
-
-    public class IdGenerator
-    {
-
     }
 }
 
