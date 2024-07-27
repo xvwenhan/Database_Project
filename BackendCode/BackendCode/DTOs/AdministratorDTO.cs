@@ -17,7 +17,7 @@ namespace BackendCode.DTOs.Administrator
         public DateTime? startTime { get; set; }
         public DateTime? endTime { get; set; }
         public string? detail { get; set; }
-        //public byte[]? posterImg { get; set; }
+        public string? posterImg { get; set; }
     }
 
     public class ShowReportDTO
@@ -50,7 +50,7 @@ namespace BackendCode.DTOs.Administrator
         public DateTime startTime { get; set; }
         public DateTime endTime { get; set; }
         public string? detail { get; set; }
-        public byte[]? posterImg { get; set; }
+        public List<IFormFile>? posterImg { get; set; }
         public string? adminId { get; set; }
     }
     public class DMModel

@@ -95,12 +95,17 @@ namespace Administrator.Controllers
 
         //添加市集并发出邀请
         [HttpPut("AddMarket")]
-        public async Task<IActionResult> AddMarket([FromBody] AMModel model)
+        public async Task<IActionResult> AddMarket([FromForm] AMModel model)
         {
             Random random = new();
             int _marketId = random.Next(1, 10000000);
             string uidb = _marketId.ToString();
             uidb = "M" + uidb;
+            var ms = new MemoryStream();
+            var image = model.posterImg[0];
+            await image.CopyToAsync(ms);
+            var imageData = ms.ToArray();
+
             _dbContext.MARKETS.Add(new BackendCode.Models.MARKET()
             {
                 MARKET_ID=uidb,
@@ -108,7 +113,7 @@ namespace Administrator.Controllers
                 START_TIME=model.startTime,
                 END_TIME=model.endTime,
                 DETAIL=model.detail,
-                POSTERIMG=model.posterImg,
+                POSTERIMG=imageData,
             });
             _dbContext.SaveChanges();
 
@@ -168,6 +173,7 @@ namespace Administrator.Controllers
                 return NotFound("现在还没有市集");
             }
 
+
             var allmarketDtos = markets.Select(p => new ShowMarketDTO
             {
                 marketId=p.MARKET_ID,
@@ -175,7 +181,7 @@ namespace Administrator.Controllers
                 startTime=p.START_TIME,
                 endTime=p.END_TIME,
                 detail=p.DETAIL,
-                //posterImg=p.POSTERIMG,
+                posterImg= Convert.ToBase64String(p.POSTERIMG),
 
             }).ToList();
             // 返回商品信息
@@ -213,7 +219,7 @@ namespace Administrator.Controllers
                 _dbContext.MARKET_PRODUCTS.RemoveRange(itemsToDelete3);
                 await _dbContext.SaveChangesAsync();
 
-                // 在MARKETS中删除找到的行-----------------blob原因删不掉还
+                // 在MARKETS中删除找到的行
                 var itemsToDelete4 = await _dbContext.MARKETS
                     .Where(item => item.MARKET_ID == model.marketId)
                     .ToListAsync();
