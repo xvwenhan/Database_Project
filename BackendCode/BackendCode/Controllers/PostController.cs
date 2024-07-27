@@ -4,12 +4,15 @@ using BackendCode.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Hosting;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
+using BackendCode.Services;
+using System.Reflection.Emit;
+
+
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using System.IO;
+using Microsoft.Extensions.Hosting;
 
 
 namespace BackendCode.Controllers
@@ -17,15 +20,21 @@ namespace BackendCode.Controllers
     public class PostController : Controller
     {
         private readonly YourDbContext _context;
+        public string filePath = "./Services/post_id.txt";
+        public IdGenerator idGenerator;
 
+        public string filePath2 = "./Services/image_id.txt";
+        public IdGenerator idGenerator2;
         public PostController(YourDbContext context)
         {
             _context = context;
+            idGenerator = new IdGenerator(filePath);
+            idGenerator2 = new IdGenerator(filePath2);
         }
-        // 发布帖子
+        // 发布帖子(仅上传文本版) 现在用不了
         [HttpPost("make_post")]
         [Authorize]
-        public async Task<IActionResult> CreatePost([FromBody] PostModel post)
+        public async Task<IActionResult> CreatePost111([FromBody] PostModel post)
         {
             //从cookie中提取用户ID
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -35,7 +44,7 @@ namespace BackendCode.Controllers
             }
             POST newpost = new POST()
             {
-                POST_ID = $"{DateTime.Now}",
+                POST_ID = idGenerator.GetNextId(),
                 RELEASE_TIME = DateTime.UtcNow,
                 POST_TITLE = post.PostTitle,
                 POST_CONTENT = post.PostContent,
@@ -47,6 +56,67 @@ namespace BackendCode.Controllers
             await _context.SaveChangesAsync();
             return Ok(newpost);//返回信息中含有帖子ID
         }
+
+
+        //发布帖子 （同时传文本和不定数量的图片）（注意得先登录才能成功调试此接口）
+        [HttpPost("create_post")]
+        [Authorize]
+        public async Task<IActionResult> CreatePost([FromForm] PostModel post)
+        {
+            // 从cookie中提取用户ID
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+
+            // 创建新帖子
+            var newPost = new POST()
+            {
+                POST_ID = idGenerator.GetNextId(),
+                RELEASE_TIME = DateTime.UtcNow,
+                POST_TITLE = post.PostTitle,
+                POST_CONTENT = post.PostContent,
+                NUMBER_OF_LIKES = 0,
+                NUMBER_OF_COMMENTS = 0,
+                ACCOUNT_ID = userId.ToString()
+            };
+
+            _context.POSTS.Add(newPost);
+            await _context.SaveChangesAsync();
+
+            // 处理图片上传
+            //.Any检查集合中是否有任何元素（防止是空集）
+            if (post.Images != null && post.Images.Any())
+            {
+                foreach (var image in post.Images)
+                {
+                    using (var ms = new MemoryStream())
+                    {
+                        await image.CopyToAsync(ms);
+                        var imageData = ms.ToArray();
+
+                        var postImage = new POST_IMAGE
+                        {
+                            POST_ID = newPost.POST_ID,
+                            IMAGE_ID=idGenerator2.GetNextId(),
+                            IMAGE = imageData
+                        };
+                        _context.POST_IMAGES.Add(postImage);
+                    }
+                }
+                await _context.SaveChangesAsync();
+            }
+
+            return Ok(new { message="帖子上传成功！",postId = newPost.POST_ID }); // 返回信息中含有帖子ID
+        }
+
+
+
+
+
+
+
 
         // 删除帖子 不需要进行身份验证（方便管理员删） 用户只能删自己的帖子，所以不会出问题
         [HttpDelete("delete_post")]

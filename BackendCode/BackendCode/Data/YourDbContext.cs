@@ -31,6 +31,7 @@ namespace BackendCode.Data
         public virtual DbSet<STORE> STORES { get; set; }
         public virtual DbSet<SUBMIT_AUTHENTICATION> SUBMIT_AUTHENTICATIONS { get; set; }
         public virtual DbSet<WALLET> WALLETS { get; set; }
+        public virtual DbSet<POST_IMAGE> POST_IMAGES { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -647,6 +648,31 @@ namespace BackendCode.Data
                     .WithMany()
                     .HasForeignKey(a => a.ADMINISTRATOR_ACCOUNT_ID)
                     .HasConstraintName("A_A_FK");
+            });
+
+            modelBuilder.Entity<POST_IMAGE>(entity =>
+            {
+                entity.ToTable("POST_IMAGE");
+
+                entity.HasKey(e => new { e.POST_ID, e.IMAGE_ID });
+
+                entity.Property(e => e.POST_ID)
+                      .HasMaxLength(50)
+                      .HasColumnType("VARCHAR2(50)")
+                      .IsRequired();
+
+                entity.Property(e => e.IMAGE_ID)
+                      .HasMaxLength(50)
+                      .HasColumnType("VARCHAR2(50)")
+                      .IsRequired();
+
+                entity.Property(e => e.IMAGE)
+                      .HasColumnType("BLOB");
+
+                entity.HasOne(p => p.POST)
+                      .WithMany()
+                      .HasForeignKey(p => p.POST_ID)
+                      .HasConstraintName("POST_ID_FK");
             });
         }
     }
