@@ -192,7 +192,19 @@ namespace Administrator.Controllers
         [HttpPut("DeleteMarket")]
         public async Task<IActionResult> DeleteMarket([FromBody]DMModel model)
         {
-
+            DateTime currentDateTime = DateTime.Now;
+            var startTime = _dbContext.MARKETS
+                                    .Where(m => m.MARKET_ID == model.marketId)
+                                    .Select(m => m.START_TIME)
+                                    .FirstOrDefault();
+            if(startTime == null)
+            {
+                return NotFound("不存在该市集");
+            }
+            if (currentDateTime >= startTime)
+            {
+                return Ok("删除失败！无法删除已经开始的市集");
+            }
             try
             {
                 // 在SET_UP_MARKETPLACES中删除找到的行
