@@ -249,34 +249,75 @@ namespace Administrator.Controllers
         }
 
 
-        /*[HttpGet("GetAllReport")]
+        [HttpGet("GetAllReport")]
         public async Task<IActionResult> GetAllReport()
         {
-
-            // 获取所有申请信息
-            var markets = _dbContext.MARKETS
-                        .OrderBy(m => m.START_TIME)
-                        .ToList();
-
-            if (markets == null || !markets.Any())
+            try
             {
-                return NotFound("现在还没有市集");
+                var query = from report in _dbContext.REPORTS
+                            join complainPost in _dbContext.COMPLAIN_POSTS on report.REPORT_ID equals complainPost.REPORT_ID
+                            join post in _dbContext.POSTS on complainPost.POST_ID equals post.POST_ID
+                            select new ShowReportDTO
+                            {
+                                reportId = report.REPORT_ID,
+                                buyerAccountId = complainPost.BUYER_ACCOUNT_ID,
+                                reportingTime = report.REPORTING_TIME,
+                                reportingReason = report.REPORTING_REASON,
+                                postContent = post.POST_CONTENT,
+                                auditResults = report.AUDIT_RESULTS,
+                            };
+                var res = await query.ToListAsync();
+                return Ok(res);
+            }
+            catch(Exception ex)
+            {
+                return StatusCode(500, $"访问失败: {ex.Message}");
+            }
+            
+        }
+
+
+
+        //修改
+        [HttpPut("AuditReport")]
+        public async Task<IActionResult> AuditReport([FromBody] ARModel model)
+        {
+            DateTime currentDateTime = DateTime.Now;
+            // 查找reportid
+            var reporttoc = await _dbContext.REPORTS
+                .FirstOrDefaultAsync(a => a.REPORT_ID == model.reportId);
+
+            if (reporttoc == null)
+            {
+                return NotFound("不存在该条投诉记录");
             }
 
-            var allmarketDtos = markets.Select(p => new ShowMarketDTO
+            if (model.auditResult=="删除")
             {
-                marketId = p.MARKET_ID,
-                theme = p.THEME,
-                startTime = p.START_TIME,
-                endTime = p.END_TIME,
-                detail = p.DETAIL,
-                //posterImg=p.POSTERIMG,
+                reporttoc.AUDIT_RESULTS = model.auditResult;
+                reporttoc.AUDIT_TIME = currentDateTime;
+                reporttoc.ADMINISTRATOR_ACCOUNT_ID = model.adminId;
+            }
+            else
+            {
+                reporttoc.AUDIT_RESULTS = model.auditResult;
+                reporttoc.AUDIT_TIME = currentDateTime;
+                reporttoc.ADMINISTRATOR_ACCOUNT_ID = model.adminId;
+            }
 
-            }).ToList();
-            // 返回商品信息
-            return Ok(allmarketDtos);
-        }*/
+            // 保存更改
+            try
+            {
+                await _dbContext.SaveChangesAsync();
+                return Ok($"举报已被处理，处理结果:已{model.auditResult}，处理人:{model.adminId}");
+            }
+            catch (DbUpdateException ex)
+            {
+                // 捕获数据库更新异常并返回错误消息
+                return StatusCode(500, $"An error occurred while updating the database: {ex.Message}");
+            }
 
+        }
     }
 
 }
