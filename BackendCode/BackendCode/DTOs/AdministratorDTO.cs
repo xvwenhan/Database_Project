@@ -10,13 +10,51 @@ namespace BackendCode.DTOs.Administrator
 
     }
 
-    //
-    public class FavouriteStoresDTO
+    public class ShowMarketDTO
     {
-        public string? BuyerId { get; set; }
-        public string? StoreId { get; set; }
-        public string? StoreName { get; set; }
-        public decimal? StoreScore { get; set; }
+        public string? marketId { get; set; }
+        public string? theme { get; set; }
+        public DateTime? startTime { get; set; }
+        public DateTime? endTime { get; set; }
+        public string? detail { get; set; }
+        //public byte[]? posterImg { get; set; }
+    }
 
+    public class ShowReportDTO
+    {
+        public string? reportId { get; set; }
+        public string? buyerAccountId { get; set; }
+        public DateTime? reportingTime { get; set; }
+        public string? reportingReason { get; set; }
+        public string? postContent { get; set; }
+        public string? auditResults { get; set; }
+    }
+
+    //传入的数据结构
+    public class GAAModel
+    {
+        public string? adminId { get; set; }
+    }
+
+    public class USAModel
+    {
+        public string? storeId { get; set; }
+        public bool result { get; set; }
+        public string? adminId { get; set; }
+    }
+
+    public class AMModel
+    {
+        public string? theme { get; set; }
+        public string? option { get; set; }
+        public DateTime startTime { get; set; }
+        public DateTime endTime { get; set; }
+        public string? detail { get; set; }
+        public byte[]? posterImg { get; set; }
+        public string? adminId { get; set; }
+    }
+    public class DMModel
+    {
+        public string? marketId { get; set; }
     }
 }
