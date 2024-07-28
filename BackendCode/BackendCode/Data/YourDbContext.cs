@@ -17,7 +17,9 @@ namespace BackendCode.Data
         public virtual DbSet<BUYER_PRODUCT_BOOKMARK> BUYER_PRODUCT_BOOKMARKS { get; set; }
         public virtual DbSet<BUYER_STORE_BOOKMARK> BUYER_STORE_BOOKMARKS { get; set; }
         public virtual DbSet<COMMENT_POST> COMMENT_POSTS { get; set; }
+        public virtual DbSet<COMMENT_COMMENT> COMMENT_COMMENTS { get; set; }
         public virtual DbSet<COMPLAIN_POST> COMPLAIN_POSTS { get; set; }
+        public virtual DbSet<COMPLAIN_COMMENT> COMPLAIN_COMMENTS { get; set; }
         public virtual DbSet<LIKE_POST> LIKE_POSTS { get; set; }
         public virtual DbSet<MARKET> MARKETS { get; set; }
         public virtual DbSet<MARKET_PRODUCT> MARKET_PRODUCTS { get; set; }
@@ -190,10 +192,14 @@ namespace BackendCode.Data
             {
                 entity.ToTable("COMMENT_POST");
 
-                entity.HasKey(e => new { e.BUYER_ACCOUNT_ID, e.POST_ID, e.EVALUATION_TIME });
+                entity.HasKey(e => new { e.COMMENT_ID });
 
                 entity.Property(e => e.BUYER_ACCOUNT_ID)
                       .HasMaxLength(100)
+                      .HasColumnType("VARCHAR2(100)")
+                      .IsRequired();
+                entity.Property(e => e.COMMENT_ID)
+                      .HasMaxLength(50)
                       .HasColumnType("VARCHAR2(100)")
                       .IsRequired();
 
@@ -219,6 +225,45 @@ namespace BackendCode.Data
                       .WithMany()
                       .HasForeignKey(p => p.POST_ID)
                       .HasConstraintName("P_P_FK1");
+            });
+
+            modelBuilder.Entity<COMMENT_COMMENT>(entity =>
+            {
+                entity.ToTable("COMMENT_COMMENT");
+
+                entity.HasKey(e => new { e.COMMENT_ID });
+
+                entity.Property(e => e.ACCOUNT_ID)
+                      .HasMaxLength(100)
+                      .HasColumnType("VARCHAR2(100)")
+                      .IsRequired();
+                entity.Property(e => e.COMMENT_ID)
+                      .HasMaxLength(50)
+                      .HasColumnType("VARCHAR2(100)")
+                      .IsRequired();
+
+                entity.Property(e => e.COMMENTED_COMMENT_ID)
+                      .HasMaxLength(100)
+                      .HasColumnType("VARCHAR2(100)")
+                      .IsRequired();
+
+                entity.Property(e => e.COMMENT_TIME)
+                      .HasColumnType("TIMESTAMP(6)")
+                      .IsRequired();
+
+                entity.Property(e => e.COMMENT_COMTENT)
+                      .HasMaxLength(200)
+                      .HasColumnType("VARCHAR2(200)");
+
+                entity.HasOne(b => b.BUYER)
+                      .WithMany()
+                      .HasForeignKey(b => b.ACCOUNT_ID)
+                      .HasConstraintName("BUYER_ID_FK");
+
+                entity.HasOne(p => p.COMMENT_POST)
+                      .WithMany()
+                      .HasForeignKey(p => p.COMMENTED_COMMENT_ID)
+                      .HasConstraintName("COMMENT_POST_FK");
             });
 
             modelBuilder.Entity<COMPLAIN_POST>(entity =>
@@ -256,6 +301,43 @@ namespace BackendCode.Data
                       .WithMany()
                       .HasForeignKey(r => r.REPORT_ID)
                       .HasConstraintName("R_R_FK");
+            });
+
+            modelBuilder.Entity<COMPLAIN_COMMENT>(entity =>
+            {
+                entity.ToTable("COMPLAIN_COMMENT");
+
+                entity.HasKey(e => new { e.ACCOUNT_ID, e.COMMENT_ID, e.REPORT_ID });
+
+                entity.Property(e => e.ACCOUNT_ID)
+                      .HasMaxLength(100)
+                      .HasColumnType("VARCHAR2(100)")
+                      .IsRequired();
+
+                entity.Property(e => e.COMMENT_ID)
+                      .HasMaxLength(100)
+                      .HasColumnType("VARCHAR2(100)")
+                      .IsRequired();
+
+                entity.Property(e => e.REPORT_ID)
+                      .HasMaxLength(100)
+                      .HasColumnType("VARCHAR2(100)")
+                      .IsRequired();
+
+                entity.HasOne(b => b.BUYER)
+                      .WithMany()
+                      .HasForeignKey(b => b.ACCOUNT_ID)
+                      .HasConstraintName("ACCOUNT_ID_FK");
+
+                entity.HasOne(p => p.COMMENT_POST)
+                      .WithMany()
+                      .HasForeignKey(p => p.COMMENT_ID)
+                      .HasConstraintName("COMMENT_ID_FK");
+
+                entity.HasOne(r => r.REPORT)
+                      .WithMany()
+                      .HasForeignKey(r => r.REPORT_ID)
+                      .HasConstraintName("REPORT_ID_FK");
             });
 
             modelBuilder.Entity<LIKE_POST>(entity =>
@@ -661,12 +743,12 @@ namespace BackendCode.Data
 
                 entity.Property(e => e.POST_ID)
                       .HasMaxLength(50)
-                      .HasColumnType("VARCHAR2(50)")
+                      .HasColumnType("VARCHAR2(100)")
                       .IsRequired();
 
                 entity.Property(e => e.IMAGE_ID)
                       .HasMaxLength(50)
-                      .HasColumnType("VARCHAR2(50)")
+                      .HasColumnType("VARCHAR2(100)")
                       .IsRequired();
 
                 entity.Property(e => e.IMAGE)

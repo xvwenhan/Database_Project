@@ -6,10 +6,19 @@
         public string CommentContext;
     }
 
+    public class CommentModel2
+    {
+        public string CommentId;
+        public string CommentContext;
+    }
     public class CommentDeleteModel
     {
-        public string PostId;
-        public string CommentPeopleId;
+        public string CommentId;
+    }
+
+    public class ReportCommentModel {
+        public string CommentId { get; set; }
+        public string ReportReason { get; set; }
     }
 }
 

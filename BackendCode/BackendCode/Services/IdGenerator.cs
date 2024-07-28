@@ -5,11 +5,13 @@
         private readonly string _filePath;
         private readonly object _lock = new object();
         private int _currentId;
+        private int _idLength;
 
-        public IdGenerator(string filePath)
+        public IdGenerator(string filePath,int idLength=8)
         {
             _filePath = filePath;
             _currentId = ReadCurrentIdFromFile();
+            _idLength = idLength;//默认生成八位长度ID
         }
 
         public string GetNextId()
@@ -18,7 +20,7 @@
             {
                 int newId = _currentId++;
                 WriteCurrentIdToFile(_currentId);
-                return newId.ToString("D8"); // 将newId格式化为8位的字符串
+                return newId.ToString($"D{_idLength}"); // 将newId格式化为固定位数的字符串
             }
         }
 
