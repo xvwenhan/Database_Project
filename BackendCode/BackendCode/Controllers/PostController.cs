@@ -234,7 +234,7 @@ namespace BackendCode.Controllers
         }
 
         //删除评论的评论
-        [HttpDelete("/delete_comment_to_post")]
+        [HttpDelete("/delete_comment_to_comment")]
         [Authorize]
         public async Task<IActionResult> DeleteCommentToComment([FromBody] CommentDeleteModel comment_delete_info)
         {

@@ -654,10 +654,10 @@ namespace BackendCode.Data
                     .HasMaxLength(100)
                     .IsRequired();
 
-                entity.Property(e => e.REPORTING_TIME)
+                entity.Property(e => e.REPORT_TIME)
                     .HasColumnType("TIMESTAMP(6)");
 
-                entity.Property(e => e.REPORTING_REASON)
+                entity.Property(e => e.REPORT_REASON)
                     .HasMaxLength(200);
 
                 entity.Property(e => e.AUDIT_TIME)

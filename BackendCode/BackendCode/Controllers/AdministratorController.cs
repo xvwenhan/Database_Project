@@ -261,8 +261,8 @@ namespace Administrator.Controllers
                             {
                                 reportId = report.REPORT_ID,
                                 buyerAccountId = complainPost.BUYER_ACCOUNT_ID,
-                                reportingTime = report.REPORTING_TIME,
-                                reportingReason = report.REPORTING_REASON,
+                                reportingTime = report.REPORT_TIME,
+                                reportingReason = report.REPORT_REASON,
                                 postContent = post.POST_CONTENT,
                                 auditResults = report.AUDIT_RESULTS,
                             };
