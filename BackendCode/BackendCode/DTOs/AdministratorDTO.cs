@@ -17,13 +17,13 @@ namespace BackendCode.DTOs.Administrator
         public DateTime? startTime { get; set; }
         public DateTime? endTime { get; set; }
         public string? detail { get; set; }
-        //public byte[]? posterImg { get; set; }
+        public string? posterImg { get; set; }
     }
 
     public class ShowReportDTO
     {
         public string? reportId { get; set; }
-        public string? buyerAccountId { get; set; }
+        public string? buyerAccountId { get; set; }//举报人ID
         public DateTime? reportingTime { get; set; }
         public string? reportingReason { get; set; }
         public string? postContent { get; set; }
@@ -50,11 +50,17 @@ namespace BackendCode.DTOs.Administrator
         public DateTime startTime { get; set; }
         public DateTime endTime { get; set; }
         public string? detail { get; set; }
-        public byte[]? posterImg { get; set; }
+        public List<IFormFile>? posterImg { get; set; }
         public string? adminId { get; set; }
     }
     public class DMModel
     {
         public string? marketId { get; set; }
+    }
+    public class ARModel
+    {
+        public string? reportId { get; set; }
+        public string? auditResult { get; set; }
+        public string? adminId { get; set; }
     }
 }
