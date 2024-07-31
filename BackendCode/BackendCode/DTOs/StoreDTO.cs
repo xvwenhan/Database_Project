@@ -17,4 +17,19 @@
         public string StoreId { get; set; }
         public bool InOrOut { get; set; }
     }
+
+    public class OrderDto
+    {
+        public string ORDER_ID { get; set; }
+        public decimal? TOTAL_PAY { get; set; }
+        public decimal? ACTUAL_PAY { get; set; }
+        public string ORDER_STATUS { get; set; }
+        public DateTime? CREATE_TIME { get; set; }
+        public string? DELIVERY_NUMBER { get; set; }
+        public decimal? SCORE { get; set; }
+        public string? REMARK { get; set; }
+        public bool? RETURN_OR_NOT { get; set; }
+        public string? RETURN_STATUS { get; set; }
+    }
+
 }

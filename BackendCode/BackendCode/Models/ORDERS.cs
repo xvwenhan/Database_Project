@@ -18,11 +18,11 @@ namespace BackendCode.Models
         public DateTime? CREATE_TIME { get; set; }
         public DateTime? RECIEVING_TIME { get; set; }
 
-        public string DELIVERY_NUMBER { get; set; }
+        public string? DELIVERY_NUMBER { get; set; }
 
         public decimal? SCORE { get; set; } = 0;
 
-        public string REMARK { get; set; }
+        public string? REMARK { get; set; }
 
         public int? BONUS_CREDITS { get; set; }
 

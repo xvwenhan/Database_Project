@@ -457,6 +457,9 @@ namespace BackendCode.Data
                     .HasMaxLength(50)
                     .IsRequired();
 
+                entity.Property(e => e.STORE_TAG)
+                    .HasMaxLength(50);
+
                 entity.Property(e => e.DESCRIBTION)
                     .HasMaxLength(200)
                     .IsRequired();

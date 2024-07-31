@@ -21,8 +21,8 @@ namespace StoreViewMarket.Controllers
             _dbContext = dbContext;
             _logger = logger;
         }
-        //Post接口，传入店铺id，传回所有市集信息及该店铺参与情况
-        [HttpPost]
+        //Get接口，传入店铺id，传回所有市集信息及该店铺参与情况
+        [HttpGet]
         [Route("GetMarketsByStoreId")]
         public async Task<ActionResult<List<MarketDTO>>> GetMarketsByStoreId(string storeID)
         {
@@ -98,7 +98,7 @@ namespace StoreViewMarket.Controllers
             }
         }
 
-        //Post接口，传入店铺id，市集theme,传回市集信息及该店铺参与情况
+        //Get接口，传入店铺id，市集theme,传回市集信息及该店铺参与情况
         // 搜索 market
         [HttpGet("searchMarket")]
         public async Task<IActionResult> SearchMarket(string theme, string storeID)
