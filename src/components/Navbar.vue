@@ -18,6 +18,18 @@
             <router-link :to="item.link" class="nav-link" active-class="active">{{ item.text }}</router-link>
           </li>
         </ul>
+        <div class="navbar-search">
+          <select class="search-type">
+            <option value="product">商品</option>
+            <option value="vendor">商家</option>
+          </select>
+          <input type="text" placeholder="搜索..." class="search-input"/>
+          <button class="search-button" @click="handleSearch">搜索</button>
+        </div>
+      </div>
+      <div v-if="loading" class="loading-overlay">
+        <div class="loading-spinner"></div>
+        <p>搜索中，请稍候...</p>
       </div>
       <div class="line bottom-line"></div>
     </nav>
@@ -31,10 +43,15 @@
   
 
   ////////////////////////////////////////////////////////////广告页测试
-  import { reactive, toRefs } from 'vue';
+  import { reactive, ref } from 'vue';
   import { ElIcon } from 'element-plus'
   import { Plus } from '@element-plus/icons-vue'  // 确保正确导入 Plus 图标
   import { defineProps } from 'vue';
+
+  import { useRouter } from 'vue-router';
+
+  const router = useRouter();
+  const loading = ref(false);
   const props = defineProps({
   textColor: {
     type: String,
@@ -46,13 +63,28 @@
   const menuItems = reactive([
     { text: "首页", link: "/home" },
     { text: "商品", link: "/merchandise/1" },
-    { text: "市集", link: "/loginandregister" },//仅链接测试下
-    // { text: "市集", link: "/bazaar" },
+    // { text: "市集", link: "/loginandregister" },//仅链接测试下
+    { text: "市集", link: "/bazaar" },
     { text: "论坛", link: "/forum" },
     { text: "购物车", link: "/cart" },
     { text: "订单中心", link: "/ordercentre" },
     { text: "个人中心", link: "/personalcentre" },
   ]);
+
+  const handleSearch = async () => {
+  loading.value = true;
+  const searchType = document.querySelector('.search-type').value;
+  const searchText = document.querySelector('.search-input').value;
+  console.log('搜索类型:', searchType);
+  console.log('搜索内容:', searchText);
+  
+  // 模拟一个异步请求，这里可以替换为真实的 API 调用
+  setTimeout(() => {
+    loading.value = false;
+    // 搜索完成后根据搜索类型跳转到相应的页面
+    router.push(`/merchantshowcase`);
+  }, 2000);
+};
   </script>
   
   <style scoped>
@@ -151,5 +183,73 @@
   .navbar-item .nav-link.active {
     border-bottom: 2px solid red;
   }
+  .navbar-search {
+  margin-left: 20px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  border: 2px solid orange; /* 添加橙色边框 */
+  border-radius: 25px;
+  padding: 5px;
+}
+
+.search-type {
+  height: 35px;
+  border: none;
+  border-radius: 20px;
+  padding: 0 10px;
+  margin-right: 10px;
+  background-color: white;
+  color: #333;
+  outline: none;
+}
+
+.search-input {
+  height: 35px;
+  border: none;
+  outline: none;
+  flex-grow: 1;
+  margin-right: 10px;
+  width: 100px;
+}
+
+.search-button {
+  height: 35px;
+  padding: 0 20px;
+  background-color: orange;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.loading-spinner {
+  border: 5px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 5px solid #3498db;
+  width: 50px;
+  height: 50px;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
   </style>
   
