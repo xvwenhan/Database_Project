@@ -727,6 +727,9 @@ namespace BackendCode.Data
                 entity.Property(e => e.STATUS)
                     .HasMaxLength(10);
 
+                entity.Property(e => e.PHOTO)
+                    .HasColumnType("BLOB");
+
                 entity.HasOne(s => s.STORE)
                     .WithOne()
                     .HasForeignKey<SUBMIT_AUTHENTICATION>(s => s.STORE_ACCOUNT_ID)

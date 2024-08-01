@@ -29,7 +29,16 @@
         public decimal? SCORE { get; set; }
         public string? REMARK { get; set; }
         public bool? RETURN_OR_NOT { get; set; }
-        public string? RETURN_STATUS { get; set; }
+    }
+    public class StoreUpdateDto
+    {
+        public string StoreName { get; set; }
+        public string Address { get; set; }
+    }
+    public class SubmitAuthenticationRequest
+    {
+        public string PhotoBase64 { get; set; }
+        public string Authentication { get; set; }
     }
 
 }
