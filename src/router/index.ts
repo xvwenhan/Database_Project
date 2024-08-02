@@ -17,7 +17,7 @@ import MarketManagement from '../views/MarketManagement.vue';
 import ReportManagement from '../views/ReportManagement.vue';
 import AdminSidebarMenu from '../components/AdminSidebarMenu.vue'
 import MerchantPage from '../views/MerchantPage.vue'
-
+import MerchantShowcase from '../views/MerchantShowcase.vue'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -134,6 +134,10 @@ const router = createRouter({
       path: '/viewpost',
       name: 'ViewPost',
       component: () => import('../views/ViewPost.vue')
+    },
+    { path: '/merchantshowcase', 
+      name: 'MerchantShowcase', 
+      component: MerchantShowcase 
     },
     {
       path: '/about',
