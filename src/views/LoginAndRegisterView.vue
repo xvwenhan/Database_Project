@@ -135,6 +135,9 @@ import 'element-plus/dist/index.css';
 import { ElInput, ElButton ,ElMessage} from 'element-plus';
 import axiosInstance from '../components/axios';
 
+import { useRouter } from 'vue-router';///////////////跳转测试用
+const router = useRouter();
+
 // 输入变量
 const userType = ref('buyer');
 const loginEmail = ref('');
@@ -176,24 +179,30 @@ const clearData=()=>{
   verificationCode.value='';
   realVerificationCode.value='';
 }
+///////////////////////对产品详情页面的传参测试
+const login = () => {
+  router.push({ path: '/productdetail', query: { id: '01' } });
+  // router.push('/productdetail')
+  // router.push('/pay');
+}
 ///////////////////////通信最终版
-const message = ref('');
-const login = async () => {
-  try {
-    const response = await axiosInstance.post('/Account/login', {
-      "username": loginEmail.value,
-      "password": password.value,
-    });
-    message.value = response.data.message;
-  } catch (error) {
-    if (error.response) {
-      message.value = error.response.data.message;
-    } else {
-      message.value = '登陆失败';
-    }
-  }
-  console.log(message.value);
-};
+// const message = ref('');
+// const login = async () => {
+//   try {
+//     const response = await axiosInstance.post('/Account/login', {
+//       "username": loginEmail.value,
+//       "password": password.value,
+//     });
+//     message.value = response.data.message;
+//   } catch (error) {
+//     if (error.response) {
+//       message.value = error.response.data.message;
+//     } else {
+//       message.value = '登陆失败';
+//     }
+//   }
+//   console.log(message.value);
+// };
 ////////////////////////////访问受保护数据测试
 // const show_protected = async () => {
 //   try {

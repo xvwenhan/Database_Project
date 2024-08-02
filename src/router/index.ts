@@ -17,7 +17,7 @@ import MarketManagement from '../views/MarketManagement.vue';
 import ReportManagement from '../views/ReportManagement.vue';
 import AdminSidebarMenu from '../components/AdminSidebarMenu.vue'
 import MerchantPage from '../views/MerchantPage.vue'
-
+import MerchantShowcase from '../views/MerchantShowcase.vue'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -135,6 +135,10 @@ const router = createRouter({
       name: 'ViewPost',
       component: () => import('../views/ViewPost.vue')
     },
+    { path: '/merchantshowcase', 
+      name: 'MerchantShowcase', 
+      component: MerchantShowcase 
+    },
     {
       path: '/about',
       name: 'about',
@@ -142,6 +146,16 @@ const router = createRouter({
       // this generates a separate chunk (About.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
       component: () => import('../views/AboutView.vue')
+    },
+    {
+      path: '/productdetail',
+      name: 'ProductDetail',
+      component: () => import('../views/ProductDetail.vue')
+    },
+    {
+      path: '/pay',
+      name: 'Pay',
+      component: () => import('../views/PayView.vue')
     }
   ]
 })
