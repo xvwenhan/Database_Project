@@ -159,7 +159,8 @@ namespace StoreViewProductController.Controllers
             }
 
             if (!string.IsNullOrEmpty(updatedProduct.ProductName)) product.PRODUCT_NAME = updatedProduct.ProductName;
-            if (updatedProduct.ProductPrice.HasValue) product.PRODUCT_PRICE = updatedProduct.ProductPrice;
+            //if (updatedProduct.ProductPrice.HasValue) 
+                product.PRODUCT_PRICE = updatedProduct.ProductPrice;
             if (!string.IsNullOrEmpty(updatedProduct.Tag)) product.TAG = updatedProduct.Tag;
             if (!string.IsNullOrEmpty(updatedProduct.Description)) product.DESCRIBTION = updatedProduct.Description;
 
