@@ -4,7 +4,7 @@
       <Sidebar @changeView="handleChangeView" />
       <div class="MainContent" style="border: 7px solid white;">
         <component :is="currentView"></component>
-      </div>
+      </div> 
     </div>
   </template>
   
@@ -14,15 +14,16 @@
   import BusinessMarket from './BusinessMarket.vue';
   import BusinessOrder from './BusinessOrderManage.vue';
   import BusinessCommodity from './BusinessCommodity.vue';
+  import UserCenter from './UserCenter.vue';
   
   export default {
-    // name: 'App',
     components: {
       Sidebar,
       BusinessHomePage,
       BusinessMarket,
       BusinessOrder,
       BusinessCommodity,
+      UserCenter
     },
     data() {
       return {
@@ -43,8 +44,13 @@
   }
   
   .MainContent {
-    margin-left: 23vh;
-    margin-top: 6vh;
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    left: 23vh;
+    top:6vh;
+    background-color:white;
   }
   </style>
   ————————————————

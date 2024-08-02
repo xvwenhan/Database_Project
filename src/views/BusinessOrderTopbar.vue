@@ -1,4 +1,3 @@
-<!-- 商家页面组件 -->
 <template>
     <div class="CommodityTopbar">
         <button @click="$emit('changeView', 'BusinessOrderShow')" class="ButtonA">
@@ -24,9 +23,9 @@
 
 <style scoped>
 .CommodityTopbar {
+    /* color: white; */
     width:86%;
     background-color: #51a88e;
-    color: white;
     height: 4vh;
     display: flex;
     position: fixed;

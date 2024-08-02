@@ -1,4 +1,3 @@
-  <!-- 商家页面组件 -->
   <template>
     <div class="BusinessOrder">
          <BusinessOrderTopbar @changeView="handleChangeView" />
@@ -30,4 +29,4 @@
    }
  };
  </script>
- 
+

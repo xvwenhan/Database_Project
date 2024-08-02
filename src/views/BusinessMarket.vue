@@ -1,4 +1,3 @@
-<!-- 商家页面组件 -->
 <template>
   <div class="BusinessMarket">
        <BusinessMarketTopbar @changeView="handleChangeView" />
