@@ -237,7 +237,7 @@ namespace BackendCode.Data
                       .HasColumnType("TIMESTAMP(6)")
                       .IsRequired();
 
-                entity.Property(e => e.EVALUATION_COMTENT)
+                entity.Property(e => e.EVALUATION_CONTENT)
                       .HasMaxLength(200)
                       .HasColumnType("VARCHAR2(200)");
 
@@ -276,7 +276,7 @@ namespace BackendCode.Data
                       .HasColumnType("TIMESTAMP(6)")
                       .IsRequired();
 
-                entity.Property(e => e.COMMENT_COMTENT)
+                entity.Property(e => e.COMMENT_CONTENT)
                       .HasMaxLength(200)
                       .HasColumnType("VARCHAR2(200)");
 
