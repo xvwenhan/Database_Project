@@ -6,18 +6,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using BackendCode.Services;
-using System.Reflection.Emit;
-
-
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using System.IO;
-using Microsoft.Extensions.Hosting;
-using System.ComponentModel.Design;
+using System;
 
 
 namespace BackendCode.Controllers
 {
+    [ApiController]
+    [Route("api/[controller]")]
     public class PostController : Controller
     {
         private readonly YourDbContext _context;
@@ -36,8 +31,8 @@ namespace BackendCode.Controllers
         {
             _context = context;
             postIdGenerator = new IdGenerator(filePath);
-            imageIdGenerator = new IdGenerator(filePath2);
-            commentIdGenerator = new IdGenerator(filePath3,10);//id为10位
+            imageIdGenerator = new IdGenerator(filePath2, 10);//id为10位
+            commentIdGenerator = new IdGenerator(filePath3, 10);//id为10位
             reportIdGenerator = new IdGenerator(filePath4);
         }
 
@@ -82,7 +77,7 @@ namespace BackendCode.Controllers
                         var postImage = new POST_IMAGE
                         {
                             POST_ID = newPost.POST_ID,
-                            IMAGE_ID=imageIdGenerator.GetNextId(),
+                            IMAGE_ID = imageIdGenerator.GetNextId(),
                             IMAGE = imageData
                         };
                         _context.POST_IMAGES.Add(postImage);
@@ -91,7 +86,7 @@ namespace BackendCode.Controllers
                 await _context.SaveChangesAsync();
             }
 
-            return Ok(new { message="帖子上传成功！",postId = newPost.POST_ID }); // 返回信息中含有帖子ID
+            return Ok(new { message = "帖子上传成功！", postId = newPost.POST_ID }); // 返回信息中含有帖子ID
         }
 
         //删除帖子 不需要进行身份验证（方便管理员删） 用户只能删自己的帖子，所以不会出问题
@@ -119,24 +114,24 @@ namespace BackendCode.Controllers
                 return Forbid();
             }
             //已经换成级联删除ON DELETE CASCADE;
-/*            // 删除相关图片
-            var images = _context.POST_IMAGES.Where(img => img.POST_ID == postId);
-            _context.POST_IMAGES.RemoveRange(images);*/
-/*
-            // 删除帖子下的所有评论
-            var comments = _context.COMMENT_POSTS.Where(c => c.POST_ID == postId);
-            _context.COMMENT_POSTS.RemoveRange(comments);
+            /*            // 删除相关图片
+                        var images = _context.POST_IMAGES.Where(img => img.POST_ID == postId);
+                        _context.POST_IMAGES.RemoveRange(images);*/
+            /*
+                        // 删除帖子下的所有评论
+                        var comments = _context.COMMENT_POSTS.Where(c => c.POST_ID == postId);
+                        _context.COMMENT_POSTS.RemoveRange(comments);
 
-            // 删除帖子下的所有点赞记录
-            var likes = _context.LIKE_POSTS.Where(l => l.POST_ID == postId);
-            _context.LIKE_POSTS.RemoveRange(likes);*/
+                        // 删除帖子下的所有点赞记录
+                        var likes = _context.LIKE_POSTS.Where(l => l.POST_ID == postId);
+                        _context.LIKE_POSTS.RemoveRange(likes);*/
 
             // 删除帖子
             _context.POSTS.Remove(post);
 
             await _context.SaveChangesAsync();
 
-            return Ok(new { message = "帖子删除成功。",operator_id=userId});
+            return Ok(new { message = "帖子删除成功。", operator_id = userId });
         }
 
         //为帖子添加评论
@@ -153,16 +148,16 @@ namespace BackendCode.Controllers
             var post = await _context.POSTS.FindAsync(comment.PostId);
             if (post == null)
             {
-                return NotFound(new {message="您评论的帖子不存在！"});
+                return NotFound(new { message = "您评论的帖子不存在！" });
             }
             post.NUMBER_OF_COMMENTS++;//原帖子增加评论数
             COMMENT_POST newcomment = new COMMENT_POST()
             {
-                COMMENT_ID=commentIdGenerator.GetNextId(),
+                COMMENT_ID = commentIdGenerator.GetNextId(),
                 BUYER_ACCOUNT_ID = userId,
                 POST_ID = comment.PostId,
                 EVALUATION_TIME = DateTime.UtcNow,
-                EVALUATION_COMTENT =comment.CommentContext
+                EVALUATION_CONTENT = comment.CommentContext
             };
             _context.COMMENT_POSTS.Add(newcomment);
             await _context.SaveChangesAsync();
@@ -195,11 +190,11 @@ namespace BackendCode.Controllers
                 ACCOUNT_ID = userId,
                 COMMENTED_COMMENT_ID = comment.CommentId,
                 COMMENT_TIME = DateTime.UtcNow,
-                COMMENT_COMTENT = comment.CommentContext
+                COMMENT_CONTENT = comment.CommentContext
             };
             _context.COMMENT_COMMENTS.Add(newcomment);
             await _context.SaveChangesAsync();
-            return Ok(new {message="评论回复成功！",comment_id= newcomment.COMMENT_ID});
+            return Ok(new { message = "评论回复成功！", comment_id = newcomment.COMMENT_ID });
         }
 
         //删除评论
@@ -220,7 +215,7 @@ namespace BackendCode.Controllers
             .FirstOrDefaultAsync(c => c.COMMENT_ID == comment_delete_info.CommentId);
             //测试测试测试！！！！！！！！！
             //这里让帖主也可以删除自己帖子下方的评论
-            if (userId!= comment.BUYER_ACCOUNT_ID&&userRole!="管理员"&&userId!=comment.POST.ACCOUNT_ID)
+            if (userId != comment.BUYER_ACCOUNT_ID && userRole != "管理员" && userId != comment.POST.ACCOUNT_ID)
                 return BadRequest("无权限删除此评论！");
             _context.COMMENT_POSTS.Remove(comment);//删除评论
             var post = await _context.POSTS.FindAsync(comment.POST_ID);
@@ -230,7 +225,7 @@ namespace BackendCode.Controllers
             }
             post.NUMBER_OF_COMMENTS--;//原帖子减少评论数
             await _context.SaveChangesAsync();
-            return Ok(new {message="评论删除成功！",operator_id=userId});
+            return Ok(new { message = "评论删除成功！", operator_id = userId });
         }
 
         //删除评论的评论
@@ -249,7 +244,7 @@ namespace BackendCode.Controllers
             var comment = await _context.COMMENT_COMMENTS
             .FirstOrDefaultAsync(c => c.COMMENT_ID == comment_delete_info.CommentId);
             if (comment == null)
-                return NotFound(new {message="要删除的评论不存在！"});
+                return NotFound(new { message = "要删除的评论不存在！" });
             //也可以使用 .FirstOrDefaultAsync（）方法逐级查询，但效率不如单个 LINQ 查询高
             var post = await (from cc in _context.COMMENT_COMMENTS
                               join cp in _context.COMMENT_POSTS on cc.COMMENTED_COMMENT_ID equals cp.COMMENT_ID
@@ -261,7 +256,7 @@ namespace BackendCode.Controllers
             string postOwner = post.ACCOUNT_ID;
             //测试测试测试！！！！！！！！！
             //这里让帖主也可以删除自己帖子下方的评论
-            if (userId != comment.ACCOUNT_ID && userRole != "管理员" && userId!= postOwner)
+            if (userId != comment.ACCOUNT_ID && userRole != "管理员" && userId != postOwner)
                 return BadRequest("无权限删除此评论！");
             _context.COMMENT_COMMENTS.Remove(comment);//删除评论
 
@@ -426,7 +421,7 @@ namespace BackendCode.Controllers
             return Ok(new { message = "评论举报成功。" });
         }
 
-        // 获取自己写的帖子
+        //获取自己写的帖子
         [HttpGet("get_my_posts")]
         [Authorize]
         public async Task<IActionResult> GetMyPost()
@@ -447,11 +442,11 @@ namespace BackendCode.Controllers
                 return NotFound(new { message = "未找到该用户的帖子。" });
             }
 
-            return Ok(new {message="已找到所有帖子",target_posts=posts});
+            return Ok(new { message = "已找到所有帖子", target_posts = posts });
         }
 
-        // 获取某人写的所有帖子
-        [HttpGet("get_posts")]
+        //获取某人写的所有帖子
+        [HttpGet("get_someone_posts/{userId}")]
         public async Task<IActionResult> GetPostsByUserId(string userId)
         {
             // 检查用户ID是否为空
@@ -473,8 +468,224 @@ namespace BackendCode.Controllers
             return Ok(new { message = "已找到所有帖子", target_posts = posts });
         }
 
-        //获取所有帖子
-        //获取某帖子的所有评论
+        //获取帖子列表
+        [HttpPost("get_all_posts")]
+        public async Task<IActionResult> GetPosts([FromBody] GetPostsModel model)
+        {
+            var postsQuery = _context.POSTS.AsQueryable();
+            //将 DbSet<POST> 转换为 IQueryable<POST>。即从数据库中获取一个可查询的 IQueryable<POST> 对象
+            //表示一个延迟加载的查询，即查询不会立即执行，而是等到你实际迭代查询结果或调用 ToListAsync()、CountAsync() 等方法时才执行。
+            //IQueryable<POST>允许在查询执行前对查询进行进一步的组合操作（如过滤、排序、分页等）。
+
+            switch (model.SortBy)
+            {
+                case "likes":
+                    postsQuery = postsQuery.OrderByDescending(p => p.NUMBER_OF_LIKES);
+                    break;
+                case "time":
+                default:
+                    postsQuery = postsQuery.OrderByDescending(p => p.RELEASE_TIME);
+                    break;
+            }
+
+            var totalPosts = await postsQuery.CountAsync();// 计算总的帖子数量
+            // 分页查询，获取特定页码的帖子数据
+            var posts = await postsQuery
+                .Skip((model.Page - 1) * model.PageSize)
+                .Take(model.PageSize)
+                .Select(p => new
+                {
+                    p.POST_ID,
+                    p.POST_TITLE,
+                    p.RELEASE_TIME,
+                    p.NUMBER_OF_LIKES//这里参量的名称和表中列名一致，想重命名则在前加XXX=p.XXX
+                })
+                .ToListAsync();
+            //.Select选择所需的字段，将查询结果投影成一个新的对象
+            //.ToListAsync()执行查询并将结果转换为一个列表
+            return Ok(new { posts = posts, totalPostNums = totalPosts });
+        }
+
+        //获取某个帖子相关信息（包含其中的图片、其下的一二级评论）
+        [HttpGet("get_a_post_detail/{id}")]
+        public async Task<IActionResult> GetPostDetail(string id)
+        {
+            var postQuery = from p in _context.POSTS
+                            join b in _context.BUYERS on p.ACCOUNT_ID equals b.ACCOUNT_ID
+                            where p.ACCOUNT_ID == id
+                            select new
+                            {
+                                Post = p,
+                                Author = b
+                            };
+
+            var postDetail = await postQuery.FirstOrDefaultAsync();
+
+            if (postDetail == null)
+            {
+                return NotFound();
+            }
+
+            var imagesQuery = from pi in _context.POST_IMAGES
+                              where pi.POST_ID == id
+                              select new ImageModel
+                              {
+                                  ImageId = pi.IMAGE_ID,
+                                  Image = pi.IMAGE 
+                              };
+
+            var commentsQuery = from cp in _context.COMMENT_POSTS
+                                join b in _context.BUYERS on cp.BUYER_ACCOUNT_ID equals b.ACCOUNT_ID
+                                where cp.POST_ID == id
+                                select new CommentDetailModel
+                                {
+                                    CommentId = cp.COMMENT_ID,
+                                    AuthorId =b.ACCOUNT_ID,
+                                    AuthorName=b.USER_NAME,
+                                    CommentContent=cp.EVALUATION_CONTENT,
+                                    CommentTime=cp.EVALUATION_TIME,
+                                    SubComments= new List<SubCommentDetailModel>()
+                                };
+
+            var subCommentsQuery = from cc in _context.COMMENT_COMMENTS
+                                   join b in _context.BUYERS on cc.ACCOUNT_ID equals b.ACCOUNT_ID
+                                   join pc in _context.COMMENT_POSTS on cc.COMMENTED_COMMENT_ID equals pc.COMMENT_ID
+                                   where pc.POST_ID == id
+                                   select new SubCommentDetailModel
+                                   {
+                                       CommentId = cc.COMMENT_ID,
+                                       CommentContent = cc.COMMENT_CONTENT,
+                                       CommentTime = cc.COMMENT_TIME,
+                                       AuthorId = b.ACCOUNT_ID,
+                                       AuthorName = b.USER_NAME,
+                                       CommentedCommentId= cc.COMMENTED_COMMENT_ID
+                                   };
+
+            var images = await imagesQuery.ToListAsync();
+            var comments = await commentsQuery.ToListAsync();
+            var subComments = await subCommentsQuery.ToListAsync();
+            // 创建字典来保存评论和其对应的子评论
+            var commentDict = comments.ToDictionary(c => c.CommentId);
+
+            // 将子评论放入对应的评论中
+            foreach (var subComment in subComments)
+            {
+                if (commentDict.TryGetValue(subComment.CommentedCommentId, out var comment))
+                {
+                    comment.SubComments.Add(subComment);
+                }
+            }
+
+            var postDetailDto = new PostDetailModel
+            {
+                PostId = postDetail.Post.POST_ID,
+                PostTitle = postDetail.Post.POST_TITLE,
+                PostContent=postDetail.Post.POST_CONTENT,
+                AuthorId=postDetail.Author.ACCOUNT_ID,
+                AuthorName = postDetail.Author.USER_NAME,
+                ReleaseTime= postDetail.Post.RELEASE_TIME,
+                NumberOfComments = postDetail.Post. NUMBER_OF_COMMENTS,
+                NumberOfLikes = postDetail.Post.NUMBER_OF_LIKES,
+                Images = images,
+                Comments = comments
+            };
+            return Ok(new {Message="查询成功！",data= postDetailDto });
+        }
+
+        //获取某个帖子相关信息（包含其中的图片、其下的一级评论）
+        [HttpGet("get_a_post/{id}")]
+        public async Task<IActionResult> GetPost(string id)
+        {
+            var postQuery = from p in _context.POSTS
+                            join b in _context.BUYERS on p.ACCOUNT_ID equals b.ACCOUNT_ID
+                            where p.ACCOUNT_ID == id
+                            select new
+                            {
+                                Post = p,
+                                Author = b
+                            };
+
+            var postDetail = await postQuery.FirstOrDefaultAsync();
+
+            if (postDetail == null)
+            {
+                return NotFound();
+            }
+
+            var imagesQuery = from pi in _context.POST_IMAGES
+                              where pi.POST_ID == id
+                              select new ImageModel
+                              {
+                                  ImageId = pi.IMAGE_ID,
+                                  Image = pi.IMAGE
+                              };
+
+            var commentsQuery = from cp in _context.COMMENT_POSTS
+                                join b in _context.BUYERS on cp.BUYER_ACCOUNT_ID equals b.ACCOUNT_ID
+                                where cp.POST_ID == id
+                                select new CommentDetailModel
+                                {
+                                    CommentId = cp.COMMENT_ID,
+                                    AuthorId = b.ACCOUNT_ID,
+                                    AuthorName = b.USER_NAME,
+                                    CommentContent = cp.EVALUATION_CONTENT,
+                                    CommentTime = cp.EVALUATION_TIME
+                                };
+
+            var images = await imagesQuery.ToListAsync();
+            var comments = await commentsQuery.ToListAsync();
+
+            var postDetailDto = new PostDetailModel
+            {
+                PostId = postDetail.Post.POST_ID,
+                PostTitle = postDetail.Post.POST_TITLE,
+                PostContent = postDetail.Post.POST_CONTENT,
+                AuthorId = postDetail.Author.ACCOUNT_ID,
+                AuthorName = postDetail.Author.USER_NAME,
+                ReleaseTime = postDetail.Post.RELEASE_TIME,
+                NumberOfComments = postDetail.Post.NUMBER_OF_COMMENTS,
+                NumberOfLikes = postDetail.Post.NUMBER_OF_LIKES,
+                Images = images,
+                Comments = comments
+            };
+
+            return Ok(new { Message = "查询成功！", data = postDetailDto });
+        }
+
+        //获取某评论的子评论相关信息
+        [HttpGet("get_sub_comments/{commentId}")]
+        public async Task<IActionResult> GetSubComments(string commentId)
+
+        {
+            // 确认输入的评论ID是否存在
+            var commentExists = await _context.COMMENT_POSTS.AnyAsync(cp => cp.COMMENT_ID == commentId);
+
+            if (!commentExists)
+            {
+                return NotFound(new { Message = "评论ID不存在" });
+            }
+            var subCommentsQuery = from cc in _context.COMMENT_COMMENTS
+                                   join b in _context.BUYERS on cc.ACCOUNT_ID equals b.ACCOUNT_ID
+                                   where cc.COMMENTED_COMMENT_ID == commentId
+                                   select new SubCommentDetailModel
+                                   {
+                                       CommentId = cc.COMMENT_ID,
+                                       CommentContent = cc.COMMENT_CONTENT,
+                                       CommentTime = cc.COMMENT_TIME,
+                                       AuthorId = b.ACCOUNT_ID,
+                                       AuthorName = b.USER_NAME,
+                                       CommentedCommentId = cc.COMMENTED_COMMENT_ID
+                                   };
+
+            var subComments = await subCommentsQuery.ToListAsync();
+
+            if (!subComments.Any())
+            {
+                return NotFound();
+            }
+
+            return Ok(new { Message = "查询成功！", Data = subComments });
+        }
 
     }
 }

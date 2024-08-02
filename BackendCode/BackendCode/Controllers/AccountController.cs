@@ -35,8 +35,8 @@ namespace Account.Controllers
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
             //查看是否为买家
-            var user = _context.BUYERS.FirstOrDefault(u => u.ACCOUNT_ID == model.username || u.EMAIL == model.username);
-            if (user != null && VerifyPassword(model.password, user.PASSWORD))
+            var user = _context.BUYERS.FirstOrDefault(u => u.ACCOUNT_ID == model.Username || u.EMAIL == model.Username);
+            if (user != null && VerifyPassword(model.Password, user.PASSWORD))
             {
                 var claims = new List<Claim>
                 {
@@ -64,8 +64,8 @@ namespace Account.Controllers
             }
 
             //查看是否为卖家
-            var user2 = _context.STORES.FirstOrDefault(u => u.ACCOUNT_ID == model.username || u.EMAIL == model.username);
-            if (user2 != null && VerifyPassword(model.password, user2.PASSWORD))
+            var user2 = _context.STORES.FirstOrDefault(u => u.ACCOUNT_ID == model.Username || u.EMAIL == model.Username);
+            if (user2 != null && VerifyPassword(model.Password, user2.PASSWORD))
             {
                 var claims = new List<Claim>
                 {
@@ -92,8 +92,8 @@ namespace Account.Controllers
             }
 
             //查看是否为管理员
-            var user3 = _context.ADMINISTRATORS.FirstOrDefault(u => u.ACCOUNT_ID == model.username || u.EMAIL == model.username);
-            if (user3 != null && VerifyPassword(model.password, user3.PASSWORD))
+            var user3 = _context.ADMINISTRATORS.FirstOrDefault(u => u.ACCOUNT_ID == model.Username || u.EMAIL == model.Username);
+            if (user3 != null && VerifyPassword(model.Password, user3.PASSWORD))
             {
                 var claims = new List<Claim>
                 {
@@ -121,7 +121,7 @@ namespace Account.Controllers
             // 如果验证失败
             if (user != null || user2 != null || user3 != null)
                 return Unauthorized(new { Message = "密码错误！" });
-            return Unauthorized(new { Message = "账号不存在！请先注册" });
+            return NotFound(new { Message = "账号不存在！请先注册" });
         }
 
         /*登出：使用户cookie失效*/
@@ -158,7 +158,7 @@ namespace Account.Controllers
          * 后面这个函数要替换成哈希助手中的验证函数*/
         private bool VerifyPassword(string password, string storedHash)
         {
-            // 实现你的密码验证逻辑（例如哈希比较，这里直接比较了先）
+            // 密码验证逻辑（这里直接比较了先）
             return password == storedHash;
         }
 
@@ -167,15 +167,22 @@ namespace Account.Controllers
         [HttpPost("password_reset")]
         public IActionResult PasswordReset([FromBody] LoginModel model)
         {
-            var user = _context.BUYERS.FirstOrDefault(u => u.ACCOUNT_ID == model.username || u.EMAIL == model.username);
-            user.PASSWORD = model.password;
+            var user = _context.BUYERS.FirstOrDefault(u => u.ACCOUNT_ID == model.Username || u.EMAIL == model.Username);
+            if (user == null)
+            {
+                return NotFound(new { message = "账号不存在！" });
+            }
+            if(VerifyPassword(model.Password, user.PASSWORD))
+                return BadRequest(new {message="新密码不能与旧密码相同！"});
+
+            user.PASSWORD = model.Password;
             _context.SaveChanges();
-            return Ok("密码重置成功！");
+            return Ok(new { message="密码重置成功！" });
         }
 
         /*向指定邮箱发送邮箱验证码
          * 由前端判断验证码是否正确*/
-        [HttpGet("/send_verification_code")]
+        [HttpGet("send_verification_code")]
         public IActionResult SendVerificationCode(string email)
         {
             MailMessage message = new MailMessage();
@@ -214,48 +221,54 @@ namespace Account.Controllers
         }
 
         /*注册：*/
-        [HttpPost("/register")]
+        [HttpPost("register")]
         public IActionResult UserRegister([FromBody] RegisterModel model)
         {
+            //方便测试加入这个//////记得删
+            var userExists = _context.ACCOUNTS.Any(u => u.EMAIL == model.Email);
+            if (userExists)
+            {
+                return BadRequest(new { message = "邮箱已经存在，不能重复注册！" });
+            }
 
             string newId = idGenerator.GetNextId();
-            Console.WriteLine("生成的ID: " + newId);
-
-            /*            Random random = new();
-                        int _userId = random.Next(1, 10000000);
-                        string a = _userId.ToString();
-                        string uidb = a;*/
+            Console.WriteLine("生成的ID: " + newId);//测试用，记得删
 
             string uidb = newId;
-            if (model.role == "买家")
+            if (model.Role == "买家")
             {
                 uidb = "U" + uidb;
                 _context.BUYERS.Add(new BackendCode.Models.BUYER()
                 {
                     ACCOUNT_ID = uidb,
-                    EMAIL = model.email,
-                    PASSWORD = model.password,
+                    EMAIL = model.Email,
+                    PASSWORD = model.Password,
                     TOTAL_CREDITS = 0
                 }) ;
                 _context.SaveChanges();
             }
-            else if (model.role == "商家")
+            else if (model.Role == "商家")
             {
                 uidb = "S" + uidb;
                 _context.STORES.Add(new BackendCode.Models.STORE()
                 {
                     ACCOUNT_ID = uidb,
-                    EMAIL = model.email,
-                    PASSWORD = model.password
+                    EMAIL = model.Email,
+                    PASSWORD = model.Password,
+                    STORE_SCORE = 0,
                 });
                 _context.SaveChanges();
             }
+            else
+            {
+                return BadRequest(new {message="Role字段错误！只能为“买家”或“商家”"});
+            }
 
-            return Ok(uidb);
+            return Ok(new {message="注册成功！",accountId= uidb });
         }
 
         /*检查注册状态*/
-        [HttpGet("/check_register")]
+        [HttpGet("check_register")]
         public IActionResult CheckRegister(string email)
         {
 

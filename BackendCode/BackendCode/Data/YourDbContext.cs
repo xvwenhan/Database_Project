@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using BackendCode.Models;
 using System.Reflection.Metadata;
+using Microsoft.Extensions.Hosting;
 
 namespace BackendCode.Data
 {
@@ -98,6 +99,30 @@ namespace BackendCode.Data
                       .WithOne()
                       .HasForeignKey<BUYER>(e => e.ACCOUNT_ID)
                       .HasConstraintName("BUYER_FK");
+
+                //实验实验//////////////////////////////////////////////
+                entity.HasMany(b => b.POSTS)
+                    .WithOne(p => p.BUYER)
+                    .HasForeignKey(p => p.ACCOUNT_ID)
+                     .HasConstraintName("POST_FK");
+
+                entity.HasMany(b => b.COMMENT_POSTS)
+                        .WithOne(p => p.BUYER)
+                        .HasForeignKey(p => p.BUYER_ACCOUNT_ID);
+
+                entity.HasMany(b => b.COMMENT_COMMENTS)
+                     .WithOne(p => p.BUYER)
+                   .HasForeignKey(p => p.ACCOUNT_ID);
+
+                entity.HasMany(b => b.COMPLAIN_POSTS)
+                        .WithOne(p => p.BUYER)
+                     .HasForeignKey(p => p.BUYER_ACCOUNT_ID);
+
+                entity.HasMany(b => b.COMMENT_COMMENTS)
+                     .WithOne(p => p.BUYER)
+                    .HasForeignKey(p => p.ACCOUNT_ID);
+
+
             });
 
             modelBuilder.Entity<STORE>(entity =>
@@ -212,14 +237,14 @@ namespace BackendCode.Data
                       .HasColumnType("TIMESTAMP(6)")
                       .IsRequired();
 
-                entity.Property(e => e.EVALUATION_COMTENT)
+                entity.Property(e => e.EVALUATION_CONTENT)
                       .HasMaxLength(200)
                       .HasColumnType("VARCHAR2(200)");
 
-                entity.HasOne(b => b.BUYER)
+/*                entity.HasOne(b => b.BUYER)
                       .WithMany()
                       .HasForeignKey(b => b.BUYER_ACCOUNT_ID)
-                      .HasConstraintName("B_B_FK1");
+                      .HasConstraintName("B_B_FK1");*/
 
                 entity.HasOne(p => p.POST)
                       .WithMany()
@@ -251,14 +276,14 @@ namespace BackendCode.Data
                       .HasColumnType("TIMESTAMP(6)")
                       .IsRequired();
 
-                entity.Property(e => e.COMMENT_COMTENT)
+                entity.Property(e => e.COMMENT_CONTENT)
                       .HasMaxLength(200)
                       .HasColumnType("VARCHAR2(200)");
 
-                entity.HasOne(b => b.BUYER)
+/*                entity.HasOne(b => b.BUYER)
                       .WithMany()
                       .HasForeignKey(b => b.ACCOUNT_ID)
-                      .HasConstraintName("BUYER_ID_FK");
+                      .HasConstraintName("BUYER_ID_FK");*/
 
                 entity.HasOne(p => p.COMMENT_POST)
                       .WithMany()
@@ -287,10 +312,10 @@ namespace BackendCode.Data
                       .HasColumnType("VARCHAR2(100)")
                       .IsRequired();
 
-                entity.HasOne(b => b.BUYER)
+/*                entity.HasOne(b => b.BUYER)
                       .WithMany()
                       .HasForeignKey(b => b.BUYER_ACCOUNT_ID)
-                      .HasConstraintName("B_B_FK3");
+                      .HasConstraintName("B_B_FK3");*/
 
                 entity.HasOne(p => p.POST)
                       .WithMany()
@@ -324,10 +349,10 @@ namespace BackendCode.Data
                       .HasColumnType("VARCHAR2(100)")
                       .IsRequired();
 
-                entity.HasOne(b => b.BUYER)
+/*                entity.HasOne(b => b.BUYER)
                       .WithMany()
                       .HasForeignKey(b => b.ACCOUNT_ID)
-                      .HasConstraintName("ACCOUNT_ID_FK");
+                      .HasConstraintName("ACCOUNT_ID_FK");*/
 
                 entity.HasOne(p => p.COMMENT_POST)
                       .WithMany()
@@ -575,10 +600,13 @@ namespace BackendCode.Data
                          .HasMaxLength(40)
                          .IsRequired();
 
-                entity.HasOne(b => b.BUYER)
+/*                entity.HasOne(b => b.BUYER)
                     .WithMany()
                     .HasForeignKey(b => b.ACCOUNT_ID)
-                    .HasConstraintName("POST_FK");
+                    .HasConstraintName("POST_FK")
+                    .IsRequired();*/
+                //这个代码一加就有问题
+                    
             });
 
             modelBuilder.Entity<ORDERS>(entity =>
