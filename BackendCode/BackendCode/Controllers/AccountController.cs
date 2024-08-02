@@ -121,7 +121,7 @@ namespace Account.Controllers
             // 如果验证失败
             if (user != null || user2 != null || user3 != null)
                 return Unauthorized(new { Message = "密码错误！" });
-            return Unauthorized(new { Message = "账号不存在！请先注册" });
+            return NotFound(new { Message = "账号不存在！请先注册" });
         }
 
         /*登出：使用户cookie失效*/
@@ -175,7 +175,7 @@ namespace Account.Controllers
 
         /*向指定邮箱发送邮箱验证码
          * 由前端判断验证码是否正确*/
-        [HttpGet("/send_verification_code")]
+        [HttpGet("send_verification_code")]
         public IActionResult SendVerificationCode(string email)
         {
             MailMessage message = new MailMessage();
@@ -214,7 +214,7 @@ namespace Account.Controllers
         }
 
         /*注册：*/
-        [HttpPost("/register")]
+        [HttpPost("register")]
         public IActionResult UserRegister([FromBody] RegisterModel model)
         {
 
@@ -255,7 +255,7 @@ namespace Account.Controllers
         }
 
         /*检查注册状态*/
-        [HttpGet("/check_register")]
+        [HttpGet("check_register")]
         public IActionResult CheckRegister(string email)
         {
 
