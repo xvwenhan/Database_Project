@@ -482,6 +482,9 @@ namespace BackendCode.Data
                     .HasMaxLength(50)
                     .IsRequired();
 
+                entity.Property(e => e.STORE_TAG)
+                    .HasMaxLength(50);
+
                 entity.Property(e => e.DESCRIBTION)
                     .HasMaxLength(200)
                     .IsRequired();
@@ -751,6 +754,9 @@ namespace BackendCode.Data
 
                 entity.Property(e => e.STATUS)
                     .HasMaxLength(10);
+
+                entity.Property(e => e.PHOTO)
+                    .HasColumnType("BLOB");
 
                 entity.HasOne(s => s.STORE)
                     .WithOne()
