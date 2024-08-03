@@ -10,4 +10,13 @@
         public int? TotalCredits { get; set; }
         public string? Address { get; set; }
     }
+
+    public class BuyerMessageModel
+    {
+        public string AccountId { get; set; }
+        public string? UserName { get; set; }
+        public string? Gender { get; set; }
+        public int? Age { get; set;}
+        public string? Address { get; set; }
+    }
 }

@@ -1,6 +1,7 @@
 ﻿using BackendCode.Data;
 using Microsoft.AspNetCore.Mvc;
 using BackendCode.DTOs.LoginModel;
+using BackendCode.DTOs.UserInfo;
 //以下是为了cookie新加的
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -11,6 +12,7 @@ using System.Net.Mail;
 using System.Net;
 //以下是为了使用ID生成器和哈希等
 using BackendCode.Services;
+using Microsoft.EntityFrameworkCore;
 
 namespace Account.Controllers
 {
@@ -190,9 +192,10 @@ namespace Account.Controllers
 
         /*向指定邮箱发送邮箱验证码
          * 由前端判断验证码是否正确*/
-        [HttpGet("send_verification_code")]
+        [HttpGet("send_verification_code/{email}")]
         public IActionResult SendVerificationCode(string email)
         {
+            Console.WriteLine("进入这个函数");
             if (string.IsNullOrEmpty(email))
             {
                 return BadRequest(new { message = "邮箱不能为空。" });
@@ -248,7 +251,6 @@ namespace Account.Controllers
             }
 
             string newId = idGenerator.GetNextId();
-            Console.WriteLine("生成的ID: " + newId);//测试用，记得删
 
             string uidb = newId;
             if (model.Role == "买家")
@@ -284,7 +286,7 @@ namespace Account.Controllers
         }
 
         /*检查注册状态*/
-        [HttpGet("check_register")]
+        [HttpGet("check_register/{email}")]
         public IActionResult CheckRegister(string email)
         {
             if (string.IsNullOrEmpty(email))
@@ -302,8 +304,94 @@ namespace Account.Controllers
             }
         }
 
+        /*获取特定ID的用户基本信息*/
+        [HttpGet("get_user_message/{userId}")]
+        public async Task<IActionResult> FindUserMessage(string userId)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return BadRequest("用户ID不能为空！");
+            }
+            char role = userId[0];
+            if (role=='U')
+            {
+                var buyer = await _context.BUYERS
+                .Where(b => b.ACCOUNT_ID == userId)
+                .SingleOrDefaultAsync();
+                if (buyer == null)
+                    return NotFound(new { message = "买家ID输入错误" });
+                return Ok(new { message = "用户查找成功！",target_user= buyer,target_role="买家" });
+            }
+            else if(role == 'S')
+            {
+                var seller = await _context.STORES
+                .Where(b => b.ACCOUNT_ID == userId)
+                .SingleOrDefaultAsync();
+                if (seller == null)
+                    return NotFound(new { message = "商家ID输入错误" });
+                return Ok(new { message = "用户查找成功！", target_user = seller, target_role = "商家" });
+            }
+            else
+            {
+                var administrator = await _context.ADMINISTRATORS
+                .Where(b => b.ACCOUNT_ID == userId)
+                  .SingleOrDefaultAsync();
+                if (administrator == null)
+                    return NotFound(new { message = "ID不存在!" });
+                return Ok(new { message = "用户查找成功！", target_user = administrator, target_role = "管理员" });
+            }
+        }
 
+        /*修改买家信息*/
+        [HttpPost("modify_buyer_message")]
+        [Authorize]
+        public async Task<IActionResult>ModifyUserMessage([FromBody] BuyerMessageModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);// 如果模型验证失败，返回错误信息
+            }
+            if (model == null)
+            {
+                return BadRequest("请求体不能为空！");
+            }
+            if (string.IsNullOrWhiteSpace(model.AccountId))
+            {
+                return BadRequest("用户ID不能为空！");
+            }
+            var buyer = await _context.BUYERS
+                .Where(b => b.ACCOUNT_ID == model.AccountId)
+                .SingleOrDefaultAsync();
+            if (buyer == null)
+            {
+                return NotFound(new { message = "没有找到匹配的用户!" });
+            }
+            string tip = "";
+            if (!string.IsNullOrWhiteSpace(model.Address))
+            {
+                buyer.ADDRESS= model.Address;
+                tip += $"地址修改为{model.Address}；";
+            }
+            if (!string.IsNullOrWhiteSpace(model.UserName))
+            {
+                buyer.USER_NAME = model.UserName;
+                tip += $"用户名修改为{model.UserName}；";
+            }
+            if (model.Age.HasValue)
+            {
+                buyer.AGE = model.Age;
+                tip += $"年龄修改为{model.Age}；";
+            }
+            if (!string.IsNullOrWhiteSpace(model.Gender))
+            {
+                buyer.GENDER = model.Gender;
+                tip += $"性别修改为{model.Gender}；";
+            }
+            _context.SaveChanges();
+            return Ok(new {message="用户信息修改成功！",detail=tip});
+        }
 
+        //缺少修改卖家信息和管理员信息
     }
 }
 

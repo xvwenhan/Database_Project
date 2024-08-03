@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using BackendCode.Services;
+using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
+using Microsoft.Extensions.Hosting;
 
 
 namespace BackendCode.Controllers
@@ -771,6 +773,76 @@ namespace BackendCode.Controllers
             return Ok(new { Message = "查询成功！", Data = subComments });
         }
 
+        // 获取标题或作者昵称含某关键词的帖子
+        [HttpGet("search_posts")]
+        public async Task<IActionResult> SearchPostsByName([FromBody] SearchPostsDto model)
+        {
+            if (string.IsNullOrWhiteSpace(model.KeyWord))
+            {
+                return BadRequest("关键词不能为空！");
+            }
+
+            var query = from post in _context.POSTS
+                        join buyer in _context.BUYERS on post.ACCOUNT_ID equals buyer.ACCOUNT_ID
+                        where post.POST_TITLE.Contains(model.KeyWord) || buyer.USER_NAME.Contains(model.KeyWord)
+                        select new PostSimpleModel
+                        {
+                            PostId=post.POST_ID,
+                            PostTitle = post.POST_TITLE,
+                            ReleaseTime =post.RELEASE_TIME,
+                            PostContent=post.POST_CONTENT,
+                            NumberOfLikes=post.NUMBER_OF_LIKES,
+                            NumberOfComments=post.NUMBER_OF_COMMENTS,
+                            AuthorId=post.ACCOUNT_ID,
+                            AuthorName = buyer.USER_NAME
+                        };
+
+            if (model.SortBy.ToLower() == "time")
+            {
+                query = model.Descending ? query.OrderByDescending(p => p.ReleaseTime) : query.OrderBy(p => p.ReleaseTime) ;
+            }
+            else if (model. SortBy.ToLower() == "likes")
+            {
+                query = model.Descending ? query.OrderByDescending(p => p.NumberOfLikes) : query.OrderBy(p => p.NumberOfLikes) ;
+            }
+
+            var posts = await query.ToListAsync();
+            var count = posts.Count;
+            if (count == 0)
+            {
+                return NotFound(new { message = "没有找到匹配的帖子。" });
+            }
+            return Ok(new { message = "搜索成功！", target_posts=posts,amount=count });
+        }
+
+        // 获取昵称或用户名或ID含关键词的用户
+        [HttpGet("search_users/{keyWord}")]
+        public async Task<IActionResult> SearchBuyers(string keyWord)
+        {
+            if (string.IsNullOrWhiteSpace(keyWord))
+            {
+                return BadRequest("关键词不能为空！");
+            }
+
+            var buyers = await _context.BUYERS
+                .Where(b => b.ACCOUNT_ID==keyWord ||
+                            b.USER_NAME.Contains(keyWord) ||
+                            b.EMAIL==keyWord)
+                .Select(b => new
+                {
+                    b.ACCOUNT_ID,
+                    b.USER_NAME,
+                    b.EMAIL
+                })
+                .ToListAsync();
+            var count = buyers.Count;
+            if (count == 0)
+            {
+                return NotFound(new { message = "没有找到匹配的用户！" });
+            }
+
+            return Ok(new {message="搜索成功！",target_users=buyers,amount=count});
+        }
     }
 }
 
