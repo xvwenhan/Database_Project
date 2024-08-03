@@ -12,14 +12,22 @@
             <el-table :data="paginatedData">
               <el-table-column prop="storeId" label="商家账号"></el-table-column>
               <el-table-column prop="status" label="申请状态"></el-table-column>
-              <!-- 待添加认证图片展示 -->
               <el-table-column label="操作">
                 <template #default="scope">
-                  <el-button @click="pass(scope.row.storeId)" :disabled="scope.row.status !== '未处理'" type="primary">通过申请</el-button>
-                  <el-button @click="reject(scope.row.storeId)" :disabled="scope.row.status !== '未处理'" type="danger">拒绝申请</el-button>
+                  <el-button @click="search(scope.row.storeId)" type="primary">查看详情</el-button>
+                  <el-button @click="updateRecord(scope.row.storeId,true)" :disabled="scope.row.status !== '待审核'" type="primary">通过申请</el-button>
+                  <el-button @click="updateRecord(scope.row.storeId,false)" :disabled="scope.row.status !== '待审核'" type="danger">拒绝申请</el-button>
                 </template>
               </el-table-column>
             </el-table>
+
+            <el-dialog v-model="dialogVisible" title="申请详情" width="60%" >
+              <div v-if="selectedDetail">
+                <p>商家账号: {{ selectedDetail.storeId }}</p>
+                <p>审核状态: {{ selectedDetail.status }}</p>
+                <p>申请详情: {{ selectedDetail.authentication }}</p>
+              </div>
+            </el-dialog>
 
             <div class="pagination-container">
               <div class="pagination">
@@ -36,14 +44,6 @@
                 </el-pagination>
               </div>
             </div>
-
-            <div>
-              <!-- <h4>图片测试</h4>
-              <viewer :images="imageArr">
-                  <img v-for="src in imageArr" :src="src.url" :key="src.title">
-              </viewer> -->
-            </div>
-
           </div>
         </div>
       </div>
@@ -56,17 +56,16 @@
 import AdminSidebarMenu from '../components/AdminSidebarMenu.vue'
 import AdminHeaderSec from '../components/AdminHeaderSec.vue'
 import { reactive, ref, computed } from 'vue';
-import { ElTable, ElTableColumn, ElPagination, ElButton, ElMessage } from 'element-plus';
+import { ElTable, ElTableColumn, ElPagination, ElButton, ElMessage, ElDialog } from 'element-plus';
 import 'element-plus/dist/index.css';
 import axiosInstance from '../components/axios';
 
 const records = reactive([]);
 const message = ref('');
-
 const fetchRecords = async () => {
   try {
     const response = await axiosInstance.get('/Administrator/Administrator/GetAllAuthentication');
-    records.values = response.data;
+    records.splice(0, records.length, ...response.data);
     message.value = '已获取申请数据';
   } catch (error) {
     if (error.response) {
@@ -80,24 +79,27 @@ const fetchRecords = async () => {
 fetchRecords();
 
 
-//通过申请按钮的响应函数
-const pass = (id) => {
-  // const store = dataArr.find(store => store.storeId === id);
-  const store = records.find(store => store.storeId === id);
-  if (store) {
-    ElMessage.success("处理完成")
-    store.status = "通过";
+const message1 = ref('');
+const updateRecord = async (storeId,result) => {
+  try {
+    const response = await axiosInstance.put('/Administrator/Administrator/UpdateStoreAuthentication', {
+      "storeId": storeId,
+      "result": result,
+      "adminId": "1"
+    });
+    message1.value = response.data;
+  } catch (error) {
+    if (error.response) {
+      message1.value = error.response.data;
+    } else if (error.request) {
+      message1.value = '请求未收到响应';
+    } else {
+      message1.value = '操作失败';
+    }
   }
-}
-
-const reject = (id) => {
-  // const store = dataArr.find(store => store.storeId === id);
-  const store = records.find(store => store.storeId === id);
-  if (store) {
-    ElMessage.success("处理完成")
-    store.status = "已拒绝";
-  }
-}
+  ElMessage.info(message1.value);
+  console.log(message1.value);
+};
 
 // 设置表格页面大小及当前页数
 const pageSize = ref(9);
@@ -117,6 +119,18 @@ const paginatedData = computed(() => {
 // 切换页面
 const handlePageChange = (page) => {
   currentPage.value = page;
+};
+
+// dialog（详情窗口）相关变量
+const dialogVisible = ref(false);
+const selectedDetail = reactive({});
+
+const search = (id) => {
+  const store = records.find(store => store.storeId === id);
+  if (store) {
+    Object.assign(selectedDetail, store);
+    dialogVisible.value = true;
+  }
 };
 
 </script>

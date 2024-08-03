@@ -73,8 +73,13 @@
             </el-table>
 
             <el-dialog v-model="dialogVisible" title="市集详情" width="60%" >
-              <p>{{ selectedDetail }}</p>
-
+              <div v-if="selectedDetail">
+                <p>主题: {{ selectedDetail.theme }}</p>
+                <p>开始时间: {{ selectedDetail.startTime }}</p>
+                <p>结束时间: {{ selectedDetail.endTime }}</p>
+                <p>详细信息: {{ selectedDetail.detail }}</p>
+                <img :src="selectedDetail.imageSrc" alt="Market Poster" v-if="selectedDetail.imageSrc" />
+              </div>
             </el-dialog>
 
             <div class="pagination-container">
@@ -143,7 +148,7 @@ const currentPage = ref(1);
 
 // dialog（详情窗口）相关变量
 const dialogVisible = ref(false);
-const selectedDetail = ref('');
+const selectedDetail = reactive({});
 
 const totalItems = computed(() => records.length);
 
@@ -161,7 +166,8 @@ const handlePageChange = (page) => {
 const search = (id) => {
   const market = records.find(market => market.marketId === id);
   if (market) {
-    selectedDetail.value = market.detail;
+    Object.assign(selectedDetail, market);
+    selectedDetail.imageSrc = `data:image/png;base64,${selectedDetail.posterImg}`;
     dialogVisible.value = true;
   }
 };
