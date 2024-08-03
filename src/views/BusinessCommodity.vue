@@ -1,4 +1,4 @@
-<!-- 商家页面组件 -->
+
 <template>
    <div class="BusinessCommodity">
         <BusinessCommodityTopbar @changeView="handleChangeView" />
@@ -30,5 +30,6 @@ export default {
   }
 };
 </script>
+
 
 

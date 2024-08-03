@@ -1,4 +1,4 @@
-<!-- 商家页面组件 侧边栏以及头部-->
+<!-- 商家侧边栏顶侧栏页面组件 -->
 <template>
     <div class="Sidebar">
       <ul>
@@ -27,8 +27,11 @@
             <span>旧时王谢堂前燕，飞入寻常百姓家</span>
         </span>
         <ul>
-            <li @click="$emit('changeView', 'BusinessHomePage')">
+            <!-- <li @click="$emit('changeView', 'UserCenter')">
                 <img src="@/assets/home.svg" alt="HomePage" class="TopbarIcon">
+            </li> -->
+            <li @click="show = true">
+                <img src="@/assets/setting.svg" alt="Setting"  id="Setting">
             </li>
             <li @click="showModal = true">
                 <img src="@/assets/setting.svg" alt="Setting" id="Setting">
@@ -36,21 +39,45 @@
         </ul>
     </div>
 
+    <div v-if="show" class="SettingPopUp">
+      <div class="SettingContent">
+        <span class="close" @click="closeModalT">&times;</span>
+        <UserCenter />
+      </div>
+    </div>
+
     <div v-if="showModal" class="SettingPopUp">
       <div class="SettingContent">
-        <span class="close" @click="showModal = false">&times;</span>
-        <p>这里是弹窗内容</p>
+        <span class="close" @click="closeModal">&times;</span>
+        <BusinessSetting />
       </div>
     </div>
   </template>
   
   <script>
+  import BusinessSetting from './BusinessSetting.vue';
+  import UserCenter from './UserCenter.vue'
   export default {
+  
     name: 'Businessnav',
+    components:{
+      BusinessSetting,
+      UserCenter
+    },
     data() {
     return {
-      showModal: false
+      showModal: false,
+      show:false
     };
+    
+  },
+  methods: {
+    closeModal() {
+      this.showModal = false;
+    },
+    closeModalT() {
+      this.show = false;
+    }
   }
   }
   </script>
@@ -67,12 +94,12 @@
   }
   
   .Sidebar ul {
-    list-style: none;
     padding: 0;
   }
   
   .Sidebar li {
     display: flex;
+    /* 垂直中心 */
     align-items: center;
     padding: 1.5vh;
     cursor: pointer;
@@ -106,14 +133,12 @@
   #WebsiteIcon {
     width: 3vh; 
     height: 3vh; 
-    object-fit: cover;  
     margin-right: 1.5vh;
   }
 
   .Topbar ul {
     display: flex;
     list-style: none;
-    margin:0;
   }
   
   .Topbar li {
@@ -123,14 +148,12 @@
   #Setting {
     width: 3vh; 
     height: 3vh; 
-    object-fit: cover; 
     margin: 1vh;
   }
   
   .TopbarIcon {
     width: 3vh; 
     height: 3vh; 
-    object-fit: cover; 
     margin: 1vh;
   }
   
@@ -139,23 +162,24 @@
   }
 
   .SettingPopUp {
-  display: block;
   position: fixed;
   z-index: 1;
   left: 0;
   top: 0;
-  width: 100%;
-  height: 100%;
-  overflow: auto;
+  right: 0;
+  bottom: 0;
   background-color: rgba(0,0,0,0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .SettingContent {
+  color: #065f43;
   background-color: #fefefe;
-  margin: 15% auto;
-  padding: 20px;
-  border: 1px solid #888;
-  width: 80%;
+  display: inline-block;
+  padding:2vh;
+  position: relative;
 }
 
 .close {
@@ -163,8 +187,12 @@
   float: right;
   font-size: 28px;
   font-weight: bold;
+  z-index: 2;
+  position: absolute;
+  right: 10px;
+  top: 10px;
 }
-
+ 
 .close:hover,
 .close:focus {
   color: black;
