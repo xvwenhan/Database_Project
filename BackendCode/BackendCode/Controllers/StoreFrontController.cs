@@ -76,7 +76,7 @@ namespace StoreFrontController.Controllers
                     .ToListAsync();
 
                 var orderCount = orderTotal.Count;
-                var totalRevenue = orderTotal.Sum(o => o.ACTUAL_PAY) ?? 0;
+                var totalRevenue = orderTotal.Sum(o => o.ACTUAL_PAY);
 
                 return Ok(new
                 {

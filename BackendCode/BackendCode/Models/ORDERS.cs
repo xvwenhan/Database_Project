@@ -11,8 +11,8 @@ namespace BackendCode.Models
 
         public string PRODUCT_ID { get; set; }
 
-        public decimal? TOTAL_PAY { get; set; }
-        public decimal? ACTUAL_PAY { get; set; }
+        public decimal TOTAL_PAY { get; set; }
+        public decimal ACTUAL_PAY { get; set; }
 
         public string ORDER_STATUS { get; set; }
         public DateTime? CREATE_TIME { get; set; }
