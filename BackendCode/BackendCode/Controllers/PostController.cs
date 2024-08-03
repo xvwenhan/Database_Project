@@ -1,12 +1,12 @@
 ﻿using BackendCode.Data;
-using BackendCode.DTOs;
+using BackendCode.DTOs.CommentModel;
+using BackendCode.DTOs.PostModel;
 using BackendCode.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using BackendCode.Services;
-using System;
 
 
 namespace BackendCode.Controllers
@@ -41,6 +41,10 @@ namespace BackendCode.Controllers
         [Authorize]
         public async Task<IActionResult> CreatePost([FromForm] PostModel post)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);// 如果模型验证失败，返回错误信息
+            }
             // 从cookie中提取用户ID
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (userId == null)
@@ -94,6 +98,10 @@ namespace BackendCode.Controllers
         [Authorize]
         public async Task<IActionResult> DeletePost(string postId)
         {
+            if (string.IsNullOrEmpty(postId))
+            {
+                return BadRequest(new { message = "帖子ID不能为空。" });
+            }
             // 从cookie中提取用户ID
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (userId == null)
@@ -139,6 +147,10 @@ namespace BackendCode.Controllers
         [Authorize]
         public async Task<IActionResult> AddCommentToPost([FromBody] CommentModel comment)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);// 如果模型验证失败，返回错误信息
+            }
             //从cookie中提取用户ID
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (userId == null)
@@ -157,7 +169,9 @@ namespace BackendCode.Controllers
                 BUYER_ACCOUNT_ID = userId,
                 POST_ID = comment.PostId,
                 EVALUATION_TIME = DateTime.UtcNow,
-                EVALUATION_CONTENT = comment.CommentContext
+                EVALUATION_CONTENT = comment.CommentContext,
+                NUMBER_OF_SUBCOMMENTS = 0
+                
             };
             _context.COMMENT_POSTS.Add(newcomment);
             await _context.SaveChangesAsync();
@@ -169,6 +183,10 @@ namespace BackendCode.Controllers
         [Authorize]
         public async Task<IActionResult> AddCommentToComment([FromBody] CommentModel2 comment)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);// 如果模型验证失败，返回错误信息
+            }
             //从cookie中提取用户ID
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (userId == null)
@@ -180,6 +198,7 @@ namespace BackendCode.Controllers
             {
                 return NotFound(new { message = "您想回复的评论不存在！" });
             }
+            target_comment.NUMBER_OF_SUBCOMMENTS++;//原评论增加子评论数
             var target_post = await _context.POSTS.FindAsync(target_comment.POST_ID);
             if (target_post == null)
                 return NotFound(new { message = "原帖子不存在！" });
@@ -202,6 +221,10 @@ namespace BackendCode.Controllers
         [Authorize]
         public async Task<IActionResult> DeleteCommentToPost([FromBody] CommentDeleteModel comment_delete_info)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);// 如果模型验证失败，返回错误信息
+            }
             //从cookie中提取用户ID
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (userId == null)
@@ -211,18 +234,18 @@ namespace BackendCode.Controllers
             var userRole = User.FindFirst("UserRole")?.Value;
 
             var comment = await _context.COMMENT_POSTS
-            .Include(c => c.POST)
             .FirstOrDefaultAsync(c => c.COMMENT_ID == comment_delete_info.CommentId);
+            if (comment == null) { return NotFound(new {message="评论不存在！"}); }
             //测试测试测试！！！！！！！！！
             //这里让帖主也可以删除自己帖子下方的评论
-            if (userId != comment.BUYER_ACCOUNT_ID && userRole != "管理员" && userId != comment.POST.ACCOUNT_ID)
-                return BadRequest("无权限删除此评论！");
-            _context.COMMENT_POSTS.Remove(comment);//删除评论
             var post = await _context.POSTS.FindAsync(comment.POST_ID);
             if (post == null)
             {
                 return NotFound();
             }
+            if (userId != comment.BUYER_ACCOUNT_ID && userRole != "管理员" && userId != post.ACCOUNT_ID)
+                return BadRequest(new{message= "无权限删除此评论！"});
+            _context.COMMENT_POSTS.Remove(comment);//删除评论
             post.NUMBER_OF_COMMENTS--;//原帖子减少评论数
             await _context.SaveChangesAsync();
             return Ok(new { message = "评论删除成功！", operator_id = userId });
@@ -233,6 +256,10 @@ namespace BackendCode.Controllers
         [Authorize]
         public async Task<IActionResult> DeleteCommentToComment([FromBody] CommentDeleteModel comment_delete_info)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);// 如果模型验证失败，返回错误信息
+            }
             //从cookie中提取用户ID
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (userId == null)
@@ -245,6 +272,14 @@ namespace BackendCode.Controllers
             .FirstOrDefaultAsync(c => c.COMMENT_ID == comment_delete_info.CommentId);
             if (comment == null)
                 return NotFound(new { message = "要删除的评论不存在！" });
+
+            var parent_comment = await _context.COMMENT_POSTS.FindAsync(comment_delete_info.CommentId);
+            if (parent_comment == null)
+            {
+                return NotFound(new { message = "父评论不存在！" });
+            }
+            parent_comment.NUMBER_OF_SUBCOMMENTS--;//父评论减少子评论数
+
             //也可以使用 .FirstOrDefaultAsync（）方法逐级查询，但效率不如单个 LINQ 查询高
             var post = await (from cc in _context.COMMENT_COMMENTS
                               join cp in _context.COMMENT_POSTS on cc.COMMENTED_COMMENT_ID equals cp.COMMENT_ID
@@ -257,7 +292,7 @@ namespace BackendCode.Controllers
             //测试测试测试！！！！！！！！！
             //这里让帖主也可以删除自己帖子下方的评论
             if (userId != comment.ACCOUNT_ID && userRole != "管理员" && userId != postOwner)
-                return BadRequest("无权限删除此评论！");
+                return BadRequest(new { message = "无权限删除此评论！" });
             _context.COMMENT_COMMENTS.Remove(comment);//删除评论
 
             post.NUMBER_OF_COMMENTS--;//原帖子减少评论数
@@ -267,8 +302,13 @@ namespace BackendCode.Controllers
 
         //点赞帖子
         [HttpPost("like_post")]
+        [Authorize]
         public async Task<IActionResult> LikePost([FromBody] LikePostModel like)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);// 如果模型验证失败，返回错误信息
+            }
             //从cookie中提取用户ID
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (userId == null)
@@ -307,6 +347,10 @@ namespace BackendCode.Controllers
         [Authorize]
         public async Task<IActionResult> UnlikePost([FromBody] LikePostModel unlike)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);// 如果模型验证失败，返回错误信息
+            }
             // 从cookie中提取用户ID
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (userId == null)
@@ -344,6 +388,10 @@ namespace BackendCode.Controllers
         [Authorize]
         public async Task<IActionResult> ReportPost([FromBody] ReportPostModel reportModel)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);// 如果模型验证失败，返回错误信息
+            }
             // 从cookie中提取用户ID
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (userId == null)
@@ -384,6 +432,10 @@ namespace BackendCode.Controllers
         [Authorize]
         public async Task<IActionResult> ReportComment([FromBody] ReportCommentModel reportModel)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);// 如果模型验证失败，返回错误信息
+            }
             // 从cookie中提取用户ID
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (userId == null)
@@ -472,6 +524,10 @@ namespace BackendCode.Controllers
         [HttpPost("get_all_posts")]
         public async Task<IActionResult> GetPosts([FromBody] GetPostsModel model)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);// 如果模型验证失败，返回错误信息
+            }
             var postsQuery = _context.POSTS.AsQueryable();
             //将 DbSet<POST> 转换为 IQueryable<POST>。即从数据库中获取一个可查询的 IQueryable<POST> 对象
             //表示一个延迟加载的查询，即查询不会立即执行，而是等到你实际迭代查询结果或调用 ToListAsync()、CountAsync() 等方法时才执行。
@@ -510,6 +566,11 @@ namespace BackendCode.Controllers
         [HttpGet("get_a_post_detail/{id}")]
         public async Task<IActionResult> GetPostDetail(string id)
         {
+            // 检查ID是否为空
+            if (string.IsNullOrEmpty(id))
+            {
+                return BadRequest(new { message = "帖子ID不能为空。" });
+            }
             var postQuery = from p in _context.POSTS
                             join b in _context.BUYERS on p.ACCOUNT_ID equals b.ACCOUNT_ID
                             where p.ACCOUNT_ID == id
@@ -596,6 +657,11 @@ namespace BackendCode.Controllers
         [HttpGet("get_a_post/{id}")]
         public async Task<IActionResult> GetPost(string id)
         {
+            // 检查ID是否为空
+            if (string.IsNullOrEmpty(id))
+            {
+                return BadRequest(new { message = "帖子ID不能为空。" });
+            }
             var postQuery = from p in _context.POSTS
                             join b in _context.BUYERS on p.ACCOUNT_ID equals b.ACCOUNT_ID
                             where p.ACCOUNT_ID == id
@@ -655,8 +721,12 @@ namespace BackendCode.Controllers
         //获取某评论的子评论相关信息
         [HttpGet("get_sub_comments/{commentId}")]
         public async Task<IActionResult> GetSubComments(string commentId)
-
         {
+            // 检查ID是否为空
+            if (string.IsNullOrEmpty(commentId))
+            {
+                return BadRequest(new { message = "评论ID不能为空。" });
+            }
             // 确认输入的评论ID是否存在
             var commentExists = await _context.COMMENT_POSTS.AnyAsync(cp => cp.COMMENT_ID == commentId);
 
@@ -681,7 +751,7 @@ namespace BackendCode.Controllers
 
             if (!subComments.Any())
             {
-                return NotFound();
+                return NotFound(new { Message = "子评论不存在" });
             }
 
             return Ok(new { Message = "查询成功！", Data = subComments });

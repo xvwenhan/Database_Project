@@ -34,6 +34,10 @@ namespace Account.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);// 如果模型验证失败，返回错误信息
+            }
             //查看是否为买家
             var user = _context.BUYERS.FirstOrDefault(u => u.ACCOUNT_ID == model.Username || u.EMAIL == model.Username);
             if (user != null && VerifyPassword(model.Password, user.PASSWORD))
@@ -60,7 +64,7 @@ namespace Account.Controllers
                     new ClaimsPrincipal(claimsIdentity),
                     authProperties);
 
-                return Ok(new { Message = "登录成功！", Role = "买家" });
+                return Ok(new { Message = "登录成功！", Role = "买家" ,userId=user.ACCOUNT_ID});
             }
 
             //查看是否为卖家
@@ -71,7 +75,7 @@ namespace Account.Controllers
                 {
                     new Claim(ClaimTypes.NameIdentifier, user2.ACCOUNT_ID),
                     new Claim("UserRole", "商家"), // 添加用户角色的 Claim为商家
-                    new Claim("UserEmail", user.EMAIL) // 添加用户邮箱
+                    new Claim("UserEmail", user2.EMAIL) // 添加用户邮箱
                     //注意，这里的值若为空就会引发后端报错。因此最好携带主码
                 };
 
@@ -99,7 +103,7 @@ namespace Account.Controllers
                 {
                     new Claim(ClaimTypes.NameIdentifier, user3.ACCOUNT_ID),
                     new Claim("UserRole", "管理员"), // 添加用户角色的 Claim为管理员
-                    new Claim("UserEmail", user.EMAIL) // 添加用户邮箱
+                    new Claim("UserEmail", user3.EMAIL) // 添加用户邮箱
                     //注意，这里的值若为空就会引发后端报错。因此最好携带主码
                 };
 
@@ -167,6 +171,10 @@ namespace Account.Controllers
         [HttpPost("password_reset")]
         public IActionResult PasswordReset([FromBody] LoginModel model)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);// 如果模型验证失败，返回错误信息
+            }
             var user = _context.BUYERS.FirstOrDefault(u => u.ACCOUNT_ID == model.Username || u.EMAIL == model.Username);
             if (user == null)
             {
@@ -185,6 +193,10 @@ namespace Account.Controllers
         [HttpGet("send_verification_code")]
         public IActionResult SendVerificationCode(string email)
         {
+            if (string.IsNullOrEmpty(email))
+            {
+                return BadRequest(new { message = "邮箱不能为空。" });
+            }
             MailMessage message = new MailMessage();
 
             // 设置发件人,发件人需要与设置的邮件发送服务器的邮箱一致
@@ -224,6 +236,10 @@ namespace Account.Controllers
         [HttpPost("register")]
         public IActionResult UserRegister([FromBody] RegisterModel model)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);// 如果模型验证失败，返回错误信息
+            }
             //方便测试加入这个//////记得删
             var userExists = _context.ACCOUNTS.Any(u => u.EMAIL == model.Email);
             if (userExists)
@@ -271,7 +287,10 @@ namespace Account.Controllers
         [HttpGet("check_register")]
         public IActionResult CheckRegister(string email)
         {
-
+            if (string.IsNullOrEmpty(email))
+            {
+                return BadRequest(new { message = "邮箱不能为空。" });
+            }
             var userExists = _context.ACCOUNTS.Any(u => u.EMAIL == email);
             if (userExists)
             {

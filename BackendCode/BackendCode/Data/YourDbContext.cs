@@ -101,7 +101,7 @@ namespace BackendCode.Data
                       .HasConstraintName("BUYER_FK");
 
                 //实验实验//////////////////////////////////////////////
-                entity.HasMany(b => b.POSTS)
+/*                entity.HasMany(b => b.POSTS)
                     .WithOne(p => p.BUYER)
                     .HasForeignKey(p => p.ACCOUNT_ID)
                      .HasConstraintName("POST_FK");
@@ -120,7 +120,7 @@ namespace BackendCode.Data
 
                 entity.HasMany(b => b.COMMENT_COMMENTS)
                      .WithOne(p => p.BUYER)
-                    .HasForeignKey(p => p.ACCOUNT_ID);
+                    .HasForeignKey(p => p.ACCOUNT_ID);*/
 
 
             });
@@ -136,21 +136,18 @@ namespace BackendCode.Data
 
                 entity.Property(e => e.STORE_NAME)
                       .HasMaxLength(20)
-                      .HasColumnType("VARCHAR2(20)")
-                      .IsRequired();
+                      .HasColumnType("VARCHAR2(20)");
 
                 entity.Property(e => e.STORE_SCORE)
                       .HasColumnType("NUMBER(2,1)")
                       .IsRequired();
 
                 entity.Property(e => e.CERTIFICATION)
-                      .HasColumnType("NUMBER(1)")
-                      .IsRequired();
+                      .HasColumnType("NUMBER(1)");
 
                 entity.Property(e => e.ADDRESS)
                       .HasMaxLength(100)
-                      .HasColumnType("VARCHAR2(100)")
-                      .IsRequired();
+                      .HasColumnType("VARCHAR2(100)");
 
                 entity.HasOne<ACCOUNT>()
                       .WithOne()
@@ -240,11 +237,13 @@ namespace BackendCode.Data
                 entity.Property(e => e.EVALUATION_CONTENT)
                       .HasMaxLength(200)
                       .HasColumnType("VARCHAR2(200)");
-
-/*                entity.HasOne(b => b.BUYER)
-                      .WithMany()
-                      .HasForeignKey(b => b.BUYER_ACCOUNT_ID)
-                      .HasConstraintName("B_B_FK1");*/
+                entity.Property(p => p.NUMBER_OF_SUBCOMMENTS)
+                    .HasColumnType("NUMBER(10)")
+                    .IsRequired();
+                /*                entity.HasOne(b => b.BUYER)
+                                      .WithMany()
+                                      .HasForeignKey(b => b.BUYER_ACCOUNT_ID)
+                                      .HasConstraintName("B_B_FK1");*/
 
                 entity.HasOne(p => p.POST)
                       .WithMany()

@@ -1,4 +1,5 @@
-﻿namespace BackendCode.DTOs
+﻿using BackendCode.DTOs.CommentModel;
+namespace BackendCode.DTOs.PostModel
 {
     public class PostModel
     {
