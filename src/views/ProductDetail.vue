@@ -180,8 +180,8 @@ const functionName = () => {
     // 创建一个响应式变量来存储参数
     const productId = ref('');
     // 使用 useRoute 来访问路由参数
-    const route = useRoute();
     const router=useRouter();
+    const route = useRoute();
     // 生命周期钩子，等所有DOM全部挂载后执行
     onMounted(() => {
     productId.value = route.query?.id as string || 'Error';

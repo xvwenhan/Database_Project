@@ -56,8 +56,8 @@
             >
             <div class="registForm" v-show="!isLogin">
       <el-radio-group v-show="!isLookfor" v-model="userType" style="margin-left: 10px;margin-bottom:0px">
-        <el-radio label="buyer">买家</el-radio>
-        <el-radio label="seller">商家</el-radio>
+        <el-radio label="买家">买家</el-radio>
+        <el-radio label="商家">商家</el-radio>
       </el-radio-group>
       <el-input 
         v-model="registerEmail" 
@@ -139,7 +139,7 @@ import { useRouter } from 'vue-router';///////////////跳转测试用
 const router = useRouter();
 
 // 输入变量
-const userType = ref('buyer');
+const userType = ref('买家');
 const loginEmail = ref('');
 const registerEmail = ref('');
 const password = ref('');
@@ -151,6 +151,9 @@ const realVerificationCode=ref('');
 //控制变量
 const isLogin=ref(true);
 const isLookfor=ref(false);
+//el展示信息
+const message = ref('');
+
 // 设置遮挡页的四角和位置
 const styleObj = ref({
   bordertoprightradius: '15px',
@@ -170,7 +173,7 @@ const validateEmail = (email) => {
 };
 // 重置变量
 const clearData=()=>{
-  userType.value='buyer';
+  userType.value='买家';
   loginEmail.value='';
   registerEmail.value='';
   password.value='';
@@ -180,29 +183,43 @@ const clearData=()=>{
   realVerificationCode.value='';
 }
 ///////////////////////对产品详情页面的传参测试
-const login = () => {
-  router.push({ path: '/productdetail', query: { id: '01' } });
+//const login = () => {
+  //router.push({ path: '/productdetail', query: { id: '01' } });
   // router.push('/productdetail')
   // router.push('/pay');
-}
+//}
 ///////////////////////通信最终版
-// const message = ref('');
-// const login = async () => {
-//   try {
-//     const response = await axiosInstance.post('/Account/login', {
-//       "username": loginEmail.value,
-//       "password": password.value,
-//     });
-//     message.value = response.data.message;
-//   } catch (error) {
-//     if (error.response) {
-//       message.value = error.response.data.message;
-//     } else {
-//       message.value = '登陆失败';
-//     }
-//   }
-//   console.log(message.value);
-// };
+ const login = async () => {
+    if(!loginEmail.value||!password.value){
+      ElMessage.error('请保证不为空');
+    } else if(!validateEmail(loginEmail.value)){
+      ElMessage.error('邮箱格式不正确');
+    }else{
+      try {
+        const response = await axiosInstance.post('/Account/login', {
+          "username": loginEmail.value,
+          "password": password.value,
+        });
+        message.value = response.data.message;
+        ElMessage.success(message.value);
+        if(response.data.role=='买家'){
+          router.push('/home');
+        }else if(response.data.role=='商家'){
+          router.push({ path: '/merchantpage', query: { id: response.data.userid } });
+        }else{
+          router.push('/platform-info');
+        }  
+      } catch (error) {
+        if (error.response) {
+          message.value = error.response.data.message;
+        } else {
+          message.value = '登陆失败';
+        }
+        ElMessage.error(message.value);
+        }
+        message.value='';
+      }
+ };
 ////////////////////////////访问受保护数据测试
 // const show_protected = async () => {
 //   try {
@@ -232,60 +249,87 @@ const login = () => {
 //   console.log(message.value);
 // };
 
-/////////////////////////////////////////////仅用于记录登录逻辑
-// const login = () => {
-//       const user = dataArr.find(us =>loginEmail.value===us.email);
-//       if(!loginEmail.value||!password.value){
-//         ElMessage.error('请保证不为空');
-//       } else if(!validateEmail(loginEmail.value)){
-//         ElMessage.error('邮箱格式不正确');
-//       } else if (!user) {
-//         ElMessage.error('邮箱不存在');
-//       } else if (user.psw !== password.value) {
-//         ElMessage.error('密码不正确');
-//       } else {
-//         ElMessage.success('登录成功');
-//       }
-//     };
-const register=()=>{
-      const user=dataArr.find(us=>us.email==registerEmail.value);
-      if(!registerEmail.value||!newPassword.value||!confirmPassword.value||!verificationCode.value){
+const getVerificationCode= async () =>{
+  console.log(registerEmail.value);
+  if(!registerEmail.value){
+    ElMessage.error('请保证邮箱不为空');
+  }else{
+    try {
+      const response = await axiosInstance.get('/Account/send_verification_code',
+      {params: { email: registerEmail.value }});
+      realVerificationCode.value=response.data.verificationCode;
+      ElMessage.success('验证码发送成功');
+    } catch (error) {
+      if (error.response) {
+        message.value = error.response.data;
+      } else {
+        message.value = '获取验证码失败，请重试！';
+      }
+      ElMessage.error(message.value);
+    }
+    message.value='';
+  }
+}
+const register= async () =>{
+  if(!registerEmail.value||!newPassword.value||!confirmPassword.value||!verificationCode.value){
         ElMessage.error('请保证不为空');
       } else if(!validateEmail(registerEmail.value)){
         ElMessage.error('邮箱格式不正确');
-      } else if(user){
-        ElMessage.error('邮箱已绑定');
       }else if(newPassword.value!==confirmPassword.value){
-        ElMessage.error("两次输入密码不一致");
+        ElMessage.error("两次输入密码不一致")
       }else if(!verificationCode.value||verificationCode.value!==realVerificationCode.value){
         ElMessage.error("验证码错误");
       }else{
-        dataArr.push({email:registerEmail.value,psw:newPassword.value});
-        ElMessage.success('注册成功');
-        changeToLogin();
+        try {
+          const response = await axiosInstance.post('/Account/register',{
+            'Email':registerEmail.value,
+            'Password':newPassword.value,
+            'Role':userType.value});
+            message.value=response.data.message;
+            ElMessage.success('注册成功');
+            changeToLogin();
+        } catch (error) {
+          if (error.response) {
+            message.value = error.response.data;
+          } else {
+            message.value = '注册失败';
+          }
+          ElMessage.error(message.value);
+        }
+        message.value='';
       }
 }
-const changPsw=()=>{
-      const user=dataArr.find(us=>us.email==registerEmail.value);
-      if(!registerEmail.value||!newPassword.value||!confirmPassword.value||!verificationCode.value){
+
+const changPsw=async ()=>{
+  if(!registerEmail.value||!newPassword.value||!confirmPassword.value||!verificationCode.value){
         ElMessage.error('请保证不为空');
       } else if(!validateEmail(registerEmail.value)){
         ElMessage.error('邮箱格式不正确');
-      } else if(!user){
-        ElMessage.error('邮箱未注册');
       }else if(newPassword.value!==confirmPassword.value){
-        ElMessage.error("两次输入密码不一致");
+        ElMessage.error("两次输入密码不一致")
       }else if(!verificationCode.value||verificationCode.value!==realVerificationCode.value){
         ElMessage.error("验证码错误");
       }else{
-        user.psw=confirmPassword.value;
-        ElMessage.success('密码修改成功');
-        changeToLogin();
+        try {
+          const response = await axiosInstance.post('/Account/register',{
+            'Username':registerEmail.value,
+            'Password':newPassword.value,
+            });
+            message.value=response.data.message;
+            ElMessage.success(message.value);
+            changeToLogin();
+        } catch (error) {
+          if (error.response) {
+            message.value = error.response.data;
+          } else {
+            message.value = '重置密码失败';
+          }
+          ElMessage.error(message.value);
+        }
+        message.value='';
       }
 }
-const getVerificationCode=()=>{
-  realVerificationCode.value="1111"
-}
+//指场景的切换
 const handleForgetPassword=()=>{
   isLookfor.value=true;
   changeToRegist();
