@@ -101,7 +101,7 @@ const router = createRouter({
       name: 'AdminSidebarMenu', 
       component: AdminSidebarMenu 
     },
-    { path: '/merchantpage', 
+    { path: '/merchantpage',  
       name: 'MerchantPage', 
       component: MerchantPage 
     },

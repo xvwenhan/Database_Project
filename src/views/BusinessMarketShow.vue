@@ -1,65 +1,9 @@
-<!-- 商家页面组件 -->
-<!-- <template>
-    <div class="BusinessMarket">
-      <el-table :data="markets" class="MarketTable" border style="width: 100%;" :header-cell-style="{'text-align': 'center'}">
-      <el-table-column type="index"  />
-      <el-table-column prop="id" label="市集ID" ></el-table-column>
-      <el-table-column prop="topic" label="市集主题" ></el-table-column>
-      <el-table-column prop="begin" label="开始时间" ></el-table-column>
-      <el-table-column prop="end" label="结束时间" ></el-table-column>
-      <el-table-column prop="request" label="折扣要求" ></el-table-column>
-      <el-table-column label="操作">
-        <template #default="scope">
-          <el-button size="mini" type="primary" icon="check">查看</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
-        <router-view/>
-    </div>
-  </template>
-  
-  <script>
-  import { ref } from 'vue';
-  export default {
-    name: 'BusinessMarket',
-    setup() {
-    const markets = ref([
-      {
-        id: '001',
-        topic: 'A',
-        begin: '10:00',
-        end: '12:00',
-        request: '90%'
-      },
-      {
-        id: '002',
-        topic: 'B',
-        begin: '10:00',
-        end: '12:00',
-        request: '90%'
-      },
-      {
-        id: '003',
-        topic: 'C',
-        begin: '10:00',
-        end: '12:00',
-        request: '90%'
-      }
-    ]);
-
-    return {
-      markets
-    };
-  }
-  };
-  </script> -->
-
   <template>
     <div class="CommodityShow">
       <div class="SearchContainer">
-        <el-input v-model="searchName" placeholder="请输入市集主题" style="display: inline-block;"></el-input>
+        <el-input v-model="searchTopic" placeholder="请输入市集主题" style="display: inline-block;"></el-input>
         <el-button type="primary" @click="filterProducts">搜索</el-button>
-        <el-select v-model="value" placeholder="根据折扣要求筛选" style="display: inline-block;">
+        <!-- <el-select v-model="value" placeholder="根据折扣要求筛选" style="display: inline-block;">
         <el-option
           v-for="item in options"
           :key="item.value"
@@ -67,315 +11,203 @@
           :value="item.value"
         />
        </el-select>
-        <el-button type="primary" @click="filterProducts">筛选</el-button>
-  
-        <!-- :row-style="{ borderBottom: '1px solid #303a4f' }" :cell-style="{ borderRight: '1px solid #303a4f' }" -->
+        <el-button type="primary" @click="filterProducts">筛选</el-button> -->
+
       </div>
       <div class="TableContainer">
-      <el-table :data="products" class="CommodityTable" height="720">
+      <el-table :data="currentPageData" class="CommodityTable" height="760">
         <el-table-column type="index"  />
         <el-table-column prop="id" label="市集ID"></el-table-column>
         <el-table-column prop="name" label="市集主题" ></el-table-column>
-        <el-table-column prop="category" label="开始时间" ></el-table-column>
-        <el-table-column prop="price" label="结束时间" ></el-table-column>
-        <el-table-column prop="price" label="折扣要求" ></el-table-column>
+        <el-table-column prop="begin" label="开始时间" ></el-table-column>
+        <el-table-column prop="end" label="结束时间" ></el-table-column>
+        <!-- <el-table-column prop="request" label="折扣要求" ></el-table-column> -->
         <el-table-column label="操作">
           <template #default="scope">
             <el-button-group>
               <el-button size="mini" type="primary" icon="check" @click="handleCheck(scope.row)">查看</el-button>
+              <!-- <el-button size="mini" type="primary" icon="check" >未参与</el-button> -->
+              <el-button
+               size="mini"
+               :type="scope.row.isParticipated ? 'success' : 'primary'"
+               :icon="scope.row.isParticipated ? 'check' : 'circle'"
+               @click="toggleParticipation(scope.row)"
+               >
+                {{ scope.row.isParticipated ? '已参与' : '未参与' }}
+              </el-button>
+              <!-- 全部商品？ -->
             </el-button-group>
           </template>
         </el-table-column>
       </el-table>
     </div>
-    
-    <el-dialog title="商品详情" :visible.sync="dialogVisible">
-        <div v-if="currentProduct">
-          <p>商品ID: {{ currentProduct.id }}</p>
-          <p>商品名称: {{ currentProduct.name }}</p>
-          <p>商品分类: {{ currentProduct.category }}</p>
-          <p>商品价格: {{ currentProduct.price }}</p>
-          <p>是否出售: {{ currentProduct.isOnSale ? '是' : '否' }}</p>
-          <!-- <p>是否出售: {{ currentProduct.description  }}</p>
-          <p>是否出售: {{ currentProduct.image }}</p> -->
+
+      <!-- 查看 -->
+      <div v-if="dialogVisible" class="SettingPopUp">
+      <div v-if="currentProduct" class="SettingContent">
+        <span class="close" @click="dialogVisible = false">&times;</span>
+        <!-- <p>商品ID: {{ currentProduct.id }}</p>
+        <p>商品名称: {{ currentProduct.name }}</p>
+        <p>商品分类: {{ currentProduct.category }}</p>
+        <p>商品价格: {{ currentProduct.price }}</p>
+        <p>是否出售: {{ currentProduct.isOnSale ? '是' : '否' }}</p>
+        <p>商品具体描述: {{ currentProduct.description}}</p>
+        <p>商品图片:
+          <img :src="currentProduct.image" alt="ProductImage">
+        </p> -->
         </div>
-        <template #footer>
-          <el-button @click="dialogVisible = false">关闭</el-button>
-        </template>
-      </el-dialog>
+      </div>  
+
+      <!-- 翻页 -->
+    <div class="paginationContainer">
+      <el-pagination
+        v-model:current-page="currentPage"
+        :page-size="pageSize"
+        :total="totalProducts"
+        layout="total, prev, pager, next, jumper"
+        @current-change="handlePageChange">
+      </el-pagination>
+   </div>
   
-      <!-- <div id="BottomButton">
-        <el-button size="mini" type="primary" icon="Edit" @click="handleEdit(row)">添加商品</el-button>
-        <el-button size="mini" type="danger" icon="Delete" @click="handleDelete(row)">批量删除</el-button>
-      </div> -->
     </div>
   </template>
   
   <script >
-  import { ref } from 'vue';
+  import { ref,computed} from 'vue';
   import imageA from '@/assets/setting.svg';
-  import { ElSelect, ElOption } from 'element-plus';
+  import { ElSelect, ElOption, ElButton } from 'element-plus';
   import 'element-plus/dist/index.css';
   export default{
     components: {
       ElSelect,
-      ElOption,
+      ElOption, 
+      ElButton
     },
     setup() {
       const value = ref('');
-      
-      const options = [
-        { value: 'Option1', label: 'Option1' },
-        { value: 'Option2', label: 'Option2' },
-        { value: 'Option3', label: 'Option3' },
-        { value: 'Option4', label: 'Option4' },
-        { value: 'Option5', label: 'Option5' }
-      ];
-  
-      const customIcon = 'el-icon-arrow-up';
-  
+      const dialogVisible = ref(false);
+      const currentProduct = ref(null);
+      const searchTopic = ref('');
+    
       const products = ref([
         {
           id: '001',
-          name: '商品A',
-          category: '分类1',
-          price: 100,
-          isOnSale: true,
-          description: '这是商品A的描述',
-          image: imageA
-        },
-        {
-          id: '002',
-          name: '商品A',
-          category: '分类1',
-          price: 100,
-          isOnSale: true,
-          description: '这是商品A的描述',
-          image: imageA
-        },
-        {
-          id: '003',
-          name: '商品A',
-          category: '分类1',
-          price: 100,
-          isOnSale: true,
-          description: '这是商品A的描述',
-          image: imageA
-        },
-        {
-          id: '004',
-          name: '商品B',
-          category: '分类2',
-          price: 200,
-          isOnSale: false,
-          description: '这是商品B的描述',
-          image: imageA
-        },
-        {
-          id: '005',
-          name: '商品C',
-          category: '分类3',
-          price: 300,
-          isOnSale: true,
-          description: '这是商品C的描述',
-          image: imageA
-        },
-        {
-          id: '006',
-          name: '商品C',
-          category: '分类3',
-          price: 300,
-          isOnSale: true,
-          description: '这是商品C的描述',
-          image: imageA
-        },
-        {
-          id: '007',
-          name: '商品C',
-          category: '分类3',
-          price: 300,
-          isOnSale: true,
-          description: '这是商品C的描述',
-          image: imageA
-        },
-        {
-          id: '008',
-          name: '商品C',
-          category: '分类3',
-          price: 300,
-          isOnSale: true,
-          description: '这是商品C的描述',
-          image: imageA
-        },
-        {
-          id: '009',
-          name: '商品C',
-          category: '分类3',
-          price: 300,
-          isOnSale: true,
-          description: '这是商品C的描述',
-          image: imageA
-        },
-        {
-          id: '010',
-          name: '商品C',
-          category: '分类3',
-          price: 300,
-          isOnSale: true,
-          description: '这是商品C的描述',
-          image: imageA
-        },
-        {
-          id: '011',
-          name: '商品C',
-          category: '分类3',
-          price: 300,
-          isOnSale: true,
-          description: '这是商品C的描述',
-          image: imageA
-        },
-        {
-          id: '012',
-          name: '商品C',
-          category: '分类3',
-          price: 300,
-          isOnSale: true,
-          description: '这是商品C的描述',
-          image: imageA
-        },
-        {
-          id: '013',
-          name: '商品C',
-          category: '分类3',
-          price: 300,
-          isOnSale: true,
-          description: '这是商品C的描述',
-          image: imageA
-        },
-        {
-          id: '014',
-          name: '商品C',
-          category: '分类3',
-          price: 300,
-          isOnSale: true,
-          description: '这是商品C的描述',
-          image: imageA
-        },
-        {
-          id: '015',
-          name: '商品C',
-          category: '分类3',
-          price: 300,
-          isOnSale: true,
-          description: '这是商品C的描述',
-          image: imageA
-        },
-        {
-          id: '016',
-          name: '商品C',
-          category: '分类3',
-          price: 300,
-          isOnSale: true,
-          description: '这是商品C的描述',
-          image: imageA
-        },
-        {
-          id: '016',
-          name: '商品C',
-          category: '分类3',
-          price: 300,
-          isOnSale: true,
-          description: '这是商品C的描述',
-          image: imageA
-        },
-        {
-          id: '017',
-          name: '商品C',
-          category: '分类3',
-          price: 300,
-          isOnSale: true,
-          description: '这是商品C的描述',
-          image: imageA
-        },
-        {
-          id: '018',
-          name: '商品C',
-          category: '分类3',
-          price: 300,
-          isOnSale: true,
-          description: '这是商品C的描述',
-          image: imageA
-        },
-        {
-          id: '019',
-          name: '商品C',
-          category: '分类3',
-          price: 300,
-          isOnSale: true,
-          description: '这是商品C的描述',
-          image: imageA
-        },
-        {
-          id: '020',
-          name: '商品C',
-          category: '分类3',
-          price: 300,
-          isOnSale: true,
-          description: '这是商品C的描述',
+          name: '市集A',
+          begin: '10点',
+          end: '12点',
+          description: '这是市集A的描述',
           image: imageA
         },
       ]);
-  
-      const dialogVisible = ref(false);
-      const currentProduct = ref(null);
   
       function handleCheck(row) {
         currentProduct.value = row;
         dialogVisible.value = true;
       }
+
+      // const isParticipated = ref(false); // 初始状态为未参与
+      // 根据状态设置按钮的类型、图标和文本
+      // const buttonType = computed(() => (isParticipated.value ? 'success' : 'primary'));
+      // const buttonIcon = computed(() => (isParticipated.value ? 'check' : 'circle'));
+      // const buttonText = computed(() => (isParticipated.value ? '已参与' : '未参与'));
+      // 切换参与状态
+      const toggleParticipation = (row) => {
+        row.isParticipated = !row.isParticipated; // 切换按钮状态
+      };
+
+      // 翻页
+        const pageSize = 20;
+        const currentPage = ref(1);
+        const totalProducts = computed(() => products.value.length);
+        const currentPageData = computed(() => {
+        const start = (currentPage.value - 1) * pageSize;
+        const end = Math.min(start + pageSize, totalProducts.value);
+        return products.value.slice(start, end);
+        });
+        const handlePageChange = (page) => {
+          currentPage.value = page;
+        };
   
       return {
+        pageSize,
+        currentPage,
+        totalProducts,
+        currentPageData,
+        handlePageChange,
         value,
-        options,
         products,
         dialogVisible,
         currentProduct,
-        handleCheck
+        handleCheck,
+        // isParticipated,
+        toggleParticipation,
+        searchTopic
+        // buttonType,
+        // buttonIcon,
+        // buttonText
       };
     }
   }
   </script>
   
-  <style scoped>
+<style scoped>
   .CommodityShow {
     width: 86%;
-    height: 88vh;
+    height: 88.5vh;
     position: fixed;
     top: 10.5vh;
     background-color: rgb(164, 197, 181);
   }
   
   .TableContainer {
-    /* border: 1px solid #303a4f; */
     margin: 10px;
+    margin-top: 0; 
   }
   
-  /* .CommodityTable {
-    background-color: rgb(85, 124, 105);
-    border: 1px solid #303a4f;
-  } */
-  
   .SearchContainer {
-    margin-left: 990px;
     display: flex; 
+    text-align: end;
     align-items: center;
-    height: 50px;
+    height: 60px;
     margin-right: 10px;
     /* background-color: rgb(164, 197, 181); */
   }
   
-  #BottomButton {
-    margin-left: 10px;
-  }
+  .SettingPopUp {
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0,0,0,0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.paginationContainer {
+  display: inline-block;
+}
+
+.SettingContent {
+  color: #065f43;
+  background-color: #fefefe;
+  display: inline-block;
+  padding:5vh;
+}
+
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+ 
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
   
   </style>

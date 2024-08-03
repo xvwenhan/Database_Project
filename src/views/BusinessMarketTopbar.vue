@@ -1,4 +1,3 @@
-<!-- 商家页面组件 -->
 <template>
     <div class="CommodityTopbar">
         <!-- <button @click="$emit('changeView', 'BusinessCommodityShow')" class="ButtonA">
