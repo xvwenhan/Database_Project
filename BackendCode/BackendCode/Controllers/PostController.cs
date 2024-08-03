@@ -573,11 +573,17 @@ namespace BackendCode.Controllers
             }
             var postQuery = from p in _context.POSTS
                             join b in _context.BUYERS on p.ACCOUNT_ID equals b.ACCOUNT_ID
-                            where p.ACCOUNT_ID == id
+                            where p.POST_ID == id
                             select new
                             {
-                                Post = p,
-                                Author = b
+                                PostId = p.POST_ID,
+                                PostTitle = p.POST_TITLE,
+                                PostContent = p.POST_CONTENT,
+                                AccountId = p.ACCOUNT_ID,
+                                UserName = b.USER_NAME,
+                                ReleaseTime = p.RELEASE_TIME,
+                                NumberOfComments = p.NUMBER_OF_COMMENTS,
+                                NumberOfLikes = p.NUMBER_OF_LIKES
                             };
 
             var postDetail = await postQuery.FirstOrDefaultAsync();
@@ -639,14 +645,14 @@ namespace BackendCode.Controllers
 
             var postDetailDto = new PostDetailModel
             {
-                PostId = postDetail.Post.POST_ID,
-                PostTitle = postDetail.Post.POST_TITLE,
-                PostContent=postDetail.Post.POST_CONTENT,
-                AuthorId=postDetail.Author.ACCOUNT_ID,
-                AuthorName = postDetail.Author.USER_NAME,
-                ReleaseTime= postDetail.Post.RELEASE_TIME,
-                NumberOfComments = postDetail.Post. NUMBER_OF_COMMENTS,
-                NumberOfLikes = postDetail.Post.NUMBER_OF_LIKES,
+                PostId = postDetail.PostId,
+                PostTitle = postDetail.PostTitle,
+                PostContent = postDetail.PostContent,
+                AuthorId = postDetail.AccountId,
+                AuthorName = postDetail.UserName,
+                ReleaseTime = postDetail.ReleaseTime,
+                NumberOfComments = postDetail.NumberOfComments,
+                NumberOfLikes = postDetail.NumberOfLikes,
                 Images = images,
                 Comments = comments
             };
@@ -664,11 +670,17 @@ namespace BackendCode.Controllers
             }
             var postQuery = from p in _context.POSTS
                             join b in _context.BUYERS on p.ACCOUNT_ID equals b.ACCOUNT_ID
-                            where p.ACCOUNT_ID == id
+                            where p.POST_ID == id
                             select new
                             {
-                                Post = p,
-                                Author = b
+                                PostId = p.POST_ID,
+                                PostTitle = p.POST_TITLE,
+                                PostContent = p.POST_CONTENT,
+                                AccountId=p.ACCOUNT_ID,
+                                UserName=b.USER_NAME,
+                                ReleaseTime=p.RELEASE_TIME,
+                                NumberOfComments = p.NUMBER_OF_COMMENTS,
+                                NumberOfLikes = p.NUMBER_OF_LIKES
                             };
 
             var postDetail = await postQuery.FirstOrDefaultAsync();
@@ -703,19 +715,21 @@ namespace BackendCode.Controllers
 
             var postDetailDto = new PostDetailModel
             {
-                PostId = postDetail.Post.POST_ID,
-                PostTitle = postDetail.Post.POST_TITLE,
-                PostContent = postDetail.Post.POST_CONTENT,
-                AuthorId = postDetail.Author.ACCOUNT_ID,
-                AuthorName = postDetail.Author.USER_NAME,
-                ReleaseTime = postDetail.Post.RELEASE_TIME,
-                NumberOfComments = postDetail.Post.NUMBER_OF_COMMENTS,
-                NumberOfLikes = postDetail.Post.NUMBER_OF_LIKES,
+                PostId = postDetail.PostId,
+                PostTitle = postDetail.PostTitle,
+                PostContent = postDetail.PostContent,
+                AuthorId = postDetail.AccountId,
+                AuthorName = postDetail.UserName,
+                ReleaseTime = postDetail.ReleaseTime,
+                NumberOfComments = postDetail.NumberOfComments,
+                NumberOfLikes = postDetail.NumberOfLikes,
                 Images = images,
                 Comments = comments
             };
 
             return Ok(new { Message = "查询成功！", data = postDetailDto });
+
+
         }
 
         //获取某评论的子评论相关信息

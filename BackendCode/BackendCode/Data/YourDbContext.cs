@@ -11,7 +11,6 @@ namespace BackendCode.Data
            : base(options)
         {
         }
-
         public virtual DbSet<ACCOUNT> ACCOUNTS { get; set; }
         public virtual DbSet<ADMINISTRATOR> ADMINISTRATORS { get; set; }
         public virtual DbSet<BUYER> BUYERS { get; set; }
@@ -35,7 +34,6 @@ namespace BackendCode.Data
         public virtual DbSet<SUBMIT_AUTHENTICATION> SUBMIT_AUTHENTICATIONS { get; set; }
         public virtual DbSet<WALLET> WALLETS { get; set; }
         public virtual DbSet<POST_IMAGE> POST_IMAGES { get; set; }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             /* 配置TPT表继承策略 */
