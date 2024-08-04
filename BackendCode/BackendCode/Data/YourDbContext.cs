@@ -49,7 +49,7 @@ namespace BackendCode.Data
 
                 entity.Property(e => e.USER_NAME)
                        .HasMaxLength(20)
-                       .HasColumnType("VARCHAR2(20)");
+                       .HasColumnType("VARCHAR2(30)");
 
                 entity.Property(e => e.EMAIL)
                        .HasMaxLength(50)
@@ -57,7 +57,9 @@ namespace BackendCode.Data
 
                 entity.Property(e => e.PASSWORD)
                        .HasMaxLength(15)
-                       .HasColumnType("VARCHAR2(15)");
+                       .HasColumnType("VARCHAR2(15)")
+                       .IsRequired();
+                        
             });
 
             modelBuilder.Entity<ADMINISTRATOR>(entity =>

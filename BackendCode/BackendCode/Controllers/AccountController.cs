@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using BackendCode.DTOs.LoginModel;
 using BackendCode.DTOs.UserInfo;
+using Microsoft.Extensions.Logging;
 //以下是为了cookie新加的
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -13,6 +14,7 @@ using System.Net;
 //以下是为了使用ID生成器和哈希等
 using BackendCode.Services;
 using Microsoft.EntityFrameworkCore;
+using BackendCode.Controllers;
 
 namespace Account.Controllers
 {
@@ -23,11 +25,13 @@ namespace Account.Controllers
         private readonly YourDbContext _context;
         public string filePath = "./Services/account_id.txt";
         public IdGenerator idGenerator;
+        private readonly ILogger<YourController> _logger;
 
-        public AccountController(YourDbContext context)
+        public AccountController(YourDbContext context, ILogger<YourController> logger)
         {
             _context = context;
             idGenerator = new IdGenerator(filePath);
+            _logger = logger;//方便调试///////////////////////
         }
 
         /*登录：
@@ -345,7 +349,7 @@ namespace Account.Controllers
         /*修改买家信息*/
         [HttpPost("modify_buyer_message")]
         [Authorize]
-        public async Task<IActionResult>ModifyUserMessage([FromBody] BuyerMessageModel model)
+        public async Task<IActionResult>ModifyBuyerMessage([FromBody] BuyerMessageModel model)
         {
             if (!ModelState.IsValid)
             {
@@ -391,7 +395,101 @@ namespace Account.Controllers
             return Ok(new {message="用户信息修改成功！",detail=tip});
         }
 
-        //缺少修改卖家信息和管理员信息
+        /*修改商家信息*/
+        [HttpPost("modify_seller_message")]
+        [Authorize]
+        public async Task<IActionResult> ModifySellerMessage([FromBody] SellerMessageModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);// 如果模型验证失败，返回错误信息
+            }
+            if (model == null)
+            {
+                return BadRequest("请求体不能为空！");
+            }
+            if (string.IsNullOrWhiteSpace(model.AccountId))
+            {
+                return BadRequest("用户ID不能为空！");
+            }
+
+            try
+            {
+                var seller = await _context.STORES
+                .Where(b => b.ACCOUNT_ID == model.AccountId)
+                    .SingleOrDefaultAsync();
+
+                if (seller == null)
+                {
+                    return NotFound(new { message = "没有找到匹配的用户!" });
+                }
+                string tip = "";
+                Console.WriteLine($"地址:{seller.ADDRESS}");
+                Console.WriteLine($"ID:{seller.ACCOUNT_ID}");
+                Console.WriteLine($"用户名:{seller.USER_NAME}");
+                Console.WriteLine($"店铺名:{seller.STORE_NAME}");
+                if (!string.IsNullOrWhiteSpace(model.Address))
+                {
+                    Console.WriteLine($"地址修改为{model.Address}");
+                    seller.ADDRESS = model.Address;
+                    tip += $"地址修改为{model.Address}；";
+                }
+                if (!string.IsNullOrWhiteSpace(model.UserName))
+                {
+                    Console.WriteLine($"用户名修改为{model.UserName}");
+                    seller.USER_NAME = model.UserName;
+                    tip += $"用户名修改为{model.UserName}；";
+                }
+                if (!string.IsNullOrWhiteSpace(model.StoreName))
+                {
+                    Console.WriteLine($"店铺名修改为{model.StoreName}");
+                    seller.STORE_NAME = model.StoreName;
+                    tip += $"店铺名修改为{model.StoreName}；";
+                }
+                _context.SaveChanges();
+                return Ok(new { message = "用户信息修改成功！", detail = tip });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while querying the posts.");
+                throw;
+            }
+           
+        }
+
+        /*修改管理员信息*/
+        [HttpPost("modify_administrator_message")]
+        [Authorize]
+        public async Task<IActionResult> ModifyAdministratorMessage([FromBody] AdministratorMessageModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);// 如果模型验证失败，返回错误信息
+            }
+            if (model == null)
+            {
+                return BadRequest("请求体不能为空！");
+            }
+            if (string.IsNullOrWhiteSpace(model.AccountId))
+            {
+                return BadRequest("用户ID不能为空！");
+            }
+            var administrator = await _context.ADMINISTRATORS
+                .Where(b => b.ACCOUNT_ID == model.AccountId)
+                .SingleOrDefaultAsync();
+            if (administrator == null)
+            {
+                return NotFound(new { message = "没有找到匹配的用户!" });
+            }
+            string tip = "";
+            if (!string.IsNullOrWhiteSpace(model.UserName))
+            {
+                administrator.USER_NAME = model.UserName;
+                tip += $"用户名修改为{model.UserName}；";
+            }
+            _context.SaveChanges();
+            return Ok(new { message = "用户信息修改成功！", detail = tip });
+        }
     }
 }
 

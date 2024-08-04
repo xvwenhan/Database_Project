@@ -530,7 +530,20 @@ namespace BackendCode.Controllers
             {
                 return BadRequest(ModelState);// 如果模型验证失败，返回错误信息
             }
-            var postsQuery = _context.POSTS.AsQueryable();
+            var postsQuery = from post in _context.POSTS
+                             join buyer in _context.BUYERS
+                             on post.ACCOUNT_ID equals buyer.ACCOUNT_ID
+                             select new
+                             {
+                                 PostId=post.POST_ID,
+                                 PostTitle=post.POST_TITLE,
+                                 ReleaseTime=post.RELEASE_TIME,
+                                 NumberOfLikes=post.NUMBER_OF_LIKES,
+                                 NumberOfComments=post.NUMBER_OF_COMMENTS,
+                                 AuthorId = buyer.ACCOUNT_ID,
+                                 AuthorName = buyer.USER_NAME
+                             };
+
             //将 DbSet<POST> 转换为 IQueryable<POST>。即从数据库中获取一个可查询的 IQueryable<POST> 对象
             //表示一个延迟加载的查询，即查询不会立即执行，而是等到你实际迭代查询结果或调用 ToListAsync()、CountAsync() 等方法时才执行。
             //IQueryable<POST>允许在查询执行前对查询进行进一步的组合操作（如过滤、排序、分页等）。
@@ -538,11 +551,11 @@ namespace BackendCode.Controllers
             switch (model.SortBy)
             {
                 case "likes":
-                    postsQuery = postsQuery.OrderByDescending(p => p.NUMBER_OF_LIKES);
+                    postsQuery = postsQuery.OrderByDescending(p => p.NumberOfLikes);
                     break;
                 case "time":
                 default:
-                    postsQuery = postsQuery.OrderByDescending(p => p.RELEASE_TIME);
+                    postsQuery = postsQuery.OrderByDescending(p => p.NumberOfComments);
                     break;
             }
 
@@ -553,12 +566,16 @@ namespace BackendCode.Controllers
                 .Take(model.PageSize)
                 .Select(p => new
                 {
-                    p.POST_ID,
-                    p.POST_TITLE,
-                    p.RELEASE_TIME,
-                    p.NUMBER_OF_LIKES//这里参量的名称和表中列名一致，想重命名则在前加XXX=p.XXX
+                    p.PostId,
+                    p.PostTitle,
+                    p.ReleaseTime,//这里参量的名称和表中列名一致，想重命名则在前加XXX=p.XXX
+                    p.NumberOfLikes,
+                    p.NumberOfComments,
+                    p.AuthorId,
+                    p.AuthorName
                 })
                 .ToListAsync();
+
             //.Select选择所需的字段，将查询结果投影成一个新的对象
             //.ToListAsync()执行查询并将结果转换为一个列表
             return Ok(new { posts = posts, totalPostNums = totalPosts });

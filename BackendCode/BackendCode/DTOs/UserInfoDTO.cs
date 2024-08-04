@@ -19,4 +19,18 @@
         public int? Age { get; set;}
         public string? Address { get; set; }
     }
+
+    public class SellerMessageModel
+    {
+        public string AccountId { get; set; }
+        public string? UserName { get; set; }
+        public string? StoreName { get; set; }
+        public string? Address { get; set; }
+    }
+
+    public class AdministratorMessageModel
+    {
+        public string AccountId { get; set; }
+        public string? UserName { get; set; }
+    }
 }
