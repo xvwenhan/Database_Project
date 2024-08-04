@@ -6,7 +6,7 @@ using BackendCode.DTOs.Favourite;
 namespace Favourite.Controllers
 {
     [ApiController]
-    [Route("api/Favourite/[controller]")]
+    [Route("api/[controller]")]
     public class FavouriteController : ControllerBase
     {
         private readonly YourDbContext _dbContext;
@@ -16,12 +16,12 @@ namespace Favourite.Controllers
             _dbContext = context;
         }
 
-        [HttpGet("GetFavoriteProducts")]
-        public async Task<IActionResult> GetFavoriteProductsAsync(string userId)
+        [HttpPost("GetFavoriteProducts")]
+        public async Task<IActionResult> GetFavoriteProductsAsync([FromBody] GFPModel model)
         {
             // 获取用户喜欢的商品ID
             var favoriteProductIds = await _dbContext.BUYER_PRODUCT_BOOKMARKS
-                .Where(bp => bp.BUYER_ACCOUNT_ID == userId)
+                .Where(bp => bp.BUYER_ACCOUNT_ID == model.userId)
                 .Select(bp => bp.PRODUCT_ID)
                 .ToListAsync();
 
@@ -37,7 +37,7 @@ namespace Favourite.Controllers
 
             var productDtos = favoriteProducts.Select(p => new FavouriteProductsDTO
             {
-                BuyerId = userId,
+                BuyerId = model.userId,
                 StoreId = p.ACCOUNT_ID,
                 ProductId=p.PRODUCT_ID,
                 ProductPrice=p.PRODUCT_PRICE,
@@ -45,6 +45,38 @@ namespace Favourite.Controllers
                 Tag=p.TAG
 
             }) .ToList();
+            // 返回商品信息
+            return Ok(productDtos);
+        }
+
+
+        [HttpPost("GetFavoriteStores")]
+        public async Task<IActionResult> GetFavoriteStoresAsync([FromBody] GFPModel model)
+        {
+            // 获取用户喜欢的商店ID
+            var favoriteStoreIds = await _dbContext.BUYER_STORE_BOOKMARKS
+                .Where(bp => bp.BUYER_ACCOUNT_ID == model.userId)
+                .Select(bp => bp.STORE_ACCOUNT_ID)
+                .ToListAsync();
+
+            // 通过商店ID获取商店详细信息
+            var favoriteStores = await _dbContext.STORES
+                .Where(p => favoriteStoreIds.Contains(p.ACCOUNT_ID))
+                .ToListAsync();
+
+            if (favoriteStores == null || !favoriteStores.Any())
+            {
+                return NotFound("No stores found for the given user ID.");
+            }
+
+            var productDtos = favoriteStores.Select(p => new FavouriteStoresDTO
+            {
+                BuyerId = model.userId,
+                StoreId = p.ACCOUNT_ID,
+                StoreName = p.STORE_NAME,
+                StoreScore = p.STORE_SCORE,
+
+            }).ToList();
             // 返回商品信息
             return Ok(productDtos);
         }

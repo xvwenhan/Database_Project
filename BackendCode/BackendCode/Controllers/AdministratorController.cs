@@ -6,7 +6,7 @@ using BackendCode.DTOs.Administrator;
 namespace Administrator.Controllers
 {
     [ApiController]
-    [Route("api/Administrator/[controller]")]
+    [Route("api/[controller]")]
     public class AdministratorController : ControllerBase
     {
         private readonly YourDbContext _dbContext;

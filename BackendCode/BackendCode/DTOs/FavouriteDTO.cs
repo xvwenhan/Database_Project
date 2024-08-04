@@ -22,4 +22,9 @@ namespace BackendCode.DTOs.Favourite
         public decimal? StoreScore { get; set; }
 
     }
+
+    public class GFPModel
+    {
+        public string? userId { get; set; }
+    }
 }
