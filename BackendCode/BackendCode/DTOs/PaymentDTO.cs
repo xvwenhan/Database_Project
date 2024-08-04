@@ -12,12 +12,34 @@
         public decimal Balance { get; set; }
     }
 
-    public class OrderPaymentDTO
+    public class OrderDTO
     {
         public string BuyerId { get; set; }
         public string ProductId { get; set; }
-        public string StoreId { get; set; }
-        public decimal ActualPay { get; set; }
+    }
+
+    public class OrderRelatedDTO
+    {
+        public decimal credits { get; set; }
+        public string address { get; set; } //默认收货地址
+        public string username { get; set; } //收货人名称
+        public string orderId { get; set; }
+        public DateTime createTime { get; set; }
+    }
+
+    public class OrderConfirmDTO
+    {
+        public string orderId { get; set; }
+        public string order_address { get; set; }
+        public string username { get; set; }
+        public decimal actual_pay { get; set; }
+        public decimal total_pay { get; set; }
+    }
+
+    public class CreditsDTO
+    {
+        public int? BonusCredits { get; set; }
+        public int Credits { get; set; }
     }
 
     public class RechargeDTO

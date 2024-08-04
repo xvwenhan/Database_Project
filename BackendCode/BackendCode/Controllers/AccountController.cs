@@ -25,9 +25,9 @@ namespace Account.Controllers
         private readonly YourDbContext _context;
         public string filePath = "./Services/account_id.txt";
         public IdGenerator idGenerator;
-        private readonly ILogger<YourController> _logger;
+        private readonly ILogger<AccountController> _logger;
 
-        public AccountController(YourDbContext context, ILogger<YourController> logger)
+        public AccountController(YourDbContext context, ILogger<AccountController> logger)
         {
             _context = context;
             idGenerator = new IdGenerator(filePath);

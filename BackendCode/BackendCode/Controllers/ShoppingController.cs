@@ -249,6 +249,5 @@ namespace BackendCode.Controllers
 
             return File(product.PRODUCT_PIC, "image/jpeg"); //返回商品图片
         }
-
     }
 }

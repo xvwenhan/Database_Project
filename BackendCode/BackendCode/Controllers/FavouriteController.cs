@@ -242,6 +242,4 @@ namespace Favourite.Controllers
             return Ok("取消收藏商品成功"); //返回取消收藏成功
         }
     }
-
-   
 }

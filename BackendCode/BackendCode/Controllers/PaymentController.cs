@@ -10,6 +10,11 @@ using Alipay.AopSdk.Core.Response;
 using Alipay.AopSdk.Core;
 using Newtonsoft.Json;
 using System.Threading.Tasks;
+using System.Net;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System.Data;
+using UnityEngine.SocialPlatforms.Impl;
+using BackendCode.DTOs.Store;
 
 namespace BackendCode.Controllers
 {
@@ -129,57 +134,62 @@ namespace BackendCode.Controllers
         }
 
         /********************************/
-        /* 创建订单信息接口             */
-        /* 生成订单信息 存入数据库      */
-        /* 更新买家钱包余额             */
+        /* 生产订单信息接口             */
+        /* 传入{buyerId,productId}      */
+        /* 初步生成订单信息 存入数据库  */
         /********************************/
         [HttpPost("AddOrders")]
-        public async Task<IActionResult> AddOrdersAsync([FromForm] OrderPaymentDTO paymentDto)
+        public async Task<IActionResult> AddOrdersAsync([FromForm] OrderDTO orderDTO)
         {
-            string orderId = Guid.NewGuid().ToString(); //随机生成订单号
+            /* 找到对应商品 */
+            var product = await _dbContext.PRODUCTS.FirstOrDefaultAsync(o => o.PRODUCT_ID == orderDTO.ProductId);
+            if (product == null) //商品ID不存在
+            {
+                return NotFound("未找到商品");
+            }
+            if(product.SALE_OR_NOT) //商品已经售出
+            {
+                return BadRequest("商品已出售");
+            }
+
+            /* 获取买家信息 */
+            var buyer = await _dbContext.BUYERS.FirstOrDefaultAsync(w => w.ACCOUNT_ID == orderDTO.BuyerId);
+            if (buyer == null) //买家ID不存在
+            {
+                return NotFound("未找到买家信息");
+            }
+
+            /* 获取商家信息 */
+            var store = await _dbContext.STORES.FirstOrDefaultAsync(w => w.ACCOUNT_ID == product.ACCOUNT_ID);
+            if (store == null) //商家ID不存在
+            {
+                return NotFound("未找到商家信息");
+            }
+
+            /* 随机生成订单号 */
+            Guid guid = Guid.NewGuid(); //生成一个Guid
+            int hashCode = Math.Abs(guid.GetHashCode()); //获取Guid的哈希码，并取其绝对值
+            string orderId = hashCode.ToString("X").PadLeft(10, '0'); //字符串前十个字符
+            //如果生成的字符串长度超过10位，则截取前10位
+            if (orderId.Length > 10)
+            {
+                orderId = orderId.Substring(0, 10);
+            }
 
             /* 检查订单号是否已存在 */
             var existingOrder = await _dbContext.ORDERS.FirstOrDefaultAsync(o => o.ORDER_ID == orderId);
             //如果订单号已存在，重复生成
-            while (existingOrder != null) 
+            while (existingOrder != null)
             {
-                orderId = Guid.NewGuid().ToString();
-                existingOrder = await _dbContext.ORDERS.FirstOrDefaultAsync(o => o.ORDER_ID == orderId);
+                guid = Guid.NewGuid();
+                hashCode = Math.Abs(guid.GetHashCode());
+                orderId = hashCode.ToString("X").PadLeft(10, '0');
+
+                if (orderId.Length > 10)
+                {
+                    orderId = orderId.Substring(0, 10);
+                }
             }
-
-            /* 找到对应商品 */
-            var product = await _dbContext.PRODUCTS.FirstOrDefaultAsync(o => o.PRODUCT_ID == paymentDto.ProductId);
-            //商品不存在
-            while (product == null)
-            {
-                return NotFound("未找到商品");
-            }
-
-            /* 获取买家钱包信息 */
-            var buyerWallet = await _dbContext.WALLETS.FirstOrDefaultAsync(w => w.ACCOUNT_ID == paymentDto.BuyerId);
-            if (buyerWallet == null) //买家钱包不存在
-            {
-                return NotFound("未找到买家钱包");
-            }
-
-            /* 获取商家钱包信息 */
-            var sellerWallet = await _dbContext.WALLETS.FirstOrDefaultAsync(w => w.ACCOUNT_ID == paymentDto.StoreId);
-            if (sellerWallet == null) //如果商家钱包不存在
-            {
-                return NotFound("未找到商家钱包");
-            }
-
-            /* 检查买家钱包余额是否足够 */
-            if (buyerWallet.BALANCE < paymentDto.ActualPay)
-            {
-                return BadRequest("买家钱包余额不足，请及时充值");
-            }
-
-            //更新买家钱包余额：从买家钱包中扣除交易金额
-            buyerWallet.BALANCE -= paymentDto.ActualPay;
-
-            //更新卖家钱包余额：将交易金额添加到卖家钱包
-            sellerWallet.BALANCE += paymentDto.ActualPay;
 
             product.SALE_OR_NOT = true; //修改商品售出状态
 
@@ -187,22 +197,101 @@ namespace BackendCode.Controllers
             var order = new ORDERS
             {
                 ORDER_ID = orderId, //订单ID
-                PRODUCT_ID = paymentDto.ProductId, //商品ID
-                BUYER_ACCOUNT_ID = paymentDto.BuyerId, //买家ID
-                STORE_ACCOUNT_ID = paymentDto.StoreId, //商家ID
+                PRODUCT_ID = orderDTO.ProductId, //商品ID
+                BUYER_ACCOUNT_ID = orderDTO.BuyerId, //买家ID
+                STORE_ACCOUNT_ID = store.ACCOUNT_ID, //商家ID
                 TOTAL_PAY = product.PRODUCT_PRICE, //订单金额
-                ACTUAL_PAY = paymentDto.ActualPay, //实付金额
-                ORDER_STATUS = "待发货", //订单状态
+                ORDER_STATUS = "待付款", //订单状态
                 CREATE_TIME = DateTime.Now, //创建时间
-                //BONUS_CREDITS = 0, //积分
-                RETURN_OR_NOT = false //是否退货
+                RETURN_OR_NOT = false, //是否退货
+                DELIVERY_ADDRESS = buyer.ADDRESS, //默认收货地址
+                USERNAME = buyer.USER_NAME //收件人昵称
             };
 
             _dbContext.ORDERS.Add(order); //将订单对象添加到数据库上下文
 
             await _dbContext.SaveChangesAsync(); //保存数据库上下文中的更改到数据库
 
-            return Ok(order); //返回订单信息
+            /* 返回订单相关信息 */
+            var orderInfo = new OrderRelatedDTO
+            {
+                credits = buyer.TOTAL_CREDITS,
+                address = order.DELIVERY_ADDRESS,
+                username = order.USERNAME,
+                orderId = orderId,
+                createTime = order.CREATE_TIME
+            };
+
+            return Ok(orderInfo); //返回订单相关信息
+        }
+
+        /********************************/
+        /* 买家确认订单信息并支付       */
+        /********************************/
+        [HttpPut("ConfirmOrders")]
+        public async Task<IActionResult> ConfirmOrdersAsync([FromForm] OrderConfirmDTO orderConfirmDTO)
+        {
+            /* 找到对应订单 */ 
+            var order = await _dbContext.ORDERS.FirstOrDefaultAsync(o => o.ORDER_ID == orderConfirmDTO.orderId);
+            //商品不存在
+            while (order == null)
+            {
+                return NotFound("未找到订单");
+            }
+
+            /* 获取买家信息 */
+            var buyer = await _dbContext.BUYERS.FirstOrDefaultAsync(w => w.ACCOUNT_ID == order.BUYER_ACCOUNT_ID);
+            if (buyer == null) //买家ID不存在
+            {
+                return NotFound("未找到买家信息");
+            }
+
+            /* 获取买家钱包信息 */
+            var buyerWallet = await _dbContext.WALLETS.FirstOrDefaultAsync(w => w.ACCOUNT_ID == order.BUYER_ACCOUNT_ID);
+            if (buyerWallet == null) //买家钱包不存在
+            {
+                return NotFound("未找到买家钱包");
+            }
+
+            /* 获取商家钱包信息 */
+            var sellerWallet = await _dbContext.WALLETS.FirstOrDefaultAsync(w => w.ACCOUNT_ID == order.STORE_ACCOUNT_ID);
+            if (sellerWallet == null) //如果商家钱包不存在
+            {
+                return NotFound("未找到商家钱包");
+            }
+
+            /* 检查买家钱包余额是否足够 */
+            if (buyerWallet.BALANCE < orderConfirmDTO.actual_pay)
+            {
+                return BadRequest("买家钱包余额不足，请及时充值");
+            }
+
+            //更新买家钱包余额：从买家钱包中扣除交易金额
+            buyerWallet.BALANCE -= orderConfirmDTO.actual_pay;
+
+            //更新卖家钱包余额：将交易金额添加到卖家钱包
+            sellerWallet.BALANCE += orderConfirmDTO.actual_pay;
+
+            int a = (int)(orderConfirmDTO.total_pay - orderConfirmDTO.actual_pay);
+            buyer.TOTAL_CREDITS -= 100 * a; //更新买家计分
+
+            /* 完善订单信息 */
+            order.USERNAME = orderConfirmDTO.username; //收件人昵称
+            order.DELIVERY_ADDRESS = orderConfirmDTO.order_address; //收货地址
+            order.ACTUAL_PAY = orderConfirmDTO.actual_pay; //实付金额
+            order.TOTAL_PAY = orderConfirmDTO.total_pay; //订单金额
+            order.ORDER_STATUS = "已付款"; //订单状态
+            order.BONUS_CREDITS = (int)orderConfirmDTO.actual_pay; //订单积分
+
+            await _dbContext.SaveChangesAsync(); //保存数据库上下文中的更改到数据库
+
+            var credits = new CreditsDTO
+            {
+                BonusCredits = order.BONUS_CREDITS, //获得积分
+                Credits = buyer.TOTAL_CREDITS //当前积分
+            };
+
+            return Ok(credits); //返回订单信息
         }
 
         /********************************/

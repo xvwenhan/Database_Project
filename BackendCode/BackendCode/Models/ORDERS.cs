@@ -15,7 +15,7 @@ namespace BackendCode.Models
         public decimal ACTUAL_PAY { get; set; }
 
         public string ORDER_STATUS { get; set; }
-        public DateTime? CREATE_TIME { get; set; }
+        public DateTime CREATE_TIME { get; set; }
         public DateTime? RECIEVING_TIME { get; set; }
 
         public string? DELIVERY_NUMBER { get; set; }
@@ -31,6 +31,8 @@ namespace BackendCode.Models
         public string BUYER_ACCOUNT_ID { get; set; }
 
         public string STORE_ACCOUNT_ID { get; set; }
+        public string DELIVERY_ADDRESS { get; set; }
+        public string USERNAME { get; set; }
 
         // 导航属性
         public PRODUCT PRODUCT { get; set; }

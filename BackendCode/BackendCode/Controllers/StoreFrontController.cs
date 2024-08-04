@@ -46,7 +46,7 @@ namespace StoreFrontController.Controllers
                 }
 
                 var orderStats = await _dbContext.ORDERS
-                    .Where(o => o.STORE_ACCOUNT_ID == storeId && o.CREATE_TIME.HasValue && o.CREATE_TIME.Value.Date == date.Date)
+                    .Where(o => o.STORE_ACCOUNT_ID == storeId && o.CREATE_TIME.Date == date.Date)
                     .GroupBy(o => o.ORDER_STATUS)
                     .Select(g => new
                     {
@@ -72,7 +72,7 @@ namespace StoreFrontController.Controllers
                 var outCount = marketStoreStats.FirstOrDefault(ms => ms.InOrNot == false)?.Count ?? 0;
 
                 var orderTotal = await _dbContext.ORDERS
-                    .Where(o => o.STORE_ACCOUNT_ID == storeId && o.CREATE_TIME.HasValue && o.CREATE_TIME.Value.Date == date.Date)
+                    .Where(o => o.STORE_ACCOUNT_ID == storeId && o.CREATE_TIME.Date == date.Date)
                     .ToListAsync();
 
                 var orderCount = orderTotal.Count;
@@ -110,8 +110,8 @@ namespace StoreFrontController.Controllers
                 var endDate = date.AddDays(7).Date;
 
                 var weeklyOrders = await _dbContext.ORDERS
-                    .Where(o => o.STORE_ACCOUNT_ID == storeId && o.CREATE_TIME.HasValue && o.CREATE_TIME.Value.Date >= startDate && o.CREATE_TIME.Value.Date < endDate)
-                    .GroupBy(o => o.CREATE_TIME.Value.Date)
+                    .Where(o => o.STORE_ACCOUNT_ID == storeId && o.CREATE_TIME.Date >= startDate && o.CREATE_TIME.Date < endDate)
+                    .GroupBy(o => o.CREATE_TIME.Date)
                     .Select(g => new
                     {
                         Date = g.Key,

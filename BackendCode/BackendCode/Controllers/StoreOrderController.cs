@@ -151,7 +151,7 @@ namespace StoreOrderController.Controllers
                 }
 
                 var orders = await _dbContext.ORDERS
-                    .Where(o => o.STORE_ACCOUNT_ID == storeId && o.CREATE_TIME.HasValue && o.CREATE_TIME.Value.Date == date.Date)
+                    .Where(o => o.STORE_ACCOUNT_ID == storeId && o.CREATE_TIME.Date == date.Date)
                     .Select(o => new OrderDto
                     {
                         ORDER_ID = o.ORDER_ID,
