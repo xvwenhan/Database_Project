@@ -18,6 +18,9 @@ import ReportManagement from '../views/ReportManagement.vue';
 import AdminSidebarMenu from '../components/AdminSidebarMenu.vue'
 import MerchantPage from '../views/MerchantPage.vue'
 import MerchantShowcase from '../views/MerchantShowcase.vue'
+import SearchProductShowcase from '../views/SearchProductShowcase.vue'
+import BazaarMerchandise from '../views/BazaarMerchandise.vue'
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -138,6 +141,14 @@ const router = createRouter({
     { path: '/merchantshowcase', 
       name: 'MerchantShowcase', 
       component: MerchantShowcase 
+    },
+    { path: '/searchproductshowcase', 
+      name: 'SearchProductShowcase', 
+      component: SearchProductShowcase 
+    },
+    { path: '/bazaarmerchandise', 
+      name: 'BazaarMerchandise', 
+      component: BazaarMerchandise 
     },
     {
       path: '/about',

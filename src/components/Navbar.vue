@@ -80,8 +80,12 @@
   // 模拟一个异步请求，这里可以替换为真实的 API 调用
   setTimeout(() => {
     loading.value = false;
-    // 搜索完成后根据搜索类型跳转到相应的页面
-    router.push(`/merchantshowcase`);
+    // 根据搜索类型跳转到相应的页面
+    if (searchType === 'product') {
+      router.push(`/searchproductshowcase?query=${searchText}`);
+    } else if (searchType === 'vendor') {
+      router.push(`/merchantshowcase?query=${searchText}`);
+    }
   }, 2000);
 };
   </script>
