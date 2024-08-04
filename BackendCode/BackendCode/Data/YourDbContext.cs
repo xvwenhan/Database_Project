@@ -101,7 +101,7 @@ namespace BackendCode.Data
                       .HasConstraintName("BUYER_FK");
 
                 //实验实验//////////////////////////////////////////////
-/*                entity.HasMany(b => b.POSTS)
+                entity.HasMany(b => b.POSTS)
                     .WithOne(p => p.BUYER)
                     .HasForeignKey(p => p.ACCOUNT_ID)
                      .HasConstraintName("POST_FK");
@@ -120,7 +120,7 @@ namespace BackendCode.Data
 
                 entity.HasMany(b => b.COMMENT_COMMENTS)
                      .WithOne(p => p.BUYER)
-                    .HasForeignKey(p => p.ACCOUNT_ID);*/
+                    .HasForeignKey(p => p.ACCOUNT_ID);
 
 
             });
@@ -244,6 +244,9 @@ namespace BackendCode.Data
                                       .WithMany()
                                       .HasForeignKey(b => b.BUYER_ACCOUNT_ID)
                                       .HasConstraintName("B_B_FK1");*/
+                entity.HasMany(b => b.COMMENT_COMMENTS)
+                  .WithOne(p => p.COMMENT_POST)
+               .HasForeignKey(p => p.COMMENT_ID);
 
                 entity.HasOne(p => p.POST)
                       .WithMany()
@@ -284,10 +287,10 @@ namespace BackendCode.Data
                       .HasForeignKey(b => b.ACCOUNT_ID)
                       .HasConstraintName("BUYER_ID_FK");*/
 
-                entity.HasOne(p => p.COMMENT_POST)
+/*                entity.HasOne(p => p.COMMENT_POST)
                       .WithMany()
                       .HasForeignKey(p => p.COMMENTED_COMMENT_ID)
-                      .HasConstraintName("COMMENT_POST_FK");
+                      .HasConstraintName("COMMENT_POST_FK");*/
             });
 
             modelBuilder.Entity<COMPLAIN_POST>(entity =>

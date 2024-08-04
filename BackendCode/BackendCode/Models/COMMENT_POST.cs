@@ -10,6 +10,6 @@
         public int? NUMBER_OF_SUBCOMMENTS { get; set; }
         public virtual BUYER BUYER { get; set; }
         public virtual POST POST { get; set; }
-        //public virtual ICollection<COMMENT_COMMENT> COMMENT_COMMENTS { get; set; }
+        public virtual ICollection<COMMENT_COMMENT> COMMENT_COMMENTS { get; set; } = new List<COMMENT_COMMENT>();
     }
 }

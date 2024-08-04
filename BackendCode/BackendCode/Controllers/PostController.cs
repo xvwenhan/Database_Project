@@ -275,7 +275,7 @@ namespace BackendCode.Controllers
             if (comment == null)
                 return NotFound(new { message = "要删除的评论不存在！" });
 
-            var parent_comment = await _context.COMMENT_POSTS.FindAsync(comment_delete_info.CommentId);
+            var parent_comment = await _context.COMMENT_POSTS.FindAsync(comment.COMMENTED_COMMENT_ID);
             if (parent_comment == null)
             {
                 return NotFound(new { message = "父评论不存在！" });

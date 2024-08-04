@@ -9,6 +9,6 @@
         public string? COMMENT_CONTENT { get; set; }
 
         public virtual BUYER BUYER { get; set; }
-        public virtual POST COMMENT_POST { get; set; }
+        public virtual COMMENT_POST COMMENT_POST { get; set; }
     }
 }
