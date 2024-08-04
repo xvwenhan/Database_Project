@@ -6,5 +6,6 @@
         public string IMAGE_ID { get; set; }
         public byte[] IMAGE { get; set; }
         public virtual POST POST { get; set; }
+
     }
 }

@@ -555,7 +555,7 @@ namespace BackendCode.Controllers
                     break;
                 case "time":
                 default:
-                    postsQuery = postsQuery.OrderByDescending(p => p.NumberOfComments);
+                    postsQuery = postsQuery.OrderByDescending(p => p.ReleaseTime);
                     break;
             }
 
@@ -617,7 +617,7 @@ namespace BackendCode.Controllers
                               select new ImageModel
                               {
                                   ImageId = pi.IMAGE_ID,
-                                  Image = pi.IMAGE 
+                                  //Image = pi.IMAGE 
                               };
 
             var commentsQuery = from cp in _context.COMMENT_POSTS
@@ -714,7 +714,8 @@ namespace BackendCode.Controllers
                               select new ImageModel
                               {
                                   ImageId = pi.IMAGE_ID,
-                                  Image = pi.IMAGE
+                                  //Image = pi.IMAGE
+                                  // ImageUrl 会自动计算，不需要显式设置
                               };
 
             var commentsQuery = from cp in _context.COMMENT_POSTS
