@@ -164,12 +164,11 @@ namespace Account.Controllers
             return Ok(new { Message = $"{userRole}{userId}成功进入受保护端点！" });
         }
 
-        /*密码验证：
-         * 后面这个函数要替换成哈希助手中的验证函数*/
+        /*密码验证：*/
         private bool VerifyPassword(string password, string storedHash)
         {
-            // 密码验证逻辑（这里直接比较了先）
-            return password == storedHash;
+            // 密码验证
+            return PasswordHelper.HashPassword(password) == storedHash;
         }
 
         /*修改密码：
@@ -189,7 +188,8 @@ namespace Account.Controllers
             if(VerifyPassword(model.Password, user.PASSWORD))
                 return BadRequest(new {message="新密码不能与旧密码相同！"});
 
-            user.PASSWORD = model.Password;
+            user.PASSWORD = PasswordHelper.HashPassword(model.Password);
+            
             _context.SaveChanges();
             return Ok(new { message="密码重置成功！" });
         }
@@ -264,7 +264,7 @@ namespace Account.Controllers
                 {
                     ACCOUNT_ID = uidb,
                     EMAIL = model.Email,
-                    PASSWORD = model.Password,
+                    PASSWORD = PasswordHelper.HashPassword(model.Password),
                     TOTAL_CREDITS = 0
                 }) ;
                 _context.SaveChanges();
