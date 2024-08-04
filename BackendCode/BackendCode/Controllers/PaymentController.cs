@@ -3,6 +3,13 @@ using Microsoft.EntityFrameworkCore;
 using BackendCode.Data;
 using BackendCode.Models;
 using BackendCode.DTOs.Payment;
+using Alipay.AopSdk.AspnetCore;
+using Alipay.AopSdk.Core.Domain;
+using Alipay.AopSdk.Core.Request;
+using Alipay.AopSdk.Core.Response;
+using Alipay.AopSdk.Core;
+using Newtonsoft.Json;
+using System.Threading.Tasks;
 
 namespace BackendCode.Controllers
 {
@@ -23,7 +30,7 @@ namespace BackendCode.Controllers
         /* 在数据库建立退货信息         */
         /********************************/
         [HttpPost("AddReturn")]
-        public async Task<IActionResult> RequestReturnAsync([FromForm] ReturnRequestDTO returnRequestDto)
+        public async Task<IActionResult> AddReturnAsync([FromForm] ReturnRequestDTO returnRequestDto)
         {
             /* 检查订单是否存在 */
             var order = await _dbContext.ORDERS.FirstOrDefaultAsync(o => o.ORDER_ID == returnRequestDto.orderID);
@@ -127,7 +134,7 @@ namespace BackendCode.Controllers
         /* 更新买家钱包余额             */
         /********************************/
         [HttpPost("AddOrders")]
-        public async Task<IActionResult> MakePaymentAsync([FromForm] OrderPaymentDTO paymentDto)
+        public async Task<IActionResult> AddOrdersAsync([FromForm] OrderPaymentDTO paymentDto)
         {
             string orderId = Guid.NewGuid().ToString(); //随机生成订单号
 
@@ -199,7 +206,7 @@ namespace BackendCode.Controllers
         }
 
         /********************************/
-        /* 买家充值时更新钱包余额       */
+        /* 买家充值时更新钱包余额接口   */
         /********************************/
         [HttpPost("RechargeWallet")]
         public async Task<IActionResult> RechargeWalletAsync([FromForm] RechargeDTO rechargeDto)
@@ -223,5 +230,77 @@ namespace BackendCode.Controllers
 
             return Ok(rechargedWallet); //返回充值成功的响应，包括充值后的钱包余额
         }
+
+        /********************************/
+        /* 查看用户钱包余额接口         */
+        /********************************/
+        [HttpPost("GetWalletBalance")]
+        public async Task<IActionResult> GetWalletBalanceAsync(string accountID)
+        {
+            /* 获取买家钱包信息 */
+            var wallet = await _dbContext.WALLETS.FirstOrDefaultAsync(w => w.ACCOUNT_ID == accountID);
+            if (wallet == null)
+            {
+                return NotFound("未找到钱包");
+            }
+
+            return Ok(wallet.BALANCE); //返回钱包余额
+        }
     }
+
+    /*
+    [ApiController]
+    [Route("api/[controller]")]
+    public class ChargeController : ControllerBase
+    {
+        private readonly IAopClient _aopClient;
+
+        public ChargeController(IAopClient aopClient)
+        {
+            _aopClient = aopClient;
+        }
+
+       
+        // 生成充值二维码接口           
+        
+        [HttpPost]
+        public async Task<IActionResult> ScanCodeGen([FromForm] ChargeScanOrderDTO chargeScanOrderDto)
+        {
+            /* 检查充值信息 
+            if (chargeScanOrderDto == null || chargeScanOrderDto.Charge <= 0)
+            {
+                return BadRequest("充值金额不正确");
+            }
+
+            AlipayTradePrecreateModel model = new AlipayTradePrecreateModel
+            {
+                OutTradeNo = chargeScanOrderDto.AccountId + "_" + System.Guid.NewGuid().ToString(), //生成唯一的订单号
+                TotalAmount = chargeScanOrderDto.Charge.ToString("F2"),
+                Subject = "钱包充值",
+                Body = "为账户钱包充值",
+                //可添加其他参数
+            };
+
+            // 序列化 model 到 JSON 字符串
+            string bizContent = JsonConvert.SerializeObject(model);
+
+            AlipayTradePrecreateRequest request = new AlipayTradePrecreateRequest
+            {
+                BizContent = bizContent // 赋值序列化后的 JSON 字符串给 BizContent
+            };
+
+            AlipayTradePrecreateResponse response = await _aopClient.ExecuteAsync(request);
+
+            if (response != null && response.QrCode != null)
+            {
+                // 返回生成的二维码字符串
+                return Ok(new { QrCode = response.QrCode });
+            }
+            else
+            {
+                // 处理错误情况
+                return BadRequest("生成二维码失败：" + response.Msg + "，" + response.SubMsg);
+            }
+        }
+    }*/
 }

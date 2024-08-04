@@ -31,4 +31,12 @@
         public string BuyerId { get; set; }
         public decimal Balance { get; set; }
     }
+
+    /*
+    public class ChargeScanOrderDTO
+    {
+        public string AccountId { get; set; }
+        public decimal Charge { get; set; }
+    }
+    */
 }
