@@ -143,5 +143,112 @@ namespace BackendCode.Controllers
 
             return Ok(storeInfo); 
         }
+
+        /***************************************/
+        /* 获取店铺所有商品分类接口            */
+        /* 给出店铺ID-storeId                  */
+        /* 返回店铺所有自定义分类名称列表      */
+        /***************************************/
+        [HttpGet("GetStoreTags")]
+        public async Task<IActionResult> GetStoreTagsAsync(string storeId)
+        {
+            /* 查询商家账号信息 */
+            var store = await _dbContext.STORES.FirstOrDefaultAsync(a => a.ACCOUNT_ID == storeId);
+            if (store == null) //用户ID不存在
+            {
+                return NotFound("未找到该商家账号");
+            }
+
+            /* 查询店铺的所有自定义分类名称 */
+            var categoryNames = await _dbContext.PRODUCTS
+                .Where(c => c.ACCOUNT_ID == storeId)
+                .Select(c => c.STORE_TAG)
+                .Distinct() //确保分类名称唯一
+                .ToListAsync();
+
+            /* 返回分类名称列表 */
+            return Ok(categoryNames);
+        }
+
+        /***************************************/
+        /* 获取商品详情信息接口                */
+        /* 传入{userid,productid}              */
+        /* 返回商品的详细信息                  */
+        /***************************************/
+        [HttpGet("GetProductDetails")]
+        public async Task<IActionResult> GetProductDetailsAsync(string userId, string productId)
+        {
+            /* 查询商品信息 */
+            var product = await _dbContext.PRODUCTS.FirstOrDefaultAsync(a => a.PRODUCT_ID == productId);
+            if (product == null) //商品ID不存在
+            {
+                return NotFound("未找到该商品信息");
+            }
+
+            /* 查询买家信息 */
+            var buyer = await _dbContext.BUYERS.FirstOrDefaultAsync(a => a.ACCOUNT_ID == userId);
+            if (buyer == null) //买家ID不存在
+            {
+                return NotFound("未找到买家信息");
+            }
+
+            /* 查询商家信息 */
+            var store = await _dbContext.STORES.FirstOrDefaultAsync(a => a.ACCOUNT_ID == product.ACCOUNT_ID);
+            if (store == null) //买家ID不存在
+            {
+                return NotFound("未找到商家信息");
+            }
+
+            /* 查询市集相关信息 */
+            var marketProduct = await _dbContext.MARKET_PRODUCTS.FirstOrDefaultAsync(mp => mp.PRODUCT_ID == productId);
+
+            /* 计算折扣价格 */
+            decimal discountPrice = marketProduct != null ? marketProduct.DISCOUNT_PRICE : product.PRODUCT_PRICE;
+
+            /* 查询用户是否收藏该商品 */
+            var isProductStared = await _dbContext.BUYER_PRODUCT_BOOKMARKS
+                .AnyAsync(bpb => bpb.BUYER_ACCOUNT_ID == userId && bpb.PRODUCT_ID == productId); //检查商品是否被收藏
+
+            /* 创建商品详情DTO */
+            var productDetails = new ProductDetailsDTO
+            {
+                Name = product.PRODUCT_NAME, //商品名称
+                Picture = product.PRODUCT_PIC, //商品图片
+                Price = product.PRODUCT_PRICE, //商品价格
+                Description = product.DESCRIBTION, //商品描述
+                StoreName = store.STORE_NAME, //店铺名称
+                StoreId = store.ACCOUNT_ID, //店铺ID
+                DiscountPrice = discountPrice, //折扣价格
+                FromWhere = store.ADDRESS, //发货地
+                Score = store.STORE_SCORE, //店铺评分
+                IsProductStared = isProductStared, //商品是否被收藏
+            };
+
+            return Ok(productDetails); //返回商品详情信息
+        }
+
+        /***************************************/
+        /* 获取商品详情信息接口-商品图片       */
+        /***************************************/
+        [HttpGet("GetProductPic")]
+        public async Task<IActionResult> GetProductPicAsync(string productId)
+        {
+            /* 查询商品信息 */
+            var product = await _dbContext.PRODUCTS.FirstOrDefaultAsync(a => a.PRODUCT_ID == productId);
+            if (product == null) //商品ID不存在
+            {
+                return NotFound("未找到该商品信息");
+            }
+
+            /* 获取产品图片的BLOB数据 */
+            var pictureResult = product.PRODUCT_PIC;
+            if (pictureResult == null)
+            {
+                return NotFound("未找到该商品图片");
+            }
+
+            return File(product.PRODUCT_PIC, "image/jpeg"); //返回商品图片
+        }
+
     }
 }
