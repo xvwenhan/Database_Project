@@ -9,7 +9,7 @@
     </el-header>
     <el-input
 type="text"
-placeholder="请输入标题"
+placeholder="请输入标题(不能为空)"
 v-model="inputTitle"
 maxlength="10"
 show-word-limit
@@ -18,50 +18,82 @@ show-word-limit
   <el-input
 type="textarea"
 :autosize="{ minRows: 10, maxRows: 24}"
-placeholder="请输入正文"
+placeholder="请输入正文(不能为空)"
 v-model="inputContent"
 class="input_content">
 </el-input>
 </div>
+<!--
 <el-upload
-class="upload"
-action="https://jsonplaceholder.typicode.com/posts/"
-:on-preview="handlePreview"
-:on-remove="handleRemove"
-list-type="picture">
-<button :style="{ backgroundImage: `url(${buttons[0].background})`, 
-      backgroundColor: buttons[0].backgroundColor }" @click="buttonClick(buttons[0])" class="upload_button" 
-      @mouseover="changeButtonColor(buttons[0], true)" @mouseout="changeButtonColor(buttons[0], false)"></button>
-<div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
+  class="upload"
+  action="https://localhost:7262/api//Post/create_post"
+  :on-preview="handlePreview"
+  :on-remove="handleRemove"
+  list-type="picture">
+  <button :style="{ 
+    backgroundImage: `url(${buttons[0].background})`, 
+    backgroundColor: buttons[0].backgroundColor 
+  }" @click="buttonClick(buttons[0])" class="upload_button" 
+  @mouseover="changeButtonColor(buttons[0], true)" @mouseout="changeButtonColor(buttons[0], false)"></button>
+  <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
 </el-upload>
+-->
+<div>
+    <input type="file" @change="handleFileUpload" multiple>
+    <button @click="uploadImages">上传图片</button>
+    <div class="image-container">
+      <div v-for="(file, index) in files" :key="index" >
+        <img :src="getFileUrl(file)" class="image-preview">
+      </div>
+    </div>
+  </div>
+
+<button :style="{ backgroundImage: `url(${buttons[2].background})`, 
+      backgroundColor: buttons[2].backgroundColor }" @click="confirm()" class="upload_button" 
+      @mouseover="changeButtonColor(buttons[2], true)" @mouseout="changeButtonColor(buttons[2], false)"></button>
 </template>
 
+
+
 <script setup lang="ts">
-import { ref, watch,computed ,reactive} from 'vue';
-import { ElTable, ElTableColumn, ElPagination, ElButton, ElMessage ,ElInput} from 'element-plus';
+import { ref, reactive} from 'vue';
+import { ElInput} from 'element-plus';
 import 'element-plus/dist/index.css';
 import router from '@/router';
-
+import axiosInstance from '../components/axios';
 
 
 const inputTitle = ref('');
 const inputContent = ref('');
-const inputHeight = ref(30);
 
 const buttons = reactive([
   { id: 1, text: 'Button 1', background: 'src/assets/czw/picture+.svg', backgroundColor: 'transparent' },
   { id: 2, text: 'Button 2', background: 'src/assets/czw/back.svg', backgroundColor: 'transparent' },
-  { id: 3, text: 'Button 3', background: 'src/assets/czw/picture+.svg', backgroundColor: 'transparent' },
-  { id: 4, text: 'Button 4', background: 'src/assets/czw/picture+.svg', backgroundColor: 'transparent' },
-  { id: 5, text: 'Button 5', background: 'src/assets/czw/picture+.svg', backgroundColor: 'transparent' },
+  { id: 3, text: 'Button 2', background: 'src/assets/czw/back.svg', backgroundColor: 'transparent' },
 ]);
 
 
+const files = ref([]);
+
+const handleFileUpload = (event) => {
+  const selectedFiles = event.target.files;
+  for (let i = 0; i < selectedFiles.length; i++) {
+    files.value.push(selectedFiles[i]);
+  }
+};
+
+const getFileUrl = (file) => {
+  return URL.createObjectURL(file);
+};
+
+const uploadImages = () => {
+  console.log('上传图片:', files.value);
+};
 const changeButtonColor = (button, isHovered) => {
   if (isHovered) {
     if(button.id==1)
     button.backgroundColor = '#87c2a5'; // 设置鼠标悬停时的背景颜色
-    else if(button.id==2)
+    else if(button.id==2||button.id==3)
     button.backgroundColor = '#5169e6'; 
   } else {
     button.backgroundColor = 'transparent'; // 恢复背景颜色为透明
@@ -71,13 +103,6 @@ const changeButtonColor = (button, isHovered) => {
 const buttonClick = (button) => {
   if(button.id==2){
     router.push('/forum'); // 跳转回 /forum 页面
-    //处理返回
-     //处理返回
-      //处理返回
-       //处理返回
-        //处理返回
-         //处理返回到ForunView
-         
   }
 };
 
@@ -87,6 +112,29 @@ function handleRemove(file, fileList) {
 function handlePreview(file) {
         console.log(file);
       }
+
+const confirm = async () => {
+  const formData = new FormData();
+      formData.append('PostTitle', inputTitle.value);
+      formData.append('PostContent', inputContent.value);
+
+      files.value.forEach((file, index) => {
+        formData.append(`Images[${index}]`, file);
+      });
+
+      axiosInstance.post('/Post/create_post', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      }).then(response => {
+        console.log(response.data);
+      }).catch(error => {
+        console.error(error);
+      });
+      console.log('上传图片:', files.value);
+
+};
+
 </script>
 
 
@@ -131,4 +179,8 @@ function handlePreview(file) {
       background-size: 100% 100%; /* 调整背景图像的尺寸 */
       border: none;
     }
+.image-preview {
+  max-width: 200px;
+  margin-top: 10px;
+}
 </style>

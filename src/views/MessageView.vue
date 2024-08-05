@@ -63,13 +63,6 @@ const changeButtonColor = (button, isHovered) => {
 const buttonClick = (button) => {
   if(button.id==1){
     router.push('/forum'); // 跳转回 /forum 页面
-    //处理返回
-     //处理返回
-      //处理返回
-       //处理返回
-        //处理返回
-         //处理返回到ForunView
-         
   }
 };
 
@@ -99,8 +92,14 @@ const buttonClick = (button) => {
       <button :style="{ backgroundImage: `url(${button[0].background})`, 
         backgroundColor: button[0].backgroundColor }" @click="buttonClick(button[0])" class="back_button" 
         @mouseover="changeButtonColor(button[0], true)" @mouseout="changeButtonColor(button[0], false)"></button>
-      <div style="line-height: 6vh;">
+      <div v-if="option === 'news'" style="line-height: 6vh;">
         <span style="font-size: 2vh; color: #333;">我的消息</span>
+      </div>
+      <div v-if="option === 'likes'" style="line-height: 6vh;">
+        <span style="font-size: 2vh; color: #333;">收到的赞</span>
+      </div>
+      <div v-if="option === 'comments'" style="line-height: 6vh;">
+        <span style="font-size: 2vh; color: #333;">回复我的</span>
       </div>
     </el-header>
     <el-menu>
