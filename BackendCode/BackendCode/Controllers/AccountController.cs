@@ -14,6 +14,7 @@ using System.Net;
 //以下是为了使用ID生成器和哈希等
 using BackendCode.Services;
 using Microsoft.EntityFrameworkCore;
+using BackendCode.DTOs.Administrator;
 using BackendCode.Controllers;
 
 namespace Account.Controllers
@@ -495,14 +496,19 @@ namespace Account.Controllers
         [HttpPost("hash-passwords")]
         public async Task<IActionResult> HashPasswords()
         {
-            var buyers = await _context.BUYERS.ToListAsync();
+            var buyers = await _context.BUYERS
+    .Where(p => p.ACCOUNT_ID != "U00000012")
+    .Select(p => new { Id = p.ACCOUNT_ID, Password = p.PASSWORD })
+    .ToListAsync();
+
 
             foreach (var buyer in buyers)
             {
-                if (buyer.ACCOUNT_ID == "U00000012")
-                    continue;
-                buyer.PASSWORD = PasswordHelper.HashPassword(buyer.PASSWORD);
-                Console.WriteLine(buyer.PASSWORD, "+++");
+                //var buyerEntity = await _context.BUYERS.FindAsync(buyer.Id);
+                var buyerEntity = await _context.BUYERS
+                    .Where(b => b.ACCOUNT_ID == buyer.Id)
+                    .SingleOrDefaultAsync();
+                buyerEntity.PASSWORD = PasswordHelper.HashPassword(buyerEntity.PASSWORD);
             }
             return Ok("买家密码更改完毕");
         }
