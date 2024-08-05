@@ -1,4 +1,4 @@
-﻿using BackendCode.Data;
+using BackendCode.Data;
 using Microsoft.AspNetCore.Mvc;
 using BackendCode.DTOs.LoginModel;
 using BackendCode.DTOs.UserInfo;
@@ -14,6 +14,7 @@ using System.Net;
 //以下是为了使用ID生成器和哈希等
 using BackendCode.Services;
 using Microsoft.EntityFrameworkCore;
+using BackendCode.DTOs.Administrator;
 using BackendCode.Controllers;
 
 namespace Account.Controllers
