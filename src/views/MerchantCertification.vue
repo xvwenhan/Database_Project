@@ -64,7 +64,7 @@ const records = reactive([]);
 const message = ref('');
 const fetchRecords = async () => {
   try {
-    const response = await axiosInstance.get('/Administrator/Administrator/GetAllAuthentication');
+    const response = await axiosInstance.get('/Administrator/GetAllAuthentication');
     records.splice(0, records.length, ...response.data);
     message.value = '已获取申请数据';
   } catch (error) {
@@ -82,7 +82,7 @@ fetchRecords();
 const message1 = ref('');
 const updateRecord = async (storeId,result) => {
   try {
-    const response = await axiosInstance.put('/Administrator/Administrator/UpdateStoreAuthentication', {
+    const response = await axiosInstance.put('/Administrator/UpdateStoreAuthentication', {
       "storeId": storeId,
       "result": result,
       "adminId": "1"

@@ -76,7 +76,7 @@ const message01 = ref('');
 
 const fetchRecords = async () => {
   try {
-    const response = await axiosInstance.get('/Administrator/Administrator/GetAllReport');
+    const response = await axiosInstance.get('/Administrator/GetAllReport');
     records.splice(0, records.length, ...response.data);
     message01.value = '已获取举报记录数据';
     console.log(records.values);
@@ -123,7 +123,7 @@ const search = (id) => {
 const message02 = ref('');
 const auditReport = async (reportId,auditResult) => {
   try {
-    const response = await axiosInstance.put('/Administrator/Administrator/AuditReport', {
+    const response = await axiosInstance.put('/Administrator/AuditReport', {
       "reportId": reportId,
       "auditResult": auditResult,
       "adminId": "1"

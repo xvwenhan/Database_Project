@@ -8,19 +8,8 @@
         
         <hr>
         <div class="platform-info">
-          <h2>平台信息检索</h2>
-          <form @submit.prevent="handleSubmit">
-            <label for="type">类型:</label>
-            <select id="type" v-model="type">
-              <option value="">请选择</option>
-              <option value="merchant">商家</option>
-              <option value="product">商品</option>
-              <option value="user">用户</option>
-            </select>
-            <label for="keyword">关键词搜索:</label>
-            <input id="keyword" type="text" v-model="keyword" />
-            <button type="submit">搜索</button>
-          </form>
+          <h2>平台信息</h2>
+          
         </div>
 
       </div>

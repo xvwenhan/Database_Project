@@ -78,7 +78,7 @@
                 <p>开始时间: {{ selectedDetail.startTime }}</p>
                 <p>结束时间: {{ selectedDetail.endTime }}</p>
                 <p>详细信息: {{ selectedDetail.detail }}</p>
-                <img :src="selectedDetail.imageSrc" alt="Market Poster" v-if="selectedDetail.imageSrc" />
+                <img :src="selectedDetail.imageSrc" alt="Market Poster" v-if="selectedDetail.imageSrc" style="width: 90%; object-fit: cover;" />
               </div>
             </el-dialog>
 
@@ -109,7 +109,7 @@
 <script setup>
 import AdminSidebarMenu from '../components/AdminSidebarMenu.vue'
 import AdminHeaderSec from '../components/AdminHeaderSec.vue'
-import { reactive, ref, computed } from 'vue';
+import { reactive, ref, computed, onMounted  } from 'vue';
 import { ElTable, ElTableColumn, ElPagination, ElButton, ElDialog, ElForm, ElFormItem, ElInput, ElRow, ElCol, ElSelect, ElOption, ElMessage } from 'element-plus';
 import 'element-plus/dist/index.css';
 import axiosInstance from '../components/axios';
@@ -119,7 +119,7 @@ const message01 = ref('');
 
 const fetchRecords = async () => {
   try {
-    const response = await axiosInstance.get('/Administrator/Administrator/GetAllMarket');
+    const response = await axiosInstance.get('/Administrator/GetAllMarket');
     records.splice(0, records.length, ...response.data);
     message01.value = '已获取市集数据';
     console.log(records.values);
@@ -132,7 +132,9 @@ const fetchRecords = async () => {
   }
   console.log(message01.value);
 };
-fetchRecords();
+onMounted(() => {
+  fetchRecords();
+})
 
 const options = ref([
   { value: 'option1', label: '服装' },
@@ -205,7 +207,7 @@ const addMarket = async () => {
   putData.append('adminId', '1');
 
   try {
-    const response = await axiosInstance.put('/Administrator/Administrator/AddMarket', putData, {
+    const response = await axiosInstance.put('/Administrator/AddMarket', putData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
     message02.value = response.data;
@@ -234,6 +236,7 @@ const handleSubmit = () => {
     return;
   } else {
     addMarket();
+    fetchRecords();
     formData.topic = '';
     formData.start = '';
     formData.end = '';
@@ -246,7 +249,7 @@ const handleSubmit = () => {
 const message03 = ref('');
 const deleteMarket = async (marketId) => {
   try {
-    const response = await axiosInstance.put('/Administrator/Administrator/DeleteMarket', {
+    const response = await axiosInstance.put('/Administrator/DeleteMarket', {
       "marketId": marketId,
     });
     message03.value = response.data;
