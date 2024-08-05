@@ -209,6 +209,10 @@ namespace BackendCode.Controllers
             var isProductStared = await _dbContext.BUYER_PRODUCT_BOOKMARKS
                 .AnyAsync(bpb => bpb.BUYER_ACCOUNT_ID == userId && bpb.PRODUCT_ID == productId); //检查商品是否被收藏
 
+            /* 查询店铺是否收藏该商品 */
+            var isStoreStared = await _dbContext.BUYER_STORE_BOOKMARKS
+                .AnyAsync(bsb => bsb.BUYER_ACCOUNT_ID == userId && bsb.STORE_ACCOUNT_ID == store.ACCOUNT_ID); //检查店铺是否被收藏
+
             /* 创建商品详情DTO */
             var productDetails = new ProductDetailsDTO
             {
@@ -222,6 +226,7 @@ namespace BackendCode.Controllers
                 FromWhere = store.ADDRESS, //发货地
                 Score = store.STORE_SCORE, //店铺评分
                 IsProductStared = isProductStared, //商品是否被收藏
+                IsStoreStared = isStoreStared //店铺是否被收藏
             };
 
             return Ok(productDetails); //返回商品详情信息
