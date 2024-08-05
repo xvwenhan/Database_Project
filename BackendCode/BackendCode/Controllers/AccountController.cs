@@ -47,6 +47,7 @@ namespace Account.Controllers
             //查看是否为买家
             var user = _context.BUYERS.FirstOrDefault(u => u.ACCOUNT_ID == model.Username || u.EMAIL == model.Username);
             if (user != null && VerifyPassword(model.Password, user.PASSWORD))
+            //if (user != null && model.Password==user.PASSWORD)
             {
                 var claims = new List<Claim>
                 {
@@ -493,19 +494,30 @@ namespace Account.Controllers
 
         //临时使用
         [HttpPost("hash-passwords")]
-        public async Task<IActionResult> HashPasswords()
+        public async Task<IActionResult> HashPasswords(string id)
         {
-            var buyers = await _context.BUYERS.ToListAsync();
+/*            var buyer = await _context.BUYERS
+                .Where(b => b.ACCOUNT_ID == id)
+               .SingleOrDefaultAsync();
+            if (buyer == null)
+                return NotFound(new { message = "id输入错误" });*/
+            Console.WriteLine(PasswordHelper.HashPassword(id));
+            
+         
 
-            foreach (var buyer in buyers)
+            return Ok("买家密码更改完毕");
+        }
+
+
+
+        /*    var buyers = await _context.BUYERS.ToListAsync();
+ *            foreach (var buyer in buyers)
             {
                 if (buyer.ACCOUNT_ID == "U00000012")
                     continue;
                 buyer.PASSWORD = PasswordHelper.HashPassword(buyer.PASSWORD);
                 Console.WriteLine(buyer.PASSWORD, "+++");
-            }
-            return Ok("买家密码更改完毕");
-        }
+            }*/
     }
 }
 
