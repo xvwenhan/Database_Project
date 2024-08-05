@@ -56,8 +56,8 @@ namespace BackendCode.Data
                        .HasColumnType("VARCHAR2(50)");
 
                 entity.Property(e => e.PASSWORD)
-                       .HasMaxLength(15)
-                       .HasColumnType("VARCHAR2(15)")
+                       .HasMaxLength(100)
+                       .HasColumnType("VARCHAR2(100)")
                        .IsRequired();
                         
             });
@@ -87,8 +87,8 @@ namespace BackendCode.Data
                       .HasColumnType("NUMBER(3)");
 
                 entity.Property(e => e.TOTAL_CREDITS)
-                      .HasColumnType("NUMBER(4)");
-                      //.IsRequired();
+                      .HasColumnType("NUMBER(4)")
+                      .IsRequired();
 
                 entity.Property(e => e.ADDRESS)
                       .HasMaxLength(100)
