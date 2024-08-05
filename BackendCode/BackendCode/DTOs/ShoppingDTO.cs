@@ -43,5 +43,6 @@ namespace BackendCode.DTOs.Shopping
         public string FromWhere { get; set; }
         public decimal? Score { get; set; }
         public bool IsProductStared { get; set; }
+        public bool IsStoreStared { get; set; }
     }
 }
