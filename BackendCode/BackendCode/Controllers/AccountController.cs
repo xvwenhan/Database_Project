@@ -168,7 +168,7 @@ namespace Account.Controllers
         private bool VerifyPassword(string password, string storedHash)
         {
             // 密码验证
-            return PasswordHelper.HashPassword(password) == storedHash;
+            return PasswordHelper.VerifyPassword(password, storedHash);
         }
 
         /*修改密码：
@@ -489,6 +489,22 @@ namespace Account.Controllers
             }
             _context.SaveChanges();
             return Ok(new { message = "用户信息修改成功！", detail = tip });
+        }
+
+        //临时使用
+        [HttpPost("hash-passwords")]
+        public async Task<IActionResult> HashPasswords()
+        {
+            var buyers = await _context.BUYERS.ToListAsync();
+
+            foreach (var buyer in buyers)
+            {
+                if (buyer.ACCOUNT_ID == "U00000012")
+                    continue;
+                buyer.PASSWORD = PasswordHelper.HashPassword(buyer.PASSWORD);
+                Console.WriteLine(buyer.PASSWORD, "+++");
+            }
+            return Ok("买家密码更改完毕");
         }
     }
 }

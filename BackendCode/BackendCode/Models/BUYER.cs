@@ -12,7 +12,7 @@ namespace BackendCode.Models
         //实验/////////////////////////////////////
         public virtual ICollection<POST> POSTS { get; } = new List<POST>();
         public virtual ICollection<COMMENT_POST> COMMENT_POSTS { get; } = new List<COMMENT_POST>();
-        public virtual ICollection<COMMENT_COMMENT> COMMENT_COMMENTS { get; set; }=new List<COMMENT_COMMENT>();
+        public virtual ICollection<COMMENT_COMMENT> COMMENT_COMMENTS { get; set; } = new List<COMMENT_COMMENT>();
         public virtual ICollection<COMPLAIN_POST> COMPLAIN_POSTS { get; set; } = new List<COMPLAIN_POST>();
         public virtual ICollection<COMPLAIN_COMMENT> COMPLAIN_COMMENTS { get; set; } = new List<COMPLAIN_COMMENT>();
     }
