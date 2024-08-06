@@ -65,7 +65,7 @@
     { text: "商品", link: "/merchandise/1" },
     { text: "市集", link: "/bazaar" },
     { text: "论坛", link: "/forum" },
-    { text: "购物车", link: "/cart" },
+    { text: "收藏夹", link: "/cart" },
     { text: "订单中心", link: "/ordercentre" },
     { text: "个人中心", link: "/personalcentre" },
   ]);
