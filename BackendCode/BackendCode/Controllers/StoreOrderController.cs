@@ -32,9 +32,9 @@ namespace StoreOrderController.Controllers
                 return BadRequest("Store ID is required.");
             }
 
-            if (orderStatus < 1 || orderStatus > 6)
+            if (orderStatus < 0 || orderStatus > 6)
             {
-                return BadRequest("Invalid status type. Allowed values are 1-6.");
+                return BadRequest("Invalid status type. Allowed values are 0-6.");
             }
             try
             {
@@ -42,10 +42,13 @@ namespace StoreOrderController.Controllers
                     .Where(o => o.STORE_ACCOUNT_ID == storeId);
                     switch (orderStatus)
                         {
-                        case 1: // 全部
+                        case 0: // 全部
                             break;
-                        case 2: // 待发货
-                            query = query.Where(o => o.ORDER_STATUS == "待发货" && o.DELIVERY_NUMBER == null);
+                        case 1: // 待付款
+                            query = query.Where(o => o.ORDER_STATUS == "待付款" && o.DELIVERY_NUMBER == null);
+                            break;
+                        case 2: // 已付款
+                            query = query.Where(o => o.ORDER_STATUS == "已付款" && o.DELIVERY_NUMBER == null);
                             break;
                         case 3: // 运输中
                             query = query.Where(o => o.ORDER_STATUS == "运输中" && o.DELIVERY_NUMBER != null);

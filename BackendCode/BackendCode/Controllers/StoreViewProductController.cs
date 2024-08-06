@@ -150,7 +150,7 @@ namespace StoreViewProductController.Controllers
 
         //Put接口传入product_id和store_id和更改属性及值
         [HttpPut("editProduct")]
-        public async Task<IActionResult> EditProduct(string storeId, [FromBody] ProductDTO updatedProduct)
+        public async Task<IActionResult> EditProduct(string storeId, [FromBody] Product2DTO updatedProduct)
         {
             var product = await _dbContext.PRODUCTS.FirstOrDefaultAsync(p => p.PRODUCT_ID == updatedProduct.ProductId && p.ACCOUNT_ID == storeId);
             if (product == null)
@@ -223,14 +223,21 @@ namespace StoreViewProductController.Controllers
 
         //post接口，新建商品
         [HttpPost("addProduct")]
-        public async Task<IActionResult> AddProduct(string storeId, [FromBody] ProductDTO newProduct)
+        public async Task<IActionResult> AddProduct(string storeId, [FromBody] Product1DTO newProduct)
         {
+            // 生成唯一的 PRODUCT_ID
+            string productId;
+            do
+            {
+                productId = "P" + new Random().Next(1000000, 9999999).ToString();
+            } while (await _dbContext.PRODUCTS.AnyAsync(p => p.PRODUCT_ID == productId));
+
             var product = new PRODUCT
             {
-                PRODUCT_ID = newProduct.ProductId,
+                PRODUCT_ID = productId,
                 PRODUCT_NAME = newProduct.ProductName,
                 PRODUCT_PRICE = newProduct.ProductPrice,
-                SALE_OR_NOT = newProduct.SaleOrNot,
+                SALE_OR_NOT = false, // 默认值
                 TAG = newProduct.Tag,
                 DESCRIBTION = newProduct.Description,
                 ACCOUNT_ID = storeId,
@@ -254,6 +261,7 @@ namespace StoreViewProductController.Controllers
 
             return Ok("Product added successfully.");
         }
+
 
     }
 }

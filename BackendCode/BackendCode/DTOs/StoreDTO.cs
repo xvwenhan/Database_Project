@@ -23,7 +23,7 @@
         public string ORDER_ID { get; set; }
         public decimal? TOTAL_PAY { get; set; }
         public decimal? ACTUAL_PAY { get; set; }
-        public string ORDER_STATUS { get; set; }
+        public string ? ORDER_STATUS { get; set; }
         public DateTime? CREATE_TIME { get; set; }
         public string? DELIVERY_NUMBER { get; set; }
         public decimal? SCORE { get; set; }

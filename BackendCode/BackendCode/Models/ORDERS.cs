@@ -31,8 +31,8 @@ namespace BackendCode.Models
         public string BUYER_ACCOUNT_ID { get; set; }
 
         public string STORE_ACCOUNT_ID { get; set; }
-        public string DELIVERY_ADDRESS { get; set; }
-        public string USERNAME { get; set; }
+        public string ?DELIVERY_ADDRESS { get; set; }
+        public string ?USERNAME { get; set; }
 
         // 导航属性
         public PRODUCT PRODUCT { get; set; }

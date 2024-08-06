@@ -6,6 +6,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using BackendCode.DTOs.Store;
+using BackendCode.Models;
 
 namespace StoreViewMarket.Controllers
 {
@@ -83,10 +84,20 @@ namespace StoreViewMarket.Controllers
 
                 if (marketStore == null)
                 {
-                    return NotFound("Market store entry not found.");
+                    // 如果未找到匹配项，则创建一个新条目
+                    marketStore = new MARKET_STORE
+                    {
+                        MARKET_ID = request.MarketId,
+                        STORE_ACCOUNT_ID = request.StoreId,
+                        IN_OR_NOT = request.InOrOut
+                    };
+                    _dbContext.MARKET_STORES.Add(marketStore);
+                }
+                else
+                {
+                    marketStore.IN_OR_NOT = request.InOrOut;
                 }
 
-                marketStore.IN_OR_NOT = request.InOrOut;
                 await _dbContext.SaveChangesAsync();
 
                 return Ok("Update successful.");
@@ -122,9 +133,20 @@ namespace StoreViewMarket.Controllers
                 var marketDTOs = markets.Select(async m =>
                 {
                     var marketStore = await _dbContext.MARKET_STORES
-                        .Where(ms => ms.MARKET_ID == m.MARKET_ID && ms.STORE_ACCOUNT_ID == storeID)
-                        .Select(ms => ms.IN_OR_NOT)
-                        .FirstOrDefaultAsync();
+                        .FirstOrDefaultAsync(ms => ms.MARKET_ID == m.MARKET_ID && ms.STORE_ACCOUNT_ID == storeID);
+
+                    if (marketStore == null)
+                    {
+                        // 如果未找到匹配项，则创建一个新条目，且不参与市集
+                        marketStore = new MARKET_STORE
+                        {
+                            MARKET_ID = m.MARKET_ID,
+                            STORE_ACCOUNT_ID = storeID,
+                            IN_OR_NOT = false // 默认为不参与市集
+                        };
+                        _dbContext.MARKET_STORES.Add(marketStore);
+                        await _dbContext.SaveChangesAsync();
+                    }
 
                     return new MarketDTO
                     {
@@ -134,7 +156,7 @@ namespace StoreViewMarket.Controllers
                         EndTime = m.END_TIME,
                         Detail = m.DETAIL,
                         PosterImg = m.POSTERIMG != null ? Convert.ToBase64String(m.POSTERIMG) : null,
-                        IsStoreParticipating = marketStore
+                        IsStoreParticipating = marketStore.IN_OR_NOT
                     };
                 }).ToList();
 
@@ -159,5 +181,6 @@ namespace StoreViewMarket.Controllers
                 return StatusCode(500, "Internal server error.");
             }
         }
+
     }
 }
