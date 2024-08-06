@@ -7,7 +7,9 @@ var builder = WebApplication.CreateBuilder(args);
 // 配置日志记录
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
-builder.Logging.SetMinimumLevel(LogLevel.Information);///////////////////////////////////////
+builder.Logging.SetMinimumLevel(LogLevel.Trace);
+
+
 
 
 //cookie

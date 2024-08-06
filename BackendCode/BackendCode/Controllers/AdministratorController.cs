@@ -34,7 +34,8 @@ namespace Administrator.Controllers
             {
                 StoreId =p.STORE_ACCOUNT_ID,
                 Authentication =p.AUTHENTICATION,
-                Status=p.STATUS
+                Status=p.STATUS,
+                Photo = p.PHOTO != null ? Convert.ToBase64String(p.PHOTO) : null,
 
             }).ToList();
             // 返回商品信息

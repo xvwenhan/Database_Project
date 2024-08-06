@@ -7,6 +7,7 @@ namespace BackendCode.DTOs.Administrator
         public string? StoreId { get; set; }
         public string? Authentication { get; set; }
         public string? Status { get; set; }
+        public string? Photo { get; set; }
 
     }
 
