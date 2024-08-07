@@ -1,29 +1,21 @@
-
-  <template>
-    <div class="CommodityShow">
-      <div class="SearchContainer">
-        <el-input v-model="searchOrder" placeholder="请输入订单ID" style="display: inline-block;"></el-input>
-        <el-button type="primary" @click="filterProducts">搜索</el-button>
-        <el-select v-model="value" placeholder="根据创建时间筛选" style="display: inline-block;">
-        <el-option
-          v-for="item in options"
-          :key="item.value"
-          :label="item.label" 
-          :value="item.value"
-        />
-       </el-select>
-        <el-button type="primary" @click="filterProducts">筛选</el-button>
-      </div>
-      
-      <!-- 表格 -->
-      <div class="TableContainer">
+<template>
+  <div class="CommodityShow">
+    <div class="SearchContainer">
+      <el-input v-model="searchOrder" placeholder="请输入订单ID（在全部订单中搜索）" style="display: inline-block;"></el-input>
+      <el-button type="primary" @click="searchOrderById">搜索</el-button>
+      <el-input v-model="searchTime" placeholder="根据创建时间筛选（在全部订单中搜索）" style="display: inline-block;"></el-input>
+      <el-button type="primary" @click="searchOrderByTime">筛选</el-button>
+    </div>
+    
+    <!-- 表格 -->
+    <div class="TableContainer">
       <el-table :data="currentPageData" class="CommodityTable" height="760">
-        <el-table-column type="index"  />
-        <el-table-column prop="id" label="订单ID"width="150"></el-table-column>
-        <el-table-column prop="creationtime" label="创建时间" width="150"></el-table-column>
-        <el-table-column prop="orderstatus" label="订单状态" width="150"></el-table-column>
-        <el-table-column prop="orderprice" label="订单金额"width="150"></el-table-column>
-        <el-table-column prop="practicalprice" label="买家实付金额" width="150"></el-table-column>
+        <el-table-column type="index" />
+        <el-table-column prop="id" label="订单ID" width="150"></el-table-column>
+        <el-table-column prop="creationTime" label="创建时间" width="150"></el-table-column>
+        <el-table-column prop="orderStatus" label="订单状态" width="150"></el-table-column>
+        <el-table-column prop="orderPrice" label="订单金额" width="150"></el-table-column>
+        <el-table-column prop="practicalPrice" label="买家实付金额" width="150"></el-table-column>
         <el-table-column label="买家是否申请退货">
           <template #default="scope">
             <span>{{ scope.row.returnRequested ? '是' : '否' }}</span>
@@ -31,337 +23,420 @@
             <el-button
               size="mini"
               :type="scope.row.returnStatus === '待同意' ? 'success' : 'primary'"
-              :disabled="scope.row.returnRequested === false"
+              :disabled="scope.row.returnStatus === '已同意' || !scope.row.returnRequested"
               @click="handleReturnRequest(scope.row)"
             >
-              {{ scope.row.returnStatus || '待同意' }}
+              {{ scope.row.returnStatus }}
             </el-button>
           </template>
         </el-table-column>
         <el-table-column label="操作">
           <template #default="scope">
             <el-button-group>
-              <el-button size="mini" type="primary" icon="check" @click="handleCheck(scope.row)">买家评价</el-button>
-              <el-button size="mini" type="primary" icon="check" @click="handleCheckTwo(scope.row)">快递</el-button>
+              <el-button size="mini" type="primary" @click="handleCheck(scope.row)">买家评价</el-button>
+              <el-button size="mini" type="primary" @click="handleCheckTwo(scope.row)">快递</el-button>
             </el-button-group>
           </template>
         </el-table-column>
       </el-table>
-      </div>
+    </div>
 
-     <!-- 买家评价 -->
+    <!-- 买家评价 -->
     <div v-if="dialogVisible" class="SettingPopUp">
       <div v-if="currentProduct" class="SettingContent">
         <span class="close" @click="dialogVisible = false">&times;</span>
-        <p>买家评分</p>
-        <p>评价内容</p>
+        <p>买家评分: {{ currentProduct.score }}</p>
+        <p>评价内容: {{ currentProduct.remark }}</p>
       </div>
-    </div>   
-    <!-- 快递单号 -->
-    <div v-if="dialogVisibleTwo" class="SettingPopUp">
-      <div v-if="currentProduct" class="SettingContent">
-        <span class="close" @click="dialogVisibleTwo = false">&times;</span>
-        <p>快递单号</p>
-      </div>
-    </div>   
+    </div>
+    
 
-      <!-- 翻页 -->
-      <div class="paginationContainer">
+    <!-- 快递单号 -->
+<div v-if="dialogVisibleTwo" class="SettingPopUp">
+  <div v-if="currentProduct" class="SettingContent">
+    <span class="close" @click="dialogVisibleTwo = false">&times;</span>
+    <template v-if="currentProduct.deliveryNumber">
+      <p>快递单号: {{ currentProduct.deliveryNumber }}</p>
+    </template>
+    <template v-else>
+      <el-form @submit.prevent="updateDeliveryNumber">
+        <el-form-item label="输入快递单号">
+          <el-input v-model="currentProduct.deliveryNumberInput"></el-input>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="updateDeliveryNumber">提交</el-button>
+        </el-form-item>
+      </el-form>
+    </template>
+  </div>
+</div>
+
+    <!-- 翻页 -->
+    <div class="paginationContainer">
       <el-pagination
         v-model:current-page="currentPage"
         :page-size="pageSize"
         :total="totalProducts"
         layout="total, prev, pager, next, jumper"
-        @current-change="handlePageChange">
-      </el-pagination>
-   </div>
-
+        @current-change="handlePageChange"
+      ></el-pagination>
     </div>
-  </template>
-  
-  <script>
-  import { ref,computed } from 'vue';
-  import { ElSelect, ElOption } from 'element-plus';
-  import 'element-plus/dist/index.css';
-  export default{
-    components: {
-      ElSelect,
-      ElOption,
-    },
-    setup() {
-      const value = ref('');
-      const dialogVisible = ref(false);
-      const dialogVisibleTwo = ref(false);
-      const currentProduct = ref(null);
+  </div>
+</template>
 
-//       const now = new Date(); // 当前日期和时间
-// const specificDate = new Date('2024-07-25T10:00:00'); // 指定日期和时间
-      
-      const options = [
-        { value: 'Option1', label: 'Option1' },
-        { value: 'Option2', label: 'Option2' },
-        { value: 'Option3', label: 'Option3' },
-        { value: 'Option4', label: 'Option4' },
-        { value: 'Option5', label: 'Option5' }
-      ];
-  
-      const products = ref([
-        {
-          id: '001',
-          creationtime: '10点',
-          orderstatus: '待发货',
-          orderprice: 100,
-          practicalprice: 100,
-          returnRequested:true,
-        },
-        {
-          id: '002',
-          creationtime: '10点',
-          orderstatus: '待发货',
-          orderprice: 100,
-          practicalprice: 100,
-          returnRequested:true,
-        },
-        {
-          id: '003',
-          creationtime: '10点',
-          orderstatus: '待发货',
-          orderprice: 100,
-          practicalprice: 100,
-          returnRequested:false,
-        },
-        {
-          id: '004',
-          creationtime: '10点',
-          orderstatus: '待发货',
-          orderprice: 100,
-          practicalprice: 100,
-          returnRequested:true,
-        },
-        {
-          id: '005',
-          creationtime: '10点',
-          orderstatus: '待发货',
-          orderprice: 100,
-          practicalprice: 100,
-          returnRequested:true,
-        },
-        {
-          id: '006',
-          creationtime: '10点',
-          orderstatus: '待发货',
-          orderprice: 100,
-          practicalprice: 100,
-          returnRequested:true,
-        },
-        {
-          id: '007',
-          creationtime: '10点',
-          orderstatus: '待发货',
-          orderprice: 100,
-          practicalprice: 100,
-          returnRequested:true,
-        },
-        {
-          id: '008',
-          creationtime: '10点',
-          orderstatus: '待发货',
-          orderprice: 100,
-          practicalprice: 100,
-          returnRequested:true,
-        },
-        {
-          id: '009',
-          creationtime: '10点',
-          orderstatus: '待发货',
-          orderprice: 100,
-          practicalprice: 100,
-          returnRequested:true,
-        },
-        {
-          id: '010',
-          creationtime: '10点',
-          orderstatus: '待发货',
-          orderprice: 100,
-          practicalprice: 100,
-          returnRequested:true,
-        },
-        {
-          id: '011',
-          creationtime: '10点',
-          orderstatus: '待发货',
-          orderprice: 100,
-          practicalprice: 100,
-          returnRequested:true,
-        },
-        {
-          id: '012',
-          creationtime: '10点',
-          orderstatus: '待发货',
-          orderprice: 100,
-          practicalprice: 100,
-          returnRequested:true,
-        },
-        {
-          id: '013',
-          creationtime: '10点',
-          orderstatus: '待发货',
-          orderprice: 100,
-          practicalprice: 100,
-          returnRequested:true,
-        },
-        {
-          id: '014',
-          creationtime: '10点',
-          orderstatus: '待发货',
-          orderprice: 100,
-          practicalprice: 100,
-          returnRequested:true,
-        },
-        {
-          id: '015',
-          creationtime: '10点',
-          orderstatus: '待发货',
-          orderprice: 100,
-          practicalprice: 100,
-          returnRequested:true,
-        },
-        {
-          id: '016',
-          creationtime: '10点',
-          orderstatus: '待发货',
-          orderprice: 100,
-          practicalprice: 100,
-          returnRequested:true,
-        },
-        {
-          id: '017',
-          creationtime: '10点',
-          orderstatus: '待发货',
-          orderprice: 100,
-          practicalprice: 100,
-          returnRequested:true,
-        },
-        {
-          id: '018',
-          creationtime: '10点',
-          orderstatus: '待发货',
-          orderprice: 100,
-          practicalprice: 100,
-          returnRequested:true,
-        },
-        {
-          id: '019',
-          creationtime: '10点',
-          orderstatus: '待发货',
-          orderprice: 100,
-          practicalprice: 100,
-          returnRequested:true,
-        },
-        {
-          id: '020',
-          creationtime: '10点',
-          orderstatus: '待发货',
-          orderprice: 100,
-          practicalprice: 100,
-          returnRequested:true,
-        },
-        {
-          id: '021',
-          creationtime: '10点',
-          orderstatus: '待发货',
-          orderprice: 100,
-          practicalprice: 100,
-          returnRequested:true,
-        },
-      ]);
-  
-      function handleCheck(row) {
-        currentProduct.value = row;
-        dialogVisible.value = true;
-      }
-      function handleCheckTwo(row) {
-        currentProduct.value = row;
-        dialogVisibleTwo.value = true;
-      }
-        // 翻页
-        const pageSize = 20;
-        const currentPage = ref(1);
-        const totalProducts = computed(() => products.value.length);
-        const currentPageData = computed(() => {
-        const start = (currentPage.value - 1) * pageSize;
-        const end = Math.min(start + pageSize, totalProducts.value);
-        return products.value.slice(start, end);
-        });
-        const handlePageChange = (page) => {
-          currentPage.value = page;
-        };
+<script>
+import { ref, computed, onMounted } from 'vue';
+import { ElSelect, ElOption, ElInput, ElButton, ElTable, ElTableColumn, ElPagination, ElButtonGroup, ElMessage } from 'element-plus';
+import axiosInstance from '../components/axios';
+import 'element-plus/dist/index.css';
 
-         // 根据 returnRequested 自动设置 returnStatus
-        const updatedData = computed(() => {
-          return currentPageData.value.map(item => ({
-            ...item,
-            returnStatus: item.returnRequested ? '待同意' : ''
-          }));
+export default {
+  components: {
+    ElSelect,
+    ElOption,
+    ElInput,
+    ElButton,
+    ElTable,
+    ElTableColumn,
+    ElPagination,
+    ElButtonGroup
+  },
+  setup() {
+    const selectedFilter = ref('');
+    const dialogVisible = ref(false);
+    const dialogVisibleTwo = ref(false);
+    const currentProduct = ref(null);
+    const orderStatus = ref(0);
+    const searchOrder = ref('');
+    const searchTime = ref('');
+    const products = ref([]);
+
+    const fetchOrders = async () => {
+      const storeId = 'S1234567'; // 替换为实际的 storeId
+
+      try {
+        const response = await axiosInstance.get('/StoreOrder/GetOrders', {
+          params: {
+            storeId: storeId,
+            orderStatus: orderStatus.value
+          },
         });
-          // 处理退货申请按钮点击事件
-          const handleReturnRequest = (row) => {
-            if (row.returnRequested && row.returnStatus === '待同意') {
-              row.returnStatus = '已同意';
-            }
+
+        console.log('Backend Response:', response.data);
+
+        if (Array.isArray(response.data)) {
+          const processedOrders = response.data
+            .map(order => {
+              console.log('Original Order Data:', order);
+
+              // 确保字段存在并转换正确
+              const creationTime = order.creatE_TIME ? new Date(order.creatE_TIME).toLocaleString() : 'N/A';
+              let returnStatus = '';
+
+              if (order.ordeR_STATUS === '待退货' && order.returN_OR_NOT) {
+                returnStatus = '待同意';
+              } else if (order.ordeR_STATUS === '已退货' && order.returN_OR_NOT) {
+                returnStatus = '已同意';
+              } else if (!order.returN_OR_NOT) {
+                returnStatus = '待同意';
+              }
+
+              let orderStatusText = order.ordeR_STATUS;
+              if (order.ordeR_STATUS === '已付款') {
+                orderStatusText = '待发货';
+              } else if (order.ordeR_STATUS === '待付款') {
+                return null; // 过滤掉 "待付款" 的订单
+              }
+
+              return {
+                id: order.ordeR_ID || 'N/A',
+                creationTime: creationTime,
+                orderStatus: orderStatusText || 'Unknown',
+                orderPrice: order.totaL_PAY !== undefined ? order.totaL_PAY : 'N/A',
+                practicalPrice: order.actuaL_PAY !== undefined ? order.actuaL_PAY : 'N/A',
+                returnRequested: order.returN_OR_NOT != null ? order.returN_OR_NOT : false,
+                returnStatus: returnStatus,
+                remark: order.remark || 'No remarks',
+                score: order.score !== undefined ? order.score : 'N/A',
+                deliveryNumber: order.deliverY_NUMBER || '',
+              };
+            })
+            .filter(order => order !== null); // 过滤掉 "待付款" 的订单
+
+          console.log('Processed Orders:', processedOrders);
+          products.value = processedOrders; // 确保 products 是 Vue 的响应式对象
+        } else {
+          console.error('Unexpected response format:', response.data);
+        }
+      } catch (error) {
+        console.error('获取订单数据失败:', error);
+      }
+    };
+
+    const fetchOrderById = async (orderId) => {
+      const storeId = 'S1234567'; // 替换为实际的 storeId
+      try {
+        const response = await axiosInstance.get('/StoreOrder/GetOrderById', {
+          params: {
+            storeId: storeId,
+            orderId: orderId
+          }
+        });
+
+        if (response.data) {
+          // 处理返回的订单数据
+          const order = response.data;
+          const creationTime = order.creatE_TIME ? new Date(order.creatE_TIME).toLocaleString() : 'N/A';
+          let returnStatus = '';
+
+          if (order.ordeR_STATUS === '待退货' && order.returN_OR_NOT) {
+            returnStatus = '待同意';
+          } else if (order.ordeR_STATUS === '已退货' && order.returN_OR_NOT) {
+            returnStatus = '已同意';
+          } else if (!order.returN_OR_NOT) {
+            returnStatus = '待同意';
+          }
+
+          let orderStatusText = order.ordeR_STATUS;
+          if (order.ordeR_STATUS === '已付款') {
+            orderStatusText = '待发货';
+          } else if (order.ordeR_STATUS === '待付款') {
+            return null; // 过滤掉 "待付款" 的订单
+          }
+
+          const orderData = {
+            id: order.ordeR_ID || 'N/A',
+            creationTime: creationTime,
+            orderStatus: orderStatusText || 'Unknown',
+            orderPrice: order.totaL_PAY !== undefined ? order.totaL_PAY : 'N/A',
+            practicalPrice: order.actuaL_PAY !== undefined ? order.actuaL_PAY : 'N/A',
+            returnRequested: order.returN_OR_NOT != null ? order.returN_OR_NOT : false,
+            returnStatus: returnStatus,
+            remark: order.remark || 'No remarks',
+            score: order.score !== undefined ? order.score : 'N/A',
+            deliveryNumber: order.deliverY_NUMBER || 'N/A',
           };
 
-          const searchOrder=ref('');
-  
-      return {
-        currentPageData: updatedData,
-        handleReturnRequest,
-        pageSize,
-        currentPage,
-        totalProducts,
-        handlePageChange,
-        value,
-        options,
-        products,
-        currentProduct,
-        dialogVisible,
-        dialogVisibleTwo,
-        handleCheck,
-        handleCheckTwo,
-        searchOrder
-      };
-    }
-  }
-  </script>
-  
-<style scoped>
-  .CommodityShow {
-    width: 86%;
-    height: 88.5vh;
-    position: fixed;
-    top: 10.5vh;
-    background-color: rgb(164, 197, 181);
-  }
-  
-  .TableContainer {
-    margin: 10px;
-    margin-top: 0;
-  }
-  
-  .SearchContainer {
-    margin-left: 990px;
-    display: flex; 
-    align-items: center;
-    height: 60px;
-    margin-right: 10px;
-    /* background-color: rgb(164, 197, 181); */
-  }
+          products.value = [orderData]; // 更新products为单个订单的数据
+        } else {
+          console.error('未找到订单');
+        }
+      } catch (error) {
+        console.error('通过订单ID获取订单数据失败:', error);
+      }
+    };
 
-  .paginationContainer {
+    const fetchOrderByTime = async (date) => {
+      const storeId = 'S1234567'; // 替换为实际的 storeId
+      try {
+        const response = await axiosInstance.get('/StoreOrder/GetOrdersByDate', {
+          params: {
+            storeId: storeId,
+            date: date
+          }
+        });
+
+        console.log(response.data); // 打印数据以检查字段名称和数据格式
+
+        if (response.data && Array.isArray(response.data)) {
+          const orders = response.data
+            .map(order => {
+              const creationTime = order.creatE_TIME ? new Date(order.creatE_TIME).toLocaleString() : 'N/A';
+              let returnStatus = '';
+
+              if (order.ordeR_STATUS === '待退货' && order.returN_OR_NOT) {
+                returnStatus = '待同意';
+              } else if (order.ordeR_STATUS === '已退货' && order.returN_OR_NOT) {
+                returnStatus = '已同意';
+              } else if (!order.returN_OR_NOT) {
+                returnStatus = '待同意';
+              }
+
+              let orderStatusText = order.ordeR_STATUS;
+              if (order.ordeR_STATUS === '已付款') {
+                orderStatusText = '待发货';
+              } else if (order.ordeR_STATUS === '待付款') {
+                return null; // 过滤掉 "待付款" 的订单
+              }
+
+              return {
+                id: order.ordeR_ID || 'N/A',
+                creationTime: creationTime,
+                orderStatus: orderStatusText || 'Unknown',
+                orderPrice: order.totaL_PAY !== undefined ? order.totaL_PAY : 'N/A',
+                practicalPrice: order.actuaL_PAY !== undefined ? order.actuaL_PAY : 'N/A',
+                returnRequested: order.returN_OR_NOT != null ? order.returN_OR_NOT : false,
+                returnStatus: returnStatus,
+                remark: order.remark || 'No remarks',
+                score: order.score !== undefined ? order.score : 'N/A',
+                deliveryNumber: order.deliverY_NUMBER || 'N/A',
+              };
+            })
+            .filter(order => order !== null); // 过滤掉 "待付款" 的订单
+
+          products.value = orders; 
+        } else {
+          console.error('未找到订单');
+        }
+      } catch (error) {
+        console.error('通过日期获取订单数据失败:', error);
+      }
+    };
+
+    const handleChange = (viewTypeValue) => {
+      orderStatus.value = viewTypeValue;
+      fetchOrders();
+    };
+
+    const searchOrderById = () => {
+      if (searchOrder.value.trim() !== '') {
+        fetchOrderById(searchOrder.value.trim());
+      } else {
+        fetchOrders();
+      }
+    };
+
+    const searchOrderByTime = () => {
+      if (searchTime.value.trim() !== '') {
+        fetchOrderByTime(searchTime.value.trim());
+      } else {
+        fetchOrders();
+      }
+    };
+
+    const handleCheck = (row) => {
+      currentProduct.value = row;
+      dialogVisible.value = true;
+    };
+
+    const handleCheckTwo = (row) => {
+      currentProduct.value = { ...row, deliveryNumberInput: '' };
+      dialogVisibleTwo.value = true;
+    };
+
+    const updateDeliveryNumber = async () => {
+      if (!currentProduct.value.deliveryNumberInput) {
+        ElMessage({
+          message: '请输入快递单号',
+          type: 'warning'
+        });
+        return;
+      }
+
+      try {
+        const storeId = 'S1234567'; // 替换为实际的storeId
+        const orderId = currentProduct.value.id;
+        const deliveryNumber = currentProduct.value.deliveryNumberInput;
+
+        // 发送请求到后端更新快递单号
+        const response = await axiosInstance.put('/StoreOrder/UpdateDeliveryNumber', null, {
+          params: {
+            storeId: storeId,
+            orderId: orderId,
+            deliveryNumber: deliveryNumber
+          }
+        });
+
+        if (response.status === 200) {
+          ElMessage({
+            message: '快递单号已更新',
+            type: 'success'
+          });
+          currentProduct.value.deliveryNumber = deliveryNumber;
+          dialogVisibleTwo.value = false;
+        } else {
+          ElMessage({
+            message: '更新快递单号失败',
+            type: 'error'
+          });
+        }
+      } catch (error) {
+        console.error('更新快递单号失败:', error.response ? error.response.data : error.message);
+        ElMessage({
+          message: '更新快递单号失败: ' + error.message,
+          type: 'error'
+        });
+      }
+    };
+
+    const handleReturnRequest = (row) => {
+      if (row.returnRequested && row.returnStatus === '待同意') {
+        row.returnStatus = '已同意';
+      }
+    };
+
+    const pageSize = 20;
+    const currentPage = ref(1);
+    const totalProducts = computed(() => products.value.length);
+    const currentPageData = computed(() => {
+      const start = (currentPage.value - 1) * pageSize;
+      const end = Math.min(start + pageSize, totalProducts.value);
+      return products.value.slice(start, end);
+    });
+
+    const handlePageChange = (page) => {
+      currentPage.value = page;
+    };
+
+    onMounted(() => {
+      fetchOrders();
+    });
+
+    return {
+      selectedFilter,
+      dialogVisible,
+      dialogVisibleTwo,
+      currentProduct,
+      orderStatus,
+      searchOrder,
+      products,
+      handleCheck,
+      handleCheckTwo,
+      handleReturnRequest,
+      pageSize,
+      currentPage,
+      totalProducts,
+      currentPageData,
+      handlePageChange,
+      handleChange,
+      orderStatus,
+      searchOrderById,
+      searchTime,
+      searchOrderByTime,
+      updateDeliveryNumber
+    };
+  }
+};
+</script>
+
+<style scoped>
+.CommodityShow {
+  width: 86%;
+  height: 88.5vh;
+  position: fixed;
+  top: 10.5vh;
+  background-color: rgb(164, 197, 181);
+}
+
+.TableContainer {
+  margin: 10px;
+  margin-top: 0;
+}
+
+.SearchContainer {
+  margin-left: 950px;
+  display: flex;
+  align-items: center;
+  height: 60px;
+  margin-right: 10px;
+  /* background-color: rgb(164, 197, 181); */
+}
+
+.paginationContainer {
   display: inline-block;
 }
-  
-  .SettingPopUp {
+
+.SettingPopUp {
   position: fixed;
   z-index: 1;
   left: 0;
@@ -378,7 +453,7 @@
   color: #065f43;
   background-color: #fefefe;
   display: inline-block;
-  padding:5vh;
+  padding: 5vh;
 }
 
 .close {
@@ -387,7 +462,7 @@
   font-size: 28px;
   font-weight: bold;
 }
- 
+
 .close:hover,
 .close:focus {
   color: black;
@@ -398,4 +473,4 @@
 .space {
   margin-left: 20px;
 }
-  </style>
+</style>
