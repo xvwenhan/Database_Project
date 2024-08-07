@@ -1,19 +1,25 @@
 <template>
   <Navbar />
-  <div class="store-page">
-    <div v-for="store in stores" :key="store.id" class="store-container">
-      <div class="store-content">
-        <div class="store-header">
-          <img :src="store.logo" alt="Store Logo" class="store-logo" />
-          <div class="store-info">
-            <h2 class="store-name">{{ store.name }}</h2>
-            <p class="store-rating">好评率: {{ store.rating }}%</p>
+  <div v-if="loading" class="loading-overlay">
+    <div class="loading-spinner"></div>
+    <p>搜索中，请稍候...</p>
+  </div>
+  <div v-else>
+    <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
+    <div v-else class="store-page">
+      <div v-for="store in stores" :key="store.storeId" class="store-container">
+        <div class="store-content">
+          <div class="store-header">
+            <div class="store-info">
+              <h2 class="store-name">{{ store.storeName }}</h2>
+              <p class="store-rating">好评率: {{ (store.storeScore * 100).toFixed(2) }}%</p>
+            </div>
           </div>
-        </div>
-        <div class="store-products">
-          <div v-for="product in store.products" :key="product.id" class="product-item">
-            <img :src="product.image" alt="Product Image" class="product-image" />
-            <p class="product-price">¥{{ product.price }}</p>
+          <div class="store-products">
+            <div v-for="product in store.homeProducts" :key="product.productId" class="product-item">
+              <img :src="'data:image/png;base64,' + product.productPic" alt="Product Image" class="product-image" />
+              <p class="product-price">¥{{ product.productPrice }}</p>
+            </div>
           </div>
         </div>
       </div>
@@ -22,47 +28,44 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+import axiosInstance from '../components/axios';
 import Navbar from '../components/Navbar.vue';
 
-const stores = ref([
-  {
-    id: 1,
-    name: '景德镇官方旗舰店',
-    logo: '/src/assets/wy/logo1.png',
-    rating: 99.46,
-    products: [
-      { id: 1, image: '/src/assets/wy/product1.png', price: 758.00 },
-      { id: 2, image: '/src/assets/wy/product2.png', price: 22.00 },
-      { id: 3, image: '/src/assets/wy/product3.png', price: 188.00 },
-      { id: 4, image: '/src/assets/wy/product4.png', price: 628.00 },
-    ],
-  },
-  {
-    id: 2,
-    name: '一抹微蓝甄选直播间',
-    logo: '/src/assets/wy/logo2.png',
-    rating: 99.46,
-    products: [
-      { id: 1, image: '/src/assets/wy/product5.png', price: 399.00 },
-      { id: 2, image: '/src/assets/wy/product6.png', price: 666.00 },
-      { id: 3, image: '/src/assets/wy/product7.png', price: 500.00 },
-      { id: 4, image: '/src/assets/wy/product8.png', price: 500.00 },
-    ],
-  },
-  {
-    id: 3,
-    name: '蜀门家居旗舰店',
-    logo: '/src/assets/wy/logo3.png',
-    rating: 99.46,
-    products: [
-      { id: 1, image: '/src/assets/wy/product9.png', price: 21.00 },
-      { id: 2, image: '/src/assets/wy/product10.png', price: 40.50 },
-      { id: 3, image: '/src/assets/wy/product11.png', price: 40.50 },
-      { id: 4, image: '/src/assets/wy/product12.png', price: 40.50 },
-    ],
-  },
-]);
+const stores = ref([]);
+const loading = ref(true);  // 用于控制缓冲页面的显示
+const errorMessage = ref(''); // 错误信息
+
+const fetchStores = async (keyword: string, type: string) => {
+  try {
+    const response = await axiosInstance.get('/NaviSearch/search', {
+      params: {
+        keyword: keyword,
+        type: type
+      }
+    });
+    console.log('返回数据', response.data);
+
+    if (response.data && response.data.length > 0) {
+      stores.value = response.data;
+      errorMessage.value = ''; // 清除错误信息
+    } else {
+      stores.value = [];
+      errorMessage.value = '你搜索的商家不存在...'; // 设置错误信息
+    }
+  } catch (error) {
+    console.error('Error fetching stores:', error);
+    errorMessage.value = '你搜索的商家不存在...'; // 设置错误信息
+  } finally {
+    loading.value = false;  // 数据获取完毕后关闭缓冲页面
+  }
+};
+
+onMounted(() => {
+  const keyword = localStorage.getItem('keyword') || '';
+  const type = localStorage.getItem('searchType') || '1';
+  fetchStores(keyword, type);
+});
 </script>
 
 <style scoped>
@@ -71,30 +74,30 @@ const stores = ref([
   flex-direction: column;
   gap: 20px;
   padding: 20px;
+  align-items: center; /* 居中对齐 */
 }
 
 .store-container {
   border: 1px solid #e7e7e7;
   border-radius: 10px;
   padding: 20px;
+  width: 80%; /* 调整宽度 */
+  max-width: 1200px; /* 限制最大宽度 */
 }
 
 .store-content {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  width: 100%; /* 使用全宽 */
 }
 
 .store-header {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
   gap: 10px;
   margin-bottom: 20px;
-}
-
-.store-logo {
-  width: 50px;
-  height: 50px;
 }
 
 .store-info {
@@ -103,19 +106,20 @@ const stores = ref([
 }
 
 .store-name {
-  font-size: 18px;
+  font-size: 24px; /* 调整为更大的字体 */
+  font-weight: bold;
   margin: 0;
 }
 
 .store-rating {
-  font-size: 14px;
+  font-size: 18px; /* 调整为更大的字体 */
   color: #888;
 }
 
 .store-products {
   display: flex;
   gap: 10px;
-  margin-left: -200px; /* 调整为合适的负值，向左移动图片 */
+  flex-wrap: wrap;
 }
 
 .product-item {
@@ -126,7 +130,9 @@ const stores = ref([
 }
 
 .product-image {
-  width: 100%;
+  width: 150px; /* 固定图片宽度 */
+  height: 150px; /* 固定图片高度 */
+  object-fit: cover;
   border-radius: 5px;
 }
 
@@ -134,5 +140,39 @@ const stores = ref([
   font-size: 16px;
   color: #333;
   margin-top: 5px;
+}
+
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.loading-spinner {
+  border: 5px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 5px solid #3498db;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.error-message {
+  text-align: center;
+  font-size: 24px;
+  color: #e60012;
+  margin: 20px;
 }
 </style>

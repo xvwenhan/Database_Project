@@ -6,10 +6,10 @@
     </button>
     <div class="carousel-slide" :style="slideStyle">
       <div v-for="(market, index) in markets" :key="index" class="carousel-item">
-        <h1>{{ market.title }}</h1>
+        <h1>{{ market.theme }}</h1>
         <div class="image-container">
-          <img :src="market.image" class="carousel-image" @click="goToMerchantShowcase" />
-          <div class="date-overlay">{{ market.date }}</div>
+          <img :src="'data:image/png;base64,' + market.posterImg" class="carousel-image" @click="goToMerchantShowcase" />
+          <div class="date-overlay">截至：{{ formatDate(market.endTime) }}</div>
         </div>
       </div>
     </div>
@@ -21,17 +21,27 @@
 
 <script setup lang="ts">
 import Navbar from '../components/Navbar.vue';
-import { ref, computed } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import router from '@/router';
 import { ArrowLeftBold, ArrowRightBold } from '@element-plus/icons-vue';
+import axiosInstance from '../components/axios';
 
-const markets = ref([
-  { title: 'Market 1', date: '2024-08-01', image: '/src/assets/wy/1.png' },
-  { title: 'Market 2', date: '2024-08-02', image: '/src/assets/wy/2.png' },
-  { title: 'Market 3', date: '2024-08-03', image: '/src/assets/wy/3.png' }
-]);
-
+const markets = ref([]);
 const currentIndex = ref(0);
+
+const fetchMarkets = async () => {
+  try {
+    const response = await axiosInstance.get('/Administrator/GetAllMarket');
+    console.log('返回数据', response.data);
+    markets.value = response.data;
+  } catch (error) {
+    console.error('Error fetching markets:', error);
+  }
+};
+
+onMounted(() => {
+  fetchMarkets();
+});
 
 const prevSlide = () => {
   currentIndex.value = (currentIndex.value - 1 + markets.value.length) % markets.value.length;
@@ -48,6 +58,11 @@ const goToMerchantShowcase = () => {
 const slideStyle = computed(() => ({
   transform: `translateX(-${currentIndex.value * 100}%)`
 }));
+
+const formatDate = (dateString) => {
+  const options = { year: 'numeric', month: 'numeric', day: 'numeric' };
+  return new Date(dateString).toLocaleDateString(undefined, options);
+};
 </script>
 
 <style scoped>
