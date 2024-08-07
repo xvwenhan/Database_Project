@@ -7,8 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using BackendCode.Services;
-using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
-using Microsoft.Extensions.Hosting;
 
 
 namespace BackendCode.Controllers

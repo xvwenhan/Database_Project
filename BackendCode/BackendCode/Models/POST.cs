@@ -11,8 +11,9 @@
         public string POST_TITLE { get; set; }
 
         public  BUYER BUYER { get; set; } = null!;
-        //public virtual ICollection<COMMENT_POST> COMMENT_POSTS { get; set; }
+
+        public virtual ICollection<COMMENT_POST> COMMENT_POSTS { get; set; }=new List<COMMENT_POST>();
         // 导航属性，表示此帖子下的所有评论
-       // public virtual ICollection<POST_IMAGE> POST_IMAGES { get; set; }
+        public virtual ICollection<POST_IMAGE> POST_IMAGES { get; set; } = new List<POST_IMAGE>();
     }
 }

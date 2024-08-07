@@ -248,10 +248,10 @@ namespace BackendCode.Data
                   .WithOne(p => p.COMMENT_POST)
                .HasForeignKey(p => p.COMMENT_ID);
 
-                entity.HasOne(p => p.POST)
+/*                entity.HasOne(p => p.POST)
                       .WithMany()
                       .HasForeignKey(p => p.POST_ID)
-                      .HasConstraintName("P_P_FK1");
+                      .HasConstraintName("P_P_FK1");*/
             });
 
             modelBuilder.Entity<COMMENT_COMMENT>(entity =>
@@ -602,13 +602,21 @@ namespace BackendCode.Data
                          .HasMaxLength(40)
                          .IsRequired();
 
-/*                entity.HasOne(b => b.BUYER)
-                    .WithMany()
-                    .HasForeignKey(b => b.ACCOUNT_ID)
-                    .HasConstraintName("POST_FK")
-                    .IsRequired();*/
+                //实验：
+                entity.HasMany(b => b.POST_IMAGES)
+                      .WithOne(p => p.POST)
+                      .HasForeignKey(p => p.POST_ID);
+                entity.HasMany(b => b.COMMENT_POSTS)
+                  .WithOne(p => p.POST)
+                .HasForeignKey(p => p.POST_ID);
+                /*                entity.HasOne(b => b.BUYER)
+                                    .WithMany()
+                                    .HasForeignKey(b => b.ACCOUNT_ID)
+                                    .HasConstraintName("POST_FK")
+                                    .IsRequired();*/
                 //这个代码一加就有问题
-                    
+
+
             });
 
             modelBuilder.Entity<ORDERS>(entity =>
@@ -775,7 +783,7 @@ namespace BackendCode.Data
             {
                 entity.ToTable("POST_IMAGE");
 
-                entity.HasKey(e => new { e.POST_ID, e.IMAGE_ID });
+                entity.HasKey(e => new { e.IMAGE_ID } );
 
                 entity.Property(e => e.POST_ID)
                       .HasMaxLength(50)
@@ -790,10 +798,10 @@ namespace BackendCode.Data
                 entity.Property(e => e.IMAGE)
                       .HasColumnType("BLOB");
 
-                entity.HasOne(p => p.POST)
+/*                entity.HasOne(p => p.POST)
                       .WithMany()
                       .HasForeignKey(p => p.POST_ID)
-                      .HasConstraintName("POST_ID_FK");
+                      .HasConstraintName("POST_ID_FK");*/
             });
         }
     }
