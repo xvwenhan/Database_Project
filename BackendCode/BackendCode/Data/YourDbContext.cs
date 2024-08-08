@@ -240,6 +240,8 @@ namespace BackendCode.Data
                 entity.Property(p => p.NUMBER_OF_SUBCOMMENTS)
                     .HasColumnType("NUMBER(10)")
                     .IsRequired();
+                entity.Property(e => e.IS_READ)
+                    .HasColumnType("NUMBER");
                 /*                entity.HasOne(b => b.BUYER)
                                       .WithMany()
                                       .HasForeignKey(b => b.BUYER_ACCOUNT_ID)
@@ -282,15 +284,18 @@ namespace BackendCode.Data
                       .HasMaxLength(200)
                       .HasColumnType("VARCHAR2(200)");
 
-/*                entity.HasOne(b => b.BUYER)
-                      .WithMany()
-                      .HasForeignKey(b => b.ACCOUNT_ID)
-                      .HasConstraintName("BUYER_ID_FK");*/
+                entity.Property(e => e.IS_READ)
+                       .HasColumnType("NUMBER");
 
-/*                entity.HasOne(p => p.COMMENT_POST)
-                      .WithMany()
-                      .HasForeignKey(p => p.COMMENTED_COMMENT_ID)
-                      .HasConstraintName("COMMENT_POST_FK");*/
+                /*                entity.HasOne(b => b.BUYER)
+                                      .WithMany()
+                                      .HasForeignKey(b => b.ACCOUNT_ID)
+                                      .HasConstraintName("BUYER_ID_FK");*/
+
+                /*                entity.HasOne(p => p.COMMENT_POST)
+                                      .WithMany()
+                                      .HasForeignKey(p => p.COMMENTED_COMMENT_ID)
+                                      .HasConstraintName("COMMENT_POST_FK");*/
             });
 
             modelBuilder.Entity<COMPLAIN_POST>(entity =>
