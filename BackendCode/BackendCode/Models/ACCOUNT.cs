@@ -7,5 +7,8 @@
         public string? EMAIL { get; set; }
         public string PASSWORD { get; set; }
 
+        public string? DESCRIBTION { get; set; }
+        public byte[]? PHOTO { get; set; }
+
     }
 }

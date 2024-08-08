@@ -59,7 +59,12 @@ namespace BackendCode.Data
                        .HasMaxLength(100)
                        .HasColumnType("VARCHAR2(100)")
                        .IsRequired();
-                        
+                entity.Property(e => e.DESCRIBTION)
+                       .HasMaxLength(400)
+                       .HasColumnType("VARCHAR2(400)");
+                entity.Property(e => e.PHOTO)
+                    .HasColumnType("BLOB");
+
             });
 
             modelBuilder.Entity<ADMINISTRATOR>(entity =>
