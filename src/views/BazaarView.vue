@@ -8,7 +8,7 @@
       <div v-for="(market, index) in markets" :key="index" class="carousel-item">
         <h1>{{ market.theme }}</h1>
         <div class="image-container">
-          <img :src="'data:image/png;base64,' + market.posterImg" class="carousel-image" @click="goToMerchantShowcase" />
+          <img :src="'data:image/png;base64,' + market.posterImg" class="carousel-image" @click="goToMerchantShowcase(market.marketId)" />
           <div class="date-overlay">截至：{{ formatDate(market.endTime) }}</div>
         </div>
       </div>
@@ -51,7 +51,10 @@ const nextSlide = () => {
   currentIndex.value = (currentIndex.value + 1) % markets.value.length;
 };
 
-const goToMerchantShowcase = () => {
+const goToMerchantShowcase = (marketId) => {
+  // 将marketId存入localStorage
+  localStorage.setItem('selectedMarketId', marketId);
+  // 跳转到市集商品页面
   router.push('/bazaarmerchandise');
 };
 
