@@ -10,6 +10,7 @@ using System.IO;
 using Microsoft.AspNetCore.Http;
 using BackendCode.DTOs.Store;
 using BackendCode.Models;
+using Alipay.AopSdk.Core.Domain;
 
 namespace StoreFrontController.Controllers
 {
@@ -134,6 +135,7 @@ namespace StoreFrontController.Controllers
                 return StatusCode(500, "Internal server error");
             }
         }
+
         //Get接口，传出店铺名称和评分
         [HttpGet("UpdateStoreScore")]
         public async Task<IActionResult> UpdateStoreScore(string storeId)
@@ -174,6 +176,33 @@ namespace StoreFrontController.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error updating store score for store {storeId}", storeId);
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        //Get接口，传出店铺验证情况
+        [HttpGet("UpdateStoreAuth")]
+        public async Task<IActionResult> UpdateStoreAuth(string storeId)
+        {
+            if (string.IsNullOrEmpty(storeId))
+            {
+                return BadRequest("Store ID is required.");
+            }
+
+            try
+            {
+                var store = await _dbContext.STORES.FindAsync(storeId); // 从数据库中查找store记录
+
+                if (store == null)
+                {
+                    return NotFound("Store not found.");
+                }
+
+                return Ok(new { storeId = store.ACCOUNT_ID, certification = store.CERTIFICATION }); // 返回认证状态
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating store authentication for store {storeId}", storeId);
                 return StatusCode(500, "Internal server error");
             }
         }

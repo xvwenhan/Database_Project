@@ -185,32 +185,73 @@ namespace StoreViewProductController.Controllers
         }
 
         //delete接口，确认是未删除商品后删除该商品
-        [HttpDelete("deleteProduct")]
-        public async Task<IActionResult> DeleteProduct(string productId, string storeId)
+        [HttpDelete("deleteProducts")]
+        public async Task<IActionResult> DeleteProducts([FromBody] List<string> productIds, string storeId)
         {
+            if (productIds == null || productIds.Count == 0)
+            {
+                return BadRequest("Product IDs are required.");
+            }
+
             using (var transaction = await _dbContext.Database.BeginTransactionAsync())
             {
                 try
                 {
-                    var product = await _dbContext.PRODUCTS.FirstOrDefaultAsync(p => p.PRODUCT_ID == productId && p.ACCOUNT_ID == storeId);
-                    if (product == null)
+                    var products = await _dbContext.PRODUCTS
+                        .Where(p => productIds.Contains(p.PRODUCT_ID) && p.ACCOUNT_ID == storeId)
+                        .ToListAsync();
+
+                    if (products.Count != productIds.Count)
                     {
-                        return NotFound("Product not found or does not belong to the store.");
+                        return NotFound("One or more products not found or do not belong to the store.");
                     }
 
-                    if (product.SALE_OR_NOT == true)
+                    var soldProducts = products.Where(p => p.SALE_OR_NOT == true).ToList();
+                    if (soldProducts.Any())
                     {
-                        return BadRequest("Product has been sold and cannot be deleted.");
+                        return BadRequest("One or more products have been sold and cannot be deleted.");
                     }
 
-                    // 删除 PRODUCTS 表中的记录
-                    _dbContext.PRODUCTS.Remove(product);
+                    foreach (var product in products)
+                    {
+                        // 删除 MARKET_PRODUCTS 表中对应 productId 的记录
+                        var marketProducts = await _dbContext.MARKET_PRODUCTS
+                            .Where(ms => ms.PRODUCT_ID == product.PRODUCT_ID)
+                            .ToListAsync();
+                        _dbContext.MARKET_PRODUCTS.RemoveRange(marketProducts);
+
+                        // 删除 BUYER_PRODUCT_BOOKMARK 表中对应 productId 的记录
+                        var bUYER_PRODUCT_BOOKMARK = await _dbContext.BUYER_PRODUCT_BOOKMARKS
+                            .Where(ms => ms.PRODUCT_ID == product.PRODUCT_ID)
+                            .ToListAsync();
+                        _dbContext.BUYER_PRODUCT_BOOKMARKS.RemoveRange(bUYER_PRODUCT_BOOKMARK);
+
+                        // 查找 ORDERS 表中对应 productId 的订单
+                        var orders = await _dbContext.ORDERS
+                            .Where(o => o.PRODUCT_ID == product.PRODUCT_ID)
+                            .ToListAsync();
+
+                        foreach (var order in orders)
+                        {
+                            // 删除 RETURN 表中对应 orderId 的记录
+                            var returns = await _dbContext.RETURNS
+                                .Where(r => r.ORDER_ID == order.ORDER_ID)
+                                .ToListAsync();
+                            _dbContext.RETURNS.RemoveRange(returns);
+
+                            // 删除 ORDERS 表中的记录
+                            _dbContext.ORDERS.Remove(order);
+                        }
+
+                        // 删除 PRODUCTS 表中的记录
+                        _dbContext.PRODUCTS.Remove(product);
+                    }
 
                     // 保存更改并提交事务
                     await _dbContext.SaveChangesAsync();
                     await transaction.CommitAsync();
 
-                    return Ok("Product deleted successfully.");
+                    return Ok("Products deleted successfully.");
                 }
                 catch (Exception ex)
                 {
@@ -219,6 +260,7 @@ namespace StoreViewProductController.Controllers
                 }
             }
         }
+
 
 
         //post接口，新建商品

@@ -209,9 +209,9 @@ namespace StoreOrderController.Controllers
                 {
                     return NotFound("OrderID 无匹配");
                 }
-                if (order.ORDER_STATUS != "待发货")
+                if (order.ORDER_STATUS != "已付款")
                 {
-                    return BadRequest("已发货商品无法重新发货");
+                    return BadRequest("已发货或未付款商品无法重新发货");
                 }
                 order.DELIVERY_NUMBER = deliveryNumber;
                 order.ORDER_STATUS = "运输中";
