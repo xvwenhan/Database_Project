@@ -10,6 +10,7 @@ namespace BackendCode.DTOs.Favourite
         public decimal? ProductPrice { get; set; }
         public bool? SaleOrNot { get; set; }
         public string? Tag { get; set; }
+        public string? ProductPic { get; set; }
         
     }
 
