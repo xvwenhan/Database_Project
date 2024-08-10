@@ -43,7 +43,8 @@ namespace Favourite.Controllers
                 ProductId=p.PRODUCT_ID,
                 ProductPrice=p.PRODUCT_PRICE,
                 SaleOrNot=p.SALE_OR_NOT,
-                Tag=p.TAG
+                Tag=p.TAG,
+                ProductPic = p.PRODUCT_PIC != null ? Convert.ToBase64String(p.PRODUCT_PIC) : null,
 
             }) .ToList();
             // 返回商品信息
