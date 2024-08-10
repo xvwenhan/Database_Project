@@ -107,10 +107,10 @@
         <div class="orderInfo">
             <div class="storeArea">
                 <img src="@/assets/mmy/store.svg" class="storeImage">
-                <div class="text2">{{ product.store }}&nbsp&nbsp></div>
+                <div class="text2">{{ product.storeName }}&nbsp&nbsp></div>
             </div>
             <div class="productArea">
-                <img src="@/assets/mmy/product.jpg" class="productImage">
+                <img :src="`data:image/png;base64,${product.picture}`" class="productImage">
                 <div class="orderDetail">
                     <div class="text-p">{{ product.name }}&nbsp&nbsp￥{{ product.price }}</div>
                     <div class="text-p1">订单编号:&nbsp&nbsp{{ order.id }}</div>
@@ -125,7 +125,7 @@
             <div class="text-price">折扣价格：&nbsp&nbsp{{ product.discountPrice }}元</div>
             <!-- 注意vue中的整除 -->
             <div class="text-price">积分抵扣：当前积分{{ customer.credits }},可抵扣{{ creditPrice }}元</div>
-            <div class="text-price" v-show="creditPrice!=='0'">
+            <div class="text-price" v-show="creditPrice!==0">
                 <div class="useCredit">
                     <div>是否使用积分</div>
                     <el-radio-group  v-model="isUseCredits" style="margin-left: 10px;margin-bottom:0px" @change="priceCalculate">
@@ -159,20 +159,32 @@
                 v-model="payVisible"
                 width="20%"
                 :style="{borderRadius:'15px'}"
-                ></el-dialog>
+                >
+                <div v-show="isPaySuccess===true">
+                    <p class="text_pay_isSuccess">支付成功</p>
+                    <p class="text_pay">获得积分：&nbsp&nbsp{{ bonusCredits }}</p>
+                    <p class="text_pay">积分余额：&nbsp&nbsp{{ finalCredits }}</p>
+                </div>
+                <div v-show="isPaySuccess===false">
+                    <p class="text_pay_isSuccess">支付失败</p>
+                    <p class="text_pay">钱包余额不足，请及时充值</p>
+                </div>
+
+            </el-dialog>
 
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import { ref ,computed,onMounted,reactive} from 'vue';
+import { ref ,computed,onMounted,watch} from 'vue';
 import { ElDialog, ElButton ,ElMessage} from 'element-plus';
 import { regionData, codeToText } from 'element-china-area-data';
 import axiosInstance from '../components/axios';
-
+import { useRouter } from 'vue-router';
 //接收路由参数
 import { useRoute } from 'vue-router';
+
 const route = useRoute();
 const userId = computed(() => route.query.userId as string);
 const productId = computed(() => route.query.productId as string);
@@ -181,62 +193,69 @@ const product = computed(() => {
   return productStr ? JSON.parse(productStr) : null;
 });
 const order=ref({id:'',createTime:''});
+//收货人相关信息
 const customer=ref({name:'',
                 address:'',
-                credits:0});
-const formData=reactive({
-    BuyerId:'',
-    ProductId:''
- });
-onMounted(async () => {
-    console.log(`product is ${JSON.stringify(product.value)}`);
-    console.log(`productId is ${productId.value}`);
-    console.log(`userId is ${userId.value}`);
-    try {
-        console.log('进入try');
-        const putData = new FormData();
-        putData.append('theme', formData.BuyerId);
-        putData.append('option', formData.ProductId);
-
-        // formData.append('BuyerId',userId.value);
-        // formData.append('ProductId',productId.value);
-
-        const response = await axiosInstance.post('Payment/AddOrders', formData);
-        // const response = await axiosInstance.post(`/Payment/AddOrders`,{
-            // 'BuyerId':userId.value,
-            // 'ProductId':productId.value});
-        console.log('try结束');
-        order.value.id=response.data.orderId;
-        order.value.createTime=response.data.createTime;
-        customer.value.name=response.data.username;
-        customer.value.address=response.data.address;
-        customer.value.credits=response.data.credits;
-    } catch (error) {
-        console.log('订单生成失败');
-        //   ElMessage.error(message.value);
-     }
-})// const product={name:'苏绣成品荷花手工刺绣精品',
-//                 price:85,
-//                 description:'有一点点瑕疵，不影响美观,等等等等等等等等等等等等等等等等',
-//                 store:'苏绣世家',
-//                 discount:0.7,
-//                 fromwhere:'江苏省某某市',
-//                 score:4.7};
-
-
-
-const dialogVisible=ref(false);
+                credits:300});
+                const dialogVisible=ref(false);
 const payVisible=ref(false);
 const address1=ref('');
 const address2=ref('');
 const isUseCredits=ref('no');
 //用了toFixed(2)就是string类型的了
-// const discountPrice=(product.price*product.discount).toFixed(2);
-const creditPrice=Math.floor(customer.value.credits/1000).toFixed(0);
-const finalPrice=ref(0);
+const creditPrice=ref(0);
+const finalPrice=ref(product.value.discountPrice);
 // 省市区信息
 const options = ref(regionData);
 const selectedOptions = ref(['110000', '110100', '110101']);
+//后端回复信息
+const message=ref('');
+//支付后获得积分以及剩余积分
+const bonusCredits=ref(0);
+const finalCredits=ref(0);
+//是否支付成功
+const isPaySuccess=ref(false);
+
+//订单支付结束后（不管支付成功没成功）都跳转回原来的页面
+watch(payVisible, (newValue, oldValue) => {
+    if (newValue === false && oldValue === true) {
+        // 当 `isPaySuccess` 变为 `false` 时执行操作
+        console.log('支付失败，状态变为 false');
+        // 跳转到指定页面
+        router.push('/log');
+    }
+});
+onMounted(async () => {
+    console.log(`product is ${JSON.stringify(product.value)}`);
+    console.log(`productId is ${productId.value}`);
+    console.log(`userId is ${userId.value}`);
+    console.log(`creditPrice is ${creditPrice}`);
+
+    const formData = new FormData();
+    formData.append('BuyerId',userId.value);
+    formData.append('ProductId',productId.value);
+    try {
+        const response = await axiosInstance.post('Payment/AddOrders', formData,{
+            headers: { 'Content-Type': 'multipart/form-data' }
+       });
+        order.value.id=response.data.orderId;
+        order.value.createTime=response.data.createTime;
+        customer.value.name=response.data.username;
+        console.log(`customer.value.name is ${customer.value.name}`)
+        if(customer.value.name==null){
+            customer.value.name='未知收货人';
+        }
+        customer.value.address=response.data.address;
+        if(customer.value.address==null){
+            customer.value.address='未知地';
+        }
+        customer.value.credits=535;
+        creditPrice.value=parseInt(Math.floor(customer.value.credits/100).toFixed(0));
+        // customer.value.credits=response.data.credits;
+    } catch (error) {
+        console.log('订单生成失败');
+     }
+})
 
 const openDialog=()=>{
     dialogVisible.value = true;
@@ -247,7 +266,7 @@ const handleSave = () => {
   }else {
     dialogVisible.value = false;
     customer.value.address=address1.value+address2.value;
-    console.log(customer.value.address);
+    console.log(`customer.value.address is ${customer.value.address}`);
   }
 };
 // 将地址编号转换为汉字
@@ -259,18 +278,60 @@ const addressChange=()=> {
 //根据积分计算最终价格
 const priceCalculate=()=>{
     // 确保 discountPrice 和 creditPrice 是数字进行计算
-    // const discount = parseFloat(discountPrice);
-    // const credits = parseFloat(creditPrice);
+    const discount = parseFloat(product.value.discountPrice);
+    const credits = creditPrice.value;
 
-    // if (isUseCredits.value === 'yes') {
-    //     finalPrice.value = (discount - credits).toFixed(2); // 计算最终价格并保留两位小数
-    // } else {
-    //     finalPrice.value = discount.toFixed(2); // 如果不使用积分，最终价格就是折扣价格
-    // }
+    if (isUseCredits.value === 'yes') {
+        finalPrice.value = parseInt((discount - credits).toFixed(2)); // 计算最终价格并保留两位小数
+    } else {
+        finalPrice.value = parseInt(discount.toFixed(2)); // 如果不使用积分，最终价格就是折扣价格
     }
-const openPay=()=>{
+    if(finalPrice.value<0){
+        finalPrice.value=0;
+    }
+}
+
+//确认订单信息并完成支付
+const openPay=async()=>{
+    const formData = new FormData();
+    formData.append('orderId',order.value.id);
+    formData.append('order_address',customer.value.address);
+    formData.append('username',customer.value.name);
+    formData.append('actual_pay', finalPrice.value);//使用积分后的价格
+    formData.append('total_pay',product.value.discountPrice);//打折后的价格
+    formData.forEach((value, key) => {
+        console.log(`${key}: ${value}`);
+    });
+    try {
+    const response = await axiosInstance.put('Payment/ConfirmOrders', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    bonusCredits.value = response.data.bonusCredits;
+    finalCredits.value = response.data.credits;
+    isPaySuccess.value=true;
+    } catch (error) {
+        isPaySuccess.value=false;
+        // if (error.response) {
+        //   message.value = error.response.data;
+        // } else {
+        //   message.value = '登录失败';
+        // }
+        // console.error(`error.response is ${message.value}`)
+        if (error.response) {
+        // 请求已发出，服务器返回了状态码
+            console.error('响应错误状态码:', error.response.status);
+            console.error('响应错误数据:', error.response.data);
+            console.error('响应错误头:', error.response.headers);
+        } else if (error.request) {
+            // 请求已发出，但没有响应
+            console.error('请求错误:', error.request);
+        } else {
+            // 其他错误
+            console.error('错误信息:', error.message);
+        }
+        }
+    message.value='';
     payVisible.value=true;
-    
 }
 </script>
 
@@ -427,6 +488,15 @@ const openPay=()=>{
     border-bottom:1.5px solid black ;
     /* padding-bottom: 10px; */
 }
+.text_pay_isSuccess{
+    font-size:22px;
+    margin-bottom: 10px;
+}
+.text_pay{
+    margin-bottom: 7px;
+    font-size:20px;
+}
+
 .pay{
     width: 70%; 
     position:relative;

@@ -205,10 +205,12 @@ const clearData=()=>{
         message.value = response.data.message;
         ElMessage.success(message.value);
         console.log(`response.data.userId${response.data.userId}`);
+        //本地存储用户id
+        localStorage.setItem('userId',response.data.userId);
         if(response.data.role=='买家'){
           router.push('/home');
         }else if(response.data.role=='商家'){
-          router.push({ path: '/merchantpage', query: { id: response.data.userId } });
+          router.push('/merchantpage');
         }else{
           router.push('/platform-info');
         }  
@@ -216,7 +218,7 @@ const clearData=()=>{
         if (error.response) {
           message.value = error.response.data.message;
         } else {
-          message.value = '登陆失败';
+          message.value = '登录失败';
         }
         ElMessage.error(message.value);
         }

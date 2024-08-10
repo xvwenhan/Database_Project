@@ -170,26 +170,16 @@ const functionName = () => {
     import { ref,onMounted} from 'vue';
     import 'element-plus/dist/index.css';
     import { ElButton ,ElMessage} from 'element-plus';
-    import { useRoute } from 'vue-router';
     import { useRouter } from 'vue-router';
     import axiosInstance from '../components/axios';
     
     //假设已经知道了userid和productid
     // 创建一个响应式变量来存储参数
-    const productId = ref('000000');
-    const userId=ref('U00000001');
-    const message=ref('');
+    const productId = ref('333333');
+    const userId =localStorage.getItem('userId');
     // 使用 useRoute 来访问路由参数
     const router=useRouter();
-    const route = useRoute();
 
-    // const product={ name:'苏绣成品荷花手工刺绣精品',
-    //                 price:85,
-    //                 description:'有一点点瑕疵，不影响美观,等等等等等等等等等等等等等等等等',
-    //                 store:'苏绣世家',
-    //                 discount:1,
-    //                 fromwhere:'江苏省某某市',
-    //                 score:4.7};
     const product = ref({
       name: '',
       picture: '',
@@ -214,12 +204,13 @@ const functionName = () => {
     // });
   
     onMounted(async () => {
+      console.log(`当前登录用户id为${userId}`);
       try {
         // const response = await axiosInstance.get('/Account/send_verification_code',
         // {params: { email: registerEmail.value }});
         const response = await axiosInstance.get(`/Shopping/GetProductDetails/`,{
           params:{
-            userId:userId.value,
+            userId:userId,
             productId:productId.value
           }
         });
@@ -235,7 +226,7 @@ const functionName = () => {
         try {
           const response = await axiosInstance.post('/Favourite/BookmarkProduct', null, {
               params: {
-                userId: userId.value,
+                userId: userId,
                 productId: productId.value
               }
             });
@@ -254,7 +245,7 @@ const functionName = () => {
         try {
           const response = await axiosInstance.delete('/Favourite/UnbookmarkProduct', {
             params: {
-              userId: userId.value,
+              userId: userId,
               productId: productId.value
             }
           });
@@ -274,7 +265,7 @@ const functionName = () => {
         try {
           const response = await axiosInstance.post('Favourite/BookmarkStore',null,{
             params: {
-                userId: userId.value,
+                userId: userId,
                 'storeId':product.value.storeId
               }});
             if (response.status === 200) {
@@ -289,7 +280,7 @@ const functionName = () => {
         try {
           const response = await axiosInstance.delete('/Favourite/UnbookmarkStore', {
             params: {
-              userId: userId.value,
+              userId: userId,
               storeId: product.value.storeId
             }
           });
@@ -317,7 +308,7 @@ const functionName = () => {
     const enterPay=()=>{
       // router.push('/pay');
       const productStr = JSON.stringify(product.value);//序列化对象
-      router.push({path:'/pay',query:{userId:userId.value,
+      router.push({path:'/pay',query:{userId:userId,
                                       productId:productId.value,
                                       product: productStr}});
     }
