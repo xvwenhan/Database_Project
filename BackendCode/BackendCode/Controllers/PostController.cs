@@ -499,6 +499,7 @@ namespace BackendCode.Controllers
 
         //获取某人写的所有帖子
         [HttpGet("get_someone_posts/{userId}")]
+        [Authorize]
         public async Task<IActionResult> GetPostsByUserId(string userId)
         {
             // 检查用户ID是否为空
@@ -522,6 +523,7 @@ namespace BackendCode.Controllers
 
         //获取帖子列表
         [HttpPost("get_all_posts")]
+        [Authorize]
         public async Task<IActionResult> GetPosts([FromBody] GetPostsModel model)
         {
             if (!ModelState.IsValid)
@@ -579,7 +581,7 @@ namespace BackendCode.Controllers
             return Ok(new { posts = posts, totalPostNums = totalPosts });
         }
 
-        //获取某个帖子相关信息（包含其中的图片、其下的一二级评论）
+        //获取某个帖子相关信息（包含其中的图片、其下的一二级评论）已经弃用
         [HttpGet("get_a_post_detail/{id}")]
         public async Task<IActionResult> GetPostDetail(string id)
         {
@@ -678,8 +680,20 @@ namespace BackendCode.Controllers
 
         //获取某个帖子相关信息（包含其中的图片、其下的一级评论）
         [HttpGet("get_a_post/{id}")]
+        [Authorize]
         public async Task<IActionResult> GetPost(string id)
         {
+            // 从cookie中提取用户ID
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+
+            // 检查是否存在点赞记录
+            var existingLike = await _context.LIKE_POSTS
+                .FirstOrDefaultAsync(e => e.BUYER_ACCOUNT_ID == userId && e.POST_ID == id);
+
             // 检查ID是否为空
             if (string.IsNullOrEmpty(id))
             {
@@ -745,13 +759,14 @@ namespace BackendCode.Controllers
                 Comments = comments
             };
 
-            return Ok(new { Message = "查询成功！", data = postDetailDto });
+            return Ok(new { Message = "查询成功！", data = postDetailDto ,liked= existingLike != null });
 
 
         }
 
         //获取某评论的子评论相关信息
         [HttpGet("get_sub_comments/{commentId}")]
+        [Authorize]
         public async Task<IActionResult> GetSubComments(string commentId)
         {
             // 检查ID是否为空
@@ -790,7 +805,8 @@ namespace BackendCode.Controllers
         }
 
         // 获取标题或作者昵称含某关键词的帖子
-        [HttpGet("search_posts")]
+        [HttpPost("search_posts")]
+        [Authorize]
         public async Task<IActionResult> SearchPostsByName([FromBody] SearchPostsDto model)
         {
             if (string.IsNullOrWhiteSpace(model.KeyWord))
@@ -833,6 +849,7 @@ namespace BackendCode.Controllers
 
         // 获取昵称或用户名或ID含关键词的用户
         [HttpGet("search_users/{keyWord}")]
+        [Authorize]
         public async Task<IActionResult> SearchBuyers(string keyWord)
         {
             if (string.IsNullOrWhiteSpace(keyWord))
@@ -859,6 +876,232 @@ namespace BackendCode.Controllers
 
             return Ok(new {message="搜索成功！",target_users=buyers,amount=count});
         }
+
+        //获取自己的所有帖子评论(考虑不用)
+        [HttpGet("my_all_comments")]
+        [Authorize]
+        public async Task<IActionResult> GetAllComments()
+        {
+            //从cookie中提取用户ID
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null)
+            {
+                return Unauthorized("请先登录！");
+            }
+            var comments = await (from cp in _context.COMMENT_POSTS
+                                  join p in _context.POSTS on cp.POST_ID equals p.POST_ID
+                                  join b in _context.BUYERS on cp.BUYER_ACCOUNT_ID equals b.ACCOUNT_ID
+                                  where p.ACCOUNT_ID == userId
+                                  select new ReceiveCommentModel
+                                  {
+                                      CommentId=cp.COMMENT_ID,
+                                      PostId=cp.POST_ID,
+                                      PostTitle=p.POST_TITLE,
+                                      AuthorId=cp.BUYER_ACCOUNT_ID,
+                                      AuthorName=b.USER_NAME,
+                                      CommentContent= cp.EVALUATION_CONTENT,
+                                      CommentTime=cp.EVALUATION_TIME,
+                                      
+                                  }).ToListAsync();
+
+            if (comments == null || !comments.Any())
+            {
+                return NotFound(new {message="未查询到任何被评论情况！"});
+            }
+            return Ok(new {message="查询成功！",data=comments});
+        }
+
+        //获取自己未读的帖子评论
+        [HttpGet("my_new_comments")]
+        [Authorize]
+        public async Task<IActionResult> GetNewComments()
+        {
+            //从cookie中提取用户ID
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null)
+            {
+                return Unauthorized("请先登录！");
+            }
+            var comments = await (from cp in _context.COMMENT_POSTS
+                                  join p in _context.POSTS on cp.POST_ID equals p.POST_ID
+                                  join b in _context.BUYERS on cp.BUYER_ACCOUNT_ID equals b.ACCOUNT_ID
+                                  where p.ACCOUNT_ID == userId && cp.IS_READ==0
+                                  select new ReceiveCommentModel
+                                  {
+                                      CommentId = cp.COMMENT_ID,
+                                      PostId = cp.POST_ID,
+                                      PostTitle = p.POST_TITLE,
+                                      AuthorId = cp.BUYER_ACCOUNT_ID,
+                                      AuthorName = b.USER_NAME,
+                                      CommentContent = cp.EVALUATION_CONTENT,
+                                      CommentTime = cp.EVALUATION_TIME,
+
+                                  }).ToListAsync();
+
+            if (comments == null || !comments.Any())
+            {
+                return NotFound(new { message = "未查询到任何未读评论！" });
+            }
+            return Ok(new { message = "查询成功！", data = comments });
+        }
+
+        //获取自己已读的帖子评论
+        [HttpGet("my_read_comments")]
+        [Authorize]
+        public async Task<IActionResult> GetReadComments()
+        {
+            //从cookie中提取用户ID
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null)
+            {
+                return Unauthorized("请先登录！");
+            }
+            var comments = await (from cp in _context.COMMENT_POSTS
+                                  join p in _context.POSTS on cp.POST_ID equals p.POST_ID
+                                  join b in _context.BUYERS on cp.BUYER_ACCOUNT_ID equals b.ACCOUNT_ID
+                                  where p.ACCOUNT_ID == userId && cp.IS_READ == 1
+                                  select new ReceiveCommentModel
+                                  {
+                                      CommentId = cp.COMMENT_ID,
+                                      PostId = cp.POST_ID,
+                                      PostTitle = p.POST_TITLE,
+                                      AuthorId = cp.BUYER_ACCOUNT_ID,
+                                      AuthorName = b.USER_NAME,
+                                      CommentContent = cp.EVALUATION_CONTENT,
+                                      CommentTime = cp.EVALUATION_TIME,
+
+                                  }).ToListAsync();
+
+            if (comments == null || !comments.Any())
+            {
+                return NotFound(new { message = "未查询到任何已读评论！" });
+            }
+            return Ok(new { message = "查询成功！", data = comments });
+        }
+
+        //获取自己未读的二级评论
+        [HttpGet("my_new_subcomments")]
+        [Authorize]
+        public async Task<IActionResult> GetNewSubcomments()
+        {
+            //从cookie中提取用户ID
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null)
+            {
+                return Unauthorized("请先登录！");
+            }
+            var comments = await (from cc in _context.COMMENT_COMMENTS
+                                  join p in _context.COMMENT_POSTS on cc.COMMENTED_COMMENT_ID equals p.COMMENT_ID
+                                  join b in _context.BUYERS on cc.ACCOUNT_ID equals b.ACCOUNT_ID
+                                  where p.BUYER_ACCOUNT_ID == userId &&  cc.IS_READ == 0
+                                  select new ReceiveSubcommentModel
+                                  {
+                                      CommentId = cc.COMMENT_ID,
+                                      CommentedCommentId = cc.COMMENTED_COMMENT_ID,
+                                      AuthorId = cc.ACCOUNT_ID,
+                                      AuthorName = b.USER_NAME,
+                                      CommentContent = cc.COMMENT_CONTENT,
+                                      CommentTime = cc.COMMENT_TIME,
+
+                                  }).ToListAsync();
+
+            if (comments == null || !comments.Any())
+            {
+                return NotFound(new { message = "未查询到任何未读子评论！" });
+            }
+            return Ok(new { message = "查询成功！", data = comments });
+        }
+
+        //获取自己未读的二级评论
+        [HttpGet("my_read_subcomments")]
+        [Authorize]
+        public async Task<IActionResult> GetReadSubcomments()
+        {
+            //从cookie中提取用户ID
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null)
+            {
+                return Unauthorized("请先登录！");
+            }
+            var comments = await (from cc in _context.COMMENT_COMMENTS
+                                  join p in _context.COMMENT_POSTS on cc.COMMENTED_COMMENT_ID equals p.COMMENT_ID
+                                  join b in _context.BUYERS on cc.ACCOUNT_ID equals b.ACCOUNT_ID
+                                  where p.BUYER_ACCOUNT_ID == userId && cc.IS_READ == 1
+                                  select new ReceiveSubcommentModel
+                                  {
+                                      CommentId = cc.COMMENT_ID,
+                                      CommentedCommentId = cc.COMMENTED_COMMENT_ID,
+                                      AuthorId = cc.ACCOUNT_ID,
+                                      AuthorName = b.USER_NAME,
+                                      CommentContent = cc.COMMENT_CONTENT,
+                                      CommentTime = cc.COMMENT_TIME,
+
+                                  }).ToListAsync();
+
+            if (comments == null || !comments.Any())
+            {
+                return NotFound(new { message = "未查询到任何未读子评论！" });
+            }
+            return Ok(new { message = "查询成功！", data = comments });
+        }
+
+        //获取我点过的所有赞
+        [HttpGet("my_liked_posts")]
+        [Authorize]
+        public async Task<IActionResult> GetMyLikes()
+        {
+            // 从cookie中提取用户ID
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null)
+            {
+                return Unauthorized("请先登录！");
+            }
+
+            var likedPosts = await (from lp in _context.LIKE_POSTS
+                                    join p in _context.POSTS on lp.POST_ID equals p.POST_ID
+                                    where lp.BUYER_ACCOUNT_ID == userId
+                                    select new LikedPostModel
+                                    {
+                                        PostId = lp.POST_ID,
+                                        PostTitle = p.POST_TITLE,
+                                        PostReleaseTime= p.RELEASE_TIME,
+                                        AuthorId=p.ACCOUNT_ID
+                                    }).ToListAsync();
+
+            if (likedPosts == null || !likedPosts.Any())
+            {
+                return NotFound(new { message = "未查询到任何点赞记录！" });
+            }
+
+            return Ok(new { message = "查询成功！", data = likedPosts });
+        }
+
+        // 标记评论为已读（可传入一、二级评论的ID）
+        [HttpPost("mark_comment/{commentId}")]
+        [Authorize]
+        public async Task<IActionResult> MarkCommentAsRead(string commentId)
+        {
+            // 查找评论
+            var comment = await _context.COMMENT_POSTS
+                .FirstOrDefaultAsync(cp => cp.COMMENT_ID == commentId);
+            if (comment != null)
+            {
+                comment.IS_READ = 1;
+                await _context.SaveChangesAsync();
+                return Ok(new { message = "（一级）评论已读成功!" });
+            }
+            var subcomment = await _context.COMMENT_COMMENTS
+           .FirstOrDefaultAsync(cp => cp.COMMENT_ID == commentId);
+            if (subcomment == null)
+            {
+                return NotFound(new { message = "评论未找到!" });
+            }
+            subcomment.IS_READ = 1;
+            await _context.SaveChangesAsync();
+            return Ok(new { message = "（二级）评论已读成功!" });
+        }
+
+
     }
 }
 

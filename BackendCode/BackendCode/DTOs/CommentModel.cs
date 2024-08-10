@@ -41,5 +41,27 @@
         public string? CommentContent { get; set; }
     }
 
+    public class ReceiveCommentModel
+    {
+        public string CommentId { get; set; }
+        public string AuthorId { get; set; }
+        public string? AuthorName { get; set; }
+
+        public DateTime CommentTime { get; set; }
+        public string PostId { get; set; }
+        public string CommentContent { get; set; }
+        public string PostTitle { get; set; }
+    }
+    public class ReceiveSubcommentModel
+    {
+        public string CommentId { get; set; }
+        public string AuthorId { get; set; }
+        public string? AuthorName { get; set; }
+        public string CommentContent { get; set; }
+        public DateTime CommentTime { get; set; }
+        public string CommentedCommentId { get; set; }
+
+    }
+
 }
 

@@ -62,7 +62,6 @@ namespace BackendCode.DTOs.PostModel
     public class ImageModel
     {
         public string ImageId { get; set; }
-       // public byte[] Image { get; set; }
         // 添加一个只读属性来生成图片的URL
         public string ImageUrl
         {
@@ -73,6 +72,12 @@ namespace BackendCode.DTOs.PostModel
         }
     }
 
-
+    public class LikedPostModel
+    {
+        public string PostId { get; set; }
+        public string PostTitle { get; set; }
+        public DateTime? PostReleaseTime { get; set; }
+        public string AuthorId { get; set; }
+    }
 
 }

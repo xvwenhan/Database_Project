@@ -254,5 +254,23 @@ namespace BackendCode.Controllers
 
             return File(product.PRODUCT_PIC, "image/jpeg"); //返回商品图片
         }
+
+        /***************************************/
+        /* 获取买家消费积分接口                */
+        /* 传入买家ID-buyerId                  */
+        /* 返回买家的当前积分                  */
+        /***************************************/
+        [HttpGet("GetBuyerCredits")]
+        public async Task<IActionResult> GetBuyerCreditsAsync(string buyerId)
+        {
+            /* 查询买家信息 */
+            var buyer = await _dbContext.BUYERS.FirstOrDefaultAsync(a => a.ACCOUNT_ID == buyerId);
+            if (buyer == null) //买家ID不存在
+            {
+                return NotFound("未找到该买家信息");
+            }
+
+            return Ok(buyer.TOTAL_CREDITS); //返回买家的总积分
+        }
     }
 }
