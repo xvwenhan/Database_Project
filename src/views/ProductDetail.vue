@@ -5,13 +5,12 @@ const functionName = () => {
 } 
 其中'01'可变,需填入对应商品的id
 -->
-
 <template>
   <Navbar class="narbar"/>
 
   <div class="PDcontainer">
     <div class="storeContent">
-        <div class="storeName">{{ product.store }}</div>
+        <div class="storeName">{{ product.storeName }}</div>
         <div class="storeScore">评分：{{  product.score}}</div>
         <!-- 店铺收藏按钮，与商品收藏差不多 -->
         <el-button
@@ -29,15 +28,15 @@ const functionName = () => {
               position: absolute;
               right:5%;" 
             >
-            <img v-show="isStoreStared" 
+            <img v-show="product.isStoreStared" 
             src="@/assets/mmy/stared.svg"
             alt="star"
             class="icon"/>
-            <img v-show="!isStoreStared" 
+            <img v-show="!product.isStoreStared" 
             src="@/assets/mmy/star.svg"
             alt="star"
             class="icon"/>
-            {{ isStoreStared ? '已收藏' : '&nbsp收&nbsp&nbsp藏&nbsp' }}
+            {{ product.isStoreStared ? '已收藏' : '&nbsp收&nbsp&nbsp藏&nbsp' }}
             </el-button>
         <!-- 进入店铺按钮 -->
         <el-button
@@ -59,80 +58,77 @@ const functionName = () => {
             class="icon"/>
             进店逛逛 
             </el-button>
-
       </div>
-    <div class="content">
-      <div class="productContent">
-        <div class="image">
-          <img
-            src="@/assets/mmy/product.jpg"
-            class="image_inside"
-          />
-          <div class="overlay">细节描述：{{ product.description }}</div>
-        </div>
-        <div class="text">
-          <div v-show="product.discount===1" class="price">￥{{ product.price }}</div>
-          <div v-show="product.discount!==1" class="dis_price">
-            <div class="dis">-{{ product.discount*100 }}%</div>
-            <div class="original_and_dis_price">
-              <div class="original_price">￥{{ product.price }}</div>
-              <div class="final_price">￥{{ (product.price*product.discount) .toFixed(2)}}&nbsp&nbsp&nbsp</div>
-            </div>
+    <div class="productContent">
+      <div class="image">
+        <img
+          :src="`data:image/png;base64,${product.picture}`"
+          class="image_inside"
+        />
+        <div class="overlay">细节描述：{{ product.description }}</div>
+      </div>
+      <div class="text">
+        <div v-show="product.discountPrice===product.price" class="price">￥{{ product.price }}</div>
+        <!-- <div v-show="product.discount!==1" class="dis_price">
+          <div class="dis">-{{ product.discount*100 }}%</div>
+          <div class="original_and_dis_price">
+            <div class="original_price">￥{{ product.price }}</div>
+            <div class="final_price">￥{{ (product.price*product.discount) .toFixed(2)}}&nbsp&nbsp&nbsp</div>
           </div>
+        </div> -->
 
-          <div class="name">{{ product.name }}</div>
-          <div class="store">来自 {{ product.store }} | 100%非遗正品保证</div>
-          <div class="fromwhere">
-            <div class="from1">发货地</div>
-            <div class="from2">{{ product.fromwhere }}</div>
-          </div>
-          <div class="baozhang">
-            <div class="baozhang1">保&nbsp&nbsp&nbsp&nbsp障</div>
-            <div class="baozhang2">假一赔十&nbsp&nbsp&nbsp&nbsp七天无理由退货 </div>
-          </div>
-          <div class="star_and_buy">
-            <!-- 收藏 -->
-            <el-button
-            @click="starProduct"
-            class="starProduct-button"
-            style="display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 23px;
-            border-radius: 5px;
-            cursor: pointer;
-            width: 25%;
-            height:50px;
-            right:35%;
-            bottom:0%;
-            position: absolute" 
-          >
-          <img v-show="isProductStared" 
-          src="@/assets/mmy/stared.svg"
-          alt="star"
-          class="icon"/>
-          <img v-show="!isProductStared" 
-          src="@/assets/mmy/star.svg"
-          alt="star"
-          class="icon"/>
-          {{ isProductStared ? '已收藏' : '&nbsp收&nbsp&nbsp藏&nbsp' }}
-          </el-button>
-          <!-- 购买 -->
-          <el-button type="success" 
-          @click="enterPay"
-          style="background-color: #257b5e; 
-          letter-spacing: 5px; 
-          font-size: 25px;
-          width: 30%; 
+        <div class="name">{{ product.name }}</div>
+        <div class="store">来自 {{ product.storeName }} | 100%非遗正品保证</div>
+        <div class="fromwhere">
+          <div class="from1">发货地</div>
+          <div class="from2">{{ product.fromWhere }}</div>
+        </div>
+        <div class="baozhang">
+          <div class="baozhang1">保&nbsp&nbsp&nbsp&nbsp障</div>
+          <div class="baozhang2">假一赔十&nbsp&nbsp&nbsp&nbsp七天无理由退货 </div>
+        </div>
+        <div class="star_and_buy">
+          <!-- 收藏 -->
+          <el-button
+          @click="starProduct"
+          class="starProduct-button"
+          style="display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 23px;
+          border-radius: 5px;
+          cursor: pointer;
+          width: 25%;
           height:50px;
-          right: 5%;
+          right:35%;
           bottom:0%;
           position: absolute" 
-          > 购买</el-button>
-          </div>
+        >
+        <img v-show="product.isProductStared" 
+        src="@/assets/mmy/stared.svg"
+        alt="star"
+        class="icon"/>
+        <img v-show="!product.isProductStared" 
+        src="@/assets/mmy/star.svg"
+        alt="star"
+        class="icon"/>
+        {{ product.isProductStared ? '已收藏' : '&nbsp收&nbsp&nbsp藏&nbsp' }}
+        </el-button>
+        <!-- 购买 -->
+        <el-button type="success" 
+        @click="enterPay"
+        style="background-color: #257b5e; 
+        letter-spacing: 5px; 
+        font-size: 25px;
+        width: 30%; 
+        height:50px;
+        right: 5%;
+        bottom:0%;
+        position: absolute" 
+        > 购买</el-button>
+        </div>
       </div>
-      </div>      
-      </div>
+    </div> 
     <div class="productAndCommentContent">
         <!-- 侧边导航栏 -->
         <div class="sidebar">
@@ -165,7 +161,7 @@ const functionName = () => {
               right:5%;">{{ activeSection=='comments'?'查看全部评价':'查看全部商品' }}</el-button>
           </div>
       </div>
-      </div>
+    </div>
   </div>
 </template>
   
@@ -173,37 +169,139 @@ const functionName = () => {
     import Navbar from '../components/Navbar.vue';
     import { ref,onMounted} from 'vue';
     import 'element-plus/dist/index.css';
-    import { ElButton } from 'element-plus';
+    import { ElButton ,ElMessage} from 'element-plus';
     import { useRoute } from 'vue-router';
     import { useRouter } from 'vue-router';
+    import axiosInstance from '../components/axios';
     
+    //假设已经知道了userid和productid
     // 创建一个响应式变量来存储参数
-    const productId = ref('');
+    const productId = ref('000000');
+    const userId=ref('U00000001');
+    const message=ref('');
     // 使用 useRoute 来访问路由参数
     const router=useRouter();
     const route = useRoute();
-    // 生命周期钩子，等所有DOM全部挂载后执行
-    onMounted(() => {
-    productId.value = route.query?.id as string || 'Error';
-    console.log('接收到的参数:', productId.value);
-    });
 
-    const product={name:'苏绣成品荷花手工刺绣精品',
-                    price:85,
-                    description:'有一点点瑕疵，不影响美观,等等等等等等等等等等等等等等等等',
-                    store:'苏绣世家',
-                    discount:1,
-                    fromwhere:'江苏省某某市',
-                    score:4.7};
-                    
-    const isProductStared = ref(false);
-    const isStoreStared=ref(false);
+    // const product={ name:'苏绣成品荷花手工刺绣精品',
+    //                 price:85,
+    //                 description:'有一点点瑕疵，不影响美观,等等等等等等等等等等等等等等等等',
+    //                 store:'苏绣世家',
+    //                 discount:1,
+    //                 fromwhere:'江苏省某某市',
+    //                 score:4.7};
+    const product = ref({
+      name: '',
+      picture: '',
+      price: 0,
+      description: '',
+      storeName: '',
+      storeId: '',
+      discountPrice: 0,
+      fromWhere: '',
+      score: 0,
+      isProductStared: false,/////////注意1，补一条所属店铺是否被收藏
+      isStoreStared:false
+    }) ;        
+    // const isStoreStared=ref(false);
+    
     const activeSection = ref('comments');
-    const starProduct = () => {
-      isProductStared.value = !isProductStared.value; // 切换收藏状态
+
+    // 生命周期钩子，等所有DOM全部挂载后执行
+    // onMounted(() => {
+    // productId.value = route.query?.id as string || 'Error';
+    // console.log('接收到的参数:', productId.value);
+    // });
+  
+    onMounted(async () => {
+      try {
+        // const response = await axiosInstance.get('/Account/send_verification_code',
+        // {params: { email: registerEmail.value }});
+        const response = await axiosInstance.get(`/Shopping/GetProductDetails/`,{
+          params:{
+            userId:userId.value,
+            productId:productId.value
+          }
+        });
+        product.value=response.data;
+        console.log(product.value);
+        } catch (error) {
+          ElMessage.error('页面加载失败！');
+        }
+    })
+    const starProduct = async() => {
+      if(product.value.isProductStared===false){
+        console.log('进入收藏');
+        try {
+          const response = await axiosInstance.post('/Favourite/BookmarkProduct', null, {
+              params: {
+                userId: userId.value,
+                productId: productId.value
+              }
+            });
+
+            console.log(response.data);
+            if (response.status === 200) {
+              product.value.isProductStared = !product.value.isProductStared;
+            } else {
+              console.error('Unexpected response status:', response.status);
+            }
+      } catch (error) {
+        console.error('starProduct failed:', error);
+      }
+    }else{
+        console.log('进入取消收藏');
+        try {
+          const response = await axiosInstance.delete('/Favourite/UnbookmarkProduct', {
+            params: {
+              userId: userId.value,
+              productId: productId.value
+            }
+          });
+          console.log(response.data);
+          if (response.status === 200) {
+            product.value.isProductStared = !product.value.isProductStared;
+          } else {
+            console.error('Unexpected response status:', response.status);
+          }
+        } catch (error) {
+          console.error('unStarProduct failed:', error);
+        }
+      }
     };
-    const starStore = () => {
-      isStoreStared.value = !isStoreStared.value; // 切换收藏状态
+    const starStore = async() => {
+      if(product.value.isStoreStared===false){
+        try {
+          const response = await axiosInstance.post('Favourite/BookmarkStore',null,{
+            params: {
+                userId: userId.value,
+                'storeId':product.value.storeId
+              }});
+            if (response.status === 200) {
+              product.value.isStoreStared = !product.value.isStoreStared; 
+            } else {
+              console.error('Unexpected response status:', response.status);
+            }
+        } catch (error) {
+          console.error('starStore failed:', error);
+        }
+      }else{
+        try {
+          const response = await axiosInstance.delete('/Favourite/UnbookmarkStore', {
+            params: {
+              userId: userId.value,
+              storeId: product.value.storeId
+            }
+          });
+          if (response.status === 200) {
+            product.value.isStoreStared = !product.value.isStoreStared;
+          } else {
+            console.error('Unexpected response status:', response.status);
+          }
+        } catch (error) {
+          console.error('unStarStore failed:', error);
+        }
+      }
     };
     const showComments = () => {
       activeSection.value = 'comments';
@@ -217,7 +315,11 @@ const functionName = () => {
       console.log('按钮点击');
     };
     const enterPay=()=>{
-      router.push('/pay');
+      // router.push('/pay');
+      const productStr = JSON.stringify(product.value);//序列化对象
+      router.push({path:'/pay',query:{userId:userId.value,
+                                      productId:productId.value,
+                                      product: productStr}});
     }
 
 </script>
@@ -238,56 +340,41 @@ transform: scale(0.95); /* 点击时缩小效果 */
   overflow-x: hidden; /*隐藏水平滚动条 */
   /* overflow: auto; */
 }
-.content,.storeContent,.productAndCommentContent{
+.productContent,.storeContent,.productAndCommentContent{
   background-color: #FFFFFF;
   width: 70%; /*百分比都是相对于父容器说的*/ 
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* 添加阴影效果（可选） */
   box-sizing: border-box; /* 使内边距和边框包含在宽度和高度内 */
   border-radius: 15px; 
+  margin-top:15px;
+}
 
-}
-/* 内容区域样式 */
-.content {
-  height:700px;
-  padding: 40px; 
-  display: flex;
-  flex-direction: column; 
-  align-items: center; 
-  margin: 0 auto; 
-  overflow-y: auto;
-}
 .storeContent{
-  height:70px;
+  height:65px;
   padding-top: 10px;
   padding-left: 30px;
   position: relative;
   display: flex;
   flex-direction: row; 
-  margin-top:10px ;
-  margin-bottom:10px ;
   justify-items: center;
 }
-
+.productContent {
+  height:600px;
+  padding: 40px; 
+  display: flex;
+  position: relative;
+  overflow: hidden;
+  flex-direction: row; 
+}
 .productAndCommentContent {
   height:auto;
-  margin-top:20px;
   display: flex;
   flex-direction: row;
   position: relative;
 }
 
-.productContent {
-  width:100%;
-  height: auto;
-  position: relative;
-  border-radius: 15px; 
-  overflow: hidden;
-  display: flex;
-  flex-direction: row; 
-}
-
 .image {
-  width: 49%;
+  width: 48%;
   height: 100%;
   border-radius: 15px;
   position: relative; /* 确保覆盖层绝对定位在此容器内 */
@@ -340,9 +427,9 @@ transform: scale(0.95); /* 点击时缩小效果 */
   color:rgb(139, 49, 31);
 }
 .price{
-  border:2px solid #232020;
+  /* border:2px solid #232020; */
   width:40%;
-  background-color: #CCCCCC;
+  /* background-color: #CCCCCC; */
 }
 .dis_price{
   display: flex;

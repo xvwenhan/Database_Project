@@ -183,18 +183,20 @@ const clearData=()=>{
   realVerificationCode.value='';
 }
 ///////////////////////对产品详情页面的传参测试
-//const login = () => {
-  //router.push({ path: '/productdetail', query: { id: '01' } });
-  // router.push('/productdetail')
-  // router.push('/pay');
-//}
+// const login = () => {
+//   router.push({ path: '/productdetail', query: { id: '01' } });
+//   // router.push('/productdetail')
+//   // router.push('/pay');
+// }
 ///////////////////////通信最终版
  const login = async () => {
     if(!loginEmail.value||!password.value){
       ElMessage.error('请保证不为空');
-    } else if(!validateEmail(loginEmail.value)){
+    } 
+    else if(!validateEmail(loginEmail.value)){
       ElMessage.error('邮箱格式不正确');
-    }else{
+    }
+    else{
       try {
         const response = await axiosInstance.post('/Account/login', {
           "username": loginEmail.value,
@@ -202,10 +204,11 @@ const clearData=()=>{
         });
         message.value = response.data.message;
         ElMessage.success(message.value);
+        console.log(`response.data.userId${response.data.userId}`);
         if(response.data.role=='买家'){
           router.push('/home');
         }else if(response.data.role=='商家'){
-          router.push({ path: '/merchantpage', query: { id: response.data.userid } });
+          router.push({ path: '/merchantpage', query: { id: response.data.userId } });
         }else{
           router.push('/platform-info');
         }  
@@ -220,7 +223,7 @@ const clearData=()=>{
         message.value='';
       }
  };
-////////////////////////////访问受保护数据测试
+// //////////////////////////访问受保护数据测试
 // const show_protected = async () => {
 //   try {
 //     const response = await axiosInstance.get('/Account/protected');
@@ -234,7 +237,7 @@ const clearData=()=>{
 //   }
 //   console.log(message.value);
 // };
-//////////////////////////////////////////////登出功能测试，后续可加在别的地方
+// ////////////////////////////////////////////登出功能测试，后续可加在别的地方
 // const log_out = async () => {
 //   try {
 //     const response = await axiosInstance.post('/Account/logout');
@@ -255,9 +258,11 @@ const getVerificationCode= async () =>{
     ElMessage.error('请保证邮箱不为空');
   }else{
     try {
-      const response = await axiosInstance.get('/Account/send_verification_code',
-      {params: { email: registerEmail.value }});
+      // const response = await axiosInstance.get('/Account/send_verification_code',
+      // {params: { email: registerEmail.value }});
+      const response = await axiosInstance.get(`/Account/send_verification_code/${encodeURIComponent(registerEmail.value)}`);
       realVerificationCode.value=response.data.verificationCode;
+
       ElMessage.success('验证码发送成功');
     } catch (error) {
       if (error.response) {
@@ -311,9 +316,9 @@ const changPsw=async ()=>{
         ElMessage.error("验证码错误");
       }else{
         try {
-          const response = await axiosInstance.post('/Account/register',{
-            'Username':registerEmail.value,
-            'Password':newPassword.value,
+          const response = await axiosInstance.post('/Account/password_reset',{
+            'username':registerEmail.value,
+            'password':newPassword.value,
             });
             message.value=response.data.message;
             ElMessage.success(message.value);

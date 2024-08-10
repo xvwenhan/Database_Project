@@ -14,7 +14,7 @@
         <div class="address">
             <img class="addressImage" src="@/assets/mmy/location.svg">
             <div class="text1">寄送至&nbsp&nbsp&nbsp&nbsp</div>
-            <div class="customerAddress">{{ customer.address }}&nbsp&nbsp({{ customer.name }}&nbsp收)&nbsp&nbsp{{ customer.phone }}</div>
+            <div class="customerAddress">{{ customer.address }}&nbsp&nbsp({{ customer.name }}&nbsp收)&nbsp&nbsp</div>
             <el-button
                 @click="openDialog"
                 class="changeAddress"
@@ -53,7 +53,7 @@
                         font-size:17px;"
                         ></el-input>
                     </div>
-                    <div class="dialog-line">
+                    <!-- <div class="dialog-line">
                         <div class="dialog-text">&nbsp手&nbsp机&nbsp号&nbsp </div>
                         <el-input 
                         v-model="customer.phone" 
@@ -63,7 +63,7 @@
                         height:40px;
                         font-size:17px;"
                         ></el-input>
-                    </div>
+                    </div> -->
                     <div class="dialog-line">
                         <div class="dialog-text">所在地区 </div>
                         <el-cascader :options='options' 
@@ -120,9 +120,9 @@
         </div>
         <div class="price">
             <div class="text3">￥价格明细</div>
-            <div class="text-price">商品原价：&nbsp&nbsp{{ (product.price).toFixed(2) }}元</div>
-            <div class="text-price">活动折扣：&nbsp&nbsp{{ product.discount==1?'本商品未参与活动': '* '+product.discount*100+'%'}}</div>
-            <div class="text-price">折扣价格：&nbsp&nbsp{{ discountPrice }}元</div>
+            <div class="text-price">商品原价：&nbsp&nbsp{{ (product.price) }}元</div>
+            <div class="text-price">活动折扣：&nbsp&nbsp{{ product.discountPrice===product.price?'本商品未参与活动': '* '+product.discount*100+'%'}}</div>
+            <div class="text-price">折扣价格：&nbsp&nbsp{{ product.discountPrice }}元</div>
             <!-- 注意vue中的整除 -->
             <div class="text-price">积分抵扣：当前积分{{ customer.credits }},可抵扣{{ creditPrice }}元</div>
             <div class="text-price" v-show="creditPrice!=='0'">
@@ -166,30 +166,74 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref ,computed,onMounted,reactive} from 'vue';
 import { ElDialog, ElButton ,ElMessage} from 'element-plus';
 import { regionData, codeToText } from 'element-china-area-data';
-const product={name:'苏绣成品荷花手工刺绣精品',
-                price:85,
-                description:'有一点点瑕疵，不影响美观,等等等等等等等等等等等等等等等等',
-                store:'苏绣世家',
-                discount:0.7,
-                fromwhere:'江苏省某某市',
-                score:4.7};
-const customer=ref({name:'mmy',
-                address:'上海市嘉定区曹安路1111号',
-                phone:123456789,
-                credits:4300});
-const order=ref({id:'000001123334',createTime:'2024-06-24 12:12:01'});
+import axiosInstance from '../components/axios';
+
+//接收路由参数
+import { useRoute } from 'vue-router';
+const route = useRoute();
+const userId = computed(() => route.query.userId as string);
+const productId = computed(() => route.query.productId as string);
+const product = computed(() => {
+  const productStr = route.query.product as string | undefined;
+  return productStr ? JSON.parse(productStr) : null;
+});
+const order=ref({id:'',createTime:''});
+const customer=ref({name:'',
+                address:'',
+                credits:0});
+const formData=reactive({
+    BuyerId:'',
+    ProductId:''
+ });
+onMounted(async () => {
+    console.log(`product is ${JSON.stringify(product.value)}`);
+    console.log(`productId is ${productId.value}`);
+    console.log(`userId is ${userId.value}`);
+    try {
+        console.log('进入try');
+        const putData = new FormData();
+        putData.append('theme', formData.BuyerId);
+        putData.append('option', formData.ProductId);
+
+        // formData.append('BuyerId',userId.value);
+        // formData.append('ProductId',productId.value);
+
+        const response = await axiosInstance.post('Payment/AddOrders', formData);
+        // const response = await axiosInstance.post(`/Payment/AddOrders`,{
+            // 'BuyerId':userId.value,
+            // 'ProductId':productId.value});
+        console.log('try结束');
+        order.value.id=response.data.orderId;
+        order.value.createTime=response.data.createTime;
+        customer.value.name=response.data.username;
+        customer.value.address=response.data.address;
+        customer.value.credits=response.data.credits;
+    } catch (error) {
+        console.log('订单生成失败');
+        //   ElMessage.error(message.value);
+     }
+})// const product={name:'苏绣成品荷花手工刺绣精品',
+//                 price:85,
+//                 description:'有一点点瑕疵，不影响美观,等等等等等等等等等等等等等等等等',
+//                 store:'苏绣世家',
+//                 discount:0.7,
+//                 fromwhere:'江苏省某某市',
+//                 score:4.7};
+
+
+
 const dialogVisible=ref(false);
 const payVisible=ref(false);
 const address1=ref('');
 const address2=ref('');
 const isUseCredits=ref('no');
 //用了toFixed(2)就是string类型的了
-const discountPrice=(product.price*product.discount).toFixed(2);
+// const discountPrice=(product.price*product.discount).toFixed(2);
 const creditPrice=Math.floor(customer.value.credits/1000).toFixed(0);
-const finalPrice=ref(discountPrice);
+const finalPrice=ref(0);
 // 省市区信息
 const options = ref(regionData);
 const selectedOptions = ref(['110000', '110100', '110101']);
@@ -215,16 +259,18 @@ const addressChange=()=> {
 //根据积分计算最终价格
 const priceCalculate=()=>{
     // 确保 discountPrice 和 creditPrice 是数字进行计算
-    const discount = parseFloat(discountPrice);
-    const credits = parseFloat(creditPrice);
+    // const discount = parseFloat(discountPrice);
+    // const credits = parseFloat(creditPrice);
 
-    if (isUseCredits.value === 'yes') {
-        finalPrice.value = (discount - credits).toFixed(2); // 计算最终价格并保留两位小数
-    } else {
-        finalPrice.value = discount.toFixed(2); // 如果不使用积分，最终价格就是折扣价格
-    }}
+    // if (isUseCredits.value === 'yes') {
+    //     finalPrice.value = (discount - credits).toFixed(2); // 计算最终价格并保留两位小数
+    // } else {
+    //     finalPrice.value = discount.toFixed(2); // 如果不使用积分，最终价格就是折扣价格
+    // }
+    }
 const openPay=()=>{
     payVisible.value=true;
+    
 }
 </script>
 

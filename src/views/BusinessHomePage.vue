@@ -7,12 +7,12 @@
         <br>
         <el-card class="box-card" >
           <span class="Number">
-            <el-statistic :value="number" />
+            <el-statistic :value="stats.waitingForShipment" />
           </span>
         </el-card>
         <el-card class="box-card-two">
           <span class="Number">
-            <el-statistic :value="number" />
+            <el-statistic :value="stats.waitingForReturn" />
           </span>
         </el-card>
         <br>
@@ -24,12 +24,12 @@
         <br>
         <el-card class="box-card" >
           <span class="Number">
-            <el-statistic :value="number" />
+            <el-statistic :value="stats.inCount" />
           </span>
         </el-card>
         <el-card class="box-card-two">
           <span class="Number">
-            <el-statistic :value="number" />
+            <el-statistic :value="stats.outCount" />
           </span>
         </el-card>
         <br>
@@ -41,12 +41,12 @@
         <br>
         <el-card class="box-card" >
           <span class="Number">
-            <el-statistic :value="number" />
+            <el-statistic :value="stats.orderCount" />
           </span>
         </el-card>
         <el-card class="box-card-two">
           <span class="Number">
-            <el-statistic :value="number" />
+            <el-statistic :value="stats.totalRevenue" />
           </span>
         </el-card>
         <br>
@@ -60,17 +60,12 @@
         <OrderStatisticsChart :data="orderData" :labels="lastSevenDays" />
       </span>
     </div>
-    <div class="StoreScore">
-      <div v-if="loading">Loading...</div>
-      <div v-if="error">{{ error }}</div>
-      <div v-if="storeScore !== null">Store Score: {{ storeScore }}</div>
-    </div>
     </div>
 </template>
 
 <script>
 import OrderStatisticsChart from './OverviewView.vue';
-import axios from 'axios';
+import axiosInstance from '../components/axios';
 
 export default {
   components: {
@@ -78,17 +73,64 @@ export default {
   },
   data() {
     return {
-      orderData: [10, 12, 21, 54, 260, 830, 710],
+      orderData: [],
       lastSevenDays: this.getLastSevenDays(),
-      storeScore: null,
-      loading: false,
-      error: null
+      stats: {
+        waitingForShipment: 0,
+        waitingForReturn: 0,
+        inCount: 0,
+        outCount: 0,
+        orderCount: 0,
+        totalRevenue: 0,
+      },
     };
   },
-  created() {
-    this.fetchStoreScore();  // 在组件创建时调用方法获取店铺评分
-  },
   methods: {
+    async fetchOrderStats() {
+      const storeId = 'S1234567'; // 替换为实际的 storeId
+      const today = this.formatDate(new Date());
+
+      try {
+        const response = await axiosInstance.get('/StoreFront/GetOrderStats', {
+          params: {
+            storeId: storeId,
+            date: today,
+          },
+        });
+
+        // 更新组件数据
+        this.stats = response.data;
+      } catch (error) {
+        console.error('Error fetching order stats:', error);
+      }
+    },
+    getLastWeekDate() {
+    const date = new Date();
+    date.setDate(date.getDate() - 7); // 设置为今天之前的第七天
+    return this.formatDate(date); // 格式化日期
+    },
+    async fetchWeeklyOrderCount() {
+      const storeId = 'S1234567'; // 替换为实际的 storeId
+      const lastWeekDate = this.getLastWeekDate();
+
+      try {
+        const response = await axiosInstance.get('/StoreFront/GetWeeklyOrderCount', {
+          params: {
+            storeId: storeId,
+            date: lastWeekDate,
+          },
+        });
+
+        console.log('Weekly order count response:', response.data);
+
+
+        // 更新订单数据
+        this.orderData = response.data.map(item => item.count);
+        this.lastSevenDays = this.getLastSevenDays(); // 更新日期标签
+      } catch (error) {
+        console.error('Error fetching weekly order count:', error);
+      }
+    },
     getLastSevenDays() {
       const days = [];
       const today = new Date();
@@ -108,26 +150,11 @@ export default {
       const day = String(date.getDate()).padStart(2, '0');
       return `${year}-${month}-${day}`;
     },
-    async fetchStoreScore() {
-      const storeid = 'yourStoreId';  // 这里替换为实际的 storeid
-      this.loading = true;
-      this.error = null;
-      this.storeScore = null;
-
-      try {
-        const response = await axios.get('/api/StoreFront/UpdateStoreScore', {
-          params: { storeid }
-        });
-        this.storeScore = response.data;
-        console.log('Store score:', response.data); // 控制台输出
-      } catch (error) {
-        this.error = 'Failed to fetch store score';
-        console.error('Error fetching store score:', error);
-      } finally {
-        this.loading = false;
-      }
-    }
-  }
+  },
+  mounted() {
+    this.fetchOrderStats(); // 组件挂载后请求数据
+    this.fetchWeeklyOrderCount(); // 请求一周订单数据
+  },
 };
 </script>
 
@@ -149,6 +176,7 @@ export default {
 
 .BlockTwo {
   display: flex;
+  width: 1500px;
   padding-left: 100px;
   padding-top: 70px;
 }

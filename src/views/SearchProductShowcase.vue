@@ -1,117 +1,64 @@
 <script setup lang="ts">
+import { ref, onMounted } from 'vue';
+import axiosInstance from '../components/axios';
 import Navbar from '../components/Navbar.vue';
-import { ref } from 'vue';
 
-const products = ref([
-  {
-    id: 1,
-    name: '名字',
-    Tag:"tag",
-    price: 32,
-    originalPrice: 93,
-    discount: 3.3,
-    description: '详细描述',
-    image: '/src/assets/wy/product1.png'
-  },
-  {
-    id: 2,
-    name: '名字',
-    Tag:"tag",
-    price: 59,
-    originalPrice: 269,
-    discount: 2.2,
-    description: '详细描述',
-    image: '/src/assets/wy/product1.png'
-  },
-  {
-    id: 3,
-    name: '名字',
-    Tag:"tag",
-    price: 59,
-    originalPrice: 269,
-    discount: 2.2,
-    description: '详细描述',
-    image: '/src/assets/wy/product1.png'
-  },
-  {
-    id: 4,
-    name: '名字',
-    Tag:"tag",
-    price: 59,
-    originalPrice: 269,
-    discount: 2.2,
-    description: '详细描述',
-    image: '/src/assets/wy/product1.png'
-  },
-  {
-    id: 5,
-    name: '名字',
-    Tag:"tag",
-    price: 59,
-    originalPrice: 269,
-    discount: 2.2,
-    description: '详细描述',
-    image: '/src/assets/wy/product1.png'
-  },
-  {
-    id: 6,
-    name: '名字',
-    Tag:"tag",
-    price: 59,
-    originalPrice: 269,
-    discount: 2.2,
-    description: '详细描述',
-    image: '/src/assets/wy/product1.png'
-  },
-  {
-    id: 7,
-    name: '名字',
-    Tag:"tag",
-    price: 59,
-    originalPrice: 269,
-    discount: 2.2,
-    description: '详细描述',
-    image: '/src/assets/wy/product1.png'
-  },
-  {
-    id: 8,
-    name: '名字',
-    Tag:"tag",
-    price: 59,
-    originalPrice: 269,
-    discount: 2.2,
-    description: '详细描述',
-    image: '/src/assets/wy/product1.png'
-  },
-  {
-    id: 9,
-    name: '名字',
-    Tag:"tag",
-    price: 59,
-    originalPrice: 269,
-    discount: 2.2,
-    description: '详细描述',
-    image: '/src/assets/wy/product1.png'
-  },
-  // 其他商品数据...
-]);
+const products = ref([]);
+const loading = ref(true);  // 用于控制缓冲页面的显示
+const errorMessage = ref(''); // 错误信息
+
+const fetchStores = async (keyword: string, type: string) => {
+  try {
+    const response = await axiosInstance.get('/NaviSearch/search', {
+      params: {
+        keyword: keyword,
+        type: type
+      }
+    });
+    console.log('返回数据', response.data);
+
+    if (response.data && response.data.length > 0) {
+      products.value = response.data;
+      errorMessage.value = ''; // 清除错误信息
+    } else {
+      products.value = [];
+      errorMessage.value = '你搜索的宝贝不存在...'; // 设置错误信息
+    }
+  } catch (error) {
+    console.error('Error fetching stores:', error);
+    errorMessage.value = '你搜索的宝贝不存在...'; // 设置错误信息
+  } finally {
+    loading.value = false;  // 数据获取完毕后关闭缓冲页面
+  }
+};
+
+onMounted(() => {
+  const keyword = localStorage.getItem('keyword') || '';
+  const type = localStorage.getItem('searchType') || '0';
+  fetchStores(keyword, type);
+});
 </script>
 
 <template>
-    <Navbar />
-    <div class="product-display">
-        <div v-for="product in products" :key="product.id" class="product-item">
-        <img :src="product.image" :alt="product.name" class="product-image" />
+  <Navbar />
+  <div v-if="loading" class="loading-overlay">
+    <div class="loading-spinner"></div>
+    <p>搜索中，请稍候...</p>
+  </div>
+  <div v-else>
+    <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
+    <div v-else class="product-display">
+      <div v-for="product in products" :key="product.productId" class="product-item">
+        <img :src="'data:image/png;base64,' + product.productPic" :alt="product.productName" class="product-image" />
         <div class="product-info">
-            <p class="product-price">
-            <span class="special-price">特卖价</span> ¥{{ product.price }}
-            <span class="original-price">¥{{ product.originalPrice }}</span>
-            <span class="discount">{{ product.discount }}折</span>
-            </p>
-            <h2 class="product-name">【tag】{{ product.name }} {{ product.description }}</h2>
+          <p class="product-price">
+            <span class="special-price">到手价</span> ¥{{ product.productPrice }}
+          </p>
+          <h2 class="product-name">【{{ product.productName }}】{{ product.description }}</h2>
         </div>
-        </div>
+      </div>
     </div>
+  </div>
 </template>
 
 <style scoped>
@@ -164,14 +111,37 @@ const products = ref([
   border-radius: 5px;
 }
 
-.original-price {
-  text-decoration: line-through;
-  margin-left: 5px;
-  color: #999;
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
 }
 
-.discount {
-  margin-left: 5px;
+.loading-spinner {
+  border: 5px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 5px solid #3498db;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.error-message {
+  text-align: center;
+  font-size: 24px;
   color: #e60012;
+  margin: 20px;
 }
 </style>

@@ -12,11 +12,15 @@
     "type-check": "vue-tsc --build --force"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-free": "^6.6.0",
     "animate.css": "^4.1.1",
     "axios": "^1.7.3",
     "echarts": "^5.5.1",
+    "element-china-area-data": "^6.1.0",
     "element-plus": "^2.7.6",
+    "pinia": "^2.2.0",
     "vue": "^3.4.29",
+    "vue-cookies": "^1.8.4",
     "vue-router": "^4.3.3"
   },
   "devDependencies": {

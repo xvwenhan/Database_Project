@@ -37,6 +37,14 @@
                 <img src="@/assets/setting.svg" alt="Setting" id="Setting">
             </li>
         </ul>
+        <div class="StoreScore">
+      <span v-if="loading">Loading...</span>
+      <span v-if="error">{{ error }}</span>
+      <span v-if="storeScoreName">
+        Store Score: {{ storeScoreName.storeScore }}
+        Store Name: {{ storeScoreName.storeName }}
+      </span>
+    </div>
     </div>
 
     <div v-if="show" class="SettingPopUp">
@@ -57,6 +65,7 @@
   <script>
   import BusinessSetting from './BusinessSetting.vue';
   import UserCenter from './UserCenter.vue'
+  import axiosInstance from '../components/axios';
   export default {
   
     name: 'Businessnav',
@@ -67,9 +76,15 @@
     data() {
     return {
       showModal: false,
-      show:false
+      show:false,
+      storeScoreName: null,
+      loading: false,
+      error: null
     };
     
+  },
+  created() {
+    this.fetchStoreScore();  // 在组件创建时调用方法获取店铺评分
   },
   methods: {
     closeModal() {
@@ -77,6 +92,25 @@
     },
     closeModalT() {
       this.show = false;
+    },
+    async fetchStoreScore() {
+      const storeId = 'S1234567'; // 替换为实际的 storeid
+      this.loading = true;
+      this.error = null;
+      this.storeScoreName = null;
+
+      try {
+        const response = await axiosInstance.get('/StoreFront/UpdateStoreScore', {
+          params: { storeId }
+        });
+        this.storeScoreName = response.data;
+        console.log('Store score:', response.data); // 控制台输出
+      } catch (error) {
+        this.error = 'Failed to fetch store score';
+        console.error('Error fetching store score:', error);
+      } finally {
+        this.loading = false;
+      }
     }
   }
   }
@@ -199,4 +233,5 @@
   text-decoration: none;
   cursor: pointer;
 }
+
   </style>
