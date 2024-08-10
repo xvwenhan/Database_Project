@@ -81,6 +81,10 @@ const fetchWeather = async () => {
 };
 
 onMounted(() => {
+  // 从本地存储中恢复搜索类型和关键字
+  searchType.value = localStorage.getItem('searchType') === '1' ? 'vendor' : 'product';
+  searchText.value = localStorage.getItem('keyword') || '';
+
   updateCurrentDate();
   fetchWeather();
 
@@ -94,6 +98,9 @@ watch(() => route.fullPath, () => {
 });
 
 const handleSearch = async () => {
+  console.log('搜索类型:', searchType.value);
+  console.log('搜索内容:', searchText.value);
+  
   localStorage.setItem('searchType', searchType.value === 'product' ? '0' : '1');
   localStorage.setItem('keyword', searchText.value);
 
@@ -214,9 +221,11 @@ html, body {
   height: 42px;
   display: flex;
   align-items: center;
-  border: 2px solid orange; /* 添加橙色边框 */
+  border: 2px solid orange; /* 确保边框颜色为橙色 */
   border-radius: 25px;
   padding: 5px;
+  background-color: #ffffff; /* 确保背景色为白色 */
+  box-shadow: none; /* 取消所有阴影效果 */
 }
 
 .search-type {
