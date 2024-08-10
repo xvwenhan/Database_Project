@@ -95,6 +95,20 @@ export default {
       const storeId = 'S1234567'; // 替换为实际的 storeId
       const inOrOut = !row.isStoreParticipating; // 反转参与状态
 
+       // 检查当前时间是否在市集的开始时间和结束时间范围内
+        const currentTime = new Date();
+        const startTime = new Date(row.startTime);
+        const endTime = new Date(row.endTime);
+     
+        if (currentTime < startTime || currentTime > endTime) {
+          ElMessage({
+            message: '市集不在有效时间范围内，无法改变参与状态。',
+            type: 'warning'
+          });
+          return;
+        }
+
+
       try {
         await axiosInstance.put('/StoreViewMarket/UpdateMarketStoreParticipation', {
           marketId: row.marketId,

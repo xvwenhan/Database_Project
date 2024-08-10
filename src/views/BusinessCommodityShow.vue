@@ -401,7 +401,7 @@ const fetchProductByTag = async (storeTag) => {
         const reader = new FileReader();
         reader.onload = (e) => {
           const base64Image = `data:image/jpeg;base64,${e.target.result.split(',')[1]}`;
-          if (target === 'newProduct') {
+          if (target === 'newProduct') { 
             newProduct.value.image = base64Image;
           } else if (target === 'preProduct') {
             preProduct.value.image = base64Image;
@@ -490,66 +490,66 @@ const fetchProductByTag = async (storeTag) => {
     const handlePageChange = (page) => {
       currentPage.value = page;
     };
-  
-    //删除
+
+    //删除单个
     const handleDelete = async (row) => {
-      if (row.isOnSale) {
-        ElMessage({
-          message: '该商品已经出售，无法删除',
-          type: 'warning'
-        });
-        return;
-      }
+  if (row.isOnSale) {
+    ElMessage({
+      message: '该商品已经出售，无法删除',
+      type: 'warning'
+    });
+    return;
+  }
 
-      try {
-        await ElMessageBox.confirm('此操作将永久删除该商品, 是否继续?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        });
+  try {
+    await ElMessageBox.confirm('此操作将永久删除该商品, 是否继续?', '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    });
 
-        const storeId = 'S1234567'; // 替换为实际的storeId
-        const productId = row.id;
+    const storeId = 'S1234567'; // 替换为实际的storeId
+    const productId = row.id;
 
-        // 发送请求到后端删除商品
-        const response = await axiosInstance.delete(`/StoreViewProduct/deleteProduct`, {
-          params: {
-            storeId: storeId,
-            productId: productId
-          }
-        });
+    // 发送请求到后端删除单个商品
+    const response = await axiosInstance.delete('/StoreViewProduct/deleteProducts', {
+      params: {
+        storeId: storeId
+      },
+      data: [productId] // 传递请求体为数组
+    });
 
-        if (response.status === 200) {
-          // 删除本地商品列表中的商品
-          const index = products.value.indexOf(row);
-          if (index !== -1) {
-            products.value.splice(index, 1); // 删除指定索引的数据
-            handlePageChange(currentPage.value);
-            if (currentPage.value > 1 && currentPageData.value.length === 0) {
-              currentPage.value--;
-            }
-          }
-
-          ElMessage({
-            message: '商品已删除',
-            type: 'success'
-          });
-        } else {
-          ElMessage({
-            message: '删除商品失败',
-            type: 'error'
-          });
-        }
-      } catch (error) {
-        if (error !== 'cancel') {
-          console.error('删除商品失败:', error.response ? error.response.data : error.message);
-          ElMessage({
-            message: '删除商品失败: ' + error.message,
-            type: 'error'
-          });
+    if (response.status === 200) {
+      // 删除本地商品列表中的商品
+      const index = products.value.indexOf(row);
+      if (index !== -1) {
+        products.value.splice(index, 1); // 删除指定索引的数据
+        handlePageChange(currentPage.value);
+        if (currentPage.value > 1 && currentPageData.value.length === 0) {
+          currentPage.value--;
         }
       }
-    };
+
+      ElMessage({
+        message: '商品已删除',
+        type: 'success'
+      });
+    } else {
+      ElMessage({
+        message: '删除商品失败',
+        type: 'error'
+      });
+    }
+  } catch (error) {
+    if (error !== 'cancel') {
+      console.error('删除商品失败:', error.response ? error.response.data : error.message);
+      ElMessage({
+        message: '删除商品失败: ' + error.message,
+        type: 'error'
+      });
+    }
+  }
+};
 
 
     // 添加商品
@@ -635,38 +635,79 @@ const fetchProductByTag = async (storeTag) => {
   });
 };
 
-    // 删除多个
-    const handleSelectionChange = (selection) => {
-      selectedProducts.value = selection;
-    };
-    const confirmBatchDelete = () => {
-      if (selectedProducts.value.length > 0) {
-        const notAllowedToDelete = selectedProducts.value.some(product => product.isOnSale);
-        if (notAllowedToDelete) {
+//删除多个
+const handleSelectionChange = (selection) => {
+  selectedProducts.value = selection;
+};
+const confirmBatchDelete = () => {
+  if (selectedProducts.value.length > 0) {
+    const notAllowedToDelete = selectedProducts.value.some(product => product.isOnSale);
+    if (notAllowedToDelete) {
+      ElMessage({
+        message: '所选商品中包含已经出售的商品，无法删除',
+        type: 'warning'
+      });
+    } else {
+      confirmDialogVisible.value = true;
+    }
+  } else {
+    ElMessage({
+      message: '请选择要删除的商品',
+      type: 'warning'
+    });
+  }
+};
+const deleteSelectedCommodities = async () => {
+  if (selectedProducts.value.length > 0) {
+    try {
+      // 确认对话框
+      // await ElMessageBox.confirm('此操作将永久删除所选商品, 是否继续?', '提示', {
+      //   confirmButtonText: '确定',
+      //   cancelButtonText: '取消',
+      //   type: 'warning'
+      // });
+
+      const storeId = 'S1234567'; // 替换为实际的storeId
+      const productIds = selectedProducts.value.map(product => product.id);
+
+      // 发送请求到后端批量删除商品
+      const response = await axiosInstance.delete('/StoreViewProduct/deleteProducts', {
+        params: {
+          storeId: storeId
+        },
+        data: productIds // 传递请求体
+      });
+
+      if (response.status === 200) {
+        // 从本地商品列表中删除选中的商品
+        products.value = products.value.filter(product => !selectedProducts.value.includes(product));
+        selectedProducts.value = [];
+        confirmDialogVisible.value = false;
+
         ElMessage({
-          message: '所选商品中包含已经出售的商品，无法删除',
-          type: 'warning'
+          message: '选中的商品已删除',
+          type: 'success'
         });
-        } else {
-        confirmDialogVisible.value = true;
-        }
-      } 
-      else {
+      } else {
         ElMessage({
-          message: '请选择要删除的商品',
-          type: 'warning'
+          message: '删除商品失败',
+          type: 'error'
         });
       }
-    };
-    const deleteSelectedCommodities = () => {
-      products.value = products.value.filter(product => !selectedProducts.value.includes(product));
-      selectedProducts.value = [];
-      confirmDialogVisible.value = false;
+    } catch (error) {
+      console.error('删除商品失败:', error.response ? error.response.data : error.message);
       ElMessage({
-        message: '选中的商品已删除',
-        type: 'success'
+        message: '删除商品失败: ' + error.message,
+        type: 'error'
       });
-    };
+    }
+  } else {
+    ElMessage({
+      message: '请选择要删除的商品',
+      type: 'warning'
+    });
+  }
+};
 
     return {
       value,

@@ -344,6 +344,7 @@ export default {
           });
           currentProduct.value.deliveryNumber = deliveryNumber;
           dialogVisibleTwo.value = false;
+          fetchOrders();
         } else {
           ElMessage({
             message: '更新快递单号失败',
@@ -359,11 +360,41 @@ export default {
       }
     };
 
-    const handleReturnRequest = (row) => {
-      if (row.returnRequested && row.returnStatus === '待同意') {
+    const handleReturnRequest = async (row) => {
+  if (row.returnRequested && row.returnStatus === '待同意') {
+    try {
+      const storeId = 'S1234567'; // 替换为实际的 storeId 变量
+      const orderId = row.id;
+
+      // 发送请求到后端确认退货
+      const response = await axiosInstance.put('/StoreOrder/ConfirmReturn', null, {
+        params: {
+          storeId: storeId,
+          orderId: orderId,
+        }
+      });                               
+
+      if (response.status === 200) {
         row.returnStatus = '已同意';
+        ElMessage({
+          message: '退货请求已成功确认。',
+          type: 'success'
+        });
+      } else {
+        ElMessage({
+          message: '退货请求确认失败',
+          type: 'error'
+        });
       }
-    };
+    } catch (error) {
+      console.error('确认退货时发生错误:', error.response ? error.response.data : error.message);
+      ElMessage({
+        message: '退货请求确认失败: ' + error.message,
+        type: 'error'
+      });
+    }
+  }
+};
 
     const pageSize = 20;
     const currentPage = ref(1);
