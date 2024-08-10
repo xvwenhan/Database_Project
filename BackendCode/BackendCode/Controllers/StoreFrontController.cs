@@ -206,6 +206,77 @@ namespace StoreFrontController.Controllers
                 return StatusCode(500, "Internal server error");
             }
         }
+        //Get接口，传出店铺是否已经提交了申请认证
+        [HttpGet("IfSubmitStoreAuth")]
+        public async Task<IActionResult> IfSubmitStoreAuth(string storeId)
+        {
+            if (string.IsNullOrEmpty(storeId))
+            {
+                return BadRequest("Store ID is required.");
+            }
+
+            try
+            {
+                var store = await _dbContext.STORES.FindAsync(storeId); // 从数据库中查找store记录
+                var auth = await _dbContext.SUBMIT_AUTHENTICATIONS
+                            .Where(a => a.STORE_ACCOUNT_ID == storeId)
+                            .FirstOrDefaultAsync();
+
+                if (store == null)
+                {
+                    return NotFound("Store not found.");
+                }
+
+                return Ok(auth!=null); // 返回认证状态
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating store authentication for store {storeId}", storeId);
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        //Get接口，传出店铺申请认证的图片文字
+        [HttpGet("GetStoreAuthImg")]
+        public async Task<IActionResult> GetStoreAuthImg(string storeId)
+        {
+            if (string.IsNullOrEmpty(storeId))
+            {
+                return BadRequest("Store ID is required.");
+            }
+
+            try
+            {
+                var store = await _dbContext.STORES.FindAsync(storeId); // 从数据库中查找store记录
+                var auth = await _dbContext.SUBMIT_AUTHENTICATIONS
+                            .Where(a => a.STORE_ACCOUNT_ID == storeId)
+                            .FirstOrDefaultAsync();
+                if (store == null)
+                {
+                    return NotFound("Store not found.");
+                }
+                if (auth == null)
+                {
+                    return NotFound("Submission not found.");
+                }
+                var status=auth. STATUS;
+                if (status != "已通过")
+                {
+                    return BadRequest("Submission not approved");
+                }
+                return Ok(new
+                {
+                    Authentication = auth.AUTHENTICATION,
+                    photo = auth.PHOTO
+                });
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating store authentication for store {storeId}", storeId);
+                return StatusCode(500, "Internal server error");
+            }
+        }
         //put接口修改店铺名称和地址，此处传""这样的空值即代表不修改原值
         [HttpPut("UpdateStoreInfo")]
         public async Task<IActionResult> UpdateStoreInfo(string storeId, [FromBody] StoreUpdateDto storeUpdateDto)
