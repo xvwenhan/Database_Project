@@ -76,7 +76,7 @@ namespace StoreFrontController.Controllers
                     .Where(o => o.STORE_ACCOUNT_ID == storeId && o.CREATE_TIME.Date == date.Date)
                     .ToListAsync();
 
-                var orderCount = orderTotal.Count;
+                var orderCount = orderTotal.Count(o => o.ORDER_STATUS != "待付款");
                 var totalRevenue = orderTotal.Sum(o => o.ACTUAL_PAY);
 
                 return Ok(new
@@ -88,6 +88,7 @@ namespace StoreFrontController.Controllers
                     OrderCount = orderCount,
                     TotalRevenue = totalRevenue
                 });
+
             }
             catch (Exception ex)
             {
