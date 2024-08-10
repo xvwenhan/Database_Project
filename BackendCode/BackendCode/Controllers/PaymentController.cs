@@ -15,6 +15,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.Data;
 using UnityEngine.SocialPlatforms.Impl;
 using BackendCode.DTOs.Store;
+using static QRCoder.PayloadGenerator;
 
 namespace BackendCode.Controllers
 {
@@ -56,7 +57,7 @@ namespace BackendCode.Controllers
                 ORDER_ID = order.ORDER_ID,
                 RETURN_TIME = DateTime.Now,
                 RETURN_REASON = returnRequestDto.ReturnReason,
-                RETURN_STATUS = "待处理"
+                RETURN_STATUS = "待同意"
             };
 
             order.ORDER_STATUS = "待退货"; //更新订单状态为“待退货” 等待商家处理
@@ -65,7 +66,7 @@ namespace BackendCode.Controllers
 
             await _dbContext.SaveChangesAsync(); //保存数据库上下文中的更改到数据库
 
-            return Ok(returnRecord); //返回退货信息
+            return Ok("成功生成退货订单，等待商家处理"); //返回退货信息
         }
 
         /********************************/
@@ -219,7 +220,8 @@ namespace BackendCode.Controllers
                 address = order.DELIVERY_ADDRESS,
                 username = order.USERNAME,
                 orderId = orderId,
-                createTime = order.CREATE_TIME
+                createTime = order.CREATE_TIME.ToString("yyyy年MM月dd日 HH:mm:ss")
+                //格式化createTime为易读的格式
             };
 
             return Ok(orderInfo); //返回订单相关信息
@@ -295,6 +297,46 @@ namespace BackendCode.Controllers
         }
 
         /********************************/
+        /* 删除订单接口                 */
+        /* 传入订单号 orderId           */
+        /* 从数据库中删除指定订单       */
+        /* 删除退货订单同时删除退货记录 */
+        /********************************/
+        [HttpDelete("DeleteOrders")]
+        public async Task<IActionResult> DeleteOrdersAsync(string orderId)
+        {
+            /* 检查订单号是否为空 */
+            if (string.IsNullOrEmpty(orderId))
+            {
+                return BadRequest("订单号不能为空");
+            }
+
+            /* 在数据库中查找订单 */
+            var order = await _dbContext.ORDERS.FirstOrDefaultAsync(o => o.ORDER_ID == orderId);
+            if (order == null) //订单不存在
+            {
+                return NotFound("未找到订单");
+            }
+
+            /* 检查订单状态是否为“已退货”*/
+            if (order.ORDER_STATUS == "已退货")
+            {
+                //查找并删除与订单相关的退货记录
+                var returnRecord = await _dbContext.RETURNS.FirstOrDefaultAsync(r => r.ORDER_ID == order.ORDER_ID);
+                if (returnRecord != null)
+                {
+                    _dbContext.RETURNS.Remove(returnRecord); //删除退货记录
+                }
+            }
+
+            _dbContext.ORDERS.Remove(order); //删除订单
+
+            await _dbContext.SaveChangesAsync(); //保存更改
+
+            return Ok("订单已删除"); //返回成功信息
+        }
+
+        /********************************/
         /* 买家充值时更新钱包余额接口   */
         /********************************/
         [HttpPost("RechargeWallet")]
@@ -334,6 +376,52 @@ namespace BackendCode.Controllers
             }
 
             return Ok(wallet.BALANCE); //返回钱包余额
+        }
+
+        /********************************/
+        /* 获取买家所有订单接口         */
+        /* 传入买家ID buyerId           */
+        /* 传出该买家的所有订单信息     */
+        /********************************/
+        [HttpGet("GetAllOrders")]
+        public async Task<IActionResult> GetAllOrdersAsync(string buyerId)
+        {
+            /* 验证买家ID是否存在 */
+            var buyer = await _dbContext.BUYERS.FirstOrDefaultAsync(b => b.ACCOUNT_ID == buyerId);
+            if (buyer == null) //买家ID不存在
+            {
+                return NotFound("未找到买家信息");
+            }
+
+            /* 查找买家的所有订单信息 */
+            var orders = await _dbContext.ORDERS.Where(o => o.BUYER_ACCOUNT_ID == buyerId).ToListAsync();
+            if (orders == null || !orders.Any())
+            {
+                return NotFound("买家没有任何订单");
+            }
+
+            /* 创建订单信息列表 */
+            var orderInfos = new List<OrderInfoDTO>();
+            foreach (var order in orders)
+            {
+                var product = await _dbContext.PRODUCTS.FirstOrDefaultAsync(o => o.PRODUCT_ID == order.PRODUCT_ID);
+
+                var orderInfo = new OrderInfoDTO
+                {
+                    CreateTime = order.CREATE_TIME.ToString("yyyy年MM月dd日 HH:mm:ss"),
+                    OrderId = order.ORDER_ID,
+                    ProductId = order.PRODUCT_ID,
+                    StoreId = order.STORE_ACCOUNT_ID,
+                    TotalPay = order.TOTAL_PAY,
+                    ActualPay = order.ACTUAL_PAY,
+                    OrderStatus = order.ORDER_STATUS,
+                    Picture = product.PRODUCT_PIC
+                };
+
+                orderInfos.Add(orderInfo); //将OrderInfoDTO对象添加到列表中
+            }
+
+            return Ok(orderInfos); //返回订单信息列表
         }
     }
 
