@@ -7,8 +7,16 @@
             <el-form-item label="用户名" :rules="[{ required: true, message: '请输入用户名', trigger: 'blur' }]">
               <el-input v-model="userInfo.username" placeholder="请输入用户名"></el-input>
             </el-form-item>
-            <el-form-item label="邮箱" :rules="[{ required: true, message: '请输入邮箱', trigger: 'blur' }, { type: 'email', message: '请输入有效的邮箱地址', trigger: 'blur' }]">
-              <el-input v-model="userInfo.email" placeholder="请输入邮箱"></el-input>
+            <!-- 新增性别选项 -->
+            <el-form-item label="性别" :rules="[{ required: true, message: '请选择性别', trigger: 'change' }]">
+              <el-select v-model="userInfo.gender" placeholder="请选择性别">
+                <el-option label="男" value="male"></el-option>
+                <el-option label="女" value="female"></el-option>
+              </el-select>
+            </el-form-item>
+            <!-- 新增年龄选项 -->
+            <el-form-item label="年龄" :rules="[{ required: true, message: '请输入年龄', trigger: 'blur' }]">
+              <el-input v-model.number="userInfo.age" type="number" placeholder="请输入年龄"></el-input>
             </el-form-item>
             <el-form-item label="收货地址" :rules="[{ required: true, message: '请输入收货地址', trigger: 'blur' }]">
               <el-input v-model="address.detail" placeholder="请输入收货地址"></el-input>
@@ -48,7 +56,7 @@
       <el-tab-pane label="修改密码" name="changePassword">
         <div class="account-info">
           <el-form :model="password" label-width="80px">
-            <el-form-item label="当前密码" :rules="[{ required: true, message: '请输入当前密码', trigger: 'blur' }]">
+            <!-- <el-form-item label="当前密码" :rules="[{ required: true, message: '请输入当前密码', trigger: 'blur' }]">
               <el-input 
                 v-model="password.current"
                 :type="passwordVisibility.current ? 'text' : 'password'"
@@ -57,13 +65,13 @@
                 <template #suffix>
                   <img 
                      :src="currentImage"
-                    @click="toggleVisibility('current')"
+                    @click="toggleVisibility()"
                     class="password-visibility-toggle"
                     alt="toggle visibility"
                   />
                 </template>
               </el-input>
-            </el-form-item>
+            </el-form-item> -->
             <el-form-item label="新密码" :rules="[{ required: true, message: '请输入新密码', trigger: 'blur' }]">
               <el-input 
                 v-model="password.new"
@@ -73,7 +81,7 @@
                 <template #suffix>
                   <img 
                    :src="currentImageTw"
-                    @click="toggleVisibility('new')"
+                    @click="toggleVisibilityTw()"
                     class="password-visibility-toggle"
                     alt="toggle visibility"
                   />
@@ -89,7 +97,7 @@
                 <template #suffix>
                   <img 
                      :src="currentImageTh"
-                    @click="toggleVisibility('confirm')"
+                    @click="toggleVisibilityTh()"
                     class="password-visibility-toggle"
                     alt="toggle visibility"
                   />
@@ -116,6 +124,7 @@
 <script>
 import eyeSvg from "@/assets/eye.svg"
 import eyeInSvg from "@/assets/eyeIn.svg"
+import axiosInstance from '../components/axios';
 
 export default {
   data() {
@@ -123,21 +132,23 @@ export default {
       activeTab: 'userInfo',
       userInfo: {
         username: '',
-        email: ''
+        gender: '', // 新增性别字段
+        age: null // 新增年龄字段
       },
-      points: 1000,
+      points: 0,
       address: {
         detail: ''
       },
-      balance: 5000,
+      balance: 0,
       password: {
-        current: '',
+        // current: '',
         new: '',
         confirm: ''
       },
       recharge: {
         amount: 0
       },
+      currentPass:'',
       passwordVisibility: {
         current: false,
         new: false,
@@ -157,45 +168,201 @@ export default {
     },
   },
   methods: {
-    updateUserInfo() {
-      if (!this.userInfo.username || !this.userInfo.email || !this.address.detail) {
-        this.$message.error('所有字段都必须填写');
-        return;
+    async getUserInfo(userId) {
+      try {
+        const response = await axiosInstance.get(`/Account/get_user_message/${userId}`);
+        
+        if (response.data.message === '用户查找成功！') { // 根据实际响应内容调整
+          this.userInfo = {
+            username: response.data.target_user.useR_NAME,
+            gender: response.data.target_user.gender,
+            age: response.data.target_user.age,
+          };
+          this.address = {
+        detail: response.data.target_user.address
+      };
+          // this.currentPass=response.data.target_user.password;
+        } else {
+          this.$message.error('获取用户信息失败');
+        }
+      } catch (error) {
+        console.error('请求失败:', error);
+        this.$message.error('请求失败，请稍后再试');
       }
-      if (!this.validateEmail(this.userInfo.email)) {
-        this.$message.error('请输入有效的邮箱地址');
-        return;
-      }
-      // 处理更新用户信息逻辑
+    },
+    async updateUserInfo() {
+  if (!this.userInfo.username || !this.userInfo.gender || this.userInfo.age === null || !this.address.detail) {
+    this.$message.error('所有字段都必须填写');
+    return;
+  }
+
+  // 验证年龄必须大于或等于0，并且是整数
+  if (this.userInfo.age < 0 || !Number.isInteger(this.userInfo.age)) {
+    this.$message.error('年龄必须是大于或等于0的整数');
+    return;
+  }
+
+  try {
+    const response = await axiosInstance.post('/Account/modify_buyer_message', {
+      accountId: "U00000016", // 替换为实际的 accountId
+      userName: this.userInfo.username,
+      gender: this.userInfo.gender,
+      age: this.userInfo.age,
+      address: this.address.detail
+    });
+
+    if (response.data.message === "用户信息修改成功！") { 
       this.$message.success('用户信息更新成功');
-    },
-    logout() {
-      localStorage.removeItem('userToken'); // 示例，实际根据你的应用逻辑调整
-      this.$router.push('/login');
-    },
-    rechargeBalance() {
-      if (this.recharge.amount <= 0) {
-        this.$message.error('充值金额必须大于零');
-        return;
+    } else {
+      this.$message.error(`用户信息更新失败: ${response.data.detail}`);
+    }
+  } catch (error) {
+    console.error('请求失败:', error); // 输出错误信息
+    this.$message.error('请求失败，请稍后再试');
+  }
+},
+async getWalletBalance() {
+  try {
+    const response = await axiosInstance.post('/Payment/GetWalletBalance', null, {
+      params: {
+        accountID: 'S1234567'
       }
-      this.balance += this.recharge.amount;
-      this.recharge.amount = 0; // 重置充值金额
-      this.$message.success('充值成功');
+    });
+
+    console.log('API response:', response.data); // 输出完整的响应内容
+
+    // 直接将返回的 response.data 视为余额
+    if (typeof response.data === 'number') {
+      this.balance = response.data;
+    } else {
+      this.$message.warning('未返回有效的余额信息');
+      this.balance = 0; // 设置默认值为 0 或其他默认值
+    }
+  } catch (error) {
+    console.error('请求失败:', error);
+    this.$message.error('请求失败，请稍后再试');
+  }
+},
+async getBuyerCredits() {
+    try {
+      // 调用接口获取买家消费积分
+      const response = await axiosInstance.get('/Shopping/GetBuyerCredits', {
+        params: {
+          buyerId: 'U00000016' // 替换为实际的买家账号ID
+        }
+      });
+
+      // 输出响应内容以进行调试
+      console.log('API response:', response.data);
+
+      // 直接将返回的积分值赋给 points
+      if (Number.isInteger(response.data)) {
+        this.points = response.data;
+      } else {
+        this.$message.warning('未返回有效的积分信息');
+      }
+    } catch (error) {
+      console.error('请求失败:', error);
+      this.$message.error('请求失败，请稍后再试');
+    }
+  },
+  async logout() {
+      try {
+        // 发送请求到后端接口进行退出登录
+        const response = await axiosInstance.post('/Account/logout');
+
+        // 在控制台输出响应内容以进行调试
+        console.log('API response:', response.data);
+
+        // 检查响应内容并反馈给用户
+        if (response.data.message === '登出账号成功！') {
+          this.$message.success('退出登录成功');
+          localStorage.removeItem('userToken'); // 清除本地存储的用户信息
+          this.$router.push('/loginandregister');
+        } else {
+          this.$message.error(`退出登录失败: ${response.data.message}`);
+        }
+      } catch (error) {
+        console.error('请求失败:', error);
+        this.$message.error('请求失败，请稍后再试');
+      }
     },
-    updateAccountInfo() {
-      if (this.password.new !== this.password.confirm) {
-        this.$message.error('新密码和确认密码不匹配');
-        return;
+    async rechargeBalance() {
+  if (this.recharge.amount <= 0) {
+    this.$message.error('充值金额必须大于零');
+    return;
+  }
+
+  // 创建 FormData 对象
+  const formData = new FormData();
+  formData.append('BuyerId', 'S1234567'); // 假设这是当前用户的 ID
+  formData.append('Amount', this.recharge.amount);
+
+  try {
+    const response = await axiosInstance.post('/Payment/RechargeWallet', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
       }
-      if (this.password.current !== 'correct-password') { // 假设 'correct-password' 是正确的当前密码
-        this.$message.error('当前密码错误');
-        return;
-      }
-      this.$message.success('用户信息更新成功');
+    });
+
+    if (response.status === 200 || response.data.success || response.data.code === 0) {
+  this.$message.success('充值成功');
+  this.balance += this.recharge.amount; // 充值成功后更新余额
+} else {
+  this.$message.error(`充值失败: ${response.data.message || '未知错误'}`);
+}
+  } catch (error) {
+    console.error('请求失败:', error);
+    this.$message.error('请求失败，请稍后再试');                               
+  }
+
+  this.recharge.amount = 0; // 重置充值金额
+},
+
+async updateAccountInfo() {
+  if (this.password.current === '' || this.password.new === '' || this.password.confirm === '') {
+    this.$message.error('请填写所有必填项');
+    return;
+  }
+  // console.log(this.password.current);
+  // console.log(this.currentPass);
+
+  await this.resetPassword();
+},
+async resetPassword() {
+  // if(this.password.current!=this.currentPass){
+  //   this.$message.error('原密码不正确');
+  //   return;
+  // }
+  if (this.password.new !== this.password.confirm) {
+    this.$message.error('新密码和确认密码不匹配');
+    return;
+  }
+
+  try {
+    // 发送请求到后端重置密码
+    const response = await axiosInstance.post('/Account/password_reset', {
+      username: "U00000016",  // 使用当前用户的用户名
+      password: this.password.new  // 使用新密码
+    });
+
+    // 在控制台输出响应内容以进行调试
+    console.log('API response:', response);
+
+    // 检查响应内容并反馈给用户
+    if (response.data.message === "密码重置成功！") {
+      this.$message.success('密码重置成功');
       this.password.current = '';
       this.password.new = '';
       this.password.confirm = '';
-    },
+    } else {
+      this.$message.error(`密码重置失败: ${response.data.message}`);
+    }
+  } catch (error) {
+    console.error('请求失败:', error);
+    this.$message.error('请求失败，请稍后再试');
+  }
+},
     toggleVisibility() {
       this.passwordVisibility.current = !this.passwordVisibility.current;
     },
@@ -211,13 +378,10 @@ export default {
     }
   },
   mounted() {
-    this.userInfo = {
-      username: '张三',
-      email: 'zhangsan@example.com'
-    };
-    this.address = {
-      detail: '北京市海淀区某某街道'
-    };
+    const userId = 'U00000016'; // 替换为实际的用户 ID
+    this.getUserInfo(userId);
+    this.getWalletBalance();
+    this.getBuyerCredits(); // 调用获取买家积分的方法
   }
 };
 </script>

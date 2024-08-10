@@ -4,7 +4,16 @@
       <el-tab-pane label="认证资料" name="certification">
         <div>
           <div v-if="certificationStatus === '请求上传'">
-            <el-button @click="handleCertificationUpload">上传认证资料(图片和文字)</el-button>
+            <el-form :model="certificationUp" :rules="rules" ref="form">
+              <el-form-item label="认证资料图片上传(.jpg)" prop="image">
+                <img :src="certificationUp.image" alt="当前图片" v-if="certificationUp.image" style="width: 200px; height: 200px;" />
+                <input type="file" @change="handleFileChange" accept=".jpg" />
+              </el-form-item>
+              <el-form-item label="认证资料文字描述" prop="description">
+                <el-input v-model="certificationUp.description"></el-input>
+              </el-form-item>
+            </el-form>
+            <el-button type="primary" @click="handleCertificationUpload">上传认证资料(图片和文字)</el-button>
           </div>
           <div v-else-if="certificationStatus === '正在审核'">
             <p>您的认证资料正在审核中，请稍等。</p>
@@ -34,7 +43,7 @@
       <el-tab-pane label="修改密码" name="account">
         <div class="account-info">
           <el-form :model="password" label-width="80px">
-            <el-form-item label="当前密码" :rules="[{ required: true, message: '请输入当前密码', trigger: 'blur' }]">
+            <!-- <el-form-item label="当前密码" :rules="[{ required: true, message: '请输入当前密码', trigger: 'blur' }]">
               <el-input 
                 v-model="password.current"
                 :type="passwordVisibility.current ? 'text' : 'password'"
@@ -49,7 +58,7 @@
                   />
                 </template>
               </el-input>
-            </el-form-item>
+            </el-form-item> -->
             <el-form-item label="新密码" :rules="[{ required: true, message: '请输入新密码', trigger: 'blur' }]">
               <el-input 
                 v-model="password.new"
@@ -110,22 +119,34 @@ export default {
     return {
       activeTab: 'certification',
       certificationStatus: '请求上传', // '请求上传', '正在审核', '审核通过'
+      certificationUp:{
+        image:'',
+        description:''
+      },
       businessInfo: {
         username: '',
         address: ''
       },
       password: {
-        current: '',
+        // current: '',
         new: '',
         confirm: ''
       },
       passwordVisibility: {
-        current: false,
+        // current: false,
         new: false,
         confirm: false
       },
       loading: false,
-      error: null
+      error: null,
+      rules: {
+        image: [
+          { required: true, message: '请提供认证图片', trigger: 'change' }
+        ],
+        description: [
+          { required: true, message: '请提供认证文字描述', trigger: 'blur' }
+        ]
+      }
     };
   },
   computed: {
@@ -143,6 +164,7 @@ export default {
     this.updateBusinessInfo();  // 在组件创建时调用方法获取店铺评分
   },
   methods: {
+    
     toggleVisibility() {
       this.passwordVisibility.current = !this.passwordVisibility.current;
     },
@@ -152,15 +174,101 @@ export default {
     toggleVisibilityTh() {
       this.passwordVisibility.confirm = !this.passwordVisibility.confirm;
     },
-    handleCertificationUpload() {
-      // 处理上传认证资料
-    },
-    logout() {
-      // 清理用户认证信息，例如清除本地存储
-      localStorage.removeItem('userToken'); // 示例，实际根据你的应用逻辑调整
+    handleFileChange(event) {
+  const file = event.target.files[0];
+  if (file) {
+    console.log('Selected file:', file); // 输出文件信息
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+    if (validTypes.includes(file.type)) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.certificationUp.image = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    } else {
+      this.$message.error('请上传正确格式的图片 (.jpg 或 .png)');
+    }
+  }
+},
 
-      // 重定向到登录页
-      this.$router.push('/login');
+async handleCertificationUpload() {
+  try {
+    if (!this.certificationUp.image) {
+      this.$message.error('请提供图片');
+      return;
+    }
+
+    // 从图片数据中去除 Base64 前缀
+    const photoBase64 = this.certificationUp.image.split(',')[1]; 
+    const authentication = this.certificationUp.description;
+    const storeId = 'S1234567'; 
+
+    if (!photoBase64 || !authentication) {
+      this.$message.error('请提供图片和认证资料');
+      return;
+    }
+
+    const response = await axiosInstance.post('/StoreFront/SubmitAuthentication', {
+      photoBase64,
+      authentication,
+    }, {
+      params: {
+        storeId,
+      },
+    });
+
+    if (response.data.success) {
+      this.$message.success('认证资料上传成功');
+      this.certificationStatus = '正在审核'; 
+    } else {
+      this.$message.error(`上传失败: ${response.data.message}`);
+    }
+  } catch (error) {
+    console.error('请求失败:', error.response ? error.response.data : error.message);
+    this.$message.error('请求失败，请稍后再试');
+  }
+},
+    async getUserInfo(userId) {
+      try {
+        const response = await axiosInstance.get(`/Account/get_user_message/${userId}`);
+        
+        if (response.data.message === '用户查找成功！') { // 根据实际响应内容调整
+          this.businessInfo = {
+            // username: response.data.target_user.useR_NAME,
+            // gender: response.data.target_user.gender,
+            // age: response.data.target_user.age,
+            address:response.data.target_user.address
+          };
+
+          // this.currentPass=response.data.target_user.password;
+        } else {
+          this.$message.error('获取用户信息失败');
+        }
+      } catch (error) {
+        console.error('请求失败:', error);
+        this.$message.error('请求失败，请稍后再试');
+      }
+    },
+    async logout() {
+      try {
+        // 发送请求到后端接口进行退出登录
+        const response = await axiosInstance.post('/Account/logout');
+
+        // 在控制台输出响应内容以进行调试
+        console.log('API response:', response.data);
+
+        // 检查响应内容并反馈给用户
+        if (response.data.message === '登出账号成功！') {
+          this.$message.success('退出登录成功');
+          localStorage.removeItem('userToken'); // 清除本地存储的用户信息
+          this.$router.push('/loginandregister');
+        } else {
+          this.$message.error(`退出登录失败: ${response.data.message}`);
+        }
+      } catch (error) {
+        console.error('请求失败:', error);
+        this.$message.error('请求失败，请稍后再试');
+      }
     },
     async updateBusinessInfo() {
       const storeId = 'S1234567'; // 替换为实际的 storeid
@@ -193,41 +301,95 @@ export default {
         this.loading = false;
       }
     },
-    updateAccountInfo() {
-      if (this.password.new !== this.password.confirm) {
-        this.$message.error('新密码和确认密码不匹配');
-        return;
-      }
-      // 模拟验证当前密码
-      if (this.password.current !== 'correct-password') { // 假设 'correct-password' 是正确的当前密码
-        this.$message.error('当前密码错误');
-        return;
-      }
-      // 处理更新用户信息逻辑
-      this.$message.success('用户信息更新成功');
-      // 重置密码字段
+    async updateAccountInfo() {
+  if (this.password.current === '' || this.password.new === '' || this.password.confirm === '') {
+    this.$message.error('请填写所有必填项');
+    return;
+  }
+  // console.log(this.password.current);
+  // console.log(this.currentPass);
+
+  await this.resetPassword();
+},
+async resetPassword() {
+  // if(this.password.current!=this.currentPass){
+  //   this.$message.error('原密码不正确');
+  //   return;
+  // }
+  if (this.password.new !== this.password.confirm) {
+    this.$message.error('新密码和确认密码不匹配');
+    return;
+  }
+
+  try {
+    // 发送请求到后端重置密码
+    const response = await axiosInstance.post('/Account/password_reset', {
+      username: "S1234567",  // 使用当前用户的用户名
+      password: this.password.new  // 使用新密码
+    });
+
+    // 在控制台输出响应内容以进行调试
+    console.log('API response:', response);
+
+    // 检查响应内容并反馈给用户
+    if (response.data.message === "密码重置成功！") {
+      this.$message.success('密码重置成功');
       this.password.current = '';
       this.password.new = '';
       this.password.confirm = '';
+    } else {
+      this.$message.error(`密码重置失败: ${response.data.message}`);
+    }
+  } catch (error) {
+    console.error('请求失败:', error);
+    this.$message.error('请求失败，请稍后再试');
+  }
+},
+async fetchStoreName() {
+      const storeId = 'S1234567'; // 替换为实际的 storeid
+      this.loading = true;
+      this.error = null;
+      this.storeScoreName = null;
+
+      try {
+        const response = await axiosInstance.get('/StoreFront/UpdateStoreScore', {
+          params: { storeId }
+        });
+        this.businessInfo.username = response.data.storeName;
+      } catch (error) {
+        this.error = 'Failed to fetch store score';
+        console.error('Error fetching store score:', error);
+      } finally {
+        this.loading = false;
+      }
     },
-    // validatePasswordConfirm(rule, value, callback) {
-    //   if (value !== this.password.new) {
-    //     callback(new Error('确认密码与新密码不一致'));
-    //   } else {
-    //     callback();
-    //   }
-    // }
+    async checkCertificationStatus() {
+  const storeId = 'S1234567'; // 替换为实际的 storeId
+  try {
+    const response = await axiosInstance.get('/StoreFront/UpdateStoreAuth', {
+      params: {
+        storeId
+      }
+    });
+
+    const status = response.data.certification; // 获取返回的认证状态
+    console.log(response.data.certification);
+    if (status) {
+      this.certificationStatus = '审核通过';
+    } else {
+      this.certificationStatus = '请求上传';
+    }                            
+  } catch (error) {
+    console.error('获取认证状态失败:', error);
+    this.$message.error('获取认证状态失败，请稍后再试');
+  }
+}
   },
   mounted() {
-    // 模拟获取用户信息
-    this.businessInfo = {
-      username: '张三',
-      address: '北京市海淀区某某街道'
-    };
-    // 模拟获取其他信息
-    this.password.current = '';
-    this.password.new = '';
-    this.password.confirm = '';
+    const userId = 'S1234567'; // 替换为实际的用户 ID
+    this.getUserInfo(userId);
+    this.fetchStoreName();
+    this.checkCertificationStatus(); 
   }
 };
 </script>

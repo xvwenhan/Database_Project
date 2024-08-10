@@ -26,6 +26,7 @@
                 <p>商家账号: {{ selectedDetail.storeId }}</p>
                 <p>审核状态: {{ selectedDetail.status }}</p>
                 <p>申请详情: {{ selectedDetail.authentication }}</p>
+                <img :src="selectedDetail.photo" alt="authentication" v-if="selectedDetail.photo" style="width: 90%; object-fit: cover;" />
               </div>
             </el-dialog>
 
@@ -55,7 +56,7 @@
 <script setup>
 import AdminSidebarMenu from '../components/AdminSidebarMenu.vue'
 import AdminHeaderSec from '../components/AdminHeaderSec.vue'
-import { reactive, ref, computed } from 'vue';
+import { reactive, ref, computed, onMounted  } from 'vue';
 import { ElTable, ElTableColumn, ElPagination, ElButton, ElMessage, ElDialog } from 'element-plus';
 import 'element-plus/dist/index.css';
 import axiosInstance from '../components/axios';
@@ -76,7 +77,9 @@ const fetchRecords = async () => {
   }
   console.log(message.value);
 };
-fetchRecords();
+onMounted(() => {
+  fetchRecords();
+});
 
 
 const message1 = ref('');
@@ -88,6 +91,7 @@ const updateRecord = async (storeId,result) => {
       "adminId": "1"
     });
     message1.value = response.data;
+    fetchRecords();
   } catch (error) {
     if (error.response) {
       message1.value = error.response.data;
@@ -129,6 +133,7 @@ const search = (id) => {
   const store = records.find(store => store.storeId === id);
   if (store) {
     Object.assign(selectedDetail, store);
+    selectedDetail.photo = `data:image/png;base64,${selectedDetail.photo}`;
     dialogVisible.value = true;
   }
 };

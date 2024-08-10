@@ -7,7 +7,10 @@
         <span style="font-size: 17px;">旧时王谢堂前燕，飞入寻常百姓家</span>
       </div>
       <div class="navbar-right">
-        <span style="font-size: 17px;">2024-07-08 星期一 农历六月初三 小暑 </span>
+        <div class="date-weather">
+          <span style="font-size: 17px;">{{ currentDate }}</span>
+          <span style="font-size: 17px; margin-left: 10px;">{{ weather }}</span>
+        </div>
       </div>
     </div>
     <div class="line"></div>
@@ -33,12 +36,15 @@
 <script setup>
 import { reactive, ref, onMounted, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import axios from 'axios';
 
 const router = useRouter();
 const route = useRoute();
 
 const searchType = ref('product'); // 搜索类型
 const searchText = ref(''); // 搜索关键字
+const currentDate = ref('');
+const weather = ref('');
 
 const menuItems = reactive([
   { text: "首页", link: "/home" },
@@ -50,15 +56,43 @@ const menuItems = reactive([
   { text: "个人中心", link: "/personalcentre" },
 ]);
 
+// 获取当前日期和时间
+const updateCurrentDate = () => {
+  const date = new Date();
+  const weekDays = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"];
+  currentDate.value = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${weekDays[date.getDay()]}`;
+};
+
+// 获取天气信息
+const fetchWeather = async () => {
+  try {
+    const response = await axios.get('https://api.openweathermap.org/data/2.5/weather', {
+      params: {
+        q: 'Shanghai', // 这里可以替换成你想获取天气的城市
+        appid: '5f274af243427c3098128d11ecd97cd9', // 你需要在OpenWeatherMap获取一个API key
+        units: 'metric', // 使用摄氏温度
+        lang: 'zh_cn' // 使用中文
+      }
+    });
+    weather.value = `${response.data.weather[0].description} ${response.data.main.temp}°C`;
+  } catch (error) {
+    console.error('获取天气信息失败', error);
+  }
+};
+
 onMounted(() => {
   // 从本地存储中恢复搜索类型和关键字
   searchType.value = localStorage.getItem('searchType') === '1' ? 'vendor' : 'product';
   searchText.value = localStorage.getItem('keyword') || '';
+
+  updateCurrentDate();
+  fetchWeather();
+
+  // 每秒更新日期和时间
+  setInterval(updateCurrentDate, 1000);
 });
 
-// 监听路由变化
 watch(() => route.fullPath, () => {
-  // 当路由变化时，从本地存储中恢复搜索类型和关键字
   searchType.value = localStorage.getItem('searchType') === '1' ? 'vendor' : 'product';
   searchText.value = localStorage.getItem('keyword') || '';
 });
@@ -66,11 +100,9 @@ watch(() => route.fullPath, () => {
 const handleSearch = async () => {
   console.log('搜索类型:', searchType.value);
   console.log('搜索内容:', searchText.value);
-
-  // 保存搜索类型和关键字到本地存储
+  
   localStorage.setItem('searchType', searchType.value === 'product' ? '0' : '1');
   localStorage.setItem('keyword', searchText.value);
-
 
   if (searchType.value === 'product') {
     if (router.currentRoute.value.path !== '/searchproductshowcase') {
@@ -156,6 +188,11 @@ html, body {
   align-items: center;
 }
 
+.date-weather {
+  display: flex;
+  align-items: center;
+}
+
 .icons i {
   margin-left: 10px;
   cursor: pointer;
@@ -184,9 +221,11 @@ html, body {
   height: 42px;
   display: flex;
   align-items: center;
-  border: 2px solid orange; /* 添加橙色边框 */
+  border: 2px solid orange; /* 确保边框颜色为橙色 */
   border-radius: 25px;
   padding: 5px;
+  background-color: #ffffff; /* 确保背景色为白色 */
+  box-shadow: none; /* 取消所有阴影效果 */
 }
 
 .search-type {
