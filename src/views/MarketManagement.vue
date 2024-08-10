@@ -211,6 +211,7 @@ const addMarket = async () => {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
     message02.value = response.data;
+    fetchRecords();
   } catch (error) {
     if (error.response) {
       message02.value = error.response.data;
@@ -236,7 +237,6 @@ const handleSubmit = () => {
     return;
   } else {
     addMarket();
-    fetchRecords();
     formData.topic = '';
     formData.start = '';
     formData.end = '';
@@ -253,6 +253,7 @@ const deleteMarket = async (marketId) => {
       "marketId": marketId,
     });
     message03.value = response.data;
+    fetchRecords();
   } catch (error) {
     if (error.response) {
       message03.value = error.response.data;

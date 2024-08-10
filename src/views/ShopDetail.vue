@@ -53,45 +53,106 @@
 </template>
   
 <script setup>
-  import { ref } from 'vue';
-  import Navbar from '../components/Navbar.vue';
-  import { ElButton, ElMessage, ElInput } from 'element-plus';
-  import 'element-plus/dist/index.css';
-  
-  //测试数据（待测试接口：根据店铺id查询店铺信息、全部商品信息、店铺自定义分类信息；店铺内搜索商品、店铺内根据分类筛选商品）
-  const shopinfo = ref({storeId:"123",storeName:"测试店名",storeScore:4.9,Address:"上海"});
-  const isFavorite = ref(0);
-  const categories = ref([
-    { id: 1, name: '全部商品' },
-    { id: 2, name: '分类二' },
-    { id: 3, name: '分类三' },
-    { id: 4, name: '分类四' }
-  ]);
-  
-  const clickFavorite = () => {
-    // 此处发送请求到服务器更新收藏状态
+import { reactive, ref, onMounted  } from 'vue';
+import Navbar from '../components/Navbar.vue';
+import { ElButton, ElMessage, ElInput } from 'element-plus';
+import 'element-plus/dist/index.css';
+import axiosInstance from '../components/axios';
+
+//测试数据（待测试接口：全部商品信息、店铺内搜索商品、店铺内根据分类筛选商品）
+//S1234567测试账号
+const shopinfo = reactive({storeId:"S1234567",storeName:"测试店名",storeScore:4.9,Address:"上海"});
+const isFavorite = ref(0);
+const categories = ref([
+  { id: 1, name: '全部商品' },
+]);
+
+const clickFavorite = () => {
+  // 此处发送请求到服务器更新收藏状态
+  if(isFavorite.value==0){
+    ElMessage.success("收藏成功")
     isFavorite.value = !isFavorite.value;
-    if(isFavorite.value==1){
-      ElMessage.success("收藏成功")
-    }
-    else{
-      ElMessage.success("取消收藏成功")
-    }
-  };
+  }
+  else{
+    ElMessage.success("取消收藏成功")
+  }
+};
   
-  const searchQuery = ref('');
-  const selectedCategory = ref(1);
-  const filterProducts = (category, source) => {
-    if(source=='Button'){
-      console.log('搜索内容:', searchQuery.value);
-      //搜索商品
-    }
-    else if(source=='Sider'){
-      selectedCategory.value = category.id;
-      console.log(`分类 ${category.name} 被点击`);
-      //检测侧边栏内容进行筛选商品
+const searchQuery = ref('');
+const selectedCategory = ref(1);
+const filterProducts = (category, source) => {
+  if(source=='Button'){
+    console.log('搜索内容:', searchQuery.value);
+    //搜索商品
+  }
+  else if(source=='Sider'){
+    selectedCategory.value = category.id;
+    console.log(`分类 ${category.name} 被点击`);
+    //检测侧边栏内容进行筛选商品
+  }
+}
+
+const tags = ref([]);
+const message = ref('');
+const fetchTags = async () => {
+  try {
+    const response = await axiosInstance.get('/Shopping/GetStoreTags', {
+      params: {
+        storeId: shopinfo.storeId //测试账号
+      }
+    });
+    tags.value = response.data;
+    message.value = '已获取自定义分类';
+    // console.log(tags.value);
+    addCategory(); 
+  } catch (error) {
+    if (error.response) {
+      message.value = error.response.data;
+    } else {
+      message.value = '获取分类数据失败';
     }
   }
+  console.log(message.value);
+};
+
+const addCategory = () => {
+  tags.value.forEach((categoryName) => {
+    categories.value.push({
+      id: categories.value.length + 1,
+      name: categoryName,
+    });
+  });
+  console.log(categories.value);
+
+};
+
+
+const message1 = ref('');
+const fetchStoreInfo = async () => {
+  try {
+    const response = await axiosInstance.get('/Shopping/GetStoreInfo', {
+      params: {
+        storeId: shopinfo.storeId
+      }
+    });
+    shopinfo.storeName = response.data.name;
+    shopinfo.storeScore = response.data.score;
+    message1.value = '已获取店铺信息';
+  } catch (error) {
+    if (error.response) {
+      message1.value = error.response.data;
+    } else {
+      message1.value = '获取店铺信息失败';
+    }
+  }
+  console.log(message1.value);
+};
+
+
+onMounted(() => {
+  fetchStoreInfo();
+  fetchTags();
+});
   
   </script>
   

@@ -66,7 +66,7 @@
 <script setup>
 import AdminSidebarMenu from '../components/AdminSidebarMenu.vue'
 import AdminHeaderSec from '../components/AdminHeaderSec.vue'
-import { reactive, ref, computed} from 'vue';
+import { reactive, ref, computed, onMounted  } from 'vue';
 import { ElTable, ElTableColumn, ElPagination, ElButton, ElDialog, ElMessage } from 'element-plus';
 import 'element-plus/dist/index.css';
 import axiosInstance from '../components/axios';
@@ -89,7 +89,9 @@ const fetchRecords = async () => {
   }
   console.log(message01.value);
 };
-fetchRecords();
+onMounted(() => {
+  fetchRecords();
+});
 
 // 页面大小及当前页数
 const pageSize = ref(8);
@@ -129,6 +131,7 @@ const auditReport = async (reportId,auditResult) => {
       "adminId": "1"
     });
     message02.value = response.data;
+    fetchRecords();
   } catch (error) {
     if (error.response) {
       message02.value = error.response.data;
