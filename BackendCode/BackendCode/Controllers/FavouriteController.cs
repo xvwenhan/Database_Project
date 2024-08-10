@@ -43,7 +43,8 @@ namespace Favourite.Controllers
                 ProductId=p.PRODUCT_ID,
                 ProductPrice=p.PRODUCT_PRICE,
                 SaleOrNot=p.SALE_OR_NOT,
-                Tag=p.TAG
+                Tag=p.TAG,
+                ProductPic = p.PRODUCT_PIC != null ? Convert.ToBase64String(p.PRODUCT_PIC) : null,
 
             }) .ToList();
             // 返回商品信息
@@ -240,6 +241,64 @@ namespace Favourite.Controllers
             await _dbContext.SaveChangesAsync(); //保存更改到数据库
 
             return Ok("取消收藏商品成功"); //返回取消收藏成功
+        }
+
+        /***************************************/
+        /* 检查买家是否收藏商品                */
+        /* 传入{userid,productid}              */
+        /* 返回买家是否收藏该商品              */
+        /***************************************/
+        [HttpGet("IsProductBookmarked")]
+        public async Task<IActionResult> IsProductBookmarkedAsync(string userId, string productId)
+        {
+            /* 查询商品信息 */
+            var product = await _dbContext.PRODUCTS.FirstOrDefaultAsync(s => s.PRODUCT_ID == productId);
+            if (product == null) //商品ID不存在
+            {
+                return NotFound("未找到该商品信息");
+            }
+
+            /* 查询买家信息 */
+            var buyer = await _dbContext.BUYERS.FirstOrDefaultAsync(b => b.ACCOUNT_ID == userId);
+            if (buyer == null) //买家ID不存在
+            {
+                return NotFound("未找到该买家信息");
+            }
+
+            /* 查询是否已经收藏了该商品 */
+            var isBookmarked = await _dbContext.BUYER_PRODUCT_BOOKMARKS
+                .AnyAsync(b => b.BUYER_ACCOUNT_ID == userId && b.PRODUCT_ID == productId);
+
+            return Ok(isBookmarked);
+        }
+
+        /***************************************/
+        /* 检查买家是否收藏店铺                */
+        /* 传入{userid,storeid}                */
+        /* 返回买家是否收藏该店铺              */
+        /***************************************/
+        [HttpGet("IsStoreBookmarked")]
+        public async Task<IActionResult> IsStoreBookmarkedAsync(string userId, string storeId)
+        {
+            /* 查询商家信息 */
+            var store = await _dbContext.STORES.FirstOrDefaultAsync(s => s.ACCOUNT_ID == storeId);
+            if (store == null) //商家ID不存在
+            {
+                return NotFound("未找到该商家信息");
+            }
+
+            /* 查询买家信息 */
+            var buyer = await _dbContext.BUYERS.FirstOrDefaultAsync(b => b.ACCOUNT_ID == userId);
+            if (buyer == null) //买家ID不存在
+            {
+                return NotFound("未找到该买家信息");
+            }
+
+            /* 查询是否已经收藏了该店铺 */
+            var isBookmarked = await _dbContext.BUYER_STORE_BOOKMARKS
+                .AnyAsync(b => b.BUYER_ACCOUNT_ID == userId && b.STORE_ACCOUNT_ID == storeId);
+
+            return Ok(isBookmarked);
         }
     }
 }

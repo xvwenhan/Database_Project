@@ -88,6 +88,7 @@ namespace StoreFrontController.Controllers
                     OrderCount = orderCount,
                     TotalRevenue = totalRevenue
                 });
+
             }
             catch (Exception ex)
             {
