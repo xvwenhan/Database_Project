@@ -21,6 +21,7 @@ import MerchantShowcase from '../views/MerchantShowcase.vue'
 import SearchProductShowcase from '../views/SearchProductShowcase.vue'
 import BazaarMerchandise from '../views/BazaarMerchandise.vue'
 
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -168,6 +169,7 @@ const router = createRouter({
       name: 'Pay',
       component: () => import('../views/PayView.vue')
     }
+  
   ]
 })
 export default router

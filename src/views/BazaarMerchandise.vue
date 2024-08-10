@@ -1,118 +1,59 @@
-<!-- 市集的商品页面 -->
 <script setup lang="ts">
 import Navbar from '../components/Navbar.vue';
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+import axiosInstance from '../components/axios';
 
-const products = ref([
-  {
-    id: 1,
-    name: '名字',
-    Tag:"tag",
-    price: 32,
-    originalPrice: 93,
-    discount: 3.3,
-    description: '详细描述',
-    image: '/src/assets/wy/product1.png'
-  },
-  {
-    id: 2,
-    name: '名字',
-    Tag:"tag",
-    price: 59,
-    originalPrice: 269,
-    discount: 2.2,
-    description: '详细描述',
-    image: '/src/assets/wy/product1.png'
-  },
-  {
-    id: 3,
-    name: '名字',
-    Tag:"tag",
-    price: 59,
-    originalPrice: 269,
-    discount: 2.2,
-    description: '详细描述',
-    image: '/src/assets/wy/product1.png'
-  },
-  {
-    id: 4,
-    name: '名字',
-    Tag:"tag",
-    price: 59,
-    originalPrice: 269,
-    discount: 2.2,
-    description: '详细描述',
-    image: '/src/assets/wy/product1.png'
-  },
-  {
-    id: 5,
-    name: '名字',
-    Tag:"tag",
-    price: 59,
-    originalPrice: 269,
-    discount: 2.2,
-    description: '详细描述',
-    image: '/src/assets/wy/product1.png'
-  },
-  {
-    id: 6,
-    name: '名字',
-    Tag:"tag",
-    price: 59,
-    originalPrice: 269,
-    discount: 2.2,
-    description: '详细描述',
-    image: '/src/assets/wy/product1.png'
-  },
-  {
-    id: 7,
-    name: '名字',
-    Tag:"tag",
-    price: 59,
-    originalPrice: 269,
-    discount: 2.2,
-    description: '详细描述',
-    image: '/src/assets/wy/product1.png'
-  },
-  {
-    id: 8,
-    name: '名字',
-    Tag:"tag",
-    price: 59,
-    originalPrice: 269,
-    discount: 2.2,
-    description: '详细描述',
-    image: '/src/assets/wy/product1.png'
-  },
-  {
-    id: 9,
-    name: '名字',
-    Tag:"tag",
-    price: 59,
-    originalPrice: 269,
-    discount: 2.2,
-    description: '详细描述',
-    image: '/src/assets/wy/product1.png'
-  },
-  // 其他商品数据...
-]);
+// 定义响应式数据变量
+const products = ref([]);
+
+// 获取商品数据的函数
+const fetchProducts = async (marketId) => {
+  try {
+    const response = await axiosInstance.post('/Market/GetProductsByMarket', {
+      marketId: marketId
+    });
+
+    // 处理返回的数据
+    const data = response.data;
+    products.value = data.map(item => ({
+      id: item.productId,
+      name: item.productName,
+      tag: item.productTag,
+      price: (item.productPrice * item.discount).toFixed(2), // 计算折后价
+      originalPrice: item.productPrice.toFixed(2),
+      discount: (item.discount * 10).toFixed(1), // 将折扣转化为折数
+      description: item.description,
+      image: 'data:image/png;base64,' + item.productPic // 将base64字符串转化为图片
+    }));
+  } catch (error) {
+    console.error('Error fetching products:', error);
+  }
+};
+
+// 组件挂载时调用获取商品数据的函数
+onMounted(() => {
+  const marketId = localStorage.getItem('selectedMarketId');
+  if (marketId) {
+    fetchProducts(marketId);
+  }
+});
 </script>
 
 <template>
-    <Navbar />
-    <div class="product-display">
-        <div v-for="product in products" :key="product.id" class="product-item">
-        <img :src="product.image" :alt="product.name" class="product-image" />
-        <div class="product-info">
-            <p class="product-price">
-            <span class="special-price">特卖价</span> ¥{{ product.price }}
-            <span class="original-price">¥{{ product.originalPrice }}</span>
-            <span class="discount">{{ product.discount }}折</span>
-            </p>
-            <h2 class="product-name">【tag】{{ product.name }} {{ product.description }}</h2>
-        </div>
-        </div>
+  <Navbar />
+  <div class="product-display">
+    <div v-for="product in products" :key="product.id" class="product-item">
+      <img :src="product.image" :alt="product.name" class="product-image" />
+      <div class="product-info">
+        <p class="product-price">
+          <span class="special-price">特卖价</span> ¥{{ product.price }}
+          <span class="original-price">¥{{ product.originalPrice }}</span>
+          <span class="discount">{{ product.discount }}折</span>
+        </p>
+        <h2 class="product-name">【{{ product.tag }}】{{ product.name }} {{ product.description }}</h2>
+      </div>
     </div>
+  </div>
 </template>
 
 <style scoped>

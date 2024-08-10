@@ -1,16 +1,26 @@
 <template>
     <div class="CommodityTopbar">
-        <button @click="$emit('changeView', 'BusinessCommodityShow')" class="ButtonA">
-            <span class="Buttondes">全部商品</span>
-        </button>
-        <button @click="$emit('changeView', '')" class="ButtonA">
-            <span class="Buttondes">未售商品</span>
-        </button>
-        <button @click="$emit('changeView', 'BusinessCommodityShow')" class="ButtonA">
-            <span class="Buttondes">已售商品</span>
-        </button>
+      <button @click="changeView(1)" class="ButtonA">
+        <span class="Buttondes">全部商品</span>
+      </button>
+      <button @click="changeView(2)" class="ButtonA">
+        <span class="Buttondes">已售商品</span>
+      </button>
+      <button @click="changeView(3)" class="ButtonA">
+        <span class="Buttondes">未售商品</span>
+      </button>
     </div>
-</template>
+  </template>
+ 
+<script>
+export default {
+  methods: {
+    changeView(viewType) {
+      this.$emit('changeView', viewType);
+    }
+  }
+};
+</script>
 
 <style scoped>
 .CommodityTopbar {
