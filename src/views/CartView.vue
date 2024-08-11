@@ -20,7 +20,7 @@
         </aside>
         <div class="display">
             <div v-if="selectedCategory==1" >
-                <div class="display-items">
+                <div class="display-items1">
                     <div 
                       v-for="product in paginatedProducts" 
                       :key="product.productId" 
@@ -28,7 +28,7 @@
                       @click="handleProductClick(product.productId)"
                     >
                       <img :src="product.productPic" :alt="product.productId" class="product-image" />
-                      <h2>{{ product.productId }}</h2>
+                      <h2>{{ product.productName }}</h2>
                       <p>价格: ¥{{ product.productPrice }}</p>
                     </div>
                 </div>
@@ -39,16 +39,30 @@
                 </div>
             </div>
             <div v-else>
-                <div class="display-items">
+                <div class="display-items2">
                     <div 
                       v-for="store in paginatedStores" 
                       :key="store.storeId" 
                       class="store-item"
                       @click="handleStoreClick(store.storeId)">
-                        <!-- 展示格式待替换 -->
-                        <p>{{ store.storeId }}</p>
-                        <p>{{ store.storeName }}</p>
-                        <p>店铺评分{{ store.storeScore }}</p>
+                        <div v-for="store in Stores" :key="store.storeId" class="store-container">
+                          <div class="store-content">
+                            <div class="store-header">
+                              <div class="store-info">
+                                <img :src="'data:image/png;base64,' + store.storePic" alt="Store Image" class="store-image" />
+                                <h2 class="store-name">{{ store.storeName }}</h2>
+                                <p class="store-rating">评分: {{ store.storeScore }}</p>
+                              </div>
+                            </div>
+                            <div class="store-products">
+                              <div v-for="product in store.products" :key="product.productId" class="product-item">
+                                <img :src="'data:image/png;base64,' + product.productPic" alt="Product Image" class="product-image" />
+                                <p class="product-price">{{ product.productName }}</p>
+                                <p class="product-price">¥{{ product.productPrice }}</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                     </div>
                 </div>
                 <div class="pagination">
@@ -262,24 +276,19 @@ onMounted(() => {
   color:#7495c3;
 }
 
-.display-items{
+.display-items1{
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
 }
 
 .product-item {
-  flex: 0 0 30%;
+  flex: 0 0 23%;
   background-color: #fff;
-  padding: 20px;
+  padding: 10px;
   border-radius: 5px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
   transition: transform 0.3s, box-shadow 0.3s;
-}
-
-.product-item:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
 }
 
 .product-image {
@@ -288,20 +297,101 @@ onMounted(() => {
   object-fit: cover;
   border-radius: 5px;
   margin-bottom: 10px;
+  margin-left: 10px;
+  margin-right: 10px;
 }
 
 .product-item h2 {
   font-size: 18px;
-  margin: 0 0 10px;
+  margin: 0 0 5px;
 }
 
 .product-item p {
   font-size: 16px;
-  margin: 0 0 10px;
+  margin: 0 0 5px;
 }
 
 .pagination{
   margin-top: 20px; 
+}
+
+.display-items2{
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.store-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px;
+  align-items: center;
+}
+
+.store-container {
+  border: 1px solid #e7e7e7;
+  border-radius: 10px;
+  padding: 20px;
+  width: 100%;
+  margin-right: 10px;
+}
+
+.store-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.store-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.store-info {
+  display: flex;
+  flex-direction: column;
+  margin: 15px;
+}
+
+.store-name {
+  font-size: 24px; /* 调整为更大的字体 */
+  font-weight: bold;
+}
+
+.store-rating {
+  font-size: 18px; /* 调整为更大的字体 */
+  color: #888;
+}
+
+.store-products {
+  display: flex;
+  gap: 10px;
+  margin-right: 50px;
+  flex-wrap: wrap;
+}
+
+.product-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 150px;
+}
+
+.product-image {
+  width: 150px; /* 固定图片宽度 */
+  height: 150px; /* 固定图片高度 */
+  object-fit: cover;
+  border-radius: 5px;
+}
+
+.product-price {
+  font-size: 16px;
+  color: #333;
+  margin-top: 5px;
 }
 
 </style>
