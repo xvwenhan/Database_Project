@@ -218,7 +218,7 @@ export default{
     const viewType = ref(1);
   
     const fetchProducts = async () => {
-  const storeId = 'S1234567'; // 替换为实际的 storeId
+  const storeId = localStorage.getItem('userId'); // 替换为实际的 storeId
 
   try {
   const response = await axiosInstance.get('/StoreViewProduct/GetProductsByStoreIdAndViewType', {
@@ -261,7 +261,7 @@ export default{
 };
 
 const fetchProductByName = async (keyword) => {
-  const storeId = 'S1234567'; // 替换为实际的 storeId
+  const storeId = localStorage.getItem('userId'); // 替换为实际的 storeId
   try {
     const response = await axiosInstance.get('/StoreViewProduct/search', {
       params: {
@@ -296,7 +296,7 @@ const fetchProductByName = async (keyword) => {
 };
 
 const fetchProductByTag = async (storeTag) => {
-  const storeId = 'S1234567'; // 替换为实际的 storeId
+  const storeId = localStorage.getItem('userId'); // 替换为实际的 storeId
   try {
     const response = await axiosInstance.get('/StoreViewProduct/searchByStoreTag', {
       params: {
@@ -442,12 +442,12 @@ const fetchProductByTag = async (storeTag) => {
                 description: preProduct.value.description,
                 productPic: productPic
             };
-
+            const userId = localStorage.getItem('userId'); 
             try {
                 // 发送请求到后端，storeId 作为查询参数传递
                 const response = await axiosInstance.put('/StoreViewProduct/editProduct', updatedProduct, {
                     params: {
-                        storeId: 'S1234567' // 替换为实际的 storeId
+                        storeId: userId // 替换为实际的 storeId
                     }
                 });
 
@@ -508,7 +508,7 @@ const fetchProductByTag = async (storeTag) => {
       type: 'warning'
     });
 
-    const storeId = 'S1234567'; // 替换为实际的storeId
+    const storeId = localStorage.getItem('userId');; // 替换为实际的storeId
     const productId = row.id;
 
     // 发送请求到后端删除单个商品
@@ -589,7 +589,7 @@ const fetchProductByTag = async (storeTag) => {
 
       try {
         // 发送请求到后端，storeId 作为查询参数传递
-        const storeId = 'S1234567'; // 替换为实际的storeId
+        const storeId = localStorage.getItem('userId');// 替换为实际的storeId
         const response = await axiosInstance.post(`/StoreViewProduct/addProduct`, newProductData, {
           params: {
             storeId: storeId
@@ -667,7 +667,7 @@ const deleteSelectedCommodities = async () => {
       //   type: 'warning'
       // });
 
-      const storeId = 'S1234567'; // 替换为实际的storeId
+      const storeId = localStorage.getItem('userId'); // 替换为实际的storeId
       const productIds = selectedProducts.value.map(product => product.id);
 
       // 发送请求到后端批量删除商品
