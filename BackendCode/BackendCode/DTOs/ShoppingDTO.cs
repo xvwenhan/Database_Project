@@ -1,6 +1,4 @@
-﻿using System.Reflection.Metadata;
-
-namespace BackendCode.DTOs.Shopping
+﻿namespace BackendCode.DTOs.Shopping
 {
     public class StoreInfoDTO
     {
@@ -29,6 +27,13 @@ namespace BackendCode.DTOs.Shopping
         public string name { get; set; }
         public string password { get; set; }
         public string email { get; set; }
+    }
+
+    public class OrderRemarkDTO
+    {
+        public string orderId { get; set; }
+        public string remark { get; set; }
+        public decimal score { get; set; }
     }
 
     public class ProductDetailsDTO

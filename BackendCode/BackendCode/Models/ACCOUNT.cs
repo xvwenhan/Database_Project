@@ -8,5 +8,8 @@
         public string PASSWORD { get; set; }
         public virtual WALLET WALLET { get; set; } // 添加导航属性
 
+        public string? DESCRIBTION { get; set; }
+        public byte[]? PHOTO { get; set; }
+
     }
 }

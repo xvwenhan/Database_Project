@@ -59,12 +59,18 @@ namespace BackendCode.Data
                        .HasMaxLength(100)
                        .HasColumnType("VARCHAR2(100)")
                        .IsRequired();
+                entity.Property(e => e.DESCRIBTION)
+                       .HasMaxLength(400)
+                       .HasColumnType("VARCHAR2(400)");
+                entity.Property(e => e.PHOTO)
+                    .HasColumnType("BLOB");
 
-                // 配置 ACCOUNT 和 WALLET 之间的一对一关系
+                                // 配置 ACCOUNT 和 WALLET 之间的一对一关系
                 entity.HasOne(a => a.WALLET) // 从 ACCOUNT 出发
                       .WithOne(w => w.ACCOUNT) // 设置 WALLET 的导航属性
                       .HasForeignKey<WALLET>(w => w.ACCOUNT_ID) // 设置外键
                       .HasConstraintName("WALLET_FK"); // 外键约束名
+
             });
 
             modelBuilder.Entity<ADMINISTRATOR>(entity =>

@@ -254,5 +254,47 @@ namespace BackendCode.Controllers
 
             return File(product.PRODUCT_PIC, "image/jpeg"); //返回商品图片
         }
+
+        /***************************************/
+        /* 获取买家消费积分接口                */
+        /* 传入买家ID-buyerId                  */
+        /* 返回买家的当前积分                  */
+        /***************************************/
+        [HttpGet("GetBuyerCredits")]
+        public async Task<IActionResult> GetBuyerCreditsAsync(string buyerId)
+        {
+            /* 查询买家信息 */
+            var buyer = await _dbContext.BUYERS.FirstOrDefaultAsync(a => a.ACCOUNT_ID == buyerId);
+            if (buyer == null) //买家ID不存在
+            {
+                return NotFound("未找到该买家信息");
+            }
+
+            return Ok(buyer.TOTAL_CREDITS); //返回买家的总积分
+        }
+
+        /********************************/
+        /* 传入订单评分和评价内容       */
+        /* 传入 orderId, score, remark  */
+        /* 更新订单评分和评价内容       */
+        /********************************/
+        [HttpPut("OrderRemark")]
+        public async Task<IActionResult> OrderRemarkAsync([FromForm] OrderRemarkDTO orderRemarkDto)
+        {
+            /* 验证订单是否存在 */
+            var order = await _dbContext.ORDERS.FirstOrDefaultAsync(o => o.ORDER_ID == orderRemarkDto.orderId);
+            if (order == null) //订单不存在
+            {
+                return NotFound("未找到订单");
+            }
+
+            /* 更新订单评分和评价内容 */
+            order.SCORE = orderRemarkDto.score; //订单评分
+            order.REMARK = orderRemarkDto.remark; //评价内容
+            
+            await _dbContext.SaveChangesAsync(); //保存更改到数据库
+
+            return Ok("订单评价已提交"); //返回成功响应
+        }
     }
 }
