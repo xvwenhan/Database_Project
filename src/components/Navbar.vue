@@ -11,6 +11,7 @@
           <span style="font-size: 17px;">{{ currentDate }}</span>
           <span style="font-size: 17px; margin-left: 10px;">{{ weather }}</span>
         </div>
+        <img src="@/assets/wy/profilephoto.jpg" alt="Profile Photo" class="profile-photo" @click="openModal"/>
       </div>
     </div>
     <div class="line"></div>
@@ -30,13 +31,22 @@
       </div>
     </div>
     <div class="line bottom-line"></div>
+    <UserModal ref="userModal" />
   </nav>
 </template>
-
 <script setup>
 import { reactive, ref, onMounted, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import UserModal from '../views/UserModal.vue';
 import axios from 'axios';
+
+// 引入UserModal组件
+const userModal = ref(null);
+
+// 打开模态框的函数
+const openModal = () => {
+  userModal.value.isOpen = true;
+};
 
 const router = useRouter();
 const route = useRoute();
@@ -53,7 +63,7 @@ const menuItems = reactive([
   { text: "论坛", link: "/forum" },
   { text: "收藏夹", link: "/cart" },
   { text: "订单中心", link: "/ordercentre" },
-  { text: "个人中心", link: "/personalcentre" },
+  // { text: "个人中心", link: "/personalcentre" },
 ]);
 
 // 获取当前日期和时间
@@ -186,6 +196,7 @@ html, body {
 .navbar-right {
   display: flex;
   align-items: center;
+  margin-right: -70px;
 }
 
 .date-weather {
@@ -193,20 +204,30 @@ html, body {
   align-items: center;
 }
 
+.profile-photo {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%; /* 使头像为圆形 */
+  margin-left: 50px;
+}
+
+
 .icons i {
   margin-left: 10px;
   cursor: pointer;
 }
 
 .navbar-menu {
+  /* margin-left: 100px; */
   list-style: none;
   display: flex;
-  gap: 50px;
+  gap: 40px;
   margin: 0;
   padding: 0;
 }
 
 .navbar-item .nav-link {
+  margin-left: 30px;
   text-decoration: none;
   color: inherit; /* 使用 inherit 以继承父级颜色 */
   padding: 5px 10px;
@@ -217,16 +238,18 @@ html, body {
 }
 
 .navbar-search {
-  margin-left: 20px;
+  margin-left: auto; /* 让搜索框自动靠右 */
   height: 42px;
   display: flex;
   align-items: center;
-  border: 2px solid orange; /* 确保边框颜色为橙色 */
+  border: 2px solid orange;/* 确保边框颜色为橙色 */
   border-radius: 25px;
   padding: 5px;
-  background-color: #ffffff; /* 确保背景色为白色 */
-  box-shadow: none; /* 取消所有阴影效果 */
+  background-color: #ffffff;/* 确保背景色为白色 */
+  box-shadow: none;/* 取消所有阴影效果 */
+  margin-right: -50px;
 }
+
 
 .search-type {
   height: 35px;
