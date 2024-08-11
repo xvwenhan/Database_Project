@@ -11,9 +11,16 @@ namespace BackendCode.DTOs.Favourite
         public bool? SaleOrNot { get; set; }
         public string? Tag { get; set; }
         public string? ProductPic { get; set; }
+        public string? ProductName { get; set; }
         
     }
-
+    public class ProductDTO
+    {
+        public string? ProductId { get; set; }
+        public decimal? ProductPrice { get; set; }
+        public string? ProductPic { get; set; }
+        public string? ProductName { get; set; }
+    }
     //返回所有用户收藏店铺的DTO
     public class FavouriteStoresDTO
     {
@@ -21,6 +28,8 @@ namespace BackendCode.DTOs.Favourite
         public string? StoreId { get; set; }
         public string? StoreName { get; set; }
         public decimal? StoreScore { get; set; }
+        public string? StorePic { get; set; }
+        public List<ProductDTO>? Products { get; set; }
 
     }
 
