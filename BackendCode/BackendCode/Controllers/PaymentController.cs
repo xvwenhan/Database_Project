@@ -135,7 +135,7 @@ namespace BackendCode.Controllers
         }
 
         /********************************/
-        /* 生成订单信息接口             */
+        /* 返回订单信息接口             */
         /* 传入{buyerId,productId}      */
         /* 初步生成订单信息 存入数据库  */
         /********************************/
@@ -147,10 +147,6 @@ namespace BackendCode.Controllers
             if (product == null) //商品ID不存在
             {
                 return NotFound("未找到商品");
-            }
-            if(product.SALE_OR_NOT) //商品已经售出
-            {
-                return BadRequest("商品已出售");
             }
 
             /* 获取买家信息 */
@@ -165,6 +161,32 @@ namespace BackendCode.Controllers
             if (store == null) //商家ID不存在
             {
                 return NotFound("未找到商家信息");
+            }
+
+            /* 商品已经售出 */
+            if (product.SALE_OR_NOT) 
+            {
+                var order_exist = await _dbContext.ORDERS.FirstOrDefaultAsync(o => o.PRODUCT_ID == orderDTO.ProductId);
+                
+                if (order_exist.BUYER_ACCOUNT_ID == orderDTO.BuyerId)
+                {
+                    /* 返回订单相关信息 */
+                    var order_Info = new OrderRelatedDTO
+                    {
+                        credits = buyer.TOTAL_CREDITS,
+                        address = order_exist.DELIVERY_ADDRESS,
+                        username = order_exist.USERNAME,
+                        orderId = order_exist.ORDER_ID,
+                        createTime = order_exist.CREATE_TIME.ToString("yyyy年MM月dd日 HH:mm:ss")
+                        //格式化createTime为易读的格式
+                    };
+
+                    return Ok(order_Info); //返回订单相关信息
+                }
+                else
+                {
+                    return BadRequest("商品已售出");
+                }
             }
 
             /* 随机生成订单号 */
