@@ -2,6 +2,6 @@
 {
     public class ADMINISTRATOR : ACCOUNT
     {
-        public int PERMISSION_LEVEL { get; set; }
+        public int? PERMISSION_LEVEL { get; set; }
     }
 }

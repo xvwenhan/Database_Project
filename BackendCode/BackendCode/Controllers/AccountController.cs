@@ -16,6 +16,7 @@ using BackendCode.Services;
 using Microsoft.EntityFrameworkCore;
 using BackendCode.DTOs.Administrator;
 using BackendCode.Controllers;
+using BackendCode.Models;
 
 namespace Account.Controllers
 {
@@ -259,6 +260,7 @@ namespace Account.Controllers
             string newId = idGenerator.GetNextId();
 
             string uidb = newId;
+
             if (model.Role == "买家")
             {
                 uidb = "U" + uidb;
@@ -268,7 +270,13 @@ namespace Account.Controllers
                     EMAIL = model.Email,
                     PASSWORD = PasswordHelper.HashPassword(model.Password),
                     TOTAL_CREDITS = 0
+
                 }) ;
+                _context.WALLETS.Add(new WALLET()
+                {
+                    ACCOUNT_ID = uidb,
+                    BALANCE = 0
+                });
                 _context.SaveChanges();
             }
             else if (model.Role == "商家")
@@ -280,6 +288,11 @@ namespace Account.Controllers
                     EMAIL = model.Email,
                     PASSWORD = model.Password,
                     STORE_SCORE = 0,
+                });
+                _context.WALLETS.Add(new WALLET()
+                {
+                    ACCOUNT_ID = uidb,
+                    BALANCE = 0
                 });
                 _context.SaveChanges();
             }
@@ -509,6 +522,43 @@ namespace Account.Controllers
             return Ok("买家密码更改完毕");
         }
 
+        [HttpPost("add-wallet")]
+        public async Task<IActionResult> AddWalletsToAllAccounts()
+        {
+            try
+            {
+                // 获取所有的账户记录
+                var accounts = await _context.ACCOUNTS.ToListAsync();
+
+                foreach (var account in accounts)
+                {
+                    // 检查该账户是否已经有钱包
+                    var existingWallet = await _context.WALLETS
+                        .FirstOrDefaultAsync(w => w.ACCOUNT_ID == account.ACCOUNT_ID);
+
+                    if (existingWallet == null)
+                    {
+                        // 如果没有钱包，则创建一个新的钱包
+                        var wallet = new WALLET
+                        {
+                            ACCOUNT_ID = account.ACCOUNT_ID,
+                            BALANCE = 0 // 设置初始余额为 0
+                        };
+
+                        // 将钱包添加到数据库
+                        _context.WALLETS.Add(wallet);
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+
+                return Ok("Wallets added to all accounts successfully.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Failed to add wallets: " + ex.Message);
+            }
+        }
 
 
         /*    var buyers = await _context.BUYERS.ToListAsync();
