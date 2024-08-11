@@ -44,6 +44,7 @@ const functionName = () => {
         <!-- 进入店铺按钮 -->
         <el-button
               class="enterStore-button"
+              @click="enterStore"
               style="display: flex;
               align-items: center;
               justify-content: center;
@@ -182,8 +183,8 @@ const functionName = () => {
     const isLoading=ref(true);
     //假设已经知道了userid和productid
     // 创建一个响应式变量来存储参数
-    // const productId = '555555';
-    const productId = localStorage.getItem('productIdOfDetail');
+    const productId = '555555';
+    // const productId = localStorage.getItem('productIdOfDetail');
     const userId =localStorage.getItem('userId');
     const role=localStorage.getItem('role');
     // const role=ref('管理员');
@@ -207,11 +208,6 @@ const functionName = () => {
     
     const activeSection = ref('comments');
 
-    // 生命周期钩子，等所有DOM全部挂载后执行
-    // onMounted(() => {
-    // productId = route.query?.id as string || 'Error';
-    // console.log('接收到的参数:', productId);
-    // });
   
     onMounted(async () => {
       console.log(`当前登录用户id为${userId}`);
@@ -232,6 +228,10 @@ const functionName = () => {
           ElMessage.error('页面加载失败！');
         }
     })
+    const enterStore=()=>{
+      localStorage.setItem('storeIdOfDetail',product.value.storeId);
+      router.push('/shopdetail');
+    }
     const starProduct = async() => {
       if(product.value.isProductStared===false){
         console.log('进入收藏');
