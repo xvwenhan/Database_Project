@@ -39,6 +39,7 @@ namespace Favourite.Controllers
             var productDtos = favoriteProducts.Select(p => new FavouriteProductsDTO
             {
                 BuyerId = model.userId,
+                ProductName=p.PRODUCT_NAME,
                 StoreId = p.ACCOUNT_ID,
                 ProductId=p.PRODUCT_ID,
                 ProductPrice=p.PRODUCT_PRICE,
@@ -71,14 +72,32 @@ namespace Favourite.Controllers
                 return NotFound("No stores found for the given user ID.");
             }
 
-            var productDtos = favoriteStores.Select(p => new FavouriteStoresDTO
+            var productDtos = await Task.WhenAll(favoriteStores.Select(async store =>
             {
-                BuyerId = model.userId,
-                StoreId = p.ACCOUNT_ID,
-                StoreName = p.STORE_NAME,
-                StoreScore = p.STORE_SCORE,
+                var products = await _dbContext.PRODUCTS
+                    .Where(mp => mp.ACCOUNT_ID == store.ACCOUNT_ID)
+                    .OrderBy(mp => mp.PRODUCT_ID) // Optionally order by price or any other criteria
+                    .Take(4) // Get the top 4 products
+                    .Select(mp => new ProductDTO
+                    {
+                        ProductId = mp.PRODUCT_ID,
+                        ProductPrice = mp.PRODUCT_PRICE,
+                        ProductName=mp.PRODUCT_NAME,
+                        ProductPic= mp.PRODUCT_PIC != null ? Convert.ToBase64String(mp.PRODUCT_PIC) : null,
+                    })
+                    .ToListAsync();
 
-            }).ToList();
+                return new FavouriteStoresDTO
+                {
+                    BuyerId = model.userId,
+                    StoreId = store.ACCOUNT_ID,
+                    StoreName = store.STORE_NAME,
+                    StoreScore = store.STORE_SCORE,
+                    Products = products,
+                    StorePic = store.PHOTO != null ? Convert.ToBase64String(store.PHOTO) : null,
+                };
+            }));
+
             // 返回商品信息
             return Ok(productDtos);
         }
