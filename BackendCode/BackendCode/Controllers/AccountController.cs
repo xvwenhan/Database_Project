@@ -48,8 +48,9 @@ namespace Account.Controllers
             }
             //查看是否为买家
             var user = _context.BUYERS.FirstOrDefault(u => u.ACCOUNT_ID == model.Username || u.EMAIL == model.Username);
+            //if (user != null) { return Ok(user); }
             if (user != null && VerifyPassword(model.Password, user.PASSWORD))
-            //if (user != null && model.Password==user.PASSWORD)
+
             {
                 var claims = new List<Claim>
                 {
@@ -73,7 +74,7 @@ namespace Account.Controllers
                     new ClaimsPrincipal(claimsIdentity),
                     authProperties);
 
-                return Ok(new { Message = "登录成功！", Role = "买家" ,userId=user.ACCOUNT_ID});
+                return Ok(new { Message = "登录成功！", Role = "买家", userId = user.ACCOUNT_ID });
             }
 
             //查看是否为卖家
@@ -81,12 +82,12 @@ namespace Account.Controllers
             if (user2 != null && VerifyPassword(model.Password, user2.PASSWORD))
             {
                 var claims = new List<Claim>
-                {
-                    new Claim(ClaimTypes.NameIdentifier, user2.ACCOUNT_ID),
-                    new Claim("UserRole", "商家"), // 添加用户角色的 Claim为商家
-                    new Claim("UserEmail", user2.EMAIL) // 添加用户邮箱
-                    //注意，这里的值若为空就会引发后端报错。因此最好携带主码
-                };
+                            {
+                                new Claim(ClaimTypes.NameIdentifier, user2.ACCOUNT_ID),
+                                new Claim("UserRole", "商家"), // 添加用户角色的 Claim为商家
+                                new Claim("UserEmail", user2.EMAIL) // 添加用户邮箱
+                                //注意，这里的值若为空就会引发后端报错。因此最好携带主码
+                            };
 
                 var claimsIdentity = new ClaimsIdentity(
                     claims, CookieAuthenticationDefaults.AuthenticationScheme);
@@ -109,12 +110,12 @@ namespace Account.Controllers
             if (user3 != null && VerifyPassword(model.Password, user3.PASSWORD))
             {
                 var claims = new List<Claim>
-                {
-                    new Claim(ClaimTypes.NameIdentifier, user3.ACCOUNT_ID),
-                    new Claim("UserRole", "管理员"), // 添加用户角色的 Claim为管理员
-                    new Claim("UserEmail", user3.EMAIL) // 添加用户邮箱
-                    //注意，这里的值若为空就会引发后端报错。因此最好携带主码
-                };
+                            {
+                                new Claim(ClaimTypes.NameIdentifier, user3.ACCOUNT_ID),
+                                new Claim("UserRole", "管理员"), // 添加用户角色的 Claim为管理员
+                                new Claim("UserEmail", user3.EMAIL) // 添加用户邮箱
+                                //注意，这里的值若为空就会引发后端报错。因此最好携带主码
+                            };
 
                 var claimsIdentity = new ClaimsIdentity(
                     claims, CookieAuthenticationDefaults.AuthenticationScheme);
@@ -286,7 +287,7 @@ namespace Account.Controllers
                 {
                     ACCOUNT_ID = uidb,
                     EMAIL = model.Email,
-                    PASSWORD = model.Password,
+                    PASSWORD = PasswordHelper.HashPassword(model.Password),
                     STORE_SCORE = 0,
                 });
                 _context.WALLETS.Add(new WALLET()
@@ -510,18 +511,17 @@ namespace Account.Controllers
         [HttpPost("hash-passwords")]
         public async Task<IActionResult> HashPasswords(string id)
         {
-/*            var buyer = await _context.BUYERS
+            var buyer = await _context.BUYERS
                 .Where(b => b.ACCOUNT_ID == id)
                .SingleOrDefaultAsync();
             if (buyer == null)
-                return NotFound(new { message = "id输入错误" });*/
-            Console.WriteLine(PasswordHelper.HashPassword(id));
-            
-         
+                return NotFound(new { message = "id输入错误" });
+            //buyer.PASSWORD=PasswordHelper.HashPassword(buyer.PASSWORD);
+            //_context.SaveChanges();
 
             return Ok("买家密码更改完毕");
         }
-
+        //临时使用，添加钱包
         [HttpPost("add-wallet")]
         public async Task<IActionResult> AddWalletsToAllAccounts()
         {
@@ -536,7 +536,7 @@ namespace Account.Controllers
                     var existingWallet = await _context.WALLETS
                         .FirstOrDefaultAsync(w => w.ACCOUNT_ID == account.ACCOUNT_ID);
 
-                    if (existingWallet == null)
+/*                    if (existingWallet == null)
                     {
                         // 如果没有钱包，则创建一个新的钱包
                         var wallet = new WALLET
@@ -547,7 +547,7 @@ namespace Account.Controllers
 
                         // 将钱包添加到数据库
                         _context.WALLETS.Add(wallet);
-                    }
+                    }*/
                 }
 
                 await _context.SaveChangesAsync();
