@@ -7,13 +7,15 @@ const functionName = () => {
 -->
 <template>
   <Navbar class="narbar"/>
-
-  <div class="PDcontainer">
+  <div v-show="isLoading" class="loading">
+    <div class="loading-text">加载中...</div>
+  </div>
+  <div v-show="!isLoading" class="PDcontainer">
     <div class="storeContent">
         <div class="storeName">{{ product.storeName }}</div>
         <div class="storeScore">评分：{{  product.score}}</div>
         <!-- 店铺收藏按钮，与商品收藏差不多 -->
-        <el-button
+        <el-button v-show="role==='买家'"
               @click="starStore"
               class="starStore-button"
               style="display: flex;
@@ -26,7 +28,8 @@ const functionName = () => {
               width: 15%;
               height:65%;
               position: absolute;
-              right:5%;" 
+              right:22%;" 
+
             >
             <img v-show="product.isStoreStared" 
             src="@/assets/mmy/stared.svg"
@@ -41,6 +44,7 @@ const functionName = () => {
         <!-- 进入店铺按钮 -->
         <el-button
               class="enterStore-button"
+              @click="enterStore"
               style="display: flex;
               align-items: center;
               justify-content: center;
@@ -51,7 +55,7 @@ const functionName = () => {
               width: 15%;
               height:65%;
               position: absolute;
-              right:22%;" 
+              right:5%;" 
             >
             <img  
             src="@/assets/mmy/store.svg"
@@ -89,7 +93,7 @@ const functionName = () => {
         </div>
         <div class="star_and_buy">
           <!-- 收藏 -->
-          <el-button
+          <el-button v-show="role==='买家'"
           @click="starProduct"
           class="starProduct-button"
           style="display: flex;
@@ -116,6 +120,7 @@ const functionName = () => {
         </el-button>
         <!-- 购买 -->
         <el-button type="success" 
+        v-show="role==='买家'"
         @click="enterPay"
         style="background-color: #257b5e; 
         letter-spacing: 5px; 
@@ -172,12 +177,17 @@ const functionName = () => {
     import { ElButton ,ElMessage} from 'element-plus';
     import { useRouter } from 'vue-router';
     import axiosInstance from '../components/axios';
+    import 'animate.css';
     
+    //页面是否正在加载
+    const isLoading=ref(true);
     //假设已经知道了userid和productid
     // 创建一个响应式变量来存储参数
-    // const productId = ref('444444');
-    const productId = localStorage.getItem('productIdOfDetail');
+    const productId = '555555';
+    // const productId = localStorage.getItem('productIdOfDetail');
     const userId =localStorage.getItem('userId');
+    const role=localStorage.getItem('role');
+    // const role=ref('管理员');
     // 使用 useRoute 来访问路由参数
     const router=useRouter();
 
@@ -198,11 +208,6 @@ const functionName = () => {
     
     const activeSection = ref('comments');
 
-    // 生命周期钩子，等所有DOM全部挂载后执行
-    // onMounted(() => {
-    // productId = route.query?.id as string || 'Error';
-    // console.log('接收到的参数:', productId);
-    // });
   
     onMounted(async () => {
       console.log(`当前登录用户id为${userId}`);
@@ -215,12 +220,18 @@ const functionName = () => {
             productId:productId
           }
         });
+        isLoading.value=false;
         product.value=response.data;
-        console.log(product.value);
+        console.log('页面加载完成');
+        // console.log(product.value);
         } catch (error) {
           ElMessage.error('页面加载失败！');
         }
     })
+    const enterStore=()=>{
+      localStorage.setItem('storeIdOfDetail',product.value.storeId);
+      router.push('/shopdetail');
+    }
     const starProduct = async() => {
       if(product.value.isProductStared===false){
         console.log('进入收藏');
@@ -307,11 +318,10 @@ const functionName = () => {
       console.log('按钮点击');
     };
     const enterPay=()=>{
-      // router.push('/pay');
       const productStr = JSON.stringify(product.value);//序列化对象
-      router.push({path:'/pay',query:{userId:userId,
-                                      productId:productId,
-                                      product: productStr}});
+      router.push({path:'/pay',query:{product: productStr,
+                                      isPaid:'false'
+      }});
     }
 
 </script>
@@ -541,6 +551,9 @@ transform: scale(0.95); /* 点击时缩小效果 */
   padding: 10px;
   border-left:1px solid rgba(0,0,0,0.4) ;
 
+}
+.loading-text{
+  font-size:22px;
 }
 </style> 
   

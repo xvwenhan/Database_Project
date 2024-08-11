@@ -87,14 +87,15 @@
       clearable 
       style="width: 120px;margin-left: 10px;margin-top: 20px;margin-bottom: 30px"></el-input>
       <el-button type="success" round 
+      :disabled="isButtonDisabled"
       style="background-color: #257b5e; 
       /*letter-spacing调整间距 */
-      letter-spacing: 5px; 
+      font-size:auto;
       width: 120px; 
       margin-left: 10px;
       margin-top: 20px;
       margin-bottom: 30px" 
-      @click="getVerificationCode">获取验证码</el-button>
+      @click="getVerificationCode">{{buttonText}}</el-button>
     </div>
       <el-button v-show="!isLookfor" type="success" round style="background-color: #257b5e; letter-spacing: 5px; width: 250px; margin-left: 10px;margin-bottom: 40px" @click="register" >
         注册
@@ -134,10 +135,8 @@ import { ref ,reactive} from 'vue';
 import 'element-plus/dist/index.css';
 import { ElInput, ElButton ,ElMessage} from 'element-plus';
 import axiosInstance from '../components/axios';
-
-import { useRouter } from 'vue-router';///////////////跳转测试用
+import { useRouter } from 'vue-router';
 const router = useRouter();
-
 // 输入变量
 const userType = ref('买家');
 const loginEmail = ref('');
@@ -148,6 +147,11 @@ const confirmPassword = ref('');
 const verificationCode = ref('');
 //后端返回验证码
 const realVerificationCode=ref('');
+//验证码倒计时相关
+const countdownTime = 60;
+const timeLeft = ref(countdownTime);//剩余时间
+const buttonText = ref('获取验证码');
+const isButtonDisabled = ref(false);
 //控制变量
 const isLogin=ref(true);
 const isLookfor=ref(false);
@@ -207,6 +211,7 @@ const clearData=()=>{
         console.log(`response.data.userId${response.data.userId}`);
         //本地存储用户id
         localStorage.setItem('userId',response.data.userId);
+        localStorage.setItem('role',response.data.role);
         if(response.data.role=='买家'){
           router.push('/home');
         }else if(response.data.role=='商家'){
@@ -255,10 +260,13 @@ const clearData=()=>{
 // };
 
 const getVerificationCode= async () =>{
+  if(isButtonDisabled.value) return;
   console.log(registerEmail.value);
   if(!registerEmail.value){
     ElMessage.error('请保证邮箱不为空');
   }else{
+    // 启动倒计时
+    startCountdown();
     try {
       // const response = await axiosInstance.get('/Account/send_verification_code',
       // {params: { email: registerEmail.value }});
@@ -270,13 +278,29 @@ const getVerificationCode= async () =>{
       if (error.response) {
         message.value = error.response.data;
       } else {
-        message.value = '获取验证码失败，请重试！';
+        message.value = '获取验证码失败，请检查邮箱后重试！';
       }
       ElMessage.error(message.value);
     }
     message.value='';
   }
 }
+const startCountdown = () => {
+  isButtonDisabled.value = true; // 禁用按钮
+  buttonText.value = `${countdownTime}s后再次发送`;
+  timeLeft.value = countdownTime;
+
+  const intervalId = setInterval(() => {
+    timeLeft.value -= 1;
+    buttonText.value = `${timeLeft.value}s后可再次发送`;
+
+    if (timeLeft.value <= 0) {
+      clearInterval(intervalId); // 清除定时器
+      buttonText.value = '获取验证码';
+      isButtonDisabled.value = false; // 启用按钮
+    }
+  }, 1000);
+};
 const register= async () =>{
   if(!registerEmail.value||!newPassword.value||!confirmPassword.value||!verificationCode.value){
         ElMessage.error('请保证不为空');

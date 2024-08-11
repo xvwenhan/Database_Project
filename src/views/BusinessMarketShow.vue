@@ -59,7 +59,7 @@
 import { ref, computed, onMounted } from 'vue';
 import axiosInstance from '../components/axios';
 import imageA from '@/assets/setting.svg';
-import { ElSelect, ElOption, ElButton } from 'element-plus';
+import { ElSelect, ElOption, ElButton ,ElMessage} from 'element-plus';
 import 'element-plus/dist/index.css';
 
 export default {
@@ -92,7 +92,7 @@ export default {
 
     
     const toggleParticipation = async (row) => {
-      const storeId = 'S1234567'; // 替换为实际的 storeId
+      const storeId = localStorage.getItem('userId'); // 替换为实际的 storeId
       const inOrOut = !row.isStoreParticipating; // 反转参与状态
 
        // 检查当前时间是否在市集的开始时间和结束时间范围内
@@ -128,7 +128,7 @@ export default {
     };
 
     const fetchMarkets = async () => {
-      const storeId = 'S1234567'; // 替换为实际的 storeId
+      const storeId =localStorage.getItem('userId'); // 替换为实际的 storeId
 
       try {
         const response = await axiosInstance.get('/StoreViewMarket/GetMarketsByStoreId', {
@@ -173,7 +173,7 @@ export default {
 
 
         const fetchMarketByTheme = async (theme) => {
-  const storeId = 'S1234567'; // 替换为实际的 storeId
+  const storeId = localStorage.getItem('userId');// 替换为实际的 storeId
   try {
     const response = await axiosInstance.get('/StoreViewMarket/searchMarket', {
       params: {
