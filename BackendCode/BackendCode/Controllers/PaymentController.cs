@@ -285,6 +285,8 @@ namespace BackendCode.Controllers
             order.ORDER_STATUS = "已付款"; //订单状态
             order.BONUS_CREDITS = (int)orderConfirmDTO.actual_pay; //订单积分
 
+            buyer.TOTAL_CREDITS += order.BONUS_CREDITS; //更新买家计分
+
             await _dbContext.SaveChangesAsync(); //保存数据库上下文中的更改到数据库
 
             var credits = new CreditsDTO
