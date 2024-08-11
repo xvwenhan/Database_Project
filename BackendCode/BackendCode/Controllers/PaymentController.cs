@@ -407,13 +407,13 @@ namespace BackendCode.Controllers
             foreach (var order in orders)
             {
                 var product = await _dbContext.PRODUCTS.FirstOrDefaultAsync(o => o.PRODUCT_ID == order.PRODUCT_ID);
-
+                var store = await _dbContext.STORES.FirstOrDefaultAsync(o => o.ACCOUNT_ID == order.STORE_ACCOUNT_ID);
                 var orderInfo = new OrderInfoDTO
                 {
                     CreateTime = order.CREATE_TIME.ToString("yyyy年MM月dd日 HH:mm:ss"),
                     OrderId = order.ORDER_ID,
-                    ProductId = order.PRODUCT_ID,
-                    StoreId = order.STORE_ACCOUNT_ID,
+                    ProductName = product.PRODUCT_NAME,
+                    StoreName = store.STORE_NAME,
                     TotalPay = order.TOTAL_PAY,
                     ActualPay = order.ACTUAL_PAY,
                     OrderStatus = order.ORDER_STATUS,
