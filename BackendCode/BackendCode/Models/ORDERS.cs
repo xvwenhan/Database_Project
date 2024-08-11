@@ -24,7 +24,7 @@ namespace BackendCode.Models
 
         public string? REMARK { get; set; }
 
-        public int BONUS_CREDITS { get; set; }
+        public int  BONUS_CREDITS { get; set; }
 
         public bool? RETURN_OR_NOT { get; set; }
 

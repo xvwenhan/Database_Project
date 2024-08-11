@@ -56,7 +56,7 @@ namespace StoreFrontController.Controllers
                     })
                     .ToListAsync();
 
-                var waitingForShipment = orderStats.FirstOrDefault(os => os.OrderStatus == "待发货")?.Count ?? 0;
+                var waitingForShipment = orderStats.FirstOrDefault(os => os.OrderStatus == "已付款")?.Count ?? 0;
                 var waitingForReturn = orderStats.FirstOrDefault(os => os.OrderStatus == "待退货")?.Count ?? 0;
 
                 var marketStoreStats = await _dbContext.MARKET_STORES
@@ -76,7 +76,7 @@ namespace StoreFrontController.Controllers
                     .Where(o => o.STORE_ACCOUNT_ID == storeId && o.CREATE_TIME.Date == date.Date)
                     .ToListAsync();
 
-                var orderCount = orderTotal.Count(o => o.ORDER_STATUS != "待付款");
+                var orderCount = orderTotal.Count(o => o.ORDER_STATUS != "待付款" && o.ORDER_STATUS != "已退货");
                 var totalRevenue = orderTotal.Sum(o => o.ACTUAL_PAY);
 
                 return Ok(new
@@ -117,7 +117,7 @@ namespace StoreFrontController.Controllers
                     .Select(g => new
                     {
                         Date = g.Key,
-                        Count = g.Count()
+                        Count = g.Count(o => o.ORDER_STATUS != "待付款"&& o.ORDER_STATUS != "已退货")
                     })
                     .ToListAsync();
 
@@ -192,43 +192,28 @@ namespace StoreFrontController.Controllers
 
             try
             {
-                var store = await _dbContext.STORES.FindAsync(storeId); // 从数据库中查找store记录
+                // 从submit_authentication表中查找记录
+                var authRecord = await _dbContext.SUBMIT_AUTHENTICATIONS
+                                                 .Where(sa => sa.STORE_ACCOUNT_ID == storeId)
+                                                 .FirstOrDefaultAsync();
 
-                if (store == null)
+                if (authRecord == null)
                 {
-                    return NotFound("Store not found.");
+                    return Ok(0); // 搜索不到记录
                 }
 
-                return Ok(new { storeId = store.ACCOUNT_ID, certification = store.CERTIFICATION }); // 返回认证状态
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error updating store authentication for store {storeId}", storeId);
-                return StatusCode(500, "Internal server error");
-            }
-        }
-        //Get接口，传出店铺是否已经提交了申请认证
-        [HttpGet("IfSubmitStoreAuth")]
-        public async Task<IActionResult> IfSubmitStoreAuth(string storeId)
-        {
-            if (string.IsNullOrEmpty(storeId))
-            {
-                return BadRequest("Store ID is required.");
-            }
-
-            try
-            {
-                var store = await _dbContext.STORES.FindAsync(storeId); // 从数据库中查找store记录
-                var auth = await _dbContext.SUBMIT_AUTHENTICATIONS
-                            .Where(a => a.STORE_ACCOUNT_ID == storeId)
-                            .FirstOrDefaultAsync();
-
-                if (store == null)
+                // 根据status返回相应的int值
+                switch (authRecord.STATUS)
                 {
-                    return NotFound("Store not found.");
+                    case "待审核":
+                        return Ok(1);
+                    case "已拒绝":
+                        return Ok(2);
+                    case "已通过":
+                        return Ok(3);
+                    default:
+                        return Ok(0); // 默认情况下也返回0
                 }
-
-                return Ok(auth!=null); // 返回认证状态
             }
             catch (Exception ex)
             {
@@ -359,13 +344,25 @@ namespace StoreFrontController.Controllers
                 {
                     return NotFound("No administrators found.");
                 }
-                var store = await _dbContext.STORES
-                     .FirstOrDefaultAsync(s => s.ACCOUNT_ID == storeId);
 
-                if (store.CERTIFICATION == true )
+                // 查找是否已存在记录
+                var existingRecord = await _dbContext.SUBMIT_AUTHENTICATIONS
+                    .FirstOrDefaultAsync(sa => sa.STORE_ACCOUNT_ID == storeId);
+
+                if (existingRecord != null)
                 {
-                    return BadRequest("已验证");
+                    if (existingRecord.STATUS == "待审核" || existingRecord.STATUS == "已通过")
+                    {
+                        return Ok("已通过或审核中无需重复上传");
+                    }
+                    else if (existingRecord.STATUS == "已拒绝")
+                    {
+                        // 删除旧记录
+                        _dbContext.SUBMIT_AUTHENTICATIONS.Remove(existingRecord);
+                        await _dbContext.SaveChangesAsync();
+                    }
                 }
+
                 // 将 Base64 编码的照片字符串转换为字节数组
                 byte[] photoBytes = Convert.FromBase64String(request.PhotoBase64);
 
@@ -397,6 +394,7 @@ namespace StoreFrontController.Controllers
                 return StatusCode(500, "Internal server error");
             }
         }
+
     }
 }
 
