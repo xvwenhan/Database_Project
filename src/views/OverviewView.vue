@@ -43,7 +43,7 @@ export default {
         },
         series: [
           {
-            name: '最近七日订单数目',
+            name: '订单数目',
             type: 'line',
             data: props.data
           }

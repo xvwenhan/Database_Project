@@ -19,7 +19,9 @@
             <p>您的认证资料正在审核中，请稍等。</p>
           </div>
           <div v-else-if="certificationStatus === '审核通过'">
-            <p>您的认证资料已通过审核（展示）。</p>
+            <p>您的认证资料已通过审核。</p>
+            <img :src="certificationUp.image" alt="认证图片" style="width: 200px; height: 200px;" />
+            <p>{{ certificationUp.description }}</p>
           </div>
         </div>
       </el-tab-pane>
@@ -123,6 +125,8 @@ export default {
         image:'',
         description:''
       },
+      uploadStatus:false,
+      passStatus:false,
       businessInfo: {
         username: '',
         address: ''
@@ -201,7 +205,7 @@ async handleCertificationUpload() {
     // 从图片数据中去除 Base64 前缀
     const photoBase64 = this.certificationUp.image.split(',')[1]; 
     const authentication = this.certificationUp.description;
-    const storeId = 'S1234567'; 
+    const storeId = localStorage.getItem('userId'); 
 
     if (!photoBase64 || !authentication) {
       this.$message.error('请提供图片和认证资料');
@@ -217,14 +221,14 @@ async handleCertificationUpload() {
       },
     });
 
-    if (response.data.success) {
-      this.$message.success('认证资料上传成功');
-      this.certificationStatus = '正在审核'; 
+    if (response.status === 200) {
+      this.$message.success('认证资料上传成功，请刷新网页以查看最新状态');
+      // this.certificationStatus = '正在审核'; 
     } else {
       this.$message.error(`上传失败: ${response.data.message}`);
     }
   } catch (error) {
-    console.error('请求失败:', error.response ? error.response.data : error.message);
+    console.error('请求失败:认证资料上传', error.response ? error.response.data : error.message);
     this.$message.error('请求失败，请稍后再试');
   }
 },
@@ -245,7 +249,7 @@ async handleCertificationUpload() {
           this.$message.error('获取用户信息失败');
         }
       } catch (error) {
-        console.error('请求失败:', error);
+        console.error('请求失败:获取商家信息', error);
         this.$message.error('请求失败，请稍后再试');
       }
     },
@@ -271,7 +275,7 @@ async handleCertificationUpload() {
       }
     },
     async updateBusinessInfo() {
-      const storeId = 'S1234567'; // 替换为实际的 storeid
+      const storeId = localStorage.getItem('userId'); // 替换为实际的 storeid
       this.loading = true;
       this.error = null;
 
@@ -320,11 +324,12 @@ async resetPassword() {
     this.$message.error('新密码和确认密码不匹配');
     return;
   }
+  const userId = localStorage.getItem('userId'); 
 
   try {
     // 发送请求到后端重置密码
     const response = await axiosInstance.post('/Account/password_reset', {
-      username: "S1234567",  // 使用当前用户的用户名
+      username:  userId,  // 使用当前用户的用户名
       password: this.password.new  // 使用新密码
     });
 
@@ -364,7 +369,7 @@ async fetchStoreName() {
       }
     },
     async checkCertificationStatus() {
-  const storeId = 'S1234567'; // 替换为实际的 storeId
+  const storeId =  localStorage.getItem('userId');  // 替换为实际的 storeId
   try {
     const response = await axiosInstance.get('/StoreFront/UpdateStoreAuth', {
       params: {
@@ -372,21 +377,46 @@ async fetchStoreName() {
       }
     });
 
-    const status = response.data.certification; // 获取返回的认证状态
-    console.log(response.data.certification);
-    if (status) {
-      this.certificationStatus = '审核通过';
-    } else {
-      this.certificationStatus = '请求上传';
-    }                            
+    this.passStatus = response.data; // 获取返回的认证状态
+    console.log('认证状态:', this.passStatus); // 输出认证状态
+    if(this.passStatus==0){
+      this.certificationStatus='请求上传'
+    }
+    else if(this.passStatus==1){
+      this.certificationStatus='正在审核'
+    }
+    else if(this.passStatus==3){
+      this.certificationStatus='审核通过'
+      await this.fetchCertificationImageAndText(storeId);
+    }
+    else if(this.passStatus==2){
+      this.certificationStatus='请求上传'
+      this.$message.warning('管理员拒绝了你的请求，请重新上传认证材料');
+    }
   } catch (error) {
     console.error('获取认证状态失败:', error);
     this.$message.error('获取认证状态失败，请稍后再试');
   }
+},
+async fetchCertificationImageAndText(storeId) {
+  try {
+    const response = await axiosInstance.get('/StoreFront/GetStoreAuthImg', {
+      params: { storeId }
+    });
+
+    const { authentication, photo } = response.data;
+    this.certificationUp.image = `data:image/jpeg;base64,${photo}`;
+    this.certificationUp.description = authentication;
+
+    console.log('获取到的认证图片和文字描述:', this.certificationUp);
+  } catch (error) {
+    console.error('获取认证图片和文字描述失败:', error);
+    this.$message.error('获取认证图片和文字描述失败，请稍后再试');
+  }
 }
-  },
-  mounted() {
-    const userId = 'S1234567'; // 替换为实际的用户 ID
+  },                           
+  mounted() {               
+    const userId = localStorage.getItem('userId'); 
     this.getUserInfo(userId);
     this.fetchStoreName();
     this.checkCertificationStatus(); 

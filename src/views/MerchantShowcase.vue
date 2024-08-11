@@ -10,6 +10,7 @@
       <div v-for="store in stores" :key="store.storeId" class="store-container">
         <div class="store-content">
           <div class="store-header">
+            <img :src="'data:image/png;base64,' + store.storePhoto.result" alt="Store Avatar" class="store-avatar" />
             <div class="store-info">
               <h2 class="store-name">{{ store.storeName }}</h2>
               <p class="store-rating">好评率: {{ (store.storeScore * 100).toFixed(2) }}%</p>
@@ -94,10 +95,16 @@ onMounted(() => {
 
 .store-header {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 10px;
+  align-items: center; /* 头像和名称居中对齐 */
+  gap: 10px; /* 调整头像和店铺名称之间的间距 */
   margin-bottom: 20px;
+}
+
+.store-avatar {
+  width: 60px; /* 头像大小 */
+  height: 60px; /* 头像大小 */
+  border-radius: 50%; /* 将头像裁剪为圆形 */
+  object-fit: cover;
 }
 
 .store-info {

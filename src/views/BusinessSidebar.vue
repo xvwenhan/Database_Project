@@ -94,7 +94,7 @@
       this.show = false;
     },
     async fetchStoreScore() {
-      const storeId = 'S1234567'; // 替换为实际的 storeid
+      const storeId =localStorage.getItem('userId');// 替换为实际的 storeid
       this.loading = true;
       this.error = null;
       this.storeScoreName = null;

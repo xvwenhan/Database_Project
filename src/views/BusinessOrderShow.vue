@@ -112,7 +112,7 @@ export default {
     const products = ref([]);
 
     const fetchOrders = async () => {
-      const storeId = 'S1234567'; // 替换为实际的 storeId
+      const storeId = localStorage.getItem('userId');  // 替换为实际的 storeId
 
       try {
         const response = await axiosInstance.get('/StoreOrder/GetOrders', {
@@ -174,7 +174,7 @@ export default {
     };
 
     const fetchOrderById = async (orderId) => {
-      const storeId = 'S1234567'; // 替换为实际的 storeId
+      const storeId = localStorage.getItem('userId'); // 替换为实际的 storeId
       try {
         const response = await axiosInstance.get('/StoreOrder/GetOrderById', {
           params: {
@@ -227,7 +227,7 @@ export default {
     };
 
     const fetchOrderByTime = async (date) => {
-      const storeId = 'S1234567'; // 替换为实际的 storeId
+      const storeId =localStorage.getItem('userId');  // 替换为实际的 storeId
       try {
         const response = await axiosInstance.get('/StoreOrder/GetOrdersByDate', {
           params: {
@@ -324,7 +324,7 @@ export default {
       }
 
       try {
-        const storeId = 'S1234567'; // 替换为实际的storeId
+        const storeId =localStorage.getItem('userId'); // 替换为实际的storeId
         const orderId = currentProduct.value.id;
         const deliveryNumber = currentProduct.value.deliveryNumberInput;
 
@@ -363,7 +363,7 @@ export default {
     const handleReturnRequest = async (row) => {
   if (row.returnRequested && row.returnStatus === '待同意') {
     try {
-      const storeId = 'S1234567'; // 替换为实际的 storeId 变量
+      const storeId = localStorage.getItem('userId'); // 替换为实际的 storeId 变量
       const orderId = row.id;
 
       // 发送请求到后端确认退货

@@ -186,11 +186,12 @@ export default {
           this.$message.error('获取用户信息失败');
         }
       } catch (error) {
-        console.error('请求失败:', error);
+        console.error('请求失败:获取用户信息', error);
         this.$message.error('请求失败，请稍后再试');
       }
     },
     async updateUserInfo() {
+      const userId = localStorage.getItem('userId');
   if (!this.userInfo.username || !this.userInfo.gender || this.userInfo.age === null || !this.address.detail) {
     this.$message.error('所有字段都必须填写');
     return;
@@ -204,7 +205,7 @@ export default {
 
   try {
     const response = await axiosInstance.post('/Account/modify_buyer_message', {
-      accountId: "U00000016", // 替换为实际的 accountId
+      accountId: userId, // 替换为实际的 accountId
       userName: this.userInfo.username,
       gender: this.userInfo.gender,
       age: this.userInfo.age,
@@ -221,11 +222,11 @@ export default {
     this.$message.error('请求失败，请稍后再试');
   }
 },
-async getWalletBalance() {
+async getWalletBalance(userId) {
   try {
     const response = await axiosInstance.post('/Payment/GetWalletBalance', null, {
       params: {
-        accountID: 'S1234567'
+        accountID: userId
       }
     });
 
@@ -239,16 +240,16 @@ async getWalletBalance() {
       this.balance = 0; // 设置默认值为 0 或其他默认值
     }
   } catch (error) {
-    console.error('请求失败:', error);
+    console.error('请求失败:钱包数值获取', error);
     this.$message.error('请求失败，请稍后再试');
   }
 },
-async getBuyerCredits() {
+async getBuyerCredits(userId) {
     try {
       // 调用接口获取买家消费积分
       const response = await axiosInstance.get('/Shopping/GetBuyerCredits', {
         params: {
-          buyerId: 'U00000016' // 替换为实际的买家账号ID
+          buyerId: userId // 替换为实际的买家账号ID
         }
       });
 
@@ -262,7 +263,7 @@ async getBuyerCredits() {
         this.$message.warning('未返回有效的积分信息');
       }
     } catch (error) {
-      console.error('请求失败:', error);
+      console.error('请求失败:获取消费积分', error);
       this.$message.error('请求失败，请稍后再试');
     }
   },
@@ -293,9 +294,10 @@ async getBuyerCredits() {
     return;
   }
 
+  const userId = localStorage.getItem('userId'); // 获取当前用户 ID
   // 创建 FormData 对象
   const formData = new FormData();
-  formData.append('BuyerId', 'S1234567'); // 假设这是当前用户的 ID
+  formData.append('BuyerId', userId); // 假设这是当前用户的 ID
   formData.append('Amount', this.recharge.amount);
 
   try {
@@ -334,6 +336,7 @@ async resetPassword() {
   //   this.$message.error('原密码不正确');
   //   return;
   // }
+  const userId = localStorage.getItem('userId'); // 获取当前用户 ID
   if (this.password.new !== this.password.confirm) {
     this.$message.error('新密码和确认密码不匹配');
     return;
@@ -342,7 +345,7 @@ async resetPassword() {
   try {
     // 发送请求到后端重置密码
     const response = await axiosInstance.post('/Account/password_reset', {
-      username: "U00000016",  // 使用当前用户的用户名
+      username:  userId,  // 使用当前用户的用户名
       password: this.password.new  // 使用新密码
     });
 
@@ -378,10 +381,14 @@ async resetPassword() {
     }
   },
   mounted() {
-    const userId = 'U00000016'; // 替换为实际的用户 ID
+    const userId = localStorage.getItem('userId');  // 替换为实际的用户 ID
+    if (userId) {
     this.getUserInfo(userId);
-    this.getWalletBalance();
-    this.getBuyerCredits(); // 调用获取买家积分的方法
+    this.getWalletBalance(userId);
+    this.getBuyerCredits(userId); // 调用获取买家积分的方法
+  } else {
+    this.$message.error('用户ID不存在，请登录后再试');
+  }
   }
 };
 </script>

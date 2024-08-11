@@ -87,7 +87,7 @@ export default {
   },
   methods: {
     async fetchOrderStats() {
-      const storeId = 'S1234567'; // 替换为实际的 storeId
+      const storeId = localStorage.getItem('userId'); // 替换为实际的 storeId
       const today = this.formatDate(new Date());
 
       try {
@@ -110,7 +110,7 @@ export default {
     return this.formatDate(date); // 格式化日期
     },
     async fetchWeeklyOrderCount() {
-      const storeId = 'S1234567'; // 替换为实际的 storeId
+      const storeId = localStorage.getItem('userId'); // 替换为实际的 storeId
       const lastWeekDate = this.getLastWeekDate();
 
       try {
