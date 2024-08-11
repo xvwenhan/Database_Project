@@ -215,14 +215,16 @@ const bonusCredits=ref(0);
 const finalCredits=ref(0);
 //是否支付成功
 const isPaySuccess=ref(false);
-
-//订单支付结束后（不管支付成功没成功）都跳转回原来的页面
+////订单支付结束后（不管支付成功没成功）都跳转回原来的页面
+const router=useRouter();
+const routerPath=localStorage.getItem('routerPath');
 watch(payVisible, (newValue, oldValue) => {
     if (newValue === false && oldValue === true) {
         // 当 `isPaySuccess` 变为 `false` 时执行操作
         console.log('支付失败，状态变为 false');
         // 跳转到指定页面
-        router.push('/log');
+        const path = routerPath ? routerPath : '/home'; 
+        router.push(path);
     }
 });
 onMounted(async () => {
@@ -311,12 +313,6 @@ const openPay=async()=>{
     isPaySuccess.value=true;
     } catch (error) {
         isPaySuccess.value=false;
-        // if (error.response) {
-        //   message.value = error.response.data;
-        // } else {
-        //   message.value = '登录失败';
-        // }
-        // console.error(`error.response is ${message.value}`)
         if (error.response) {
         // 请求已发出，服务器返回了状态码
             console.error('响应错误状态码:', error.response.status);

@@ -175,7 +175,8 @@ const functionName = () => {
     
     //假设已经知道了userid和productid
     // 创建一个响应式变量来存储参数
-    const productId = ref('333333');
+    // const productId = ref('444444');
+    const productId = localStorage.getItem('productIdOfDetail');
     const userId =localStorage.getItem('userId');
     // 使用 useRoute 来访问路由参数
     const router=useRouter();
@@ -199,8 +200,8 @@ const functionName = () => {
 
     // 生命周期钩子，等所有DOM全部挂载后执行
     // onMounted(() => {
-    // productId.value = route.query?.id as string || 'Error';
-    // console.log('接收到的参数:', productId.value);
+    // productId = route.query?.id as string || 'Error';
+    // console.log('接收到的参数:', productId);
     // });
   
     onMounted(async () => {
@@ -211,7 +212,7 @@ const functionName = () => {
         const response = await axiosInstance.get(`/Shopping/GetProductDetails/`,{
           params:{
             userId:userId,
-            productId:productId.value
+            productId:productId
           }
         });
         product.value=response.data;
@@ -227,7 +228,7 @@ const functionName = () => {
           const response = await axiosInstance.post('/Favourite/BookmarkProduct', null, {
               params: {
                 userId: userId,
-                productId: productId.value
+                productId: productId
               }
             });
 
@@ -246,7 +247,7 @@ const functionName = () => {
           const response = await axiosInstance.delete('/Favourite/UnbookmarkProduct', {
             params: {
               userId: userId,
-              productId: productId.value
+              productId: productId
             }
           });
           console.log(response.data);
@@ -309,7 +310,7 @@ const functionName = () => {
       // router.push('/pay');
       const productStr = JSON.stringify(product.value);//序列化对象
       router.push({path:'/pay',query:{userId:userId,
-                                      productId:productId.value,
+                                      productId:productId,
                                       product: productStr}});
     }
 
