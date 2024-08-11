@@ -9,10 +9,12 @@ import axiosInstance from '../components/axios';
 import type { RefSymbol } from '@vue/reactivity';
 const search=ref('');
 const sort=ref('time');
+const way=ref('forum');
 const currentPage = ref(1);
 const pageSize=ref(15);
 const totalPostNums = ref(); // 文章总数
 const isSearching =ref(false);
+const haveSearched=ref(true);
 // const postData=ref( [
 //         { title: '文章标题1', author: '作者1', content: '文章内容1',isDisplayed:true,id:1 },
 //         { title: '文章标题2', author: '作者2', content: '文章内容2',isDisplayed:true,id:2 },
@@ -54,7 +56,7 @@ const fetchPost= async () =>{
             id: post.postId || '',
             title: post.postTitle || '',
             author: post.authorName || '',
-            time: post.releaseTime || '',
+            time: convertToReadableTime(post.releaseTime) || '',
             like:post.numberOfLikes || 0,
             comment:post.numberOfComments || 0
           }));
@@ -69,19 +71,53 @@ const fetchPost= async () =>{
         message.value="失败";
       });
 }
+const searchPost = async () => {
+  axiosInstance.post('/Post/search_posts', {
+        'keyWord':search.value,
+        'sortBy':sort.value,
+        'descending':true,
+      })
+    .then(response => {
+        const data = response.data;
+        if (data && Array.isArray(data.target_posts)) {
+            posts.value = data.target_posts.map(post => ({
+                id: post.postId || '',
+                title: post.postTitle || '',
+                author: post.authorName || '',
+                time: convertToReadableTime(post.releaseTime) || '',
+                like: post.numberOfLikes || 0,
+                comment: post.numberOfComments || 0
+            }));
+
+            totalPostNums.value = data.amount || 0;
+            message.value = "成功搜索";
+            haveSearched.value=true;
+        } else {
+            console.error('Invalid data format.');
+            haveSearched.value=false;
+        }
+    }).catch(error => {
+        message.value = "失败";
+        console.error(error);
+        haveSearched.value=false;
+    });
+};
 const displayedPosts=computed(()=> {
-      fetchPost();
-      console.log(message.value);
-      console.log(sort.value);
       // 根据当前页码和每页条数计算需要显示的文章列表
-      if (isSearching.value==false) {
-        // 当处于搜索状态时，返回所有帖子
+      if (isSearching.value==false||search.value=='') {
+        fetchPost();
+        console.log(message.value);
+        console.log(sort.value);
+        // 当不处于搜索状态时，返回所有帖子
         return posts.value;
     } else {
-        // 当不处于搜索状态时，根据当前页码和每页条数计算需要显示的文章列表
+      if( haveSearched.value==true){
+        searchPost();
+        // 当处于搜索状态时，根据当前页码和每页条数计算需要显示的文章列表
         const startIndex = (currentPage.value - 1) * pageSize.value;
         const endIndex = startIndex + pageSize.value;
         return posts.value.slice(startIndex, endIndex);
+      }
     }
       //else{
     //     return posts.value.filter(post => 
@@ -91,7 +127,21 @@ const displayedPosts=computed(()=> {
     // );
     //   }
     })
+function convertToReadableTime(isoTime) {
+  if (!isoTime) return '';
+  
+  const date = new Date(isoTime);
 
+  // 使用toLocaleString()格式化日期并根据需要自定义选项
+  return date.toLocaleString('zh-CN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  });
+}
 const buttons = reactive([
   { id: 1, text: '发布', background: 'src/assets/czw/release.svg', backgroundColor: 'transparent' },
   { id: 2, text: '按热度排序', background: 'src/assets/czw/hot.svg', backgroundColor: 'transparent' },
@@ -139,18 +189,26 @@ function  handleCurrentChange(val) {
 
 function handleTitleClick( id,event) {
   localStorage.setItem('postId', id);
+  localStorage.setItem('way', way.value);
   router.push( 'viewpost'); // 跳转至 /viewpost 页面
 }
 function  handleSearch()
 {
   isSearching.value=true;
 }
+
+function highlightPost(event) {
+      event.currentTarget.style.backgroundColor = 'lightblue';
+};
+function resetPost(event) {
+      event.currentTarget.style.backgroundColor = 'initial';
+}
 </script>
 
 <template>
   <Navbar />
   <h1 class="forum_title">论坛</h1>
-  <el-container style="height:100vh; border: 1px solid #eee">
+  <el-container style="height:100vh; border: 1px solid #eee" class="all">
     <el-aside width="25vh" style="background-color: rgb(238, 241, 246)">
       <el-menu>
         <div class="button_list">
@@ -170,13 +228,16 @@ function  handleSearch()
     @input="handleSearch">
     <i slot="suffix" class="el-input__icon el-icon-search"></i>
   </el-input>
-  <el-menu>
-    <el-menu-item v-for="(post, index) in  displayedPosts" :key="index">
-      <a class="post_title" href="#" @click.prevent="handleTitleClick(post.id)" @mouseover="highlightTitle(post)">{{ post.title }}</a>
-      <div>{{ post.author }}</div>
-      <div>{{ post.time }}</div>
-    </el-menu-item>
-  </el-menu>
+  <div>
+    <div v-for="(post, index) in displayedPosts" :key="index" class="post" 
+         @mouseover="highlightPost" @mouseout="resetPost">
+      <p>作者：{{ post.author }} 发布时间: {{ post.time }}</p>
+      <a class="post_title" href="#" @click.prevent="handleTitleClick(post.id)" @mouseover="highlightTitle(post)">
+        {{ post.title }}
+      </a>
+    </div>
+  </div>
+
   <div style="display: flex; justify-content: center; margin-top: 1vh;">
   <el-pagination
       @size-change="handleSizeChange"
@@ -241,19 +302,25 @@ function  handleSearch()
 }
 
 .post {
-  display: block;
-}
-.post-content {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
+  margin: 10px 0;
+  padding: 10px;
+  border: none;
 }
+
 .post_title {
+ 
   color: #000; /* 默认标题颜色 */
   text-decoration: none;
   transition: color 0.2s ease; /* 动画过渡效果 */
 }
 .post_title:hover {
-  color: rgb(239, 153, 153); /* 鼠标移上去时的标题颜色 */
+  color: rgb(175, 219, 233); /* 鼠标移上去时的标题颜色 */
 }
+.all {
+        overflow: hidden; /* 隐藏页面的滚动条 */
+    }
 
 </style>

@@ -40,17 +40,15 @@ class="input_content">
 -->
 <div>
     <input type="file" @change="handleFileUpload" multiple>
-    <button @click="uploadImages">上传图片</button>
+    <button :style="{ backgroundImage: `url(${buttons[2].background})`, 
+      backgroundColor: buttons[2].backgroundColor }" @click="confirm()" class="upload_button" 
+      @mouseover="changeButtonColor(buttons[2], true)" @mouseout="changeButtonColor(buttons[2], false)"></button>
     <div class="image-container">
       <div v-for="(file, index) in files" :key="index" >
         <img :src="getFileUrl(file)" class="image-preview">
       </div>
     </div>
   </div>
-
-<button :style="{ backgroundImage: `url(${buttons[2].background})`, 
-      backgroundColor: buttons[2].backgroundColor }" @click="confirm()" class="upload_button" 
-      @mouseover="changeButtonColor(buttons[2], true)" @mouseout="changeButtonColor(buttons[2], false)"></button>
 </template>
 
 
@@ -106,21 +104,15 @@ const buttonClick = (button) => {
   }
 };
 
-function handleRemove(file, fileList) {
-        console.log(file, fileList);
-      };
-function handlePreview(file) {
-        console.log(file);
-      }
-
 const confirm = async () => {
   const formData = new FormData();
       formData.append('PostTitle', inputTitle.value);
       formData.append('PostContent', inputContent.value);
 
       files.value.forEach((file, index) => {
-        formData.append(`Images[${index}]`, file);
-      });
+        formData.append('Images', file); // 直接以 'Images' 为键添加文件到 FormData
+    });
+
 
       axiosInstance.post('/Post/create_post', formData, {
         headers: {
