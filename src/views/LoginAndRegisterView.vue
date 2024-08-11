@@ -207,6 +207,7 @@ const clearData=()=>{
         console.log(`response.data.userId${response.data.userId}`);
         //本地存储用户id
         localStorage.setItem('userId',response.data.userId);
+        localStorage.setItem('role',response.data.role);
         if(response.data.role=='买家'){
           router.push('/home');
         }else if(response.data.role=='商家'){

@@ -1,5 +1,9 @@
 <template>
-    <div class="Pcontainer">
+      <div v-show="isLoading" class="loading">
+        <div class="loading-text">加载中...</div>
+    </div>
+
+    <div v-show="!isLoading" class="Pcontainer">
         <div class="procedure">
             <div class="procedure1">
                 <img src="@/assets/mmy/number1.svg" class="number"/>
@@ -15,7 +19,7 @@
             <img class="addressImage" src="@/assets/mmy/location.svg">
             <div class="text1">寄送至&nbsp&nbsp&nbsp&nbsp</div>
             <div class="customerAddress">{{ customer.address }}&nbsp&nbsp({{ customer.name }}&nbsp收)&nbsp&nbsp</div>
-            <el-button
+            <el-button v-show='isPaid===false'
                 @click="openDialog"
                 class="changeAddress"
                 style="display: flex;
@@ -184,14 +188,19 @@ import axiosInstance from '../components/axios';
 import { useRouter } from 'vue-router';
 //接收路由参数
 import { useRoute } from 'vue-router';
-
+//页面加载
+const isLoading=ref(true);
 const route = useRoute();
-const userId = computed(() => route.query.userId as string);
-const productId = computed(() => route.query.productId as string);
+// const productId='555555';
+const productId = localStorage.getItem('productIdOfDetail');
+const userid =localStorage.getItem('userId');
+const userId=userid?userid:'000000';
 const product = computed(() => {
   const productStr = route.query.product as string | undefined;
   return productStr ? JSON.parse(productStr) : null;
 });
+//根据是否已经付款订单会显示不同状态
+const isPaid = route.query.isPaid === 'true';
 const order=ref({id:'',createTime:''});
 //收货人相关信息
 const customer=ref({name:'',
@@ -229,13 +238,13 @@ watch(payVisible, (newValue, oldValue) => {
 });
 onMounted(async () => {
     console.log(`product is ${JSON.stringify(product.value)}`);
-    console.log(`productId is ${productId.value}`);
-    console.log(`userId is ${userId.value}`);
+    console.log(`productId is ${productId}`);
+    console.log(`userId is ${userId}`);
     console.log(`creditPrice is ${creditPrice}`);
 
     const formData = new FormData();
-    formData.append('BuyerId',userId.value);
-    formData.append('ProductId',productId.value);
+    formData.append('BuyerId',userId);
+    formData.append('ProductId',productId);
     try {
         const response = await axiosInstance.post('Payment/AddOrders', formData,{
             headers: { 'Content-Type': 'multipart/form-data' }
@@ -251,7 +260,8 @@ onMounted(async () => {
         if(customer.value.address==null){
             customer.value.address='未知地';
         }
-        customer.value.credits=535;
+        isLoading.value=false;
+        customer.value.credits=response.data.credits;
         creditPrice.value=parseInt(Math.floor(customer.value.credits/100).toFixed(0));
         // customer.value.credits=response.data.credits;
     } catch (error) {
@@ -506,6 +516,9 @@ const openPay=async()=>{
 .payMoney:hover{
     transform: scale(1.02); /* Scale up by 20% */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+.loading-text{
+  font-size:22px;
 }
 
 </style>

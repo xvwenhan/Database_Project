@@ -27,8 +27,7 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      name: 'HomeView',
-      component: HomeView
+      redirect: '/loginandregister', // 重定向到登录注册页面
     },
     {
       path: '/loginandregister',
