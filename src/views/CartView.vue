@@ -21,10 +21,15 @@
         <div class="display">
             <div v-if="selectedCategory==1" >
                 <div class="display-items">
-                    <div v-for="product in paginatedProducts" :key="product.productId" class="product-item">
-                        <!-- 展示格式待替换 -->
-                        <p>{{ product.productId }}</p>
-                        <p>价格: ¥{{ product.productPrice }}</p>
+                    <div 
+                      v-for="product in paginatedProducts" 
+                      :key="product.productId" 
+                      class="product-item"
+                      @click="handleProductClick(product.productId)"
+                    >
+                      <img :src="product.productPic" :alt="product.productId" class="product-image" />
+                      <h2>{{ product.productId }}</h2>
+                      <p>价格: ¥{{ product.productPrice }}</p>
                     </div>
                 </div>
                 <div class="pagination">
@@ -35,7 +40,11 @@
             </div>
             <div v-else>
                 <div class="display-items">
-                    <div v-for="store in paginatedStores" :key="store.storeId" class="store-item">
+                    <div 
+                      v-for="store in paginatedStores" 
+                      :key="store.storeId" 
+                      class="store-item"
+                      @click="handleStoreClick(store.storeId)">
                         <!-- 展示格式待替换 -->
                         <p>{{ store.storeId }}</p>
                         <p>{{ store.storeName }}</p>
@@ -53,10 +62,13 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed } from 'vue';
+import { ref, reactive, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import Navbar from '../components/Navbar.vue';
 import 'element-plus/dist/index.css';
 import axiosInstance from '../components/axios';
+
+const router = useRouter();
 
 const categories = ref([
     { id: 1, name: '收藏商品' },
@@ -83,9 +95,13 @@ const fetchProducts = async () => {
     const response = await axiosInstance.post('/Favourite/GetFavoriteProducts', {
       "userId": "U6210129" //测试账号
     });
-    Products.splice(0, Products.length, ...response.data);
+
+    response.data.forEach(product => {
+      product.productPic = `data:image/png;base64,${product.productPic}`;
+      Products.push(product);
+    });
     message01.value = '已获取收藏商品数据';
-    console.log('收藏商品数据：'+Products.values);
+
   } catch (error) {
     if (error.response) {
       message01.value = error.response.data;
@@ -96,12 +112,8 @@ const fetchProducts = async () => {
   console.log(message01.value);
 };
 
-onMounted(() => {
-    fetchProducts();
-});
-
 // 设置表格页面大小及当前页数
-const pageSize1 = ref(1);
+const pageSize1 = ref(9);
 const currentPage1 = ref(1);
 
 const totalProducts = computed(() => Products.length);
@@ -114,11 +126,16 @@ const paginatedProducts = computed(() => {
   return Products.slice(start, end);
 });
 
-// 切换页面
+// 切换分页页面
 const productPageChange = (page) => {
     if (page >= 1 && page <= productsPages.value) {
         currentPage1.value = page;
     }
+};
+
+const handleProductClick = (productId) => {
+    localStorage.setItem('productIdOfDetail',productId);
+    router.push('/productdetail');
 };
 
 
@@ -163,6 +180,17 @@ const storePageChange = (page) => {
         currentPage2.value = page;
     }
 };
+
+const handleStoreClick = (storeId) => {
+    localStorage.setItem('storeIdOfDetail',storeId);
+    router.push('/shopdetail');
+};
+
+
+
+onMounted(() => {
+    fetchProducts();
+});
 
 </script>
 
@@ -232,6 +260,48 @@ const storePageChange = (page) => {
   background-color: #bbd0ed;
   font-weight: bold;
   color:#7495c3;
+}
+
+.display-items{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.product-item {
+  flex: 0 0 30%;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.product-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+.product-image {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+.product-item h2 {
+  font-size: 18px;
+  margin: 0 0 10px;
+}
+
+.product-item p {
+  font-size: 16px;
+  margin: 0 0 10px;
+}
+
+.pagination{
+  margin-top: 20px; 
 }
 
 </style>
