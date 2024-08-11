@@ -123,6 +123,8 @@ export default {
         image:'',
         description:''
       },
+      uploadStatus:false,
+      passStatus:false,
       businessInfo: {
         username: '',
         address: ''
@@ -217,7 +219,7 @@ async handleCertificationUpload() {
       },
     });
 
-    if (response.data.success) {
+    if (response.status === 200) {
       this.$message.success('认证资料上传成功');
       this.certificationStatus = '正在审核'; 
     } else {
@@ -372,16 +374,37 @@ async fetchStoreName() {
       }
     });
 
-    const status = response.data.certification; // 获取返回的认证状态
+    this.passStatus = response.data.certification; // 获取返回的认证状态
     console.log(response.data.certification);
-    if (status) {
-      this.certificationStatus = '审核通过';
-    } else {
+    if(this.uploadStatus==false){
       this.certificationStatus = '请求上传';
-    }                            
+    }
+    else if (this.uploadStatus==true&&this.passStatus) {
+      this.certificationStatus = '审核通过';
+    } else if(this.uploadStatus==true&&this.passStatus==false){
+      this.certificationStatus = '正在审核';
+    }  
+    else{
+      this.$message.error('认证资料状态判定失败');
+    }                          
   } catch (error) {
     console.error('获取认证状态失败:', error);
     this.$message.error('获取认证状态失败，请稍后再试');
+  }
+},
+async checkUploadStatus() {
+  const storeId = 'S1234567'; // 替换为实际的 storeId
+  try {
+    const response = await axiosInstance.get('/StoreFront/IfSubmitStoreAuth', {
+      params: {
+        storeId
+      }
+    });
+    this.uploadStatus = response.data.certification; // 获取返回的认证状态
+    console.log(response.data.certification);                   
+  } catch (error) {
+    console.error('获取上传状态失败:', error);
+    this.$message.error('获取上传状态失败，请稍后再试');
   }
 }
   },
@@ -389,6 +412,7 @@ async fetchStoreName() {
     const userId = 'S1234567'; // 替换为实际的用户 ID
     this.getUserInfo(userId);
     this.fetchStoreName();
+    this.checkUploadStatus();
     this.checkCertificationStatus(); 
   }
 };
