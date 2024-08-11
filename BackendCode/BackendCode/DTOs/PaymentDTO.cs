@@ -58,8 +58,8 @@
     {
         public string CreateTime { get; set; }
         public string OrderId { get; set; }
-        public string ProductId { get; set; }
-        public string StoreId { get; set; }
+        public string ProductName { get; set; }
+        public string StoreName { get; set; }
         public decimal TotalPay { get; set; }
         public decimal ActualPay { get; set; }
         public string OrderStatus { get; set; }
