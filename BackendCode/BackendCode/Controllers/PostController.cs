@@ -487,6 +487,14 @@ namespace BackendCode.Controllers
             // 查询该用户写的所有帖子
             var posts = await _context.POSTS
                 .Where(p => p.ACCOUNT_ID == userId)
+                .Select(p => new 
+                {
+                    PostId = p.POST_ID, 
+                    PostTitle = p.POST_TITLE,
+                    NumberOfLikes=p.NUMBER_OF_LIKES,
+                    NumberOfComments=p.NUMBER_OF_COMMENTS,
+                    ReleaseTime=p.RELEASE_TIME                 
+                })
                 .ToListAsync();
 
             if (posts == null || !posts.Any())
