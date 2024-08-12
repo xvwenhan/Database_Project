@@ -179,8 +179,8 @@
         </div>
     </div>
 </template>
-
-<script setup lang="ts">
+<!-- 去掉lang="ts"就不会标红了 -->
+<script setup >
 import { ref ,computed,onMounted,watch} from 'vue';
 import { ElDialog, ElButton ,ElMessage} from 'element-plus';
 import { regionData, codeToText } from 'element-china-area-data';
@@ -192,9 +192,10 @@ import { useRoute } from 'vue-router';
 const isLoading=ref(true);
 const route = useRoute();
 // const productId='555555';
-const productId = localStorage.getItem('productIdOfDetail');
+const productid = localStorage.getItem('productIdOfDetail');
 const userid =localStorage.getItem('userId');
 const userId=userid?userid:'000000';
+const productId=productid?productid:'555555';
 const product = computed(() => {
   const productStr = route.query.product as string | undefined;
   return productStr ? JSON.parse(productStr) : null;
@@ -263,7 +264,6 @@ onMounted(async () => {
         isLoading.value=false;
         customer.value.credits=response.data.credits;
         creditPrice.value=parseInt(Math.floor(customer.value.credits/100).toFixed(0));
-        // customer.value.credits=response.data.credits;
     } catch (error) {
         console.log('订单生成失败');
      }

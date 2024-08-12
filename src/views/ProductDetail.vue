@@ -142,21 +142,31 @@ const functionName = () => {
     <div class="productAndCommentContent">
         <!-- 侧边导航栏 -->
         <div class="sidebar">
+          <div class="nav-item" @click="showProducts">商品预览</div>
           <div class="nav-item" @click="showComments">店铺评论</div>
-          <div class="nav-item" @click="showPreview">商品预览</div>
         </div>
         <!-- 内容区域 -->
         <div class="main-content">
-          <div class="contentSection">
+            <div v-if="activeSection === 'preview'" class="preview-section">
+                <div 
+                  class="displayProductItem"
+                  v-for="product in displayProducts" 
+                  :key="product.productId" 
+                  @click="handleProductClick(product.productId)"
+                  >
+                    <img :src="product.productPic" alt="图片加载失败" class="product-image" />
+                    <div class="product-text">
+                      <h2>{{ product.productName }}</h2>
+                      <p>价格: ¥{{ product.productPrice }}</p>
+                    </div> 
+                </div>
+            </div>
+
             <div v-if="activeSection === 'comments'" class="comments-section">
               评论预览
           </div>
-          <div v-if="activeSection === 'preview'" class="preview-section">
-            <!-- Product preview content -->
-            商品预览
-          </div>
           <!-- 内容区域内的跳转按钮 -->
-          <el-button 
+          <!-- <el-button 
            @click="handleButtonClick"
            class="enter-button"
            style="display: flex;
@@ -168,27 +178,25 @@ const functionName = () => {
               width: 15%;
               height:50px;
               position: absolute;
-              right:5%;">{{ activeSection=='comments'?'查看全部评价':'查看全部商品' }}</el-button>
-          </div>
+              right:5%;">{{ activeSection=='comments'?'查看全部评价':'查看全部商品' }}</el-button> -->
       </div>
     </div>
   </div>
 </template>
   
-<script setup lang="ts">
+<script setup >
     import Navbar from '../components/Navbar.vue';
-    import { ref,onMounted} from 'vue';
+    import { ref,onMounted,reactive} from 'vue';
     import 'element-plus/dist/index.css';
     import { ElButton ,ElMessage} from 'element-plus';
     import { useRouter } from 'vue-router';
     import axiosInstance from '../components/axios';
-    import 'animate.css';
     
     //页面是否正在加载
     const isLoading=ref(true);
     //从浏览器中获取数据
-    const productId = '555555';
-    // const productId = localStorage.getItem('productIdOfDetail');
+    // const productId = '555555';
+    const productId = localStorage.getItem('productIdOfDetail');
     const userId =localStorage.getItem('userId');
     const role=localStorage.getItem('role');
     // 使用 useRoute 来访问路由参数
@@ -207,13 +215,14 @@ const functionName = () => {
       isProductStared: false,/////////注意1，补一条所属店铺是否被收藏
       isStoreStared:false,
       storeAvatar:''
-    }) ;        
-    // const isStoreStared=ref(false);
-    
-    const activeSection = ref('comments');
-
+    }) ;
+    //处理商品和评论预览
+    const activeSection = ref('preview');
+    const displayProducts = reactive([]);           
+    const message=ref('');
   
     onMounted(async () => {
+      // showProducts();
       console.log(`当前登录用户id为${userId}`);
       try {
         // const response = await axiosInstance.get('/Account/send_verification_code',
@@ -316,12 +325,46 @@ const functionName = () => {
       activeSection.value = 'comments';
     };
 
-    const showPreview = () => {
-      activeSection.value = 'preview';
-    };
+    const showProducts = async () => {
+      activeSection.value='preview';
+      console.log(`product.value.storeId${product.value.storeId}`);
+      try {
+      const response = await axiosInstance.get('/StoreViewProduct/GetProductsByStoreIdAndViewType', {
+        params: {
+          storeId: product.value.storeId,
+          ViewType: 1
+        }
+      });
+      if (displayProducts.length > 0) {
+        displayProducts.splice(0, displayProducts.length);
+      }
+      //splice和slice不同
+      // 只取返回数据的前三个商品
+      const limitedProducts = response.data.slice(0, 3);
+      limitedProducts.forEach(product => {
+        product.productPic = `data:image/png;base64,${product.productPic}`;
+        displayProducts.push(product);
+      });
+      console.log(`displayProducts is ${JSON.stringify(displayProducts, null, 2)}`)
+    } catch (error) {
+      if (error.response) {
+        message.value = error.response.data;
+      } else {
+        message.value = '获取全部信息失败';
+      }
+    }
+    console.log(message.value);
+};
+
     const handleButtonClick = () => {
       // Handle button click
       console.log('按钮点击');
+    };
+    const handleProductClick = (productId) => {
+      console.log('正在被点击');
+      console.log(`productId is ${productId}`);
+      localStorage.setItem('productIdOfDetail',productId);
+      router.replace('/productdetail').catch(err => {});
     };
     const enterPay=()=>{
       const productStr = JSON.stringify(product.value);//序列化对象
@@ -378,7 +421,6 @@ transform: scale(0.95); /* 点击时缩小效果 */
 .productAndCommentContent {
   width: 70%; /*百分比都是相对于父容器说的*/ 
   margin-top:15px;
-  height:450px;
   display: flex;
   flex-direction: row;
   position: relative;
@@ -539,7 +581,7 @@ transform: scale(0.95); /* 点击时缩小效果 */
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* 添加阴影效果（可选） */
   box-sizing: border-box; /* 使内边距和边框包含在宽度和高度内 */
   border-radius: 15px; 
-  width: 15%;
+  width: 20%;
   background-color: #FFFFFF;
   color: #000000;
   margin-right: 10px;
@@ -587,6 +629,49 @@ transform: scale(0.95); /* 点击时缩小效果 */
   text-decoration: line-through;
   font-size:15px;
   color:rgba(0,0,0,0.4);
+}
+.preview-section{
+  padding-left:20px;
+  padding-right:20px;
+  display: flex;
+  flex-wrap: wrap;
+  /* gap: 20px; */
+  justify-content: space-between;
+  width:100%;
+}
+.displayProductItem{
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* 添加阴影效果（可选） */
+  box-sizing: border-box; /* 使内边距和边框包含在宽度和高度内 */
+  border-radius: 15px; 
+  transition: transform 0.3s, box-shadow 0.3s;
+  display: grid;
+  width: 200px;
+  height: 200px;
+  margin-top:10px;
+  margin-bottom:10px;
+  padding:20px;
+}
+.displayProductItem:hover{
+  transform: translateY(-2px);
+}
+.product-image{
+  border-radius: 15px; 
+  width:100%;
+  height:auto;
+  max-height:90px;
+}
+.product-item h2 {
+  font-size: 18px;
+  margin: 0 0 10px;
+}
+
+.product-item p {
+  font-size: 16px;
+  margin: 0 0 10px;
+}
+
+.product-text{
+  align-self: end;
 }
 </style> 
   
