@@ -217,7 +217,7 @@ const clearData=()=>{
         }else if(response.data.role=='商家'){
           router.push('/merchantpage');
         }else{
-          router.push('/platform-info');
+          router.push('/merchant-certification');
         }  
       } catch (error) {
         if (error.response) {

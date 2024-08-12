@@ -1,7 +1,7 @@
 <template>
-    <div v-if="isOpen" class="modal">
+    <div v-if="isUserCenterOpen" class="modal">
       <div class="modal-content">
-        <span class="close" @click="closeModal">&times;</span>
+        <!-- <span class="close" @click="closeModal">&times;</span> -->
         <UserCenter />
       </div>
     </div>
@@ -11,13 +11,13 @@
   import { ref } from 'vue';
   import UserCenter from './UserCenter.vue';
   
-  const isOpen = ref(false);
+  const isUserCenterOpen = ref(false);
   
   const closeModal = () => {
-    isOpen.value = false;
+    isUserCenterOpen.value = false;
   };
   
-  defineExpose({ isOpen, closeModal });
+  defineExpose({ isUserCenterOpen, closeModal });
   </script>
   
   <style scoped>

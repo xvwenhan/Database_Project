@@ -2,22 +2,33 @@
   <Navbar />
     <div class="main-container">
       <div class="main-content">
-        <div class="shop-title">          
-          <div class="shop-info">
-              <div class="shop-name">
-                  <span>{{shopinfo.storeName}}</span>
-              </div>
-              <div class="other-info">
-                  <span>本店评分：{{shopinfo.storeScore}}</span>
-                  <span>本店地址：{{shopinfo.Address}}</span>
-              </div>
+        <div class="shop-title">
+          <div style="display: flex; gap: 10px">
+            <div class="shop-avatar">
+              <img :src="'data:image/png;base64,' + shopinfo.avatar" alt="Shop Avatar" class="shop-avatar" />
+            </div>
+            <div class="shop-info">
+                <div class="shop-name">
+                    <span>{{shopinfo.storeName}}</span>
+                </div>
+                <div class="other-info">
+                    <span>本店评分：{{shopinfo.storeScore}}</span>
+                    <span>本店地址：{{shopinfo.Address}}</span>
+                </div>
+            </div>
           </div>
           <div class="favoriteButton">
             <el-button @click="clickFavorite" >{{ isFavorite ? '已收藏' : '收藏' }}</el-button>
           </div>
         </div>
-  
-        <div class="shop-content">
+
+        <div class="toggle-row">
+          <div class="blank"></div>
+          <el-button :class="{ active: currentView === 'products' }" @click="currentView = 'products'">商品</el-button>
+          <el-button :class="{ active: currentView === 'remarks' }" @click="currentView = 'remarks'">评价</el-button>
+        </div>
+
+        <div v-if="currentView === 'products'" class="shop-content">
           <div class="sidebar-category">
             <div role="tree" class="sidebar">
               <div
@@ -49,15 +60,45 @@
                   v-for="product in products" 
                   :key="product.productId" 
                   class="product-item"
-                  @click="handleProductClick(product.productId)"
                 >
-                  <img :src="product.productPic" :alt="product.productId" class="product-image" />
-                  <div class="product-text">
-                    <h2>{{ product.productName }}</h2>
-                    <p>价格: ¥{{ product.productPrice }}</p>
+                  <div @click="handleProductClick(product.productId)">
+                    <img :src="product.productPic" :alt="product.productId" class="product-image" />
+                    <div class="product-text">
+                      <h2>{{ product.productName }}</h2>
+                      <p>价格: ¥{{ product.productPrice }}</p>
+                    </div>
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+          <!-- 评价展示内容 -->
+        <div v-if="currentView === 'remarks'" class="shop-remarks">
+          <div class="remarks-content">
+            <span style="font-family: Arial, sans-serif; font-size: 20px; font-weight: bold; text-align: left; display: block; margin-bottom: 13px;">
+              用户评价
+            </span>
+            <div 
+              v-for="remark in remarks" 
+              :key="remark.orderId" 
+              class="remarks">
+              <div class="remark-header">
+                <div class='remark-avatar'>
+                  <img :src="remark.buyerAvatar" :alt="buyerAvatar" class='remark-avatar'/>
+                </div>
+                <div class="remark-buyerName" style="font-size: 16px; font-weight: bold; "> {{ remark.buyerName }} </div>
+              </div>
+              <div class="remark-content">
+                <div class="remark-score" style="font-size: 16px; text-align: left;">
+                  评分：{{ remark.orderScore }}
+                </div>
+                <div class="remark-text" style="font-size: 16px; text-align: left;">
+                  评价：{{ remark.orderRemark }}
+                </div>
+                <div class="splitLine"></div>
+              </div>
+
             </div>
           </div>
         </div>
@@ -74,15 +115,18 @@ import 'element-plus/dist/index.css';
 import axiosInstance from '../components/axios';
 
 const router = useRouter();
+const currentView = ref('products');
+const userId =localStorage.getItem('userId');
+const storeId = localStorage.getItem('storeIdOfDetail');
 
-//测试数据（待测试接口：全部商品信息、店铺内搜索商品、店铺内根据分类筛选商品）
-//S1234567测试账号
-const shopinfo = reactive({storeId:"",storeName:"",storeScore:0,Address:"默认地址"});
+const shopinfo = reactive({avatar:"",storeId:"",storeName:"",storeScore:0,Address:""});
+shopinfo.storeId = storeId;
 const isFavorite = ref(0);
 const categories = ref([
   { id: 1, name: '全部商品' },
 ]);
 const products = reactive([]);
+const remarks = reactive([]);
   
 const searchQuery = ref('');
 const selectedCategory = ref(1);
@@ -152,8 +196,11 @@ const fetchStoreInfo = async () => {
         storeId: shopinfo.storeId
       }
     });
+    console.log('获取id'+shopinfo.storeId);
     shopinfo.storeName = response.data.name;
     shopinfo.storeScore = response.data.score;
+    shopinfo.Address = response.data.address;
+    shopinfo.avatar = response.data.picture;
     message1.value = '已获取店铺信息';
   } catch (error) {
     if (error.response) {
@@ -170,7 +217,7 @@ const fetchIsBookmarked = async () => {
   try {
     const response = await axiosInstance.get('/Favourite/IsStoreBookmarked', {
       params: {
-        userId:'U6210129',
+        userId: userId,
         storeId: shopinfo.storeId
       }
     });
@@ -226,9 +273,9 @@ const clickFavorite = () => {
 const message4 = ref('');
 const bookmarkStore = async () => {
   try {
-    const response = await axiosInstance.post('/Favourite/BookmarkStore',  {
+    const response = await axiosInstance.post('/Favourite/BookmarkStore', null, {
       params: {
-        userId: 'U6210129',
+        userId: userId,
         storeId: shopinfo.storeId
       }
     });
@@ -251,7 +298,7 @@ const unbookmarkStore = async () => {
   try {
     const response = await axiosInstance.delete('/Favourite/UnbookmarkStore',  {
       params: {
-        userId: 'U6210129',
+        userId: userId,
         storeId: shopinfo.storeId
       }
     });
@@ -325,13 +372,40 @@ const fetchProductsBySearch = async (word) => {
   console.log(message7.value);
 };
 
+
+const message8= ref('');
+const fetchRemarks = async () => {
+  try {
+    const response = await axiosInstance.get('/Shopping/GetStoreRemarks', {
+      params: {
+        storeId: shopinfo.storeId
+      }
+    });
+    if (remarks.length > 0) {
+      remarks.splice(0, remarks.length);
+    }
+    response.data.forEach(remark => {
+      remark.buyerAvatar = `data:image/png;base64,${remark.buyerAvatar}`;
+      remarks.push(remark);
+    });
+    message8.value = '已获取评论信息';
+    console.log(remarks);
+  } catch (error) {
+    if (error.response) {
+      message8.value = error.response.data;
+    } else {
+      message8.value = '获取评论信息失败';
+    }
+  }
+  console.log(message8.value);
+};
+
 onMounted(() => {
-  shopinfo.storeId = localStorage.getItem('storeIdOfDetail');
-  console.log(shopinfo.storeId);
-  fetchIsBookmarked();
   fetchStoreInfo();
+  fetchIsBookmarked();
   fetchTags();
   fetchAllProducts();
+  fetchRemarks();
 });
   
 </script>
@@ -368,8 +442,17 @@ onMounted(() => {
   width: 100%;
 }
 
+.shop-avatar{
+  height: 100px;
+  width: 100px;
+  border-radius: 100px;
+}
+
 .shop-info{
+  display: flex;
   flex-direction: column;
+  align-items: flex-start;
+  margin-left: 10px;
 }
 
 .shop-name{
@@ -404,8 +487,6 @@ onMounted(() => {
   box-sizing: border-box;
   min-height: 70vh;
   margin-top: 16px;
-  /* overflow-x: hidden;
-  overflow-y: scroll; */
   padding: 8px;
   position: sticky;
   top: 10px;
@@ -505,5 +586,88 @@ onMounted(() => {
 .product-text{
   align-self: end;
 }
-  
+
+.toggle-row {
+  background-color: #fff;
+  padding: 8px;
+  border-radius: 8px;
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 16px;
+}
+
+.blank{
+  width: 20px;
+}
+
+.toggle-row .el-button {
+  font-size: 16px;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.toggle-row .el-button.active {
+  background-color: #bbd0ed;
+  font-weight: bold;
+  color:#7495c3;
+}
+
+.shop-remarks{
+  background-color: #fff;
+  border-radius: 16px;
+  box-sizing: border-box;
+  min-height: 70vh;
+  margin-top: 16px;
+  padding: 8px;
+  position: sticky;
+  top: 10px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.remarks{
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.remarks-content{
+  width: 85%;
+  margin-top: 10px;
+}
+
+.remark-header{
+  display: flex;
+  flex-direction: row;
+}
+
+.remark-avatar{
+  height: 40px;
+  width: 40px;
+  border-radius: 40px;
+}
+
+.remark-buyerName{
+  margin-left: 20px;
+  font-weight: 500;
+  font-size: 14px;
+  color: #11192d;
+  line-height: 20px;
+}
+
+.remark-content {
+  margin-left: 55px;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: left;
+}
+
+.splitLine{
+  margin: 12px 0;
+  height: 1px;
+  background-color: #f0f3f5;
+}
+
   </style>
