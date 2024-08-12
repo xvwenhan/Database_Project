@@ -25,6 +25,7 @@
         public string username { get; set; } //收货人名称
         public string orderId { get; set; }
         public string createTime { get; set; }
+        public bool isPaid { get; set; } //是否付款
     }
 
     public class OrderConfirmDTO
@@ -64,5 +65,7 @@
         public decimal ActualPay { get; set; }
         public string OrderStatus { get; set; }
         public byte[] Picture { get; set; }
+        public string ProductId { get; set; }
+        public decimal Price { get; set; }
     }
 }
