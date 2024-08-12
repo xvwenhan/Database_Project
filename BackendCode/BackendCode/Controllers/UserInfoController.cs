@@ -43,6 +43,83 @@ namespace UserInfo.Controllers
             return Ok(response);
         }
 
+
+        // 根据用户id返回头像和简介
+        [HttpPost("/GetPhotoAndDescribtion")]
+        public async Task<IActionResult> GetPhotoAndDescribtion([FromBody]GPADModel model)
+        {
+            var infos = await _dbContext.BUYERS
+                .Where(b => b.ACCOUNT_ID == model.Id)
+                .SingleOrDefaultAsync();
+
+            if (infos == null)
+            {
+                return NotFound("不存在该用户");
+            }
+
+            var response = new PhotoAndDescribtionDTO
+            {
+                Photo= infos.PHOTO != null ? Convert.ToBase64String(infos.PHOTO) : null,
+                Describtion =infos.DESCRIBTION,
+            };
+            return Ok(response);
+        }
+
+        // 修改头像或简介
+        [HttpPut("/SetPhotoAndDescribtion")]
+        public async Task<IActionResult> SetPhotoAndDescribtion([FromForm] SPADModel model)
+        {
+            string des = "";
+            string pho = "";
+            // 查找用户
+            /*var temp = await _dbContext.ACCOUNTS
+                .FirstOrDefaultAsync(a => a.ACCOUNT_ID == model.Id);*/
+            var temp = await _dbContext.BUYERS
+                .Where(b => b.ACCOUNT_ID == model.Id)
+                .SingleOrDefaultAsync();
+
+            if (temp == null)
+            {
+                return NotFound("不存在该用户");
+            }
+
+            if (model.Describtion !=null)
+            {
+                temp.DESCRIBTION = model.Describtion;
+                des = "简介已被成功更改";
+            }
+            else
+            {
+                des = "简介未被更改";
+            }
+
+            if (model.Photo != null)
+            {
+                var ms = new MemoryStream();
+                var image = model.Photo;
+                await image.CopyToAsync(ms);
+                var imageData = ms.ToArray();
+                temp.PHOTO = imageData;
+                pho = "头像已被更改";
+            }
+            else
+            {
+                pho = "头像未被更改";
+            }
+
+            // 保存更改
+            try
+            {
+                await _dbContext.SaveChangesAsync();
+                return Ok($"申请已被处理，处理结果:{des}，{pho}");
+            }
+            catch (DbUpdateException ex)
+            {
+                // 捕获数据库更新异常并返回错误消息
+                return StatusCode(500, $"更新数据库时发生错误： {ex.Message}");
+            }
+        }
+
     }
 }
 
