@@ -5,15 +5,6 @@ import { ElMenu,} from 'element-plus';
 import 'element-plus/dist/index.css';
 import axiosInstance from '../components/axios';
 import router from '@/router';
-const news=ref( [
-        { title: '文章标题1', author: '作者1', content: '文章内容1' },
-        { title: '文章标题2', author: '作者2', content: '文章内容2' },
-        { title: '文章标题3', author: '作者3', content: '文章内容3' },
-        { title: '文章标题3', author: '作者3', content: '文章内容3' },
-        { title: '文章标题3', author: '作者3', content: '文章内容3' },
-        { title: '文章标题3', author: '作者3', content: '文章内容3' },
-        // ... 其他文章数据
-      ]);
 const commentId=ref('');
 interface commentMessage {
   id:string;

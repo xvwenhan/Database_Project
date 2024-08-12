@@ -1,10 +1,11 @@
 <!-- 论坛的查看具体帖子页面 -->
 <script setup lang="ts">
-import { ref, reactive } from 'vue';
+import { ref, reactive, onMounted } from 'vue';
 import {  ElButton, ElInput } from 'element-plus';
 import 'element-plus/dist/index.css';
 import router from '@/router';
 import axiosInstance from '../components/axios';
+
 // 假设这些数据是从服务器获取的
 const dialogVisible =ref(false);
 const inputComment = ref('');
@@ -13,7 +14,8 @@ const way = localStorage.getItem('way');
 const postId=ref('');
 const subId=ref('');
 const makeCommentId=ref('');
-let dataLoaded = false;
+const isLoading=ref(true);
+const postLiked=ref(false);
 console.log('postIdString:', postIdString);
 console.log('way:', way);
 let allSubComments = [];
@@ -76,11 +78,14 @@ const subComments = ref<{
   sub:[]
 });
 const message = ref('');
-const fetchPost = async () => {
+function fetchPost (){
   console.log("正在获取");
   axiosInstance.get(`/Post/get_a_post/${ postId.value}`)
     .then(response => {
+      const li=response.liked;
       const data = response.data;
+      postLiked.value=response.liked;
+      console.log("response",li);
       if (data && data.data) {
         const postData = data.data;
         const images = postData.images || [];
@@ -89,7 +94,7 @@ const fetchPost = async () => {
           author: postData.authorName || '',
           content: postData.postContent || '',
           time:  convertToReadableTime(postData.releaseTime) || '',
-          liked:postData.liked|| false,
+          liked:postLiked.value||false,
           isMakeComment: false,
           collapsed: true,
           likeCount: postData.numberOfLikes || '0',
@@ -108,18 +113,24 @@ const fetchPost = async () => {
         });
         console.log("成功获取");
         getSub();
-        dataLoaded=true;
         console.log("加载完毕");
+
       } else {
         console.error('Invalid data format.');
       }
     })
     .catch(error => {
       message.value = "失败";
+    })
+    .finally(() => {
+          isLoading.value = false; // 更新加载状态，无论成功或失败都会执行这一步
     });
 }
-fetchPost();
-const fetchComment = async () => {
+onMounted(() => {
+      fetchPost(); // 组件挂载时调用数据获取方法
+});
+
+function fetchComment () {
   console.log("正在获取二级");
   axiosInstance.get(`/Post/get_sub_comments/${ subId.value}`)
     .then(response => {
@@ -182,7 +193,7 @@ function replySub(id) {
     }
   });
 }
-const submitReply= async () =>{
+function submitReply (){
   post.value.isMakeComment=false;
   const formData = new FormData();
       formData.append('postId', postId.value);
@@ -205,7 +216,7 @@ function submit(id){
   makeCommentId.value=id;
   submitSubReply();
 };
-const submitSubReply= async () =>{
+function submitSubReply(){
   const formData = new FormData();
       formData.append('commentId', makeCommentId.value);
       formData.append('commentContext', inputComment.value);
@@ -232,7 +243,7 @@ function resetForm() {
   post.value.reason = '';
   post.value.reason_else = '';
 }
-const submitReason=async()=>{
+function submitReason(){
   const formData = new FormData();
       formData.append('postId',postId.value );
       if (post.value.reason) {
@@ -252,9 +263,10 @@ const button = reactive([
   { id: 2, text: 'like', background: 'src/assets/czw/reply.svg', backgroundColor: 'transparent' },
   { id: 3, text: 'like', background: 'src/assets/czw/back.svg', backgroundColor: 'transparent' },
   { id: 4, text: 'liked', background: 'src/assets/czw/liked.svg', backgroundColor: 'transparent' },
-  
+  { id: 5, text: 'liked', background: 'src/assets/czw/show_reply.svg', backgroundColor: 'transparent' },
+  { id: 6, text: 'liked', background: 'src/assets/czw/hide_reply.svg', backgroundColor: 'transparent' },
 ]);
-const like=async()=>{
+function like(){
   if(post.value.liked==false){
   const formData = new FormData();
       formData.append('postId',postId.value );
@@ -297,21 +309,6 @@ const buttonClick = (button) => {
     router.push('/messageview'); // 跳转回 /forum 页面
   }
 };
-
-function currentBackground() {
-  console.log(post.value.liked);
-  console.log(post.value.likeCount);
-  if(post.value.liked==false)
-    return this.button[0].background;
-  else
-    return this.button[3].background;
-};
-function currentBackgroundColor() {
-  if(post.value.liked==false)
-    return this.button[0].backgroundColor;
-  else
-    return this.button[3].backgroundColor;
-};
 function toggleSubComments(fatherId) {
   let found = false;
   post.value.comments.forEach(comment => {
@@ -336,7 +333,6 @@ function resetPost(event) {
 </script>
 
 <template>
-
     <el-header>{{ post.title }}
       <button :style="{ backgroundImage: `url(${button[2].background})`, 
         backgroundColor: button[2].backgroundColor }" @click="buttonClick(button[2])" class="back_button" 
@@ -382,9 +378,12 @@ function resetPost(event) {
     </div>
     <el-container>
       <div class="hh">
-        <transition name="fade">
-        <button :style="{  backgroundImage: `url(${currentBackground()})`,
-      backgroundColor: currentBackgroundColor() }" class="like_button" @click="like()"></button></transition>
+        <button v-if="post.liked==false" :style="{ backgroundImage: `url(${button[0].background})`, 
+        backgroundColor: button[0].backgroundColor }" class="like_button" @click="like()"></button>
+        <button v-if="post.liked" :style="{ backgroundImage: `url(${button[3].background})`, 
+        backgroundColor: button[3].backgroundColor }" class="like_button" @click="like()"></button>
+        <!-- <button :style="{  backgroundImage: `url(${currentBackground()})`,
+      backgroundColor: currentBackgroundColor() }" class="like_button" @click="like()"></button> -->
          <button :style="{ backgroundImage: `url(${button[1].background})`, 
         backgroundColor: button[1].backgroundColor }" class="like_button" @click="reply()"></button>
         </div>
@@ -408,7 +407,7 @@ function resetPost(event) {
     <div v-for="(reply, index) in  post.comments" :key="index" class="comments">
       <div  @mouseover="highlightPost" @mouseout="resetPost">
       <div class="user-line">用户：{{ reply.author }}</div>
-      <div>{{ reply.content}}</div>
+      <div class="replyContent">{{ reply.content}}</div>
       </div>
       <el-container>
       <div v-if="!reply.subCollapsed">
@@ -424,8 +423,14 @@ function resetPost(event) {
 </el-container>
 <div class="sub">
 <button :style="{ backgroundImage: `url(${button[1].background})`, 
-        backgroundColor: button[1].backgroundColor }" class="like_button" @click="replySub(reply.id)"></button>
-<button v-if="hasSubComments(reply.id)" @click="toggleSubComments(reply.id)" class="show_sub_reply">显示/隐藏回复</button>
+        backgroundColor: button[1].backgroundColor }" class="sub_reply_button" @click="replySub(reply.id)"></button>
+<div v-if="hasSubComments(reply.id)">
+<button v-if="reply.subCollapsed==false" :style="{ backgroundImage: `url(${button[4].background})`, 
+        backgroundColor: button[4].backgroundColor }" class="sub_reply_button" @click="toggleSubComments(reply.id)"></button>
+<button v-if="reply.subCollapsed==true" :style="{ backgroundImage: `url(${button[5].background})`, 
+        backgroundColor: button[5].backgroundColor }" class="sub_reply_button" @click="toggleSubComments(reply.id)"></button>
+<!-- <button v-if="hasSubComments(reply.id)" @click="toggleSubComments(reply.id)" class="show_sub_reply">显示/隐藏回复</button> -->
+</div>
 </div>
 <el-container>
       <div v-if="reply.isSubMakeComment" class="make_comment">
@@ -465,6 +470,21 @@ function resetPost(event) {
 .like_button{
   width: 25px;
   height: 25px;
+  /* 按钮样式 */
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+  /* 其他样式 */
+  background-repeat: no-repeat;
+  background-size: cover;
+  transition: background-color 0.3s ease; /* 添加过渡效果 */
+  background-size: 100% 100%; /* 调整背景图像的尺寸 */
+  margin-right: 3px;
+  margin-left: 5px;
+}
+.sub_reply_button{
+  width: 20px;
+  height: 20px;
   /* 按钮样式 */
   border: none;
   cursor: pointer;
@@ -603,5 +623,8 @@ function resetPost(event) {
 }
 .user-line {
   font-size: 12px; /* 调整字体大小 */
+}
+.replyContent{
+  font-size: 18px; /* 调整字体大小 */
 }
 </style>
