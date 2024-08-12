@@ -154,7 +154,8 @@ namespace BackendCode.Data
                       .IsRequired();
 
                 entity.Property(e => e.CERTIFICATION)
-                      .HasColumnType("NUMBER(1)");
+                      .HasColumnType("NUMBER(1)")
+                      .HasConversion<bool>();
 
                 entity.Property(e => e.ADDRESS)
                       .HasMaxLength(100)
@@ -296,7 +297,8 @@ namespace BackendCode.Data
                       .HasColumnType("VARCHAR2(200)");
 
                 entity.Property(e => e.IS_READ)
-                       .HasColumnType("NUMBER");
+                       .HasColumnType("NUMBER")
+                       .HasDefaultValueSql("0");
 
                 /*                entity.HasOne(b => b.BUYER)
                                       .WithMany()
@@ -490,6 +492,7 @@ namespace BackendCode.Data
 
                 entity.Property(e => e.SALE_OR_NOT)
                     .HasColumnType("NUMBER(1)")
+                    .HasConversion<bool>()
                     .IsRequired();
 
                 entity.Property(e => e.PRODUCT_PIC)
@@ -682,7 +685,8 @@ namespace BackendCode.Data
                     .HasColumnType("NUMBER(4)");
 
                 entity.Property(e => e.RETURN_OR_NOT)
-                    .HasColumnType("NUMBER(1)");
+                    .HasColumnType("NUMBER(1)")
+                    .HasConversion<bool>();
 
                 entity.Property(e => e.BUYER_ACCOUNT_ID)
                     .HasMaxLength(100);
@@ -753,6 +757,7 @@ namespace BackendCode.Data
 
                 entity.Property(e => e.IN_OR_NOT)
                     .HasColumnType("NUMBER(1)")
+                    .HasConversion<bool>()
                     .IsRequired();
 
                 entity.HasOne(m => m.MARKET)
@@ -784,7 +789,8 @@ namespace BackendCode.Data
                     .HasMaxLength(200);
 
                 entity.Property(e => e.STATUS)
-                    .HasMaxLength(10);
+                    .HasMaxLength(10)
+                    .IsRequired();
 
                 entity.Property(e => e.PHOTO)
                     .HasColumnType("BLOB");
@@ -817,12 +823,13 @@ namespace BackendCode.Data
                       .IsRequired();
 
                 entity.Property(e => e.IMAGE)
-                      .HasColumnType("BLOB");
+                      .HasColumnType("BLOB")
+                      .IsRequired();
 
-/*                entity.HasOne(p => p.POST)
-                      .WithMany()
-                      .HasForeignKey(p => p.POST_ID)
-                      .HasConstraintName("POST_ID_FK");*/
+                /*                entity.HasOne(p => p.POST)
+                                      .WithMany()
+                                      .HasForeignKey(p => p.POST_ID)
+                                      .HasConstraintName("POST_ID_FK");*/
             });
         }
     }

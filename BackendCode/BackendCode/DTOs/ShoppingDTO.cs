@@ -4,6 +4,8 @@
     {
         public string name { get; set; }
         public decimal? score { get; set; }
+        public string? address { get; set; }
+        public byte[]? picture { get; set; }
     }
 
     public class AuthenticationInfoDTO
@@ -49,5 +51,6 @@
         public decimal? Score { get; set; }
         public bool IsProductStared { get; set; }
         public bool IsStoreStared { get; set; }
+        public byte[]? StoreAvatar { get;set; }
     }
 }

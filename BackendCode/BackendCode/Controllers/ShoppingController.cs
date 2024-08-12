@@ -18,9 +18,8 @@ namespace BackendCode.Controllers
         }
 
         /***************************************/
-        /* 获取店铺名称、店铺评分接口          */
-        /* 给出店铺ID-STORE_ID                 */
-        /* 返回店铺名称和店铺评分              */
+        /* 获取店铺名称、评分、头像、地址      */
+        /* 传入店铺ID storeId                  */
         /***************************************/
         [HttpGet("GetStoreInfo")]
         public async Task<IActionResult> GetStoreNameAndScoreAsync(string storeId)
@@ -36,7 +35,9 @@ namespace BackendCode.Controllers
             var storeInfo = new StoreInfoDTO
             {
                 name = store.STORE_NAME, 
-                score = store.STORE_SCORE
+                score = store.STORE_SCORE,
+                address = store.ADDRESS,
+                picture = store.PHOTO
             };
 
             return Ok(storeInfo); //返回店铺信息
@@ -119,10 +120,10 @@ namespace BackendCode.Controllers
         }
 
         /***************************************/
-        /* 设置商家相关底部接口                */
+        /* 获取商家相关信息接口                */
         /* 用户名、密码、邮箱                  */
         /***************************************/
-        [HttpPut("GetStoreInfo2")]
+        [HttpGet("GetStoreInfo2")]
         public async Task<IActionResult> SetAccountInfoAsync(string storeID)
         {
             /* 查询商家账号信息 */
@@ -172,7 +173,7 @@ namespace BackendCode.Controllers
 
         /***************************************/
         /* 获取商品详情信息接口                */
-        /* 传入{userid,productid}              */
+        /* 传入{userid(买家),productid}        */
         /* 返回商品的详细信息                  */
         /***************************************/
         [HttpGet("GetProductDetails")]
@@ -226,7 +227,8 @@ namespace BackendCode.Controllers
                 FromWhere = store.ADDRESS, //发货地
                 Score = store.STORE_SCORE, //店铺评分
                 IsProductStared = isProductStared, //商品是否被收藏
-                IsStoreStared = isStoreStared //店铺是否被收藏
+                IsStoreStared = isStoreStared, //店铺是否被收藏
+                StoreAvatar = store.PHOTO //商家头像
             };
 
             return Ok(productDetails); //返回商品详情信息
@@ -273,11 +275,11 @@ namespace BackendCode.Controllers
             return Ok(buyer.TOTAL_CREDITS); //返回买家的总积分
         }
 
-        /********************************/
-        /* 传入订单评分和评价内容       */
-        /* 传入 orderId, score, remark  */
-        /* 更新订单评分和评价内容       */
-        /********************************/
+        /***************************************/
+        /* 传入订单评分和评价内容              */
+        /* 传入 orderId, score, remark         */
+        /* 更新订单评分和评价内容              */
+        /***************************************/
         [HttpPut("OrderRemark")]
         public async Task<IActionResult> OrderRemarkAsync([FromForm] OrderRemarkDTO orderRemarkDto)
         {
@@ -295,6 +297,56 @@ namespace BackendCode.Controllers
             await _dbContext.SaveChangesAsync(); //保存更改到数据库
 
             return Ok("订单评价已提交"); //返回成功响应
+        }
+
+        /***************************************/
+        /* 检查订单是否已评价接口              */
+        /* 传入订单ID - orderId                */
+        /* 返回订单是否已评价                  */
+        /***************************************/
+        [HttpGet("CheckOrderRemark")]
+        public async Task<IActionResult> CheckOrderRemarkAsync(string orderId)
+        {
+            /* 验证订单是否存在 */
+            var order = await _dbContext.ORDERS.FirstOrDefaultAsync(o => o.ORDER_ID == orderId);
+            if (order == null) //订单不存在
+            {
+                return NotFound("未找到订单");
+            }
+
+            /* 检查订单是否已经评价 */
+            bool isOrderRemark = !string.IsNullOrEmpty(order.REMARK);
+
+            return Ok(isOrderRemark); //返回订单是否已评价
+        }
+
+        /***************************************/
+        /* 判断是否存在当前商品的订单          */
+        /* 传入商品ID - productId              */
+        /* 传出bool值表示是否存在订单          */
+        /***************************************/
+        [HttpGet("IsOrderExist")]
+        public async Task<IActionResult> IsOrderExistAsync(string productId)
+        {
+            /* 找到对应商品 */
+            var product = await _dbContext.PRODUCTS.FirstOrDefaultAsync(o => o.PRODUCT_ID == productId);
+            if (product == null) //商品ID不存在
+            {
+                return NotFound("未找到商品");
+            }
+
+            /* 查询与商品相关的订单 */
+            var order = await _dbContext.ORDERS.FirstOrDefaultAsync(o => o.PRODUCT_ID == productId);
+
+            /* 返回查询结果 */
+            if (order == null)
+            {
+                return Ok(false); //不存在订单
+            }
+            else
+            {
+                return Ok(true); //存在订单
+            }
         }
     }
 }

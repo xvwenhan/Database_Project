@@ -3,19 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using BackendCode.Data;
 using BackendCode.Models;
 using BackendCode.DTOs.Payment;
-using Alipay.AopSdk.AspnetCore;
-using Alipay.AopSdk.Core.Domain;
-using Alipay.AopSdk.Core.Request;
-using Alipay.AopSdk.Core.Response;
-using Alipay.AopSdk.Core;
-using Newtonsoft.Json;
-using System.Threading.Tasks;
-using System.Net;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.Data;
-using UnityEngine.SocialPlatforms.Impl;
-using BackendCode.DTOs.Store;
-using static QRCoder.PayloadGenerator;
 
 namespace BackendCode.Controllers
 {
@@ -189,7 +177,7 @@ namespace BackendCode.Controllers
                 }
             }
 
-            /* 随机生成订单号 */
+            /* 商品未售出—随机生成订单号 */
             Guid guid = Guid.NewGuid(); //生成一个Guid
             int hashCode = Math.Abs(guid.GetHashCode()); //获取Guid的哈希码，并取其绝对值
             string orderId = hashCode.ToString("X").PadLeft(10, '0'); //字符串前十个字符
@@ -251,6 +239,8 @@ namespace BackendCode.Controllers
 
         /********************************/
         /* 买家确认订单信息并支付       */
+        /* 更新买家卖家钱包余额         */
+        /* 完善订单信息 返回买家积分    */
         /********************************/
         [HttpPut("ConfirmOrders")]
         public async Task<IActionResult> ConfirmOrdersAsync([FromForm] OrderConfirmDTO orderConfirmDTO)
@@ -355,13 +345,13 @@ namespace BackendCode.Controllers
 
             _dbContext.ORDERS.Remove(order); //删除订单
 
-            await _dbContext.SaveChangesAsync(); //保存更改
+            await _dbContext.SaveChangesAsync(); //保存更改至数据库
 
             return Ok("订单已删除"); //返回成功信息
         }
 
         /********************************/
-        /* 买家充值时更新钱包余额接口   */
+        /* 买家充值 更新钱包余额接口    */
         /********************************/
         [HttpPost("RechargeWallet")]
         public async Task<IActionResult> RechargeWalletAsync([FromForm] RechargeDTO rechargeDto)
@@ -404,7 +394,7 @@ namespace BackendCode.Controllers
 
         /********************************/
         /* 获取买家所有订单接口         */
-        /* 传入买家ID buyerId           */
+        /* 传入买家ID-buyerId           */
         /* 传出该买家的所有订单信息     */
         /********************************/
         [HttpGet("GetAllOrders")]
@@ -426,10 +416,13 @@ namespace BackendCode.Controllers
 
             /* 创建订单信息列表 */
             var orderInfos = new List<OrderInfoDTO>();
-            foreach (var order in orders)
+            foreach (var order in orders) //遍历订单获取订单信息
             {
+                /* 获取商品和店铺 */
                 var product = await _dbContext.PRODUCTS.FirstOrDefaultAsync(o => o.PRODUCT_ID == order.PRODUCT_ID);
                 var store = await _dbContext.STORES.FirstOrDefaultAsync(o => o.ACCOUNT_ID == order.STORE_ACCOUNT_ID);
+
+                /* 订单详细信息 */
                 var orderInfo = new OrderInfoDTO
                 {
                     CreateTime = order.CREATE_TIME.ToString("yyyy年MM月dd日 HH:mm:ss"),
@@ -441,67 +434,10 @@ namespace BackendCode.Controllers
                     OrderStatus = order.ORDER_STATUS,
                     Picture = product.PRODUCT_PIC
                 };
-
                 orderInfos.Add(orderInfo); //将OrderInfoDTO对象添加到列表中
             }
 
             return Ok(orderInfos); //返回订单信息列表
         }
     }
-
-    /*
-    [ApiController]
-    [Route("api/[controller]")]
-    public class ChargeController : ControllerBase
-    {
-        private readonly IAopClient _aopClient;
-
-        public ChargeController(IAopClient aopClient)
-        {
-            _aopClient = aopClient;
-        }
-
-       
-        // 生成充值二维码接口           
-        
-        [HttpPost]
-        public async Task<IActionResult> ScanCodeGen([FromForm] ChargeScanOrderDTO chargeScanOrderDto)
-        {
-            /* 检查充值信息 
-            if (chargeScanOrderDto == null || chargeScanOrderDto.Charge <= 0)
-            {
-                return BadRequest("充值金额不正确");
-            }
-
-            AlipayTradePrecreateModel model = new AlipayTradePrecreateModel
-            {
-                OutTradeNo = chargeScanOrderDto.AccountId + "_" + System.Guid.NewGuid().ToString(), //生成唯一的订单号
-                TotalAmount = chargeScanOrderDto.Charge.ToString("F2"),
-                Subject = "钱包充值",
-                Body = "为账户钱包充值",
-                //可添加其他参数
-            };
-
-            // 序列化 model 到 JSON 字符串
-            string bizContent = JsonConvert.SerializeObject(model);
-
-            AlipayTradePrecreateRequest request = new AlipayTradePrecreateRequest
-            {
-                BizContent = bizContent // 赋值序列化后的 JSON 字符串给 BizContent
-            };
-
-            AlipayTradePrecreateResponse response = await _aopClient.ExecuteAsync(request);
-
-            if (response != null && response.QrCode != null)
-            {
-                // 返回生成的二维码字符串
-                return Ok(new { QrCode = response.QrCode });
-            }
-            else
-            {
-                // 处理错误情况
-                return BadRequest("生成二维码失败：" + response.Msg + "，" + response.SubMsg);
-            }
-        }
-    }*/
 }
