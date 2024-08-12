@@ -353,7 +353,7 @@ namespace BackendCode.Controllers
         /********************************/
         /* 买家充值 更新钱包余额接口    */
         /********************************/
-        [HttpPost("RechargeWallet")]
+        [HttpPut("RechargeWallet")]
         public async Task<IActionResult> RechargeWalletAsync([FromForm] RechargeDTO rechargeDto)
         {
             /* 获取买家钱包信息 */
@@ -379,7 +379,7 @@ namespace BackendCode.Controllers
         /********************************/
         /* 查看用户钱包余额接口         */
         /********************************/
-        [HttpPost("GetWalletBalance")]
+        [HttpGet("GetWalletBalance")]
         public async Task<IActionResult> GetWalletBalanceAsync(string accountID)
         {
             /* 获取买家钱包信息 */

@@ -150,7 +150,7 @@ namespace StoreFrontController.Controllers
             {
                 // 计算订单中非空score的平均值
                 var averageScore = await _dbContext.ORDERS
-                    .Where(o => o.STORE_ACCOUNT_ID == storeId && o.SCORE.HasValue)
+                    .Where(o => o.STORE_ACCOUNT_ID == storeId && o.SCORE != 0)
                     .AverageAsync(o => o.SCORE);
 
                 // 找到对应的store

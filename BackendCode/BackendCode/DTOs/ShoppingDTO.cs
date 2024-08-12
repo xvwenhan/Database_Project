@@ -53,4 +53,13 @@
         public bool IsStoreStared { get; set; }
         public byte[]? StoreAvatar { get;set; }
     }
+
+    public class StoreOrderDTO
+    {
+        public string OrderId { get; set; }
+        public string? BuyerName { get; set; }
+        public byte[]? BuyerAvatar { get; set; }
+        public decimal OrderScore { get; set; }
+        public string? OrderRemark { get; set; }
+    }
 }
