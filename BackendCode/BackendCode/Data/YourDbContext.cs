@@ -48,7 +48,7 @@ namespace BackendCode.Data
                       .HasColumnType("VARCHAR2(100)");
 
                 entity.Property(e => e.USER_NAME)
-                       .HasMaxLength(20)
+                       .HasMaxLength(30)
                        .HasColumnType("VARCHAR2(30)");
 
                 entity.Property(e => e.EMAIL)
@@ -602,16 +602,21 @@ namespace BackendCode.Data
                     .IsRequired();
 
                 entity.Property(e => e.RELEASE_TIME)
-                    .HasColumnType("TIMESTAMP(6)");
+                    .HasColumnType("TIMESTAMP(6)")
+                    .IsRequired();
 
                 entity.Property(e => e.POST_CONTENT)
-                    .HasMaxLength(200);
+                    .HasMaxLength(200)
+                    .IsRequired();
 
                 entity.Property(p => p.NUMBER_OF_LIKES)
-                    .HasColumnType("NUMBER(10)");
+                    .HasColumnType("NUMBER(10)")
+                    .IsRequired();
 
                 entity.Property(p => p.NUMBER_OF_COMMENTS)
-                    .HasColumnType("NUMBER(10)");
+                    .HasColumnType("NUMBER(10)")
+                    .IsRequired();
+
 
                 entity.Property(p => p.ACCOUNT_ID)
                     .HasMaxLength(100)
