@@ -98,7 +98,7 @@ namespace BackendCode.Data
                       .HasColumnType("NUMBER(3)");
 
                 entity.Property(e => e.TOTAL_CREDITS)
-                      .HasColumnType("NUMBER(4)")
+                      .HasColumnType("NUMBER(10)")
                       .IsRequired();
 
                 entity.Property(e => e.ADDRESS)

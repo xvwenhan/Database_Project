@@ -531,7 +531,7 @@ namespace Account.Controllers
             //buyer.PASSWORD=PasswordHelper.HashPassword(buyer.PASSWORD);
             //_context.SaveChanges();
 
-            return Ok("买家密码更改完毕");
+            return Ok("买家寻找完毕");
         }
         //临时使用，添加钱包
         [HttpPost("add-wallet")]
@@ -546,9 +546,9 @@ namespace Account.Controllers
                 {
                     // 检查该账户是否已经有钱包
                     var existingWallet = await _context.WALLETS
-                        .AnyAsync(w => w.ACCOUNT_ID == account.ACCOUNT_ID);
-                  
-                    if (existingWallet == false)
+                        .FirstOrDefaultAsync(w => w.ACCOUNT_ID == account.ACCOUNT_ID);
+
+                    if (existingWallet == null)
                     {
                         // 如果没有钱包，则创建一个新的钱包
                         var wallet = new WALLET
@@ -571,6 +571,34 @@ namespace Account.Controllers
                 return StatusCode(500, "Failed to add wallets: " + ex.Message);
             }
         }
+/*
+        //临时使用
+        [HttpPut("update-gender")]
+        public async Task<IActionResult> UpdateGenderToFemale()
+        {
+            try
+            {
+                // 获取所有 BUYER 表中的记录
+                var buyers = await _context.BUYERS.ToListAsync();
+
+                // 更新每个 BUYER 的 GENDER 字段为 "Female"
+                foreach (var buyer in buyers)
+                {
+                    buyer.GENDER = "女";
+                }
+
+                // 保存更改
+                await _context.SaveChangesAsync();
+
+                return Ok("已经修改！");
+            }
+            catch (Exception ex)
+            {
+                // 处理异常并返回错误信息
+                return StatusCode(500, $"修改失败！: {ex.Message}");
+            }
+        }*/
+
 
         /*    var buyers = await _context.BUYERS.ToListAsync();
  *            foreach (var buyer in buyers)
