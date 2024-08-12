@@ -2,6 +2,9 @@
 import { ref, onMounted } from 'vue';
 import axiosInstance from '../components/axios';
 import Navbar from '../components/Navbar.vue';
+import { useRouter} from 'vue-router';
+
+const router = useRouter();
 
 const products = ref([]);
 const loading = ref(true);  // 用于控制缓冲页面的显示
@@ -32,6 +35,13 @@ const fetchStores = async (keyword: string, type: string) => {
   }
 };
 
+const goToProductDetail = (productId: string) => {
+  // console.log('Selected Store ID:', productId);
+  localStorage.setItem('productIdOfDetail', productId);  // 存储 productId
+  console.log('跳转至 /productdetail');
+  router.push('/productdetail');  // 跳转到商品详情页
+};
+
 onMounted(() => {
   const keyword = localStorage.getItem('keyword') || '';
   const type = localStorage.getItem('searchType') || '0';
@@ -48,7 +58,7 @@ onMounted(() => {
   <div v-else>
     <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
     <div v-else class="product-display">
-      <div v-for="product in products" :key="product.productId" class="product-item">
+      <div v-for="product in products" :key="product.productId" class="product-item" @click="goToProductDetail(product.productId)">
         <img :src="'data:image/png;base64,' + product.productPic" :alt="product.productName" class="product-image" />
         <div class="product-info">
           <p class="product-price">
@@ -78,6 +88,12 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
+  cursor: pointer; /* 使鼠标在悬停时变成手型指针 */
+  transition: border-color 0.3s ease; /* 添加平滑的边框颜色变化效果 */
+}
+
+.product-item:hover {
+  border-color: #3498db; /* 悬停时的边框颜色 */
 }
 
 .product-image {

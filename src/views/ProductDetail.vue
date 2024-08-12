@@ -12,7 +12,8 @@ const functionName = () => {
   </div>
   <div v-show="!isLoading" class="PDcontainer">
     <div class="storeContent">
-        <div class="storeName">{{ product.storeName }}</div>
+        <img :src="`data:image/png;base64,${product.storeAvatar}`" class="Avatar" />
+        <div class="storeName">&nbsp&nbsp{{ product.storeName }}</div>
         <div class="storeScore">评分：{{  product.score}}</div>
         <!-- 店铺收藏按钮，与商品收藏差不多 -->
         <el-button v-show="role==='买家'"
@@ -21,14 +22,14 @@ const functionName = () => {
               style="display: flex;
               align-items: center;
               justify-content: center;
-              font-size: 23px;
+              font-size: 21px;
               border-radius: 15px;
               border: 2px solid rgba(0,0,0,0.4);
               cursor: pointer;
-              width: 15%;
+              width: auto;
               height:65%;
               position: absolute;
-              right:22%;" 
+              right:20%;" 
 
             >
             <img v-show="product.isStoreStared" 
@@ -48,11 +49,11 @@ const functionName = () => {
               style="display: flex;
               align-items: center;
               justify-content: center;
-              font-size: 23px;
+              font-size: 21px;
               border-radius: 15px;
               border: 2px solid rgba(0,0,0,0.4);
               cursor: pointer;
-              width: 15%;
+              width: auto;
               height:65%;
               position: absolute;
               right:5%;" 
@@ -73,6 +74,10 @@ const functionName = () => {
       </div>
       <div class="text">
         <div v-show="product.discountPrice===product.price" class="price">￥{{ product.price }}</div>
+        <div v-show="product.discountPrice!==product.price" class="doubleprice">
+          <div class="discountPrice">￥{{ product.price }}</div>
+          <div class="price">￥{{ product.discountPrice }}</div>
+        </div>
         <!-- <div v-show="product.discount!==1" class="dis_price">
           <div class="dis">-{{ product.discount*100 }}%</div>
           <div class="original_and_dis_price">
@@ -99,12 +104,12 @@ const functionName = () => {
           style="display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 23px;
+          font-size: 21px;
           border-radius: 5px;
           cursor: pointer;
-          width: 25%;
+          width: auto;
           height:50px;
-          right:35%;
+          right:30%;
           bottom:0%;
           position: absolute" 
         >
@@ -124,8 +129,8 @@ const functionName = () => {
         @click="enterPay"
         style="background-color: #257b5e; 
         letter-spacing: 5px; 
-        font-size: 25px;
-        width: 30%; 
+        font-size: 22px;
+        width: 25%; 
         height:50px;
         right: 5%;
         bottom:0%;
@@ -181,13 +186,11 @@ const functionName = () => {
     
     //页面是否正在加载
     const isLoading=ref(true);
-    //假设已经知道了userid和productid
-    // 创建一个响应式变量来存储参数
+    //从浏览器中获取数据
     const productId = '555555';
     // const productId = localStorage.getItem('productIdOfDetail');
     const userId =localStorage.getItem('userId');
     const role=localStorage.getItem('role');
-    // const role=ref('管理员');
     // 使用 useRoute 来访问路由参数
     const router=useRouter();
 
@@ -202,7 +205,8 @@ const functionName = () => {
       fromWhere: '',
       score: 0,
       isProductStared: false,/////////注意1，补一条所属店铺是否被收藏
-      isStoreStared:false
+      isStoreStared:false,
+      storeAvatar:''
     }) ;        
     // const isStoreStared=ref(false);
     
@@ -223,6 +227,8 @@ const functionName = () => {
         isLoading.value=false;
         product.value=response.data;
         console.log('页面加载完成');
+        ////////////////////////////////折扣测试
+        // product.value.discountPrice=3;
         // console.log(product.value);
         } catch (error) {
           ElMessage.error('页面加载失败！');
@@ -338,11 +344,13 @@ transform: scale(0.95); /* 点击时缩小效果 */
   display: flex;
   align-items: center;/*这才是水平对齐 */
   flex-direction: column;
-  height: 100vh;
+  /* 哇趣！！！！！！min-height！！！I love you!!*/
+  min-height: 100vh;
   overflow-x: hidden; /*隐藏水平滚动条 */
+  padding-bottom:15px;
   /* overflow: auto; */
 }
-.productContent,.storeContent,.productAndCommentContent{
+.productContent,.storeContent{
   background-color: #FFFFFF;
   width: 70%; /*百分比都是相对于父容器说的*/ 
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* 添加阴影效果（可选） */
@@ -352,16 +360,15 @@ transform: scale(0.95); /* 点击时缩小效果 */
 }
 
 .storeContent{
-  height:65px;
-  padding-top: 10px;
-  padding-left: 30px;
+  /* height:80px; */
+  padding: 10px 30px 10px 10px;
   position: relative;
   display: flex;
   flex-direction: row; 
   justify-items: center;
 }
 .productContent {
-  height:600px;
+  min-height:450px;
   padding: 40px; 
   display: flex;
   position: relative;
@@ -369,7 +376,9 @@ transform: scale(0.95); /* 点击时缩小效果 */
   flex-direction: row; 
 }
 .productAndCommentContent {
-  height:auto;
+  width: 70%; /*百分比都是相对于父容器说的*/ 
+  margin-top:15px;
+  height:450px;
   display: flex;
   flex-direction: row;
   position: relative;
@@ -527,9 +536,13 @@ transform: scale(0.95); /* 点击时缩小效果 */
 
 /* 侧边栏内部 */
 .sidebar {
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* 添加阴影效果（可选） */
+  box-sizing: border-box; /* 使内边距和边框包含在宽度和高度内 */
+  border-radius: 15px; 
   width: 15%;
   background-color: #FFFFFF;
   color: #000000;
+  margin-right: 10px;
   padding: 10px;
   border-radius:15px ;
 }
@@ -546,14 +559,34 @@ transform: scale(0.95); /* 点击时缩小效果 */
 
 /* 主内容区域 */
 .main-content {
-  width: 75%;
-  flex: 1;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* 添加阴影效果（可选） */
+  box-sizing: border-box; /* 使内边距和边框包含在宽度和高度内 */
+  border-radius: 15px; 
+  background-color: #FFFFFF;
+  color: #000000;
+  border-radius:15px ;
+  width: 100%;
   padding: 10px;
-  border-left:1px solid rgba(0,0,0,0.4) ;
-
 }
 .loading-text{
   font-size:22px;
+}
+.Avatar{
+  width: 30px; 
+  height: 30px; 
+  border-radius: 10px;
+  object-fit: cover;
+}
+.doubleprice{
+  position: relative;
+  display: flex;
+  flex-direction: row; 
+  justify-items: center;
+}
+.discountPrice{
+  text-decoration: line-through;
+  font-size:15px;
+  color:rgba(0,0,0,0.4);
 }
 </style> 
   
