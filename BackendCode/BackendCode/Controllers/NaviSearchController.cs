@@ -81,6 +81,11 @@ namespace NaviSearchController.Controllers
                     StoreId = s.ACCOUNT_ID,
                     StoreName = s.STORE_NAME,
                     StoreScore = s.STORE_SCORE,
+                    StorePhoto =  _dbContext.ACCOUNTS
+                        .Where(p => p.ACCOUNT_ID == s.ACCOUNT_ID)
+                        .Select(p => p.PHOTO) // 假设 Photo 是账户表中的字段
+                        .FirstOrDefaultAsync(),
+
                     HomeProducts = _dbContext.PRODUCTS
                         .Where(p => p.ACCOUNT_ID == s.ACCOUNT_ID && !p.SALE_OR_NOT)
                         .Take(4)
