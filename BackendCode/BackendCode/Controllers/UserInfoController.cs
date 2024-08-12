@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 namespace UserInfo.Controllers
 {
     [ApiController]
-    [Route("api/userInfo/[controller]")]
+    [Route("api/[controller]")]
     public class UserInfoController : ControllerBase
     {
         private readonly YourDbContext _dbContext;
@@ -20,7 +20,7 @@ namespace UserInfo.Controllers
         }
 
         // 根据用户id返回个人详细信息
-        [HttpGet("/detailedInfo")]
+        [HttpGet("detailedInfo")]
         public async Task<IActionResult> ShowUserInfo(string uid)
         {
             var infos = await _dbContext.BUYERS.FirstOrDefaultAsync(a => a.ACCOUNT_ID == uid);
@@ -45,7 +45,7 @@ namespace UserInfo.Controllers
 
 
         // 根据用户id返回头像和简介
-        [HttpPost("/GetPhotoAndDescribtion")]
+        [HttpPost("GetPhotoAndDescribtion")]
         public async Task<IActionResult> GetPhotoAndDescribtion([FromBody]GPADModel model)
         {
             var infos = await _dbContext.BUYERS
@@ -66,7 +66,7 @@ namespace UserInfo.Controllers
         }
 
         // 修改头像或简介
-        [HttpPut("/SetPhotoAndDescribtion")]
+        [HttpPut("SetPhotoAndDescribtion")]
         public async Task<IActionResult> SetPhotoAndDescribtion([FromForm] SPADModel model)
         {
             string des = "";
