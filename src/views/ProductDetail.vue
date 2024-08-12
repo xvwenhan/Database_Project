@@ -187,8 +187,8 @@ const functionName = () => {
     //页面是否正在加载
     const isLoading=ref(true);
     //从浏览器中获取数据
-    const productId = '555555';
-    // const productId = localStorage.getItem('productIdOfDetail');
+    // const productId = '555555';
+    const productId = localStorage.getItem('productIdOfDetail');
     const userId =localStorage.getItem('userId');
     const role=localStorage.getItem('role');
     // 使用 useRoute 来访问路由参数

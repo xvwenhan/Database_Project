@@ -60,12 +60,13 @@
                   v-for="product in products" 
                   :key="product.productId" 
                   class="product-item"
-                  @click="handleProductClick(product.productId)"
                 >
-                  <img :src="product.productPic" :alt="product.productId" class="product-image" />
-                  <div class="product-text">
-                    <h2>{{ product.productName }}</h2>
-                    <p>价格: ¥{{ product.productPrice }}</p>
+                  <div @click="handleProductClick(product.productId)">
+                    <img :src="product.productPic" :alt="product.productId" class="product-image" />
+                    <div class="product-text">
+                      <h2>{{ product.productName }}</h2>
+                      <p>价格: ¥{{ product.productPrice }}</p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -75,7 +76,7 @@
           <!-- 评价展示内容 -->
         <div v-if="currentView === 'remarks'" class="shop-remarks">
           <div class="remarks-content">
-            <span style="font-family: Arial, sans-serif; font-size: 25px; font-weight: bold; text-align: left; display: block; margin-bottom: 13px;">
+            <span style="font-family: Arial, sans-serif; font-size: 20px; font-weight: bold; text-align: left; display: block; margin-bottom: 13px;">
               用户评价
             </span>
             <div 
@@ -116,8 +117,10 @@ import axiosInstance from '../components/axios';
 const router = useRouter();
 const currentView = ref('products');
 const userId =localStorage.getItem('userId');
+const storeId = localStorage.getItem('storeIdOfDetail');
 
 const shopinfo = reactive({avatar:"",storeId:"",storeName:"",storeScore:0,Address:""});
+shopinfo.storeId = storeId;
 const isFavorite = ref(0);
 const categories = ref([
   { id: 1, name: '全部商品' },
@@ -193,6 +196,7 @@ const fetchStoreInfo = async () => {
         storeId: shopinfo.storeId
       }
     });
+    console.log('获取id'+shopinfo.storeId);
     shopinfo.storeName = response.data.name;
     shopinfo.storeScore = response.data.score;
     shopinfo.Address = response.data.address;
@@ -269,7 +273,7 @@ const clickFavorite = () => {
 const message4 = ref('');
 const bookmarkStore = async () => {
   try {
-    const response = await axiosInstance.post('/Favourite/BookmarkStore',  {
+    const response = await axiosInstance.post('/Favourite/BookmarkStore', null, {
       params: {
         userId: userId,
         storeId: shopinfo.storeId
@@ -397,10 +401,8 @@ const fetchRemarks = async () => {
 };
 
 onMounted(() => {
-  shopinfo.storeId = localStorage.getItem('storeIdOfDetail');
-  console.log(shopinfo.storeId);
-  fetchIsBookmarked();
   fetchStoreInfo();
+  fetchIsBookmarked();
   fetchTags();
   fetchAllProducts();
   fetchRemarks();

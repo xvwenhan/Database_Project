@@ -43,9 +43,9 @@
                     <div 
                       v-for="store in paginatedStores" 
                       :key="store.storeId" 
-                      class="store-item"
-                      @click="handleStoreClick(store.storeId)">
-                        <div v-for="store in Stores" :key="store.storeId" class="store-container">
+                      class="store-item">
+                        <div v-for="store in Stores" :key="store.storeId" class="store-container"
+                        @click="handleStoreClick(store.storeId)">
                           <div class="store-content">
                             <div class="store-header">
                               <div class="store-info">
@@ -356,6 +356,11 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   margin: 15px;
+}
+
+.store-image{
+  width: 120px;
+  height: 120px;
 }
 
 .store-name {
