@@ -38,7 +38,7 @@
 
     public class CreditsDTO
     {
-        public int? BonusCredits { get; set; }
+        public int BonusCredits { get; set; }
         public int Credits { get; set; }
     }
 
@@ -65,13 +65,4 @@
         public string OrderStatus { get; set; }
         public byte[] Picture { get; set; }
     }
-
-
-    /*
-    public class ChargeScanOrderDTO
-    {
-        public string AccountId { get; set; }
-        public decimal Charge { get; set; }
-    }
-    */
 }

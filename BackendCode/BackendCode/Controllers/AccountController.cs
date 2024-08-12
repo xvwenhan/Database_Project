@@ -17,6 +17,7 @@ using Microsoft.EntityFrameworkCore;
 using BackendCode.DTOs.Administrator;
 using BackendCode.Controllers;
 using BackendCode.Models;
+using Alipay.AopSdk.Core.Domain;
 
 namespace Account.Controllers
 {
@@ -534,9 +535,9 @@ namespace Account.Controllers
                 {
                     // 检查该账户是否已经有钱包
                     var existingWallet = await _context.WALLETS
-                        .FirstOrDefaultAsync(w => w.ACCOUNT_ID == account.ACCOUNT_ID);
-
-/*                    if (existingWallet == null)
+                        .AnyAsync(w => w.ACCOUNT_ID == account.ACCOUNT_ID);
+                  
+                    if (existingWallet == false)
                     {
                         // 如果没有钱包，则创建一个新的钱包
                         var wallet = new WALLET
@@ -547,7 +548,7 @@ namespace Account.Controllers
 
                         // 将钱包添加到数据库
                         _context.WALLETS.Add(wallet);
-                    }*/
+                    }
                 }
 
                 await _context.SaveChangesAsync();
