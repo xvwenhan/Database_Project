@@ -321,6 +321,39 @@ namespace BackendCode.Controllers
         }
 
         /***************************************/
+        /* 获取店铺所有订单评论接口            */
+        /* 传入店铺ID-storeId                  */
+        /* 返回订单ID、订单评分、评论内容      */
+        /* 返回买家名称和买家头像              */
+        /***************************************/
+        [HttpGet("GetStoreRemarks")]
+        public async Task<IActionResult> GetStoreRemarksAsync(string storeId)
+        {
+            /* 查询店铺信息 */
+            var store = await _dbContext.STORES.FirstOrDefaultAsync(s => s.ACCOUNT_ID == storeId);
+            if (store == null) //店铺ID不存在
+            {
+                return NotFound("未找到该店铺");
+            }
+
+            /* 查询所有与店铺相关的订单 */
+            var orders = await _dbContext.ORDERS
+                .Include(o => o.BUYER)
+                .Where(o => o.STORE_ACCOUNT_ID == storeId)
+                .Select(o => new StoreOrderDTO
+                {
+                    OrderId = o.ORDER_ID,
+                    BuyerName = o.BUYER.USER_NAME,
+                    BuyerAvatar = o.BUYER.PHOTO,
+                    OrderScore = o.SCORE,
+                    OrderRemark = o.REMARK
+                })
+                .ToListAsync();
+
+            return Ok(orders); //返回订单列表
+        }
+
+        /***************************************/
         /* 判断是否存在当前商品的订单          */
         /* 传入商品ID - productId              */
         /* 传出bool值表示是否存在订单          */
