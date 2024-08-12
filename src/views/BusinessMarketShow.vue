@@ -93,6 +93,7 @@ export default {
     
     const toggleParticipation = async (row) => {
       const storeId = localStorage.getItem('userId'); // 替换为实际的 storeId
+      console.log('Stored User ID:', localStorage.getItem('userId'));
       const inOrOut = !row.isStoreParticipating; // 反转参与状态
 
        // 检查当前时间是否在市集的开始时间和结束时间范围内

@@ -14,7 +14,7 @@
   import BusinessMarket from './BusinessMarket.vue';
   import BusinessOrder from './BusinessOrderManage.vue';
   import BusinessCommodity from './BusinessCommodity.vue';
-  import UserCenter from './UserCenter.vue';
+
   
   export default {
     components: {
@@ -23,7 +23,6 @@
       BusinessMarket,
       BusinessOrder,
       BusinessCommodity,
-      UserCenter
     },
     data() {
       return {
