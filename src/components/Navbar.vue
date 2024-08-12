@@ -37,7 +37,7 @@
 <script setup>
 import { reactive, ref, onMounted, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import UserModal from '../views/UserModal.vue';
+import UserModal from '../views/UserCenter.vue';
 import axios from 'axios';
 
 // 引入UserModal组件
@@ -45,7 +45,7 @@ const userModal = ref(null);
 
 // 打开模态框的函数
 const openModal = () => {
-  userModal.value.isOpen = true;
+  userModal.value.isUserCenterOpen = true;
 };
 
 const router = useRouter();

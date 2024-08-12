@@ -1,132 +1,161 @@
 <template>
-  <div class="user-center">
-    <el-tabs v-model="activeTab">
-      <el-tab-pane label="个人信息" name="userInfo">
-        <div class="user-info">
-          <el-form :model="userInfo" label-width="80px">
-            <el-form-item label="用户名" :rules="[{ required: true, message: '请输入用户名', trigger: 'blur' }]">
-              <el-input v-model="userInfo.username" placeholder="请输入用户名"></el-input>
-            </el-form-item>
-            <!-- 新增性别选项 -->
-            <el-form-item label="性别" :rules="[{ required: true, message: '请选择性别', trigger: 'change' }]">
-              <el-select v-model="userInfo.gender" placeholder="请选择性别">
-                <el-option label="男" value="male"></el-option>
-                <el-option label="女" value="female"></el-option>
-              </el-select>
-            </el-form-item>
-            <!-- 新增年龄选项 -->
-            <el-form-item label="年龄" :rules="[{ required: true, message: '请输入年龄', trigger: 'blur' }]">
-              <el-input v-model.number="userInfo.age" type="number" placeholder="请输入年龄"></el-input>
-            </el-form-item>
-            <el-form-item label="收货地址" :rules="[{ required: true, message: '请输入收货地址', trigger: 'blur' }]">
-              <el-input v-model="address.detail" placeholder="请输入收货地址"></el-input>
-            </el-form-item>
-            <el-form-item>
-              <el-button type="primary" @click="updateUserInfo">保存</el-button>
-            </el-form-item>
-          </el-form>
-        </div>
-      </el-tab-pane>
-      <el-tab-pane label="消费积分" name="points">
-        <div class="points">
-          <el-card>
-            <p>消费积分</p>
-            <p>您当前的积分：{{ points }}</p>
-          </el-card>
-        </div>
-      </el-tab-pane>
-      <el-tab-pane label="钱包" name="wallet">
-        <div class="wallet">
-          <el-card>
-            <h3>钱包</h3>
-            <p>您的钱包余额：￥{{ balance }}</p>
-            <el-form :model="recharge" label-width="80px">
-              <el-form-item label="充值金额">
-                <el-input v-model.number="recharge.amount" type="number" placeholder="请输入充值金额"></el-input>
-              </el-form-item>
-              <el-form-item>
-                <el-button type="primary" @click="rechargeBalance">充值</el-button>
-              </el-form-item>
-            </el-form>
-          </el-card>
-        </div>
-      </el-tab-pane>
 
-      <!-- 修改密码选项卡 -->
-      <el-tab-pane label="修改密码" name="changePassword">
-        <div class="account-info">
-          <el-form :model="password" label-width="80px">
-            <!-- <el-form-item label="当前密码" :rules="[{ required: true, message: '请输入当前密码', trigger: 'blur' }]">
-              <el-input 
-                v-model="password.current"
-                :type="passwordVisibility.current ? 'text' : 'password'"
-                placeholder="请输入当前密码"
-              >
-                <template #suffix>
-                  <img 
-                     :src="currentImage"
-                    @click="toggleVisibility()"
-                    class="password-visibility-toggle"
-                    alt="toggle visibility"
-                  />
-                </template>
-              </el-input>
-            </el-form-item> -->
-            <el-form-item label="新密码" :rules="[{ required: true, message: '请输入新密码', trigger: 'blur' }]">
-              <el-input 
-                v-model="password.new"
-                :type="passwordVisibility.new ? 'text' : 'password'"
-                placeholder="请输入新密码"
-              >
-                <template #suffix>
-                  <img 
-                   :src="currentImageTw"
-                    @click="toggleVisibilityTw()"
-                    class="password-visibility-toggle"
-                    alt="toggle visibility"
-                  />
-                </template>
-              </el-input>
-            </el-form-item>
-            <el-form-item label="确认密码" :rules="[{ required: true, message: '请确认新密码', trigger: 'blur' }]">
-              <el-input 
-                v-model="password.confirm"
-                :type="passwordVisibility.confirm ? 'text' : 'password'"
-                placeholder="请确认新密码"
-              >
-                <template #suffix>
-                  <img 
-                     :src="currentImageTh"
-                    @click="toggleVisibilityTh()"
-                    class="password-visibility-toggle"
-                    alt="toggle visibility"
-                  />
-                </template>
-              </el-input>
-            </el-form-item>
-            <el-form-item>
-              <el-button type="primary" @click="updateAccountInfo">保存</el-button>
-            </el-form-item>
-          </el-form>
-        </div>
-      </el-tab-pane>
+  <div v-if="isUserCenterOpen" class="modal">
+    <div class="modal-content">
+      <!-- <span class="close" @click="closeModal">&times;</span> -->
+      <!-- <UserCenter /> -->
+       <div class="user-center">
+        <!-- 添加右上角关闭按钮 -->
+        <div class="close-btn" @click="closeUserCenter">&times;</div>
+        <el-tabs v-model="activeTab">
+          <el-tab-pane label="个人信息" name="userInfo">
+            <div class="user-info">
+              <el-form :model="userInfo" label-width="80px">
+                <el-form-item label="用户名" :rules="[{ required: true, message: '请输入用户名', trigger: 'blur' }]">
+                  <el-input v-model="userInfo.username" placeholder="请输入用户名"></el-input>
+                </el-form-item>
+                <!-- 新增性别选项 -->
+                <el-form-item label="性别" :rules="[{ required: true, message: '请选择性别', trigger: 'change' }]">
+                  <el-select v-model="userInfo.gender" placeholder="请选择性别">
+                    <el-option label="男" value="male"></el-option>
+                    <el-option label="女" value="female"></el-option>
+                  </el-select>
+                </el-form-item>
+                <!-- 新增年龄选项 -->
+                <el-form-item label="年龄" :rules="[{ required: true, message: '请输入年龄', trigger: 'blur' }]">
+                  <el-input v-model.number="userInfo.age" type="number" placeholder="请输入年龄"></el-input>
+                </el-form-item>
+                <el-form-item label="收货地址" :rules="[{ required: true, message: '请输入收货地址', trigger: 'blur' }]">
+                  <el-input v-model="address.detail" placeholder="请输入收货地址"></el-input>
+                </el-form-item>
+                <el-form-item>
+                  <el-button type="primary" @click="updateUserInfo">保存</el-button>
+                </el-form-item>
+              </el-form>
+            </div>
+          </el-tab-pane>
+          <el-tab-pane label="消费积分" name="points">
+            <div class="points">
+              <el-card>
+                <p>消费积分</p>
+                <p>您当前的积分：{{ points }}</p>
+              </el-card>
+            </div>
+          </el-tab-pane>
+          <el-tab-pane label="钱包" name="wallet">
+            <div class="wallet">
+              <el-card>
+                <h3>钱包</h3>
+                <p>您的钱包余额：￥{{ balance }}</p>
+                <el-form :model="recharge" label-width="80px">
+                  <el-form-item label="充值金额">
+                    <el-input v-model.number="recharge.amount" type="number" placeholder="请输入充值金额"></el-input>
+                  </el-form-item>
+                  <el-form-item>
+                    <el-button type="primary" @click="rechargeBalance">充值</el-button>
+                  </el-form-item>
+                </el-form>
+              </el-card>
+            </div>
+          </el-tab-pane>
 
-      <!-- 退出登录选项卡 -->
-      <el-tab-pane label="退出登录" name="accountManagement">
-        <div class="logout-section">
-          <el-button type="danger" @click="logout">退出登录</el-button>
-        </div>
-      </el-tab-pane>
-    </el-tabs>
+          <!-- 修改密码选项卡 -->
+          <el-tab-pane label="修改密码" name="changePassword">
+            <div class="account-info">
+              <el-form :model="password" label-width="80px">
+                <!-- <el-form-item label="当前密码" :rules="[{ required: true, message: '请输入当前密码', trigger: 'blur' }]">
+                  <el-input 
+                    v-model="password.current"
+                    :type="passwordVisibility.current ? 'text' : 'password'"
+                    placeholder="请输入当前密码"
+                  >
+                    <template #suffix>
+                      <img 
+                        :src="currentImage"
+                        @click="toggleVisibility()"
+                        class="password-visibility-toggle"
+                        alt="toggle visibility"
+                      />
+                    </template>
+                  </el-input>
+                </el-form-item> -->
+                <el-form-item label="新密码" :rules="[{ required: true, message: '请输入新密码', trigger: 'blur' }]">
+                  <el-input 
+                    v-model="password.new"
+                    :type="passwordVisibility.new ? 'text' : 'password'"
+                    placeholder="请输入新密码"
+                  >
+                    <template #suffix>
+                      <img 
+                      :src="currentImageTw"
+                        @click="toggleVisibilityTw()"
+                        class="password-visibility-toggle"
+                        alt="toggle visibility"
+                      />
+                    </template>
+                  </el-input>
+                </el-form-item>
+                <el-form-item label="确认密码" :rules="[{ required: true, message: '请确认新密码', trigger: 'blur' }]">
+                  <el-input 
+                    v-model="password.confirm"
+                    :type="passwordVisibility.confirm ? 'text' : 'password'"
+                    placeholder="请确认新密码"
+                  >
+                    <template #suffix>
+                      <img 
+                        :src="currentImageTh"
+                        @click="toggleVisibilityTh()"
+                        class="password-visibility-toggle"
+                        alt="toggle visibility"
+                      />
+                    </template>
+                  </el-input>
+                </el-form-item>
+                <el-form-item>
+                  <el-button type="primary" @click="updateAccountInfo">保存</el-button>
+                </el-form-item>
+              </el-form>
+            </div>
+          </el-tab-pane>
+
+          <!-- 退出登录选项卡 -->
+          <el-tab-pane label="退出登录" name="accountManagement">
+            <div class="logout-section">
+              <el-button type="danger" @click="logout">退出登录</el-button>
+            </div>
+          </el-tab-pane>
+        </el-tabs>
+      </div>
+    </div>
   </div>
+
+  
 </template>
 
 <script>
 import eyeSvg from "@/assets/eye.svg"
 import eyeInSvg from "@/assets/eyeIn.svg"
 import axiosInstance from '../components/axios';
+// import { ref } from 'vue';
+import { ref, defineExpose } from 'vue';
 
 export default {
+  setup() {
+    const isUserCenterOpen = ref(false);
+    
+    const closeUserCenter = () => {
+      console.log("关闭按钮值",isUserCenterOpen)
+      isUserCenterOpen.value = false;
+      console.log("关闭按钮值",isUserCenterOpen)
+    };
+
+    // 使用 defineExpose 暴露属性和方法
+    defineExpose({
+      isUserCenterOpen,
+      closeUserCenter
+    });
+    return { isUserCenterOpen, closeUserCenter };
+  },
   data() {
     return {
       activeTab: 'userInfo',
@@ -168,6 +197,10 @@ export default {
     },
   },
   methods: {
+    // 关闭用户中心的方法
+    // closeUserCenter() {
+    //   this.$emit('close'); // 触发父组件的关闭事件
+    // },
     async getUserInfo(userId) {
       try {
         const response = await axiosInstance.get(`/Account/get_user_message/${userId}`);
@@ -394,10 +427,50 @@ async resetPassword() {
 </script>
 
 <style scoped>
+.modal {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+  
+  .modal-content {
+    background-color: #fefefe;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  }
+
 .password-visibility-toggle {
   cursor: pointer;
   width: 20px;
   height: 20px;
   margin-left: 10px;
+}
+
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 40px;
+  cursor: pointer;
+  color: #333;
+  margin-right: -30px;
+  margin-top: -40px;
+}
+
+.user-center {
+  position: relative;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
 }
 </style>
