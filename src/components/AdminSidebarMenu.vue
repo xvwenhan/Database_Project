@@ -3,14 +3,14 @@
     <aside class="sidebar">
       <nav>
         <ul>
-          <li>
+          <!-- <li>
             <router-link to="/platform-info" class="nav-link" active-class="active-link">
               <div class="button-content">
                 <img src="@/assets_dxy/platform_icon.svg" alt="Icon1" class="sidebar-icon white-icon">
                 <span>平台信息</span>
               </div>
             </router-link>
-          </li>
+          </li> -->
           <li>
             <router-link to="/merchant-certification" class="nav-link" active-class="active-link">
               <div class="button-content">
