@@ -82,10 +82,7 @@ function fetchPost (){
   console.log("正在获取");
   axiosInstance.get(`/Post/get_a_post/${ postId.value}`)
     .then(response => {
-      const li=response.liked;
       const data = response.data;
-      postLiked.value=response.liked;
-      console.log("response",li);
       if (data && data.data) {
         const postData = data.data;
         const images = postData.images || [];
@@ -94,7 +91,7 @@ function fetchPost (){
           author: postData.authorName || '',
           content: postData.postContent || '',
           time:  convertToReadableTime(postData.releaseTime) || '',
-          liked:postLiked.value||false,
+          liked:data.liked||false,
           isMakeComment: false,
           collapsed: true,
           likeCount: postData.numberOfLikes || '0',
