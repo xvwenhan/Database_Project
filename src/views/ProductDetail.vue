@@ -6,7 +6,7 @@ const functionName = () => {
 其中'01'可变,需填入对应商品的id
 -->
 <template>
-  <Navbar class="narbar"/>
+  <!-- <Navbar class="narbar"/> -->
   <div v-show="isLoading" class="loading">
     <div class="loading-text">加载中...</div>
   </div>
@@ -147,6 +147,19 @@ const functionName = () => {
         </div>
         <!-- 内容区域 -->
         <div class="main-content">
+                    <!-- 内容区域内的跳转按钮 -->
+            <el-button 
+            @click="handleButtonClick"
+            class="enter-button"
+            style="
+                font-size: 21px;
+                border-radius: 15px;
+                border: 2px solid rgba(0,0,0,0.4);
+                cursor: pointer;
+                width: auto;
+                height:35px;
+                ">{{ activeSection=='comments'?'查看全部评价':'查看全部商品' }}</el-button>
+
             <div v-if="activeSection === 'preview'" class="preview-section">
                 <div 
                   class="displayProductItem"
@@ -165,20 +178,6 @@ const functionName = () => {
             <div v-if="activeSection === 'comments'" class="comments-section">
               评论预览
           </div>
-          <!-- 内容区域内的跳转按钮 -->
-          <!-- <el-button 
-           @click="handleButtonClick"
-           class="enter-button"
-           style="display: flex;
-              align-items: center;
-              justify-content: center;
-              font-size: 23px;
-              border-radius: 5px;
-              cursor: pointer;
-              width: 15%;
-              height:50px;
-              position: absolute;
-              right:5%;">{{ activeSection=='comments'?'查看全部评价':'查看全部商品' }}</el-button> -->
       </div>
     </div>
   </div>
@@ -195,8 +194,8 @@ const functionName = () => {
     //页面是否正在加载
     const isLoading=ref(true);
     //从浏览器中获取数据
-    // const productId = '555555';
-    const productId = localStorage.getItem('productIdOfDetail');
+    const productId = '222222';
+    // const productId = localStorage.getItem('productIdOfDetail');
     const userId =localStorage.getItem('userId');
     const role=localStorage.getItem('role');
     // 使用 useRoute 来访问路由参数
@@ -214,19 +213,16 @@ const functionName = () => {
       score: 0,
       isProductStared: false,/////////注意1，补一条所属店铺是否被收藏
       isStoreStared:false,
-      storeAvatar:''
+      storeAvatar:'',
+      finalPrice:0
     }) ;
     //处理商品和评论预览
     const activeSection = ref('preview');
     const displayProducts = reactive([]);           
     const message=ref('');
-  
     onMounted(async () => {
-      // showProducts();
       console.log(`当前登录用户id为${userId}`);
       try {
-        // const response = await axiosInstance.get('/Account/send_verification_code',
-        // {params: { email: registerEmail.value }});
         const response = await axiosInstance.get(`/Shopping/GetProductDetails/`,{
           params:{
             userId:userId,
@@ -235,6 +231,8 @@ const functionName = () => {
         });
         isLoading.value=false;
         product.value=response.data;
+        product.value.finalPrice=product.value.discountPrice;
+        showProducts();
         console.log('页面加载完成');
         ////////////////////////////////折扣测试
         // product.value.discountPrice=3;
