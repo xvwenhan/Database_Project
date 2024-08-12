@@ -185,17 +185,28 @@ namespace Account.Controllers
                 return BadRequest(ModelState);// 如果模型验证失败，返回错误信息
             }
             var user = _context.BUYERS.FirstOrDefault(u => u.ACCOUNT_ID == model.Username || u.EMAIL == model.Username);
-            if (user == null)
+            if(user != null) {
+                if (VerifyPassword(model.Password, user.PASSWORD))
+                    return BadRequest(new { message = "新密码不能与旧密码相同！" });
+
+                user.PASSWORD = PasswordHelper.HashPassword(model.Password);
+
+                _context.SaveChanges();
+                return Ok(new { message = "密码重置成功！" });
+            }
+            var user2 = _context.STORES.FirstOrDefault(u => u.ACCOUNT_ID == model.Username || u.EMAIL == model.Username);
+            if (user2 == null)
             {
                 return NotFound(new { message = "账号不存在！" });
             }
-            if(VerifyPassword(model.Password, user.PASSWORD))
-                return BadRequest(new {message="新密码不能与旧密码相同！"});
+            if (VerifyPassword(model.Password, user2.PASSWORD))
+                return BadRequest(new { message = "新密码不能与旧密码相同！" });
 
-            user.PASSWORD = PasswordHelper.HashPassword(model.Password);
-            
+            user2.PASSWORD = PasswordHelper.HashPassword(model.Password);
+
             _context.SaveChanges();
-            return Ok(new { message="密码重置成功！" });
+            return Ok(new { message = "密码重置成功！" });
+
         }
 
         /*向指定邮箱发送邮箱验证码
@@ -559,7 +570,6 @@ namespace Account.Controllers
                 return StatusCode(500, "Failed to add wallets: " + ex.Message);
             }
         }
-
 
         /*    var buyers = await _context.BUYERS.ToListAsync();
  *            foreach (var buyer in buyers)
