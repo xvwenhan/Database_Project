@@ -15,7 +15,7 @@
             </el-form>
             <el-button type="primary" @click="handleCertificationUpload">上传认证资料(图片和文字)</el-button>
           </div>
-          <div v-else-if="certificationStatus === '正在审核'">
+          <div v-else-if="certificationStatus === '正在审核'">      
             <p>您的认证资料正在审核中，请稍等。</p>
           </div>
           <div v-else-if="certificationStatus === '审核通过'">
@@ -106,6 +106,21 @@
           <el-button type="danger" @click="logout">退出登录</el-button>
         </div>
       </el-tab-pane>
+
+      <el-tab-pane label="头像和简介" name="userIn">
+    <div>
+      <el-form :model="userimades" :rules="rules" ref="form">
+        <el-form-item label="上传头像(.jpg)" prop="image">
+          <img v-if="userimades.ima" :src="userimades.ima" alt="当前图片" style="width: 200px; height: 200px;" />
+          <input type="file" @change="handleFile" accept=".jpg" />
+        </el-form-item>
+        <el-form-item label="上传简介" prop="description">
+          <el-input v-model="userimades.descri"></el-input>
+        </el-form-item>
+      </el-form>
+      <el-button type="primary" @click="handleUpload">上传</el-button>
+    </div>
+  </el-tab-pane>
     </el-tabs>
   </div>
 </template>
@@ -119,6 +134,10 @@ export default {
   name:'BusinessSetting',
   data() {
     return {
+      userimades:{
+        ima:'',
+        descri:'',
+      },
       activeTab: 'certification',
       certificationStatus: '请求上传', // '请求上传', '正在审核', '审核通过'
       certificationUp:{
@@ -192,6 +211,57 @@ export default {
     } else {
       this.$message.error('请上传正确格式的图片 (.jpg 或 .png)');
     }
+  }
+},
+handleFile(event) {
+  const file = event.target.files[0];
+  if (file) {
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+    if (validTypes.includes(file.type)) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.userimades.ima = e.target.result;
+        console.log('Loaded image:', this.userimades.ima); // 输出图片数据
+      };
+      reader.readAsDataURL(file);
+    } else {
+      this.$message.error('请上传正确格式的图片 (.jpg 或 .png)');
+    }
+  }
+},
+
+async handleUpload() {
+  try {
+    if (!this.userimades.ima) {
+      this.$message.error('请提供图片');
+      return;
+    }
+
+    // 从图片数据中去除 Base64 前缀
+    const Photo = this.userimades.ima.split(',')[1]; 
+    const Describtion = this.userimades.descri;
+    const Id = localStorage.getItem('userId'); 
+    // const Id = 'U00000018'; 
+
+    if (!Photo || !Describtion) {
+      this.$message.error('请提供图片和认证资料');
+      return;
+    }
+
+    const response = await axiosInstance.put('/UserInfo/SetPhotoAndDescribtion', {
+      Id,
+      Photo,
+      Describtion,
+    });
+
+    if (response.status === 200) {
+      this.$message.success('上传成功，请刷新网页以查看最新状态');
+    } else {
+      this.$message.error(`上传失败: ${response.data.message}`);
+    }
+  } catch (error) {
+    console.error('请求失败:头像简介上传', error.response ? error.response.data : error.message);
+    this.$message.error('请求失败，请稍后再试');
   }
 },
 
@@ -320,16 +390,18 @@ async resetPassword() {
   //   this.$message.error('原密码不正确');
   //   return;
   // }
+  console.log('Stored User ID:', localStorage.getItem('userId'));
+  const storeId =  localStorage.getItem('userId');
+  console.log('Store ID:', storeId); 
+// 获取当前用户 ID
   if (this.password.new !== this.password.confirm) {
     this.$message.error('新密码和确认密码不匹配');
     return;
   }
-  const userId = localStorage.getItem('userId'); 
-
   try {
     // 发送请求到后端重置密码
     const response = await axiosInstance.post('/Account/password_reset', {
-      username:  userId,  // 使用当前用户的用户名
+      username:  storeId,  // 使用当前用户的用户名
       password: this.password.new  // 使用新密码
     });
 
@@ -351,7 +423,8 @@ async resetPassword() {
   }
 },
 async fetchStoreName() {
-      const storeId = 'S1234567'; // 替换为实际的 storeid
+  const storeId = localStorage.getItem('userId'); // 替换为实际的 storeid
+  // const storeId ='S1234567'
       this.loading = true;
       this.error = null;
       this.storeScoreName = null;
@@ -410,6 +483,7 @@ async fetchCertificationImageAndText(storeId) {
 
     console.log('获取到的认证图片和文字描述:', this.certificationUp);
   } catch (error) {
+
     console.error('获取认证图片和文字描述失败:', error);
     this.$message.error('获取认证图片和文字描述失败，请稍后再试');
   }
@@ -417,6 +491,7 @@ async fetchCertificationImageAndText(storeId) {
   },                           
   mounted() {               
     const userId = localStorage.getItem('userId'); 
+    console.log('Stored User ID:', localStorage.getItem('userId'));
     this.getUserInfo(userId);
     this.fetchStoreName();
     this.checkCertificationStatus(); 

@@ -124,6 +124,22 @@
               <el-button type="danger" @click="logout">退出登录</el-button>
             </div>
           </el-tab-pane>
+
+
+          <el-tab-pane label="头像和简介" name="userIn">
+    <div>
+      <el-form :model="userimades" :rules="rules" ref="form">
+        <el-form-item label="上传头像(.jpg)" prop="image">
+          <img v-if="userimades.ima" :src="userimades.ima" alt="当前图片" style="width: 200px; height: 200px;" />
+          <input type="file" @change="handleFileChange" accept=".jpg" />
+        </el-form-item>
+        <el-form-item label="上传简介" prop="description">
+          <el-input v-model="userimades.descri"></el-input>
+        </el-form-item>
+      </el-form>
+      <el-button type="primary" @click="handleUpload">上传</el-button>
+    </div>
+  </el-tab-pane>
         </el-tabs>
       </div>
     </div>
@@ -158,6 +174,10 @@ export default {
   },
   data() {
     return {
+      userimades:{
+        ima:'',
+        descri:'',
+      },
       activeTab: 'userInfo',
       userInfo: {
         username: '',
@@ -257,7 +277,7 @@ export default {
 },
 async getWalletBalance(userId) {
   try {
-    const response = await axiosInstance.post('/Payment/GetWalletBalance', null, {
+    const response = await axiosInstance.get('/Payment/GetWalletBalance', {
       params: {
         accountID: userId
       }
@@ -321,6 +341,76 @@ async getBuyerCredits(userId) {
         this.$message.error('请求失败，请稍后再试');
       }
     },
+    handleFileChange(event) {
+  const file = event.target.files[0];
+  if (file) {
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+    if (validTypes.includes(file.type)) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.userimades.ima = e.target.result;
+        console.log('Loaded image:', this.userimades.ima); // 输出图片数据
+      };
+      reader.readAsDataURL(file);
+    } else {
+      this.$message.error('请上传正确格式的图片 (.jpg 或 .png)');
+    }
+  }
+},
+
+async handleUpload() {
+  try {
+    if (!this.userimades.ima) {
+      this.$message.error('请提供图片');
+      return;
+    }
+
+    // 从图片数据中去除 Base64 前缀
+    const Photo = this.userimades.ima.split(',')[1]; 
+    const Describtion = this.userimades.descri;
+    const Id = localStorage.getItem('userId'); 
+    // const Id = 'U00000018'; 
+
+    if (!Photo || !Describtion) {
+      this.$message.error('请提供图片和认证资料');
+      return;
+    }
+
+    const response = await axiosInstance.put('/UserInfo/SetPhotoAndDescribtion', {
+      Id,
+      Photo,
+      Describtion,
+    });
+
+    if (response.status === 200) {
+      this.$message.success('上传成功，请刷新网页以查看最新状态');
+    } else {
+      this.$message.error(`上传失败: ${response.data.message}`);
+    }
+  } catch (error) {
+    console.error('请求失败:头像简介上传', error.response ? error.response.data : error.message);
+    this.$message.error('请求失败，请稍后再试');
+  }
+},
+async fetchImageAndText(id) {
+  try {
+    console.log(id,'!');
+    const response = await axiosInstance.post('/UserInfo/GetPhotoAndDescribtion', {
+      id
+    });
+
+    const { describtion, photo } = response.data;
+    console.log('1:',this.userimades.ima);
+    console.log('2:',this.userimades.descri);
+    this.userimades.ima = `data:image/jpeg;base64,${photo}`;
+    this.userimades.descri = describtion;
+
+    console.log('获取到的头像和文字描述:', this.userimades);
+  } catch (error) {
+    console.error('获取头像和简介失败:', error);
+    this.$message.error('获取头像和简介描述失败，请稍后再试');
+  }
+},
     async rechargeBalance() {
   if (this.recharge.amount <= 0) {
     this.$message.error('充值金额必须大于零');
@@ -334,7 +424,7 @@ async getBuyerCredits(userId) {
   formData.append('Amount', this.recharge.amount);
 
   try {
-    const response = await axiosInstance.post('/Payment/RechargeWallet', formData, {
+    const response = await axiosInstance.put('/Payment/RechargeWallet', formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
@@ -415,10 +505,12 @@ async resetPassword() {
   },
   mounted() {
     const userId = localStorage.getItem('userId');  // 替换为实际的用户 ID
+    console.log('Stored User ID:', localStorage.getItem('userId'));
     if (userId) {
     this.getUserInfo(userId);
     this.getWalletBalance(userId);
     this.getBuyerCredits(userId); // 调用获取买家积分的方法
+    this.fetchImageAndText(userId)
   } else {
     this.$message.error('用户ID不存在，请登录后再试');
   }
@@ -442,6 +534,8 @@ async resetPassword() {
   }
   
   .modal-content {
+    margin-top: 200px;
+    height: 45%;
     background-color: #fefefe;
     padding: 20px;
     border-radius: 8px;

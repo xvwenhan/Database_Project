@@ -27,12 +27,12 @@
             <span>旧时王谢堂前燕，飞入寻常百姓家</span>
         </span>
         <ul>
-            <!-- <li @click="$emit('changeView', 'UserCenter')">
+            <li @click="$emit('changeView', 'BusinessHomePage')">
                 <img src="@/assets/home.svg" alt="HomePage" class="TopbarIcon">
-            </li> -->
-            <li @click="show = true">
-                <img src="@/assets/setting.svg" alt="Setting"  id="Setting">
             </li>
+            <!-- <li @click="show = true">
+                <img src="@/assets/setting.svg" alt="Setting"  id="Setting">
+            </li> -->
             <li @click="showModal = true">
                 <img src="@/assets/setting.svg" alt="Setting" id="Setting">
             </li>
@@ -64,14 +64,12 @@
   
   <script>
   import BusinessSetting from './BusinessSetting.vue';
-  import UserCenter from './UserCenter.vue'
   import axiosInstance from '../components/axios';
   export default {
   
     name: 'Businessnav',
     components:{
       BusinessSetting,
-      UserCenter
     },
     data() {
     return {
@@ -94,7 +92,7 @@
       this.show = false;
     },
     async fetchStoreScore() {
-      const storeId =localStorage.getItem('userId');// 替换为实际的 storeid
+      const storeId =localStorage.getItem('userId');
       this.loading = true;
       this.error = null;
       this.storeScoreName = null;
