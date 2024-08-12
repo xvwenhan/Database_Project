@@ -175,8 +175,29 @@ const functionName = () => {
                 </div>
             </div>
 
-            <div v-if="activeSection === 'comments'" class="comments-section">
-              评论预览
+            <div v-if="activeSection === 'comments'" class="shop-remarks">
+              <div class="remarks-content">
+                <div 
+                  v-for="remark in remarks" 
+                  :key="remark.orderId" 
+                  class="remarks">
+                  <div class="remark-header">
+                    <div class='remark-avatar'>
+                      <img :src="remark.buyerAvatar" :alt="buyerAvatar" class='remark-avatar'/>
+                    </div>
+                    <div class="remark-buyerName" style="font-size: 16px; font-weight: bold; "> {{ remark.buyerName }} </div>
+                  </div>
+                  <div class="remark-content">
+                    <div class="remark-score" style="font-size: 16px; text-align: left;">
+                      评分：{{ remark.orderScore }}
+                    </div>
+                    <div class="remark-text" style="font-size: 16px; text-align: left;">
+                      评价：{{ remark.orderRemark }}
+                    </div>
+                    <div class="splitLine"></div>
+                  </div>
+              </div>
+            </div>
           </div>
       </div>
     </div>
@@ -218,7 +239,8 @@ const functionName = () => {
     }) ;
     //处理商品和评论预览
     const activeSection = ref('preview');
-    const displayProducts = reactive([]);           
+    const displayProducts = reactive([]); 
+    const remarks=reactive([]);          
     const message=ref('');
     onMounted(async () => {
       console.log(`当前登录用户id为${userId}`);
@@ -319,9 +341,35 @@ const functionName = () => {
         }
       }
     };
-    const showComments = () => {
+    const showComments = async() => {
       activeSection.value = 'comments';
+      try {
+        const response = await axiosInstance.get('/Shopping/GetStoreRemarks', {
+          params: {
+            storeId: product.value.storeId
+          }
+        });
+        if (remarks.length > 0) {
+          remarks.splice(0, remarks.length);
+        }
+        const limitedRemarks = response.data.slice(0, 3);
+        limitedRemarks.forEach(remark => {
+          remark.buyerAvatar = `data:image/png;base64,${remark.buyerAvatar}`;
+          remarks.push(remark);
+        });
+        console.log(`remarks is ${JSON.stringify(remarks, null, 2)}`)
+        message.value = '已获取评论信息';
+        console.log(remarks);
+      } catch (error) {
+        if (error.response) {
+          message.value = error.response.data;
+        } else {
+          message.value = '获取评论信息失败';
+        }
+      }
+      console.log(message.value);
     };
+    
 
     const showProducts = async () => {
       activeSection.value='preview';
@@ -670,6 +718,63 @@ transform: scale(0.95); /* 点击时缩小效果 */
 
 .product-text{
   align-self: end;
+}
+.shop-remarks{
+  background-color: #fff;
+  border-radius: 16px;
+  box-sizing: border-box;
+  min-height: 70vh;
+  margin-top: 10px;
+  padding: 8px;
+  position: sticky;
+  top: 10px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.remarks{
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* 添加阴影效果（可选） */
+  box-sizing: border-box; /* 使内边距和边框包含在宽度和高度内 */
+  border-radius: 15px; 
+  transition: transform 0.3s, box-shadow 0.3s;
+  padding:10px;
+  margin-bottom: 20px;
+}
+
+.remarks-content{
+  width: 85%;
+}
+.remark-header{
+  display: flex;
+  flex-direction: row;
+}
+.remark-avatar{
+  height: 40px;
+  width: 40px;
+  border-radius: 40px;
+}
+
+.remark-buyerName{
+  margin-left: 20px;
+  font-weight: 500;
+  font-size: 14px;
+  color: #11192d;
+  line-height: 20px;
+}
+
+.remark-content {
+  margin-left: 55px;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: left;
+}
+
+.splitLine{
+  margin: 12px 0;
+  height: 1px;
+  background-color: #f0f3f5;
 }
 </style> 
   
