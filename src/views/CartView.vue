@@ -43,9 +43,9 @@
                     <div 
                       v-for="store in paginatedStores" 
                       :key="store.storeId" 
-                      class="store-item"
-                      @click="handleStoreClick(store.storeId)">
-                        <div v-for="store in Stores" :key="store.storeId" class="store-container">
+                      class="store-item">
+                        <div v-for="store in Stores" :key="store.storeId" class="store-container"
+                        @click="handleStoreClick(store.storeId)">
                           <div class="store-content">
                             <div class="store-header">
                               <div class="store-info">
@@ -83,6 +83,7 @@ import 'element-plus/dist/index.css';
 import axiosInstance from '../components/axios';
 
 const router = useRouter();
+const userId =localStorage.getItem('userId');
 
 const categories = ref([
     { id: 1, name: '收藏商品' },
@@ -107,7 +108,7 @@ const message01 = ref('');
 const fetchProducts = async () => {
   try {
     const response = await axiosInstance.post('/Favourite/GetFavoriteProducts', {
-      "userId": "U6210129" //测试账号
+      "userId": userId
     });
 
     response.data.forEach(product => {
@@ -159,7 +160,7 @@ const message02 = ref('');
 const fetchStores = async () => {
   try {
     const response = await axiosInstance.post('/Favourite/GetFavoriteStores', {
-      "userId": "U6210129" //测试账号
+      "userId": userId
     });
     Stores.splice(0, Stores.length, ...response.data);
     message02.value = '已获取收藏店铺数据';
@@ -355,6 +356,11 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   margin: 15px;
+}
+
+.store-image{
+  width: 120px;
+  height: 120px;
 }
 
 .store-name {

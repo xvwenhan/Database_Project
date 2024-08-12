@@ -6,7 +6,7 @@ const functionName = () => {
 其中'01'可变,需填入对应商品的id
 -->
 <template>
-  <Navbar class="narbar"/>
+  <!-- <Navbar class="narbar"/> -->
   <div v-show="isLoading" class="loading">
     <div class="loading-text">加载中...</div>
   </div>
@@ -142,52 +142,80 @@ const functionName = () => {
     <div class="productAndCommentContent">
         <!-- 侧边导航栏 -->
         <div class="sidebar">
+          <div class="nav-item" @click="showProducts">商品预览</div>
           <div class="nav-item" @click="showComments">店铺评论</div>
-          <div class="nav-item" @click="showPreview">商品预览</div>
         </div>
         <!-- 内容区域 -->
         <div class="main-content">
-          <div class="contentSection">
-            <div v-if="activeSection === 'comments'" class="comments-section">
-              评论预览
-          </div>
-          <div v-if="activeSection === 'preview'" class="preview-section">
-            <!-- Product preview content -->
-            商品预览
-          </div>
-          <!-- 内容区域内的跳转按钮 -->
-          <el-button 
-           @click="handleButtonClick"
-           class="enter-button"
-           style="display: flex;
-              align-items: center;
-              justify-content: center;
-              font-size: 23px;
-              border-radius: 5px;
-              cursor: pointer;
-              width: 15%;
-              height:50px;
-              position: absolute;
-              right:5%;">{{ activeSection=='comments'?'查看全部评价':'查看全部商品' }}</el-button>
+                    <!-- 内容区域内的跳转按钮 -->
+            <el-button 
+            @click="handleButtonClick"
+            class="enter-button"
+            style="
+                font-size: 21px;
+                border-radius: 15px;
+                border: 2px solid rgba(0,0,0,0.4);
+                cursor: pointer;
+                width: auto;
+                height:35px;
+                ">{{ activeSection=='comments'?'查看全部评价':'查看全部商品' }}</el-button>
+
+            <div v-if="activeSection === 'preview'" class="preview-section">
+                <div 
+                  class="displayProductItem"
+                  v-for="product in displayProducts" 
+                  :key="product.productId" 
+                  @click="handleProductClick(product.productId)"
+                  >
+                    <img :src="product.productPic" alt="图片加载失败" class="product-image" />
+                    <div class="product-text">
+                      <h2>{{ product.productName }}</h2>
+                      <p>价格: ¥{{ product.productPrice }}</p>
+                    </div> 
+                </div>
+            </div>
+
+            <div v-if="activeSection === 'comments'" class="shop-remarks">
+              <div class="remarks-content">
+                <div 
+                  v-for="remark in remarks" 
+                  :key="remark.orderId" 
+                  class="remarks">
+                  <div class="remark-header">
+                    <div class='remark-avatar'>
+                      <img :src="remark.buyerAvatar" :alt="buyerAvatar" class='remark-avatar'/>
+                    </div>
+                    <div class="remark-buyerName" style="font-size: 16px; font-weight: bold; "> {{ remark.buyerName }} </div>
+                  </div>
+                  <div class="remark-content">
+                    <div class="remark-score" style="font-size: 16px; text-align: left;">
+                      评分：{{ remark.orderScore }}
+                    </div>
+                    <div class="remark-text" style="font-size: 16px; text-align: left;">
+                      评价：{{ remark.orderRemark }}
+                    </div>
+                    <div class="splitLine"></div>
+                  </div>
+              </div>
+            </div>
           </div>
       </div>
     </div>
   </div>
 </template>
   
-<script setup lang="ts">
+<script setup >
     import Navbar from '../components/Navbar.vue';
-    import { ref,onMounted} from 'vue';
+    import { ref,onMounted,reactive} from 'vue';
     import 'element-plus/dist/index.css';
     import { ElButton ,ElMessage} from 'element-plus';
     import { useRouter } from 'vue-router';
     import axiosInstance from '../components/axios';
-    import 'animate.css';
     
     //页面是否正在加载
     const isLoading=ref(true);
     //从浏览器中获取数据
-    const productId = '555555';
+    const productId = '222222';
     // const productId = localStorage.getItem('productIdOfDetail');
     const userId =localStorage.getItem('userId');
     const role=localStorage.getItem('role');
@@ -206,18 +234,17 @@ const functionName = () => {
       score: 0,
       isProductStared: false,/////////注意1，补一条所属店铺是否被收藏
       isStoreStared:false,
-      storeAvatar:''
-    }) ;        
-    // const isStoreStared=ref(false);
-    
-    const activeSection = ref('comments');
-
-  
+      storeAvatar:'',
+      finalPrice:0
+    }) ;
+    //处理商品和评论预览
+    const activeSection = ref('preview');
+    const displayProducts = reactive([]); 
+    const remarks=reactive([]);          
+    const message=ref('');
     onMounted(async () => {
       console.log(`当前登录用户id为${userId}`);
       try {
-        // const response = await axiosInstance.get('/Account/send_verification_code',
-        // {params: { email: registerEmail.value }});
         const response = await axiosInstance.get(`/Shopping/GetProductDetails/`,{
           params:{
             userId:userId,
@@ -226,6 +253,8 @@ const functionName = () => {
         });
         isLoading.value=false;
         product.value=response.data;
+        product.value.finalPrice=product.value.discountPrice;
+        showProducts();
         console.log('页面加载完成');
         ////////////////////////////////折扣测试
         // product.value.discountPrice=3;
@@ -312,16 +341,76 @@ const functionName = () => {
         }
       }
     };
-    const showComments = () => {
+    const showComments = async() => {
       activeSection.value = 'comments';
+      try {
+        const response = await axiosInstance.get('/Shopping/GetStoreRemarks', {
+          params: {
+            storeId: product.value.storeId
+          }
+        });
+        if (remarks.length > 0) {
+          remarks.splice(0, remarks.length);
+        }
+        const limitedRemarks = response.data.slice(0, 3);
+        limitedRemarks.forEach(remark => {
+          remark.buyerAvatar = `data:image/png;base64,${remark.buyerAvatar}`;
+          remarks.push(remark);
+        });
+        console.log(`remarks is ${JSON.stringify(remarks, null, 2)}`)
+        message.value = '已获取评论信息';
+        console.log(remarks);
+      } catch (error) {
+        if (error.response) {
+          message.value = error.response.data;
+        } else {
+          message.value = '获取评论信息失败';
+        }
+      }
+      console.log(message.value);
     };
+    
 
-    const showPreview = () => {
-      activeSection.value = 'preview';
-    };
+    const showProducts = async () => {
+      activeSection.value='preview';
+      console.log(`product.value.storeId${product.value.storeId}`);
+      try {
+      const response = await axiosInstance.get('/StoreViewProduct/GetProductsByStoreIdAndViewType', {
+        params: {
+          storeId: product.value.storeId,
+          ViewType: 1
+        }
+      });
+      if (displayProducts.length > 0) {
+        displayProducts.splice(0, displayProducts.length);
+      }
+      //splice和slice不同
+      // 只取返回数据的前三个商品
+      const limitedProducts = response.data.slice(0, 3);
+      limitedProducts.forEach(product => {
+        product.productPic = `data:image/png;base64,${product.productPic}`;
+        displayProducts.push(product);
+      });
+      console.log(`displayProducts is ${JSON.stringify(displayProducts, null, 2)}`)
+    } catch (error) {
+      if (error.response) {
+        message.value = error.response.data;
+      } else {
+        message.value = '获取全部信息失败';
+      }
+    }
+    console.log(message.value);
+};
+
     const handleButtonClick = () => {
       // Handle button click
       console.log('按钮点击');
+    };
+    const handleProductClick = (productId) => {
+      console.log('正在被点击');
+      console.log(`productId is ${productId}`);
+      localStorage.setItem('productIdOfDetail',productId);
+      router.replace('/productdetail').catch(err => {});
     };
     const enterPay=()=>{
       const productStr = JSON.stringify(product.value);//序列化对象
@@ -378,7 +467,6 @@ transform: scale(0.95); /* 点击时缩小效果 */
 .productAndCommentContent {
   width: 70%; /*百分比都是相对于父容器说的*/ 
   margin-top:15px;
-  height:450px;
   display: flex;
   flex-direction: row;
   position: relative;
@@ -539,7 +627,7 @@ transform: scale(0.95); /* 点击时缩小效果 */
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* 添加阴影效果（可选） */
   box-sizing: border-box; /* 使内边距和边框包含在宽度和高度内 */
   border-radius: 15px; 
-  width: 15%;
+  width: 20%;
   background-color: #FFFFFF;
   color: #000000;
   margin-right: 10px;
@@ -587,6 +675,106 @@ transform: scale(0.95); /* 点击时缩小效果 */
   text-decoration: line-through;
   font-size:15px;
   color:rgba(0,0,0,0.4);
+}
+.preview-section{
+  padding-left:20px;
+  padding-right:20px;
+  display: flex;
+  flex-wrap: wrap;
+  /* gap: 20px; */
+  justify-content: space-between;
+  width:100%;
+}
+.displayProductItem{
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* 添加阴影效果（可选） */
+  box-sizing: border-box; /* 使内边距和边框包含在宽度和高度内 */
+  border-radius: 15px; 
+  transition: transform 0.3s, box-shadow 0.3s;
+  display: grid;
+  width: 200px;
+  height: 200px;
+  margin-top:10px;
+  margin-bottom:10px;
+  padding:20px;
+}
+.displayProductItem:hover{
+  transform: translateY(-2px);
+}
+.product-image{
+  border-radius: 15px; 
+  width:100%;
+  height:auto;
+  max-height:90px;
+}
+.product-item h2 {
+  font-size: 18px;
+  margin: 0 0 10px;
+}
+
+.product-item p {
+  font-size: 16px;
+  margin: 0 0 10px;
+}
+
+.product-text{
+  align-self: end;
+}
+.shop-remarks{
+  background-color: #fff;
+  border-radius: 16px;
+  box-sizing: border-box;
+  min-height: 70vh;
+  margin-top: 10px;
+  padding: 8px;
+  position: sticky;
+  top: 10px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.remarks{
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* 添加阴影效果（可选） */
+  box-sizing: border-box; /* 使内边距和边框包含在宽度和高度内 */
+  border-radius: 15px; 
+  transition: transform 0.3s, box-shadow 0.3s;
+  padding:10px;
+  margin-bottom: 20px;
+}
+
+.remarks-content{
+  width: 85%;
+}
+.remark-header{
+  display: flex;
+  flex-direction: row;
+}
+.remark-avatar{
+  height: 40px;
+  width: 40px;
+  border-radius: 40px;
+}
+
+.remark-buyerName{
+  margin-left: 20px;
+  font-weight: 500;
+  font-size: 14px;
+  color: #11192d;
+  line-height: 20px;
+}
+
+.remark-content {
+  margin-left: 55px;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: left;
+}
+
+.splitLine{
+  margin: 12px 0;
+  height: 1px;
+  background-color: #f0f3f5;
 }
 </style> 
   

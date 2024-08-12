@@ -519,9 +519,9 @@ async resetPassword() {
 </script>
 
 <style scoped>
-.modal {
+  .modal {
     display: flex;
-    align-items: center;
+    /* align-items: center; */
     justify-content: center;
     position: fixed;
     z-index: 1000;
@@ -535,7 +535,11 @@ async resetPassword() {
   
   .modal-content {
     margin-top: 200px;
+<<<<<<< HEAD
     height: 45%;
+=======
+    height: 45%; /*控制卡片的高度*/
+>>>>>>> 88bad51135fc39f14b9e266c3c16d2e632a310bd
     background-color: #fefefe;
     padding: 20px;
     border-radius: 8px;
@@ -561,6 +565,7 @@ async resetPassword() {
 }
 
 .user-center {
+  /* height: 50%; */
   position: relative;
   padding: 20px;
   background-color: #fff;

@@ -2,7 +2,9 @@
 import Navbar from '../components/Navbar.vue';
 import { ref, onMounted } from 'vue';
 import axiosInstance from '../components/axios';
+import { useRouter} from 'vue-router';
 
+const router = useRouter();
 // 定义响应式数据变量
 const products = ref([]);
 
@@ -30,6 +32,14 @@ const fetchProducts = async (marketId) => {
   }
 };
 
+const goToProductDetail = (productId: string) => {
+  // console.log('Selected Store ID:', productId);
+  localStorage.setItem('productIdOfDetail', productId);  // 存储 productId
+  console.log('跳转至 /productdetail');
+  router.push('/productdetail');  // 跳转到商品详情页
+};
+
+
 // 组件挂载时调用获取商品数据的函数
 onMounted(() => {
   const marketId = localStorage.getItem('selectedMarketId');
@@ -42,7 +52,7 @@ onMounted(() => {
 <template>
   <Navbar />
   <div class="product-display">
-    <div v-for="product in products" :key="product.id" class="product-item">
+    <div v-for="product in products" :key="product.id" class="product-item" @click="goToProductDetail(product.productId)">
       <img :src="product.image" :alt="product.name" class="product-image" />
       <div class="product-info">
         <p class="product-price">
@@ -73,8 +83,13 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
+  cursor: pointer; /* 使鼠标在悬停时变成手型指针 */
+  transition: border-color 0.3s ease; /* 添加平滑的边框颜色变化效果 */
 }
 
+.product-item:hover {
+  border-color: #3498db; /* 悬停时的边框颜色 */
+}
 .product-image {
   width: 100%;
   height: 200px;
