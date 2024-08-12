@@ -10,15 +10,15 @@
       <div v-for="store in stores" :key="store.storeId" class="store-container">
         <div class="store-content">
           <div class="store-header">
-            <img :src="'data:image/png;base64,' + store.storePhoto.result" alt="Store Avatar" class="store-avatar" />
+            <img :src="'data:image/png;base64,' + store.storePhoto.result" alt="Store Avatar" class="store-avatar" @click="goToStoreDetail(store.storeId)"/>
             <div class="store-info">
-              <h2 class="store-name">{{ store.storeName }}</h2>
+              <h2 class="store-name" @click="goToStoreDetail(store.storeId)">{{ store.storeName }}</h2>
               <p class="store-rating">好评率: {{ (store.storeScore * 100).toFixed(2) }}%</p>
             </div>
           </div>
           <div class="store-products">
             <div v-for="product in store.homeProducts" :key="product.productId" class="product-item">
-              <img :src="'data:image/png;base64,' + product.productPic" alt="Product Image" class="product-image" />
+              <img :src="'data:image/png;base64,' + product.productPic" alt="Product Image" class="product-image" @click="goToProductDetail(product.productId)"/>
               <p class="product-price">¥{{ product.productPrice }}</p>
             </div>
           </div>
@@ -32,7 +32,9 @@
 import { ref, onMounted } from 'vue';
 import axiosInstance from '../components/axios';
 import Navbar from '../components/Navbar.vue';
+import { useRouter} from 'vue-router';
 
+const router = useRouter();
 const stores = ref([]);
 const loading = ref(true);  // 用于控制缓冲页面的显示
 const errorMessage = ref(''); // 错误信息
@@ -60,6 +62,18 @@ const fetchStores = async (keyword: string, type: string) => {
   } finally {
     loading.value = false;  // 数据获取完毕后关闭缓冲页面
   }
+};
+// 定义跳转函数
+const goToStoreDetail = (storeId: string) => {
+  localStorage.setItem('storeIdofDetail', storeId);  // 存储 storeId
+  console.log("跳转至/shopdetail")
+  router.push('/shopdetail');  // 跳转到店铺详情页
+};
+
+const goToProductDetail=(productId: string) => {
+  localStorage.setItem('productIdOfDetail', productId);  // 存储 productId
+  console.log("跳转至/productdetail")
+  router.push('/productdetail');  // 跳转到店铺详情页
 };
 
 onMounted(() => {
@@ -116,6 +130,10 @@ onMounted(() => {
   font-size: 24px; /* 调整为更大的字体 */
   font-weight: bold;
   margin: 0;
+  cursor: pointer; /* 鼠标悬停时显示为指针 */
+}
+.store-name:hover {
+  color: #3498db; /* 鼠标悬停时更改颜色 */
 }
 
 .store-rating {
