@@ -23,21 +23,6 @@ v-model="inputContent"
 class="input_content">
 </el-input>
 </div>
-<!--
-<el-upload
-  class="upload"
-  action="https://localhost:7262/api//Post/create_post"
-  :on-preview="handlePreview"
-  :on-remove="handleRemove"
-  list-type="picture">
-  <button :style="{ 
-    backgroundImage: `url(${buttons[0].background})`, 
-    backgroundColor: buttons[0].backgroundColor 
-  }" @click="buttonClick(buttons[0])" class="upload_button" 
-  @mouseover="changeButtonColor(buttons[0], true)" @mouseout="changeButtonColor(buttons[0], false)"></button>
-  <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
-</el-upload>
--->
 <div>
     <input type="file" @change="handleFileUpload" multiple>
     <button :style="{ backgroundImage: `url(${buttons[2].background})`, 
@@ -67,7 +52,7 @@ const inputContent = ref('');
 const buttons = reactive([
   { id: 1, text: 'Button 1', background: 'src/assets/czw/picture+.svg', backgroundColor: 'transparent' },
   { id: 2, text: 'Button 2', background: 'src/assets/czw/back.svg', backgroundColor: 'transparent' },
-  { id: 3, text: 'Button 2', background: 'src/assets/czw/back.svg', backgroundColor: 'transparent' },
+  { id: 3, text: 'Button 2', background: 'src/assets/czw/confirm.svg', backgroundColor: 'transparent' },
 ]);
 
 
@@ -120,11 +105,13 @@ const confirm = async () => {
         }
       }).then(response => {
         console.log(response.data);
+       
+        router.push('/forum'); 
       }).catch(error => {
         console.error(error);
       });
       console.log('上传图片:', files.value);
-
+    
 };
 
 </script>
@@ -161,7 +148,7 @@ const confirm = async () => {
     line-height: 60px;
     font-size: 5vh;
   }
-  .back_button {
+.back_button {
       float: left;
       width: 5vh;
       height:5vh;
@@ -170,7 +157,7 @@ const confirm = async () => {
       transition: background-color 0.3s ease; /* 添加过渡效果 */
       background-size: 100% 100%; /* 调整背景图像的尺寸 */
       border: none;
-    }
+}
 .image-preview {
   max-width: 200px;
   margin-top: 10px;
