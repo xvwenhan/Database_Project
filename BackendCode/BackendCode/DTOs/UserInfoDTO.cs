@@ -42,7 +42,7 @@
     public class SPADModel
     {
         public string? Id { get; set; }
-        public IFormFile? Photo { get; set; }
+        public string? Photo { get; set; }
         public string? Describtion { get; set; }
     }
 

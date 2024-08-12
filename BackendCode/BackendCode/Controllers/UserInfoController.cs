@@ -67,7 +67,7 @@ namespace UserInfo.Controllers
 
         // 修改头像或简介
         [HttpPut("SetPhotoAndDescribtion")]
-        public async Task<IActionResult> SetPhotoAndDescribtion([FromForm] SPADModel model)
+        public async Task<IActionResult> SetPhotoAndDescribtion([FromBody] SPADModel model)
         {
             string des = "";
             string pho = "";
@@ -95,11 +95,12 @@ namespace UserInfo.Controllers
 
             if (model.Photo != null)
             {
-                var ms = new MemoryStream();
+                /*var ms = new MemoryStream();
                 var image = model.Photo;
                 await image.CopyToAsync(ms);
-                var imageData = ms.ToArray();
-                temp.PHOTO = imageData;
+                var imageData = ms.ToArray();*/
+                byte[] photoBytes = Convert.FromBase64String(model.Photo);
+                temp.PHOTO = photoBytes;
                 pho = "头像已被更改";
             }
             else
