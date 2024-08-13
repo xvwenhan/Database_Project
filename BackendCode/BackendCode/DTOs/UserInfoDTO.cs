@@ -33,4 +33,22 @@
         public string AccountId { get; set; }
         public string? UserName { get; set; }
     }
+
+    public class GPADModel
+    {
+        public string? Id { get; set; }
+    }
+
+    public class SPADModel
+    {
+        public string? Id { get; set; }
+        public string? Photo { get; set; }
+        public string? Describtion { get; set; }
+    }
+
+    public class PhotoAndDescribtionDTO
+    {
+        public string? Photo { get; set; }
+        public string? Describtion { get; set; }
+    }
 }

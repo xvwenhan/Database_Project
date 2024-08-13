@@ -150,8 +150,11 @@ namespace StoreFrontController.Controllers
             {
                 // 计算订单中非空score的平均值
                 var averageScore = await _dbContext.ORDERS
-                    .Where(o => o.STORE_ACCOUNT_ID == storeId && o.SCORE.HasValue)
-                    .AverageAsync(o => o.SCORE);
+                    .Where(o => o.STORE_ACCOUNT_ID == storeId) // 筛选符合条件的订单
+                    .Select(o => o.SCORE) // 选择 SCORE 字段
+                    .DefaultIfEmpty() // 如果没有数据，则默认值为 null
+                    .AverageAsync(); // 计算平均值
+
 
                 // 找到对应的store
                 var store = await _dbContext.STORES
@@ -264,7 +267,7 @@ namespace StoreFrontController.Controllers
             }
         }
         //put接口修改店铺名称和地址，此处传""这样的空值即代表不修改原值
-        [HttpPut("UpdateStoreInfo")]
+        /*[HttpPut("UpdateStoreInfo")]
         public async Task<IActionResult> UpdateStoreInfo(string storeId, [FromBody] StoreUpdateDto storeUpdateDto)
         {
             if (string.IsNullOrEmpty(storeId))
@@ -282,7 +285,8 @@ namespace StoreFrontController.Controllers
                 // 查找对应的store
                 var store = await _dbContext.STORES
                     .FirstOrDefaultAsync(s => s.ACCOUNT_ID == storeId);
-
+                var account = await _dbContext.ACCOUNTS
+                   .FirstOrDefaultAsync(a => a.ACCOUNT_ID == storeId);
                 if (store == null)
                 {
                     return NotFound("Store not found.");
@@ -292,6 +296,7 @@ namespace StoreFrontController.Controllers
                 if (!string.IsNullOrEmpty(storeUpdateDto.StoreName))
                 {
                     store.STORE_NAME = storeUpdateDto.StoreName;
+                    account.USER_NAME= storeUpdateDto.StoreName;
                 }
 
                 if (!string.IsNullOrEmpty(storeUpdateDto.Address))
@@ -313,7 +318,7 @@ namespace StoreFrontController.Controllers
                 _logger.LogError(ex, "Error updating store info for store {storeId}", storeId);
                 return StatusCode(500, "Internal server error");
             }
-        }
+        }*/
         //Post提交审核接口
         [HttpPost("SubmitAuthentication")]
         public async Task<IActionResult> SubmitAuthentication(string storeId, [FromBody] SubmitAuthenticationRequest request)

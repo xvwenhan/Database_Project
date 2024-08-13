@@ -46,3 +46,6 @@ BackendCode/.vs/BackendCode/FileContentIndex/1127db31-d82b-420a-a400-d1d42e8124d
 BackendCode/.vs/BackendCode/FileContentIndex/565a2ba4-7715-466e-b8ff-a20a3c07ca50.vsidx
 BackendCode/.vs/BackendCode/FileContentIndex/57cb53a5-3e79-407b-93e2-c65175c35615.vsidx
 *.zip
+.config
+PublishProfiles
+bin

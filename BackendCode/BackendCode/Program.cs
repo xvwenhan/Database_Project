@@ -1,6 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using BackendCode.Data;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Yitter.IdGenerator;
+
+var Idoptions = new IdGeneratorOptions();
+YitIdHelper.SetIdGenerator(Idoptions);
+
 
 var builder = WebApplication.CreateBuilder(args);
 

@@ -165,8 +165,9 @@ namespace BackendCode.Controllers
                         address = order_exist.DELIVERY_ADDRESS,
                         username = order_exist.USERNAME,
                         orderId = order_exist.ORDER_ID,
-                        createTime = order_exist.CREATE_TIME.ToString("yyyy年MM月dd日 HH:mm:ss")
+                        createTime = order_exist.CREATE_TIME.ToString("yyyy年MM月dd日 HH:mm:ss"),
                         //格式化createTime为易读的格式
+                        isPaid = order_exist.ORDER_STATUS != "待付款"
                     };
 
                     return Ok(order_Info); //返回订单相关信息
@@ -204,6 +205,16 @@ namespace BackendCode.Controllers
 
             product.SALE_OR_NOT = true; //修改商品售出状态
 
+            /* 获取商品的折扣信息 */
+            var marketProduct = await _dbContext.MARKET_PRODUCTS.FirstOrDefaultAsync(mp => mp.PRODUCT_ID == orderDTO.ProductId);
+
+            /* 计算订单金额(折扣价) */
+            decimal totalPay = product.PRODUCT_PRICE; //原价
+            if (marketProduct != null) //有折扣
+            {
+                totalPay = product.PRODUCT_PRICE * marketProduct.DISCOUNT_PRICE; //计算折扣价格
+            }
+
             /* 创建订单对象，并设置订单信息 */
             var order = new ORDERS
             {
@@ -211,7 +222,7 @@ namespace BackendCode.Controllers
                 PRODUCT_ID = orderDTO.ProductId, //商品ID
                 BUYER_ACCOUNT_ID = orderDTO.BuyerId, //买家ID
                 STORE_ACCOUNT_ID = store.ACCOUNT_ID, //商家ID
-                TOTAL_PAY = product.PRODUCT_PRICE, //订单金额
+                TOTAL_PAY = totalPay, //订单金额（折扣价）
                 ORDER_STATUS = "待付款", //订单状态
                 CREATE_TIME = DateTime.Now, //创建时间
                 RETURN_OR_NOT = false, //是否退货
@@ -230,8 +241,9 @@ namespace BackendCode.Controllers
                 address = order.DELIVERY_ADDRESS,
                 username = order.USERNAME,
                 orderId = orderId,
-                createTime = order.CREATE_TIME.ToString("yyyy年MM月dd日 HH:mm:ss")
+                createTime = order.CREATE_TIME.ToString("yyyy年MM月dd日 HH:mm:ss"),
                 //格式化createTime为易读的格式
+                isPaid = order.ORDER_STATUS != "待付款"
             };
 
             return Ok(orderInfo); //返回订单相关信息
@@ -353,7 +365,7 @@ namespace BackendCode.Controllers
         /********************************/
         /* 买家充值 更新钱包余额接口    */
         /********************************/
-        [HttpPost("RechargeWallet")]
+        [HttpPut("RechargeWallet")]
         public async Task<IActionResult> RechargeWalletAsync([FromForm] RechargeDTO rechargeDto)
         {
             /* 获取买家钱包信息 */
@@ -379,7 +391,7 @@ namespace BackendCode.Controllers
         /********************************/
         /* 查看用户钱包余额接口         */
         /********************************/
-        [HttpPost("GetWalletBalance")]
+        [HttpGet("GetWalletBalance")]
         public async Task<IActionResult> GetWalletBalanceAsync(string accountID)
         {
             /* 获取买家钱包信息 */
@@ -429,10 +441,12 @@ namespace BackendCode.Controllers
                     OrderId = order.ORDER_ID,
                     ProductName = product.PRODUCT_NAME,
                     StoreName = store.STORE_NAME,
-                    TotalPay = order.TOTAL_PAY,
-                    ActualPay = order.ACTUAL_PAY,
+                    Price = product.PRODUCT_PRICE, //原价
+                    TotalPay = order.TOTAL_PAY,    //折扣价格
+                    ActualPay = order.ACTUAL_PAY,  //实付金额
                     OrderStatus = order.ORDER_STATUS,
-                    Picture = product.PRODUCT_PIC
+                    Picture = product.PRODUCT_PIC,
+                    ProductId = product.PRODUCT_ID
                 };
                 orderInfos.Add(orderInfo); //将OrderInfoDTO对象添加到列表中
             }
