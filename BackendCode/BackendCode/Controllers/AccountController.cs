@@ -103,7 +103,7 @@ namespace Account.Controllers
                     new ClaimsPrincipal(claimsIdentity),
                     authProperties);
 
-                return Ok(new { Message = "登录成功！", Role = "商家" });
+                return Ok(new { Message = "登录成功！", Role = "商家",userId = user2.ACCOUNT_ID });
             }
 
             //查看是否为管理员
@@ -131,7 +131,7 @@ namespace Account.Controllers
                     new ClaimsPrincipal(claimsIdentity),
                     authProperties);
 
-                return Ok(new { Message = "登录成功！", Role = "管理员" });
+                return Ok(new { Message = "登录成功！", Role = "管理员", userId = user3.ACCOUNT_ID });
             }
             // 如果验证失败
             if (user != null || user2 != null || user3 != null)
