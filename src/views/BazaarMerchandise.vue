@@ -152,7 +152,8 @@ onMounted(() => {
 }
 
 .market-poster {
-  width: 60%;
+  /* width: 500px; */
+  height: 300px;
   padding: 15px;
   /* margin-right: 20px; */
   /* border-radius: 10px; */
