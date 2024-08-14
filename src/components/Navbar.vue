@@ -22,13 +22,18 @@
         </li>
       </ul>
       <div class="navbar-search">
-        <select class="search-type" v-model="searchType">
-          <option value="product">商品</option>
-          <option value="vendor">商家</option>
-        </select>
-        <input type="text" v-model="searchText" placeholder="搜索..." class="search-input"/>
-        <button class="search-button" @click="handleSearch">搜索</button>
+        <div class="search-container">
+          <select v-model="searchType" class="search-type">
+            <option value="product">商品</option>
+            <option value="vendor">商家</option>
+          </select>
+          <input type="text" v-model="searchText" placeholder="搜索..." class="search-input" />
+          <button class="search-button" @click="handleSearch">
+            <el-icon style="color: white;font-size: 15px;"><Search /></el-icon>
+          </button>
+        </div>
       </div>
+
     </div>
     <div class="line bottom-line"></div>
     <UserModal ref="userModal" />
@@ -41,6 +46,7 @@ import { useRouter, useRoute } from 'vue-router';
 import UserModal from '../views/UserCenter.vue';
 import axios from 'axios';
 import { getLunar } from 'chinese-lunar-calendar';
+import { Search } from '@element-plus/icons-vue';
 import chineseLunar from 'chinese-lunar';
 // 引入UserModal组件
 const userModal = ref(null);
@@ -227,6 +233,7 @@ html, body {
   height: 50px;
   border-radius: 50%; /* 使头像为圆形 */
   margin-left: 50px;
+  cursor: pointer; /* 鼠标悬停时变为可点击的状态 */
 }
 
 
@@ -262,60 +269,70 @@ html, body {
 .navbar-item .nav-link:hover {
   background-color: #f7f4ed; /* 鼠标悬停或点击时背景颜色 */
   color: #a61b29; /* 悬停或点击时字体颜色 */
-  /* padding-left: 50px; 
-  padding-right: 50px;
-  margin-left: -25px; 
-  margin-right: -25px; */
+
   z-index: 1; /* 提高 z-index 以覆盖其他元素 */
 }
 
 
-
-
 .navbar-search {
-  margin-left: auto;
-  height: 42px;
   display: flex;
   align-items: center;
-  border: 2px solid orange; /* 确保边框颜色为橙色 */
-  border-radius: 25px;
-  padding: 5px;
-  background-color: #ffffff; /* 确保背景色为白色 */
-  box-shadow: none; /* 取消所有阴影效果 */
-  margin-right: 30px;
+  padding-left: 30px; /* 增加左边距，使搜索框向右移动 */
 }
 
+.search-container {
+  display: flex;
+  align-items: center;
+  background-color: #a61b29;
+  border: 1px solid #F9F0DA;
+  padding-left: 5px;
+  /* padding-right: -2px; */
+  height: 38px;
+  width: 250px;
+  position: relative; /* 为了使按钮绝对定位 */
+}
 
 .search-type {
-  height: 35px;
+  height: 40px;
+  background-color: transparent;
   border: none;
-  border-radius: 20px;
-  padding: 0 10px;
-  margin-right: 10px;
-  background-color: white;
-  color: #333;
+  padding: 0 4px;
+  color: white;
   outline: none;
 }
 
 .search-input {
-  height: 35px;
+  height: 40px;
   border: none;
   outline: none;
+  padding-left: 10px;
+  color: white;
+  background-color: transparent;
   flex-grow: 1;
-  margin-right: 10px;
-  width: 100px;
+}
+.search-input::placeholder {
+  color: white; /* 设置placeholder的字体颜色为白色 */
+  opacity: 1; /* 确保颜色不透明 */
+}
+.search-type option {
+  background-color: white; /* 背景为白色 */
+  color: black; /* 下拉选项的字体颜色为黑色 */
 }
 
 .search-button {
-  height: 35px;
-  padding: 0 20px;
-  background-color: orange;
+  height: 36px;
+  width: 40px;
+  background-color: #a61b29;
   color: white;
   border: none;
-  border-radius: 20px;
   display: flex;
   align-items: center;
+  justify-content: center;
   cursor: pointer;
+  position: absolute; /* 绝对定位 */
+  right: 0; /* 使按钮右对齐 */
 }
+
+
 </style>
 
