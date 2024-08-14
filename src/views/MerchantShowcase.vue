@@ -13,7 +13,7 @@
             <img :src="'data:image/png;base64,' + store.storePhoto.result" alt="Store Avatar" class="store-avatar" @click="goToStoreDetail(store.storeId)"/>
             <div class="store-info">
               <h2 class="store-name" @click="goToStoreDetail(store.storeId)">{{ store.storeName }}</h2>
-              <p class="store-rating">好评率: {{ (store.storeScore * 100).toFixed(2) }}%</p>
+              <p class="store-rating">评分: {{ (store.storeScore ) }}</p>
             </div>
           </div>
           <div class="store-products">
@@ -112,6 +112,7 @@ onMounted(() => {
   align-items: center; /* 头像和名称居中对齐 */
   gap: 10px; /* 调整头像和店铺名称之间的间距 */
   margin-bottom: 20px;
+  width: 100%; 
 }
 
 .store-avatar {
@@ -124,6 +125,8 @@ onMounted(() => {
 .store-info {
   display: flex;
   flex-direction: column;
+  align-items: flex-start; /* 确保左对齐 */
+  width: 100%; /* 让店铺名称和评分都占据同样的宽度 */
 }
 
 .store-name {
@@ -131,15 +134,20 @@ onMounted(() => {
   font-weight: bold;
   margin: 0;
   cursor: pointer; /* 鼠标悬停时显示为指针 */
-}
-.store-name:hover {
-  color: #3498db; /* 鼠标悬停时更改颜色 */
+  text-align: left; /* 确保左对齐 */
 }
 
 .store-rating {
   font-size: 18px; /* 调整为更大的字体 */
   color: #888;
+  text-align: left; /* 确保左对齐 */
 }
+
+.store-name:hover {
+  color: #3498db; /* 鼠标悬停时更改颜色 */
+}
+
+
 
 .store-products {
   display: flex;
