@@ -10,7 +10,7 @@
       <div class="carousel-slide" :style="slideStyle">
         <div v-for="(market, index) in markets" :key="index" class="carousel-item">
           <div class="image-container">
-            <img :src="'data:image/png;base64,' + market.posterImg" class="carousel-image" @click="goToMerchantShowcase(market.marketId)" />
+            <img :src="'data:image/png;base64,' + market.posterImg" class="carousel-image" @click="goToMerchantShowcase(market.marketId,market.theme,market.posterImg,market.detail)" />
             <div class="overlay">
               <span class="end-time">至{{ formatDate(market.endTime) }}</span>
             </div>
@@ -49,6 +49,11 @@ const fetchMarkets = async () => {
 
 onMounted(() => {
   fetchMarkets();
+
+  const savedIndex = localStorage.getItem('currentMarketIndex');
+  if (savedIndex !== null) {
+    currentIndex.value = parseInt(savedIndex, 10); // 恢复保存的索引
+  }
 });
 
 // 上一页
@@ -62,8 +67,12 @@ const nextSlide = () => {
 };
 
 // 跳转到市集商品页面
-const goToMerchantShowcase = (marketId) => {
+const goToMerchantShowcase = (marketId,theme,posterImg,detail) => {
   localStorage.setItem('selectedMarketId', marketId);
+  localStorage.setItem('selectedMarkettheme', theme);
+  localStorage.setItem('selectedMarketposterImg', posterImg);
+  localStorage.setItem('selectedMarketdetail', detail);
+  localStorage.setItem('currentMarketIndex', currentIndex.value); // 保存当前索引
   router.push('/bazaarmerchandise');
 };
 
@@ -91,6 +100,7 @@ const formatDate = (dateString) => {
 
 h2 {
   font-size: 28px;
+  margin-top: 20px;
   margin-bottom: 20px;
 }
 .market-title{

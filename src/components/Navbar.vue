@@ -17,7 +17,7 @@
     <div class="line"></div>
     <div class="navbar-bottom">
       <ul class="navbar-menu">
-        <li class="navbar-item" v-for="item in menuItems" :key="item.text">
+        <li class="navbar-item" v-for="item in menuItems" :key="item.text"  @click="handleMenuClick(item.link)">
           <router-link :to="item.link" class="nav-link" active-class="active">{{ item.text }}</router-link>
         </li>
       </ul>
@@ -75,7 +75,9 @@ const menuItems = reactive([
   { text: "订单中心", link: "/ordercentre" },
   // { text: "个人中心", link: "/personalcentre" },
 ]);
-
+const handleMenuClick = (link) => {
+    localStorage.removeItem('currentMarketIndex');
+};
 
 
 // 获取天气信息
@@ -95,6 +97,11 @@ const fetchWeather = async () => {
 };
 
 onMounted(() => {
+  // 检查当前路由路径是否为 "/bazaarmerchandise"
+  if (route.path === '/bazaarmerchandise') {
+    document.querySelector('.navbar-menu li:nth-child(3) .nav-link').classList.add('active');
+  }
+
   // 从本地存储中恢复搜索类型和关键字
   searchType.value = localStorage.getItem('searchType') === '1' ? 'vendor' : 'product';
   searchText.value = localStorage.getItem('keyword') || '';
