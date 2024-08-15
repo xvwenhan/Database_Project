@@ -172,8 +172,18 @@ const router = createRouter({
       path: '/shopdetail',
       name: 'ShopDetail',
       component: () => import('../views/ShopDetail.vue')
+    },
+    {
+      path:'/1',
+      name:'1',
+      component: () => import('../views/templates/1.vue')
+    },
+    {
+      path:'/2',
+      name:'2',
+      component: () => import('../views/templates/2.vue')
     }
-  
+
   ]
 })
 export default router
