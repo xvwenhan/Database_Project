@@ -72,7 +72,7 @@
                     appear
             >
             <div class="registForm" v-show="!isLogin">
-      <el-radio-group v-show="!isLookfor" v-model="userType" style="margin-left: 10px;margin-bottom:0px">
+      <el-radio-group v-show="!isChangePsw" v-model="userType" style="margin-left: 10px;margin-bottom:0px">
         <el-radio label="买家">买家</el-radio>
         <el-radio label="商家">商家</el-radio>
       </el-radio-group>
@@ -115,10 +115,10 @@
         show-password
         style="width: 250px;margin-left: 10px;margin-top: 20px"
       ></el-input>
-      <el-button v-show="!isLookfor" type="success" round style="background-color: #82111f; letter-spacing: 5px; width: 250px; margin-left: 10px;margin-top: 30px" @click="register" >
+      <el-button v-show="!isChangePsw" type="success" round style="background-color: #82111f; letter-spacing: 5px; width: 250px; margin-left: 10px;margin-top: 30px" @click="register" >
         注册
       </el-button>
-      <el-button v-show="isLookfor" type="success" round style="background-color: #82111f; letter-spacing: 5px; width: 250px; margin-left: 10px;margin-top: 30px" @click="changPsw" >
+      <el-button v-show="isChangePsw" type="success" round style="background-color: #82111f; letter-spacing: 5px; width: 250px; margin-left: 10px;margin-top: 30px" @click="changPsw" >
         修改密码
       </el-button>
       </div>
@@ -182,7 +182,7 @@ const buttonText = ref('获取验证码');
 const isButtonDisabled = ref(false);
 //控制变量
 const isLogin=ref(true);
-const isLookfor=ref(false);//是否在寻找密码
+const isChangePsw=ref(false);//是否在修改密码
 //el展示信息
 const message = ref('');
 
@@ -276,6 +276,7 @@ const clearData=()=>{
 //   console.log(message.value);
 // };
 const isRegistered=async()=>{
+  console.log(`进入isRegistered`);
   try {
       const response = await axiosInstance.get(`/Account/check_register/${encodeURIComponent(registerEmail.value)}`);
       return false;
@@ -286,20 +287,25 @@ const isRegistered=async()=>{
     return true;
 }
 // 获取验证码前先检查该邮箱是否已经注册
+// 根据当前在注册还是修改密码来决定是否可以发送验证码
 const getVerificationCode= async () =>{
   if(isButtonDisabled.value) return;
   console.log(registerEmail.value);
   if(!registerEmail.value){
     ElMessage.error('请保证邮箱不为空');
   }else{
-    const canSend =isLookfor===true? !(await isRegistered()):(await isRegistered());
+    const isR=await isRegistered();
+    const canSend =(isChangePsw.value==true? isR:!isR);
     console.log(`canSend is ${canSend}`);
-    console.log(`await isRegistered() is ${await isRegistered()}`);
-    console.log(`!await isRegistered() is ${!(await isRegistered())}`);
-
-    if (canSend){
+    console.log(` isChangePsw is ${isChangePsw.value}`);
+    if(!canSend&&isChangePsw.value==true){
+      ElMessage.error('该邮箱尚未注册，请先注册！');
+    }else if(!canSend&&isChangePsw.value==false){
+      ElMessage.error('邮箱已存在！无法重复注册！');
+    }else if(canSend){
       startCountdown();
       try {
+        console.log(`开始发送验证码`);
         const response = await axiosInstance.get(`/Account/send_verification_code/${encodeURIComponent(registerEmail.value)}`);
         realVerificationCode.value=response.data.verificationCode;
 
@@ -362,7 +368,6 @@ const register= async () =>{
         message.value='';
       }
 }
-// 修改密码前先检查该邮箱是否已经注册
 const changPsw=async ()=>{
   if(!registerEmail.value||!newPassword.value||!confirmPassword.value||!verificationCode.value){
         ElMessage.error('请保证不为空');
@@ -395,7 +400,7 @@ const changPsw=async ()=>{
 }
 //指场景的切换
 const handleForgetPassword=()=>{
-  isLookfor.value=true;
+  isChangePsw.value=true;
   changeToRegist();
 }
 function changeToRegist() {
@@ -408,7 +413,7 @@ function changeToRegist() {
   clearData();
 }
 function changeToLogin() {
-  isLookfor.value=false;
+  isChangePsw.value=false;
   styleObj.value.bordertoprightradius = '15px';
   styleObj.value.borderbottomrightradius = '15px';
   styleObj.value.bordertopleftradius = '0px';
