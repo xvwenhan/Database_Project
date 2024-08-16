@@ -16,7 +16,7 @@ const functionName = () => {
         <div class="storeName">&nbsp&nbsp{{ product.storeName }}</div>
         <div class="storeScore">评分：{{  product.score}}</div>
         <!-- 店铺收藏按钮，与商品收藏差不多 -->
-        <el-button v-show="role==='买家'&&isAbleBuy"
+        <el-button v-show="role==='买家'"
               @click="starStore"
               class="starStore-button"
               style="display: flex;
