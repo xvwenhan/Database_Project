@@ -21,7 +21,8 @@ const fetchStores = async (keyword: string, type: string) => {
     console.log('返回数据', response.data);
 
     if (response.data && response.data.length > 0) {
-      products.value = response.data;
+      // products.value = response.data;
+      products.value = Array(100).fill(response.data).flat(); // 将数据重复100次并平展成一个数组
       errorMessage.value = ''; // 清除错误信息
     } else {
       products.value = [];
@@ -51,22 +52,25 @@ onMounted(() => {
 
 <template>
   <Navbar />
-  <div v-if="loading" class="loading-overlay">
+  <!-- <div v-if="loading" class="loading-overlay">
     <div class="loading-spinner"></div>
     <p>搜索中，请稍候...</p>
-  </div>
-  <div v-else>
+  </div> -->
+  <div 
+  style="background-color: #f7f4ed;height: 100%;overflow-x: hidden;"
+  >
     <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
     <div v-else class="product-display">
       <div v-for="product in products" :key="product.productId" class="product-item" @click="goToProductDetail(product.productId)">
         <img :src="'data:image/png;base64,' + product.productPic" :alt="product.productName" class="product-image" />
         <div class="product-info">
           <p class="product-price">
-            <span class="special-price">到手价</span> ¥{{ product.productPrice }}
+            <span class="special-price">价格</span> ¥{{ product.productPrice }}
           </p>
           <h2 class="product-name">【{{ product.productName }}】{{ product.description }}</h2>
         </div>
       </div>
+      
     </div>
   </div>
 </template>
@@ -76,7 +80,10 @@ onMounted(() => {
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
-  padding: 20px;
+  padding-top: 20px;
+  padding-left: 100px;
+  padding-right: 100px;
+  
 }
 
 .product-item {
@@ -93,7 +100,7 @@ onMounted(() => {
 }
 
 .product-item:hover {
-  border-color: #3498db; /* 悬停时的边框颜色 */
+  border-color: #a61b29; /* 悬停时的边框颜色 */
 }
 
 .product-image {
@@ -116,12 +123,12 @@ onMounted(() => {
 
 .product-price {
   font-size: 18px;
-  color: #e60012;
+  color: #a61b29;
   margin-bottom: 10px;
 }
 
 .special-price {
-  background-color: #ff4275;
+  background-color: #a61b29;
   color: #fff;
   padding: 2px 5px;
   border-radius: 5px;

@@ -120,6 +120,9 @@ onMounted(() => {
   margin-top: 20px;
   cursor: pointer;
 }
+.market-title:hover {
+  color: #a61b29;
+}
 
 .market-image {
   width: 40%;
@@ -184,7 +187,7 @@ onMounted(() => {
 }
 
 .product-item:hover {
-  border-color: #3498db;
+  border-color: #a61b29;
 }
 
 .product-image {
@@ -207,12 +210,12 @@ onMounted(() => {
 
 .product-price {
   font-size: 18px;
-  color: #e60012;
+  color: #c21f30;
   margin-bottom: 10px;
 }
 
 .special-price {
-  background-color: #ff4275;
+  background-color: #a61b29;
   color: #fff;
   padding: 2px 5px;
   border-radius: 5px;
@@ -226,6 +229,6 @@ onMounted(() => {
 
 .discount {
   margin-left: 5px;
-  color: #e60012;
+  color: #c21f30;
 }
 </style>
