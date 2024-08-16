@@ -118,8 +118,9 @@ onMounted(() => {
 .store-avatar {
   width: 60px; /* 头像大小 */
   height: 60px; /* 头像大小 */
-  border-radius: 50%; /* 将头像裁剪为圆形 */
+  /* border-radius: 50%; 将头像裁剪为圆形 */
   object-fit: cover;
+  cursor: pointer;
 }
 
 .store-info {
@@ -144,7 +145,7 @@ onMounted(() => {
 }
 
 .store-name:hover {
-  color: #3498db; /* 鼠标悬停时更改颜色 */
+  color: #a61b29; /* 鼠标悬停时更改颜色 */
 }
 
 
@@ -167,8 +168,11 @@ onMounted(() => {
   height: 150px; /* 固定图片高度 */
   object-fit: cover;
   border-radius: 5px;
+  cursor: pointer;
 }
-
+.product-image:hover {
+  border-color: #a61b29;
+}
 .product-price {
   font-size: 16px;
   color: #333;
