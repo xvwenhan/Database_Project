@@ -182,6 +182,11 @@ const router = createRouter({
       path:'/2',
       name:'2',
       component: () => import('../views/templates/2.vue')
+    },
+    {
+      path:'/aside',
+      name:'aside',
+      component: () => import('../views/templates/aside.vue')
     }
 
   ]
