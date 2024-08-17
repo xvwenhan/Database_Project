@@ -493,7 +493,11 @@ namespace BackendCode.Controllers
                     PostTitle = p.POST_TITLE,
                     NumberOfLikes=p.NUMBER_OF_LIKES,
                     NumberOfComments=p.NUMBER_OF_COMMENTS,
-                    ReleaseTime=p.RELEASE_TIME                 
+                    ReleaseTime=p.RELEASE_TIME,
+                    CoverImageId = _context.POST_IMAGES
+                .Where(pi => pi.POST_ID == p.POST_ID)
+                .Select(pi => pi.IMAGE_ID)
+                .FirstOrDefault() ?? "0000000000" // 若没有图片则返回默认图片的ID
                 })
                 .ToListAsync();
 
@@ -519,6 +523,18 @@ namespace BackendCode.Controllers
             // 查询该用户写的所有帖子
             var posts = await _context.POSTS
                 .Where(p => p.ACCOUNT_ID == userId)
+                  .Select(p => new
+                  {
+                      PostId = p.POST_ID,
+                      PostTitle = p.POST_TITLE,
+                      NumberOfLikes = p.NUMBER_OF_LIKES,
+                      NumberOfComments = p.NUMBER_OF_COMMENTS,
+                      ReleaseTime = p.RELEASE_TIME,
+                      CoverImageId = _context.POST_IMAGES
+                .Where(pi => pi.POST_ID == p.POST_ID)
+                .Select(pi => pi.IMAGE_ID)
+                .FirstOrDefault() ?? "0000000000" // 若没有图片则返回默认图片的ID
+                  })
                 .ToListAsync();
 
             if (posts == null || !posts.Any())
@@ -580,8 +596,12 @@ namespace BackendCode.Controllers
                     p.NumberOfLikes,
                     p.NumberOfComments,
                     p.AuthorId,
-                    p.AuthorName
-                })
+                    p.AuthorName,
+                    CoverImageId = _context.POST_IMAGES
+                .Where(pi => pi.POST_ID == p.PostId)
+                .Select(pi => pi.IMAGE_ID)
+                .FirstOrDefault() ?? "0000000000" // 若没有图片则返回默认图片的ID
+        })
                 .ToListAsync();
 
             //.Select选择所需的字段，将查询结果投影成一个新的对象
