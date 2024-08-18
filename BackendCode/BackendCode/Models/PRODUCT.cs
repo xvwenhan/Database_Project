@@ -12,6 +12,7 @@
         //public byte[]? PRODUCT_PIC { get; set; }
         public string? STORE_TAG { get; set; }
         public STORE STORE { get; set; }
+        public SUB_CATEGORY SUB_CATEGORY { get; set; }
         public virtual ICollection<PRODUCT_IMAGE> PRODUCT_IMAGES { get; set; } = new List<PRODUCT_IMAGE>();
         public virtual ICollection<PRODUCT_DETAIL> PRODUCT_DETAILS { get; set; } = new List<PRODUCT_DETAIL>();
     }
