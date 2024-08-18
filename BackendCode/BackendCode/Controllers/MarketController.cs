@@ -2,6 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using BackendCode.Data;
 using BackendCode.DTOs.Market;
+using BackendCode.DTOs.ProductDTO;
+using BackendCode.DTOs;
 
 namespace Market.Controllers
 {
@@ -31,7 +33,24 @@ namespace Market.Controllers
                                 ProductName = p.PRODUCT_NAME,
                                 ProductPrice = p.PRODUCT_PRICE,
                                 ProductTag = p.TAG,
-                                ProductPic = p.PRODUCT_PIC != null ? Convert.ToBase64String(p.PRODUCT_PIC) : null,
+                                //修改首页图
+                                ProductPics = _dbContext.PRODUCT_IMAGES
+                                 .Where(img => img.PRODUCT_ID == p.PRODUCT_ID)
+                                  .Select(img => new ImageModel
+                                  {
+                                     ImageId = img.IMAGE_ID
+                                          })
+                                 .ToList(),
+
+                                ProductDes = _dbContext.PRODUCT_DETAILS
+                                .Where(img => img.PRODUCT_ID == p.PRODUCT_ID)
+                                .Select(img => new ShowPicDes { Description = img.DESCRIPTION,
+                                    DetailPic = new ImageModel
+                                    {
+                                        ImageId = img.IMAGE_ID
+                                    }
+                                })
+                                .ToList(),//修改图文详情
                                 SaleOrNot = p.SALE_OR_NOT,
                                 StoreId = p.ACCOUNT_ID,
                                 StoreTag = p.STORE_TAG,

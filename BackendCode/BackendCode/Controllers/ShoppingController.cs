@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using BackendCode.Data;
 using BackendCode.Models;
 using BackendCode.DTOs.Shopping;
+using BackendCode.DTOs;
 
 namespace BackendCode.Controllers
 {
@@ -214,11 +215,18 @@ namespace BackendCode.Controllers
             var isStoreStared = await _dbContext.BUYER_STORE_BOOKMARKS
                 .AnyAsync(bsb => bsb.BUYER_ACCOUNT_ID == userId && bsb.STORE_ACCOUNT_ID == store.ACCOUNT_ID); //检查店铺是否被收藏
 
+            /* 查询商品的第一个图片ID */
+            var firstImage = await _dbContext.PRODUCT_IMAGES
+                .Where(pi => pi.PRODUCT_ID == productId)
+                .OrderBy(pi => pi.IMAGE_ID) //根据图片ID排序，获取第一个
+                .Select(pi => new ImageModel { ImageId = pi.IMAGE_ID })  
+                .FirstOrDefaultAsync();
+
             /* 创建商品详情DTO */
             var productDetails = new ProductDetailsDTO
             {
                 Name = product.PRODUCT_NAME, //商品名称
-                Picture = product.PRODUCT_PIC, //商品图片
+                Picture = firstImage, //商品图片
                 Price = product.PRODUCT_PRICE, //商品价格
                 Description = product.DESCRIBTION, //商品描述
                 StoreName = store.STORE_NAME, //店铺名称
@@ -236,26 +244,29 @@ namespace BackendCode.Controllers
 
         /***************************************/
         /* 获取商品详情信息接口-商品图片       */
+        /*              停用                   */
         /***************************************/
-        [HttpGet("GetProductPic")]
+/*        [HttpGet("GetProductPic")]
         public async Task<IActionResult> GetProductPicAsync(string productId)
         {
-            /* 查询商品信息 */
+            *//* 查询商品信息 *//*
             var product = await _dbContext.PRODUCTS.FirstOrDefaultAsync(a => a.PRODUCT_ID == productId);
             if (product == null) //商品ID不存在
             {
                 return NotFound("未找到该商品信息");
             }
 
-            /* 获取产品图片的BLOB数据 */
-            var pictureResult = product.PRODUCT_PIC;
-            if (pictureResult == null)
+            *//* 获取产品展示图片的ID *//*
+            var pictures = await _dbContext.PRODUCT_IMAGES
+                .Where(pi => pi.PRODUCT_ID == productId)
+                .ToListAsync();
+            if (pictures == null)
             {
                 return NotFound("未找到该商品图片");
             }
 
-            return File(product.PRODUCT_PIC, "image/jpeg"); //返回商品图片
-        }
+            return File(product.PRODUCT_PIC, "image/jpeg"); //返回商品图片}*/
+        
 
         /***************************************/
         /* 获取买家消费积分接口                */

@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using BackendCode.Data;
 using BackendCode.DTOs.Favourite;
 using BackendCode.Models;
+using BackendCode.DTOs;
 
 namespace Favourite.Controllers
 {
@@ -45,8 +46,13 @@ namespace Favourite.Controllers
                 ProductPrice=p.PRODUCT_PRICE,
                 SaleOrNot=p.SALE_OR_NOT,
                 Tag=p.TAG,
-                ProductPic = p.PRODUCT_PIC != null ? Convert.ToBase64String(p.PRODUCT_PIC) : null,
-
+                ProductPic = new ImageModel
+                {
+                       ImageId = _dbContext.PRODUCT_IMAGES
+                             .Where(img => img.PRODUCT_ID == p.PRODUCT_ID)
+                             .Select(img => img.IMAGE_ID)
+                            .FirstOrDefault()
+                }
             }) .ToList();
             // 返回商品信息
             return Ok(productDtos);
@@ -83,7 +89,14 @@ namespace Favourite.Controllers
                         ProductId = mp.PRODUCT_ID,
                         ProductPrice = mp.PRODUCT_PRICE,
                         ProductName=mp.PRODUCT_NAME,
-                        ProductPic= mp.PRODUCT_PIC != null ? Convert.ToBase64String(mp.PRODUCT_PIC) : null,
+                        ProductPic = new ImageModel
+                        {
+                            ImageId = _dbContext.PRODUCT_IMAGES
+                             .Where(img => img.PRODUCT_ID == mp.PRODUCT_ID)
+                             .Select(img => img.IMAGE_ID)
+                            .FirstOrDefault()
+                        }
+
                     })
                     .ToListAsync();
 

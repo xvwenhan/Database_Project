@@ -10,7 +10,7 @@ namespace BackendCode.DTOs.Favourite
         public decimal? ProductPrice { get; set; }
         public bool? SaleOrNot { get; set; }
         public string? Tag { get; set; }
-        public string? ProductPic { get; set; }
+        public ImageModel? ProductPic { get; set; }//改成传图片ID
         public string? ProductName { get; set; }
         
     }
@@ -18,7 +18,7 @@ namespace BackendCode.DTOs.Favourite
     {
         public string? ProductId { get; set; }
         public decimal? ProductPrice { get; set; }
-        public string? ProductPic { get; set; }
+        public ImageModel? ProductPic { get; set; }
         public string? ProductName { get; set; }
     }
     //返回所有用户收藏店铺的DTO

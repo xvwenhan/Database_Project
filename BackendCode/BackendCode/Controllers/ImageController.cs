@@ -18,11 +18,23 @@ namespace BackendCode.Controllers
         public IActionResult GetImage(string imageId)
         {
             var image = _context.POST_IMAGES.FirstOrDefault(i => i.IMAGE_ID == imageId);
-            if (image == null)
+            if (image != null)
             {
-                return NotFound();
+                return File(image.IMAGE, "image/jpeg"); //根据图片类型调整MIME类型
             }
-            return File(image.IMAGE, "image/jpeg"); //根据图片类型调整MIME类型
+            var image2 = _context.PRODUCT_IMAGES.FirstOrDefault(i => i.IMAGE_ID == imageId);
+            if (image2 != null)
+            {
+                return File(image2.IMAGE, "image/jpeg"); //根据图片类型调整MIME类型
+            }
+            var image3 = _context.PRODUCT_DETAILS.FirstOrDefault(pd => pd.IMAGE_ID == imageId);
+            if (image3 != null)
+            {
+                return File(image3.IMAGE, "image/jpeg"); //根据图片类型调整MIME类型
+            }
+                return NotFound();
+
+
         }
     }
 }

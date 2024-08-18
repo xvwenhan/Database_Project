@@ -41,7 +41,7 @@
     public class ProductDetailsDTO
     {
         public string Name { get; set; }
-        public byte[] Picture { get; set; }
+        public ImageModel Picture { get; set; }//改为首张图片的ID
         public decimal Price { get; set; }
         public string Description { get; set; }
         public string StoreName { get; set; }

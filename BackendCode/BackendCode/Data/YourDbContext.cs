@@ -497,9 +497,9 @@ namespace BackendCode.Data
                     .HasConversion<bool>()
                     .IsRequired();
 
-                entity.Property(e => e.PRODUCT_PIC)
+/*                entity.Property(e => e.PRODUCT_PIC)
                     .HasColumnType("BLOB")
-                    .IsRequired();
+                    .IsRequired();*/
 
                 entity.Property(e => e.TAG)
                     .HasMaxLength(50)

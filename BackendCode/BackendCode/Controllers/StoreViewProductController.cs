@@ -8,6 +8,12 @@ using System.Threading.Tasks;
 using BackendCode.DTOs.ProductDTO;
 using BackendCode.Models;
 using Yitter.IdGenerator;
+using Alipay.AopSdk.Core.Domain;
+using BackendCode.DTOs.PostModel;
+using Microsoft.Extensions.Hosting;
+using BackendCode.DTOs;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace StoreViewProductController.Controllers
 {
@@ -52,7 +58,7 @@ namespace StoreViewProductController.Controllers
 
                 var products = await query.ToListAsync();
 
-                var productDTOs = products.Select(p => new ProductDTO
+                var productDTOs = products.Select(p => new ShowProductDTO
                 {
                     ProductId = p.PRODUCT_ID,
                     ProductName = p.PRODUCT_NAME,
@@ -61,7 +67,14 @@ namespace StoreViewProductController.Controllers
                     Tag = p.TAG,
                     Description = p.DESCRIBTION,
                     StoreTag = p.STORE_TAG,
-                    ProductPic = p.PRODUCT_PIC != null ? Convert.ToBase64String(p.PRODUCT_PIC) : null
+                   ProductPics = _dbContext.PRODUCT_IMAGES
+                 .Where(img => img.PRODUCT_ID == p.PRODUCT_ID)
+                 .Select(img => new ImageModel { ImageId=img.IMAGE_ID })
+                 .ToList(),
+                   ProductDes= _dbContext.PRODUCT_DETAILS
+                 .Where(img => img.PRODUCT_ID == p.PRODUCT_ID)
+                 .Select(img =>new ShowPicDes { Description = img.DESCRIPTION, DetailPic = new ImageModel { ImageId = img.IMAGE_ID } } )
+                 .ToList()
                 }).ToList();
 
                 return Ok(productDTOs);
@@ -92,7 +105,7 @@ namespace StoreViewProductController.Controllers
                              EF.Functions.Like(p.PRODUCT_NAME, $"%{likePattern}%")))
                 .ToListAsync();
 
-            var productDtos = products.Select(p => new ProductDTO
+            var productDtos = products.Select(p => new ShowProductDTO
             {
                 ProductId = p.PRODUCT_ID,
                 ProductName = p.PRODUCT_NAME,
@@ -101,7 +114,14 @@ namespace StoreViewProductController.Controllers
                 Tag = p.TAG,
                 Description = p.DESCRIBTION,
                 StoreTag = p.STORE_TAG,
-                ProductPic = p.PRODUCT_PIC != null ? Convert.ToBase64String(p.PRODUCT_PIC) : null
+                ProductPics = _dbContext.PRODUCT_IMAGES
+                 .Where(img => img.PRODUCT_ID == p.PRODUCT_ID)
+                .Select(img => new ImageModel { ImageId = img.IMAGE_ID })
+                 .ToList(),
+                ProductDes = _dbContext.PRODUCT_DETAILS
+                 .Where(img => img.PRODUCT_ID == p.PRODUCT_ID)
+                 .Select(img => new ShowPicDes { Description = img.DESCRIPTION, DetailPic = new ImageModel { ImageId = img.IMAGE_ID } })
+                 .ToList()
             })
             .OrderByDescending(p => p.ProductName == keyword)  // 完全匹配优先
             .ThenByDescending(p => p.ProductName.StartsWith(keyword))  // 前缀匹配次优
@@ -128,7 +148,7 @@ namespace StoreViewProductController.Controllers
 
             var products = await _dbContext.PRODUCTS
                 .Where(p => p.ACCOUNT_ID == storeId && p.STORE_TAG == storeTag)
-                .Select(p => new ProductDTO
+                .Select(p => new ShowProductDTO
                 {
                     ProductId = p.PRODUCT_ID,
                     ProductName = p.PRODUCT_NAME,
@@ -137,7 +157,14 @@ namespace StoreViewProductController.Controllers
                     Tag = p.TAG,
                     Description = p.DESCRIBTION,
                     StoreTag = p.STORE_TAG,
-                    ProductPic = p.PRODUCT_PIC != null ? Convert.ToBase64String(p.PRODUCT_PIC) : null
+                    ProductPics = _dbContext.PRODUCT_IMAGES
+                 .Where(img => img.PRODUCT_ID == p.PRODUCT_ID)
+               .Select(img => new ImageModel { ImageId = img.IMAGE_ID })
+                 .ToList(),
+                    ProductDes = _dbContext.PRODUCT_DETAILS
+                 .Where(img => img.PRODUCT_ID == p.PRODUCT_ID)
+                 .Select(img => new ShowPicDes { Description = img.DESCRIPTION, DetailPic = new ImageModel { ImageId = img.IMAGE_ID } })
+                 .ToList()
                 })
                 .ToListAsync();
 
@@ -165,7 +192,7 @@ namespace StoreViewProductController.Controllers
             if (!string.IsNullOrEmpty(updatedProduct.Tag)) product.TAG = updatedProduct.Tag;
             if (!string.IsNullOrEmpty(updatedProduct.Description)) product.DESCRIBTION = updatedProduct.Description;
 
-            if (!string.IsNullOrEmpty(updatedProduct.ProductPic))
+/*            if (!string.IsNullOrEmpty(updatedProduct.ProductPic))
             {
                 try
                 {
@@ -175,7 +202,7 @@ namespace StoreViewProductController.Controllers
                 {
                     return BadRequest("Invalid Base64 string for PRODUCT_PIC.");
                 }
-            }
+            }*/  ///////////////////////////备注：暂时不修改首页图和详情图等。可以另写接口
 
             if (!string.IsNullOrEmpty(updatedProduct.StoreTag)) product.STORE_TAG = updatedProduct.StoreTag;
 
@@ -262,20 +289,21 @@ namespace StoreViewProductController.Controllers
             }
         }
 
-
-
         //post接口，新建商品
         [HttpPost("addProduct")]
+        [Authorize]
         public async Task<IActionResult> AddProduct(string storeId, [FromForm] Product1DTO newProduct)
         {
             try
             {
                 // 生成唯一的 PRODUCT_ID
-                string productId;
-                do
+                string productId = "p"+YitIdHelper.NextId().ToString();//修改商品id生成方法
+/*                do
                 {
                     productId = "P" + new Random().Next(1000000, 9999999).ToString();
-                } while (await _dbContext.PRODUCTS.AnyAsync(p => p.PRODUCT_ID == productId));
+
+                } while (await _dbContext.PRODUCTS.AnyAsync(p => p.PRODUCT_ID == productId));*/
+
 
                 var product = new PRODUCT
                 {
@@ -286,7 +314,8 @@ namespace StoreViewProductController.Controllers
                     TAG = newProduct.Tag,
                     DESCRIBTION = newProduct.Description,
                     ACCOUNT_ID = storeId,
-                    STORE_TAG = newProduct.StoreTag
+                    STORE_TAG = newProduct.StoreTag,
+                    
                 };
                 _dbContext.PRODUCTS.Add(product);
                 await _dbContext.SaveChangesAsync();
@@ -297,40 +326,32 @@ namespace StoreViewProductController.Controllers
                 {
                     foreach (var image in newProduct.ProductImages)
                     {
-                        string uidb = YitIdHelper.NextId().ToString();
-
-                        var productImage = new PRODUCT_IMAGE
+                        using (var ms = new MemoryStream())
                         {
-                            PRODUCT_ID = productId,
-                            IMAGE_ID = uidb,
-                            IMAGE = Convert.FromBase64String(image)
-                        };
-                        _dbContext.PRODUCT_IMAGES.Add(productImage);
+                            string uidb = YitIdHelper.NextId().ToString();
+                            await image.CopyToAsync(ms);
+                            var imageData = ms.ToArray();
+                            var productImage = new PRODUCT_IMAGE
+                            {
+                                PRODUCT_ID = productId,
+                                IMAGE_ID = uidb,
+                                IMAGE = imageData
+                            };
+                            _dbContext.PRODUCT_IMAGES.Add(productImage);
+                        }
                     }
-                    await _dbContext.SaveChangesAsync();
                 }
-
                 // 处理商品详情
                 //.Any检查集合中是否有任何元素（防止是空集）
                 if (newProduct.PicDes != null && newProduct.PicDes.Any())
                 {
                     foreach (var picdes in newProduct.PicDes)
                     {
-                        string uidb = YitIdHelper.NextId().ToString();
-
-                        var productDetail = new PRODUCT_DETAIL
+                        using (var ms = new MemoryStream())
                         {
-                            PRODUCT_ID = productId,
-                            IMAGE_ID = uidb,
-                            IMAGE = Convert.FromBase64String(picdes.DetailPic),
-                            DESCRIPTION = picdes.Description != null ? picdes.Description : null,
-                        };
-                        _dbContext.PRODUCT_DETAILS.Add(productDetail);
-                        /*using (var ms = new MemoryStream())
-                        {
+                            string uidb = YitIdHelper.NextId().ToString();
                             await picdes.DetailPic.CopyToAsync(ms);
                             var imageData = ms.ToArray();
-                            string uidb = YitIdHelper.NextId().ToString();
                             var productDetail = new PRODUCT_DETAIL
                             {
                                 PRODUCT_ID = productId,
@@ -339,11 +360,10 @@ namespace StoreViewProductController.Controllers
                                 DESCRIPTION = picdes.Description != null ? picdes.Description : null,
                             };
                             _dbContext.PRODUCT_DETAILS.Add(productDetail);
-                        }*/
+                        }
                     }
-                    await _dbContext.SaveChangesAsync();
                 }
-
+                await _dbContext.SaveChangesAsync();
                 return Ok("Product added successfully.");
 
             }

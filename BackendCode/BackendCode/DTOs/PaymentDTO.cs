@@ -64,7 +64,8 @@
         public decimal TotalPay { get; set; }
         public decimal ActualPay { get; set; }
         public string OrderStatus { get; set; }
-        public byte[] Picture { get; set; }
+        public ImageModel Picture { get; set; }
+
         public string ProductId { get; set; }
         public decimal Price { get; set; }
     }

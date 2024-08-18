@@ -6,6 +6,8 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using BackendCode.DTOs.ProductDTO;
+using BackendCode.DTOs;
 
 namespace NaviSearchController.Controllers
 {
@@ -50,7 +52,21 @@ namespace NaviSearchController.Controllers
                     SaleOrNot = p.SALE_OR_NOT,
                     Tag = p.TAG,
                     Description = p.DESCRIBTION,
-                    ProductPic = p.PRODUCT_PIC != null ? Convert.ToBase64String(p.PRODUCT_PIC) : null,
+                    ProductPics = _dbContext.PRODUCT_IMAGES
+                                .Where(img => img.PRODUCT_ID == p.PRODUCT_ID)
+                                .Select(img => new ImageModel
+                                {
+                                    ImageId = img.IMAGE_ID
+                                })
+                                .ToList(),//修改首页图
+                    ProductDes = _dbContext.PRODUCT_DETAILS
+                                .Where(img => img.PRODUCT_ID == p.PRODUCT_ID)
+                                .Select(img => new ShowPicDes { Description = img.DESCRIPTION, DetailPic = new ImageModel
+                                {
+                                    ImageId = img.IMAGE_ID
+                                }
+                                })
+                                .ToList(),//修改图文详情
                     StoreId = p.ACCOUNT_ID,
                     StoreName = _dbContext.STORES.FirstOrDefault(s => s.ACCOUNT_ID == p.ACCOUNT_ID)?.STORE_NAME,
                     StoreScore = _dbContext.STORES.FirstOrDefault(s => s.ACCOUNT_ID == p.ACCOUNT_ID)?.STORE_SCORE
@@ -94,7 +110,24 @@ namespace NaviSearchController.Controllers
                             ProductId = p.PRODUCT_ID,
                             ProductName = p.PRODUCT_NAME,
                             ProductPrice = p.PRODUCT_PRICE,
-                            ProductPic = p.PRODUCT_PIC != null ? Convert.ToBase64String(p.PRODUCT_PIC) : null
+                            ProductPics = _dbContext.PRODUCT_IMAGES
+                                .Where(img => img.PRODUCT_ID == p.PRODUCT_ID)
+                                .Select(img => new ImageModel
+                                {
+                                    ImageId = img.IMAGE_ID
+                                })
+                                .ToList(),//修改首页图
+                            ProductDes = _dbContext.PRODUCT_DETAILS
+                                .Where(img => img.PRODUCT_ID == p.PRODUCT_ID)
+                                .Select(img => new ShowPicDes
+                                {
+                                    Description = img.DESCRIPTION,
+                                    DetailPic = new ImageModel
+                                    {
+                                        ImageId = img.IMAGE_ID
+                                    }
+                                })
+                                .ToList(),//修改图文详情
                         }).ToList()
                 })
                 .OrderByDescending(s => s.StoreName == keyword)

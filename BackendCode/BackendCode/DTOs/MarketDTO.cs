@@ -1,4 +1,6 @@
-﻿namespace BackendCode.DTOs.Market
+﻿using BackendCode.DTOs.ProductDTO;
+
+namespace BackendCode.DTOs.Market
 {
     public class AllProductsDTO
     {
@@ -9,7 +11,8 @@
         public string? StoreId { get; set; }
         public bool? SaleOrNot { get; set; }
         public string? Describtion { get; set; }
-        public string? ProductPic { get; set; }
+        public List<ImageModel> ProductPics { get; set; }//新增首页图ID
+        public List<ShowPicDes> ProductDes { get; set; }//新增详情图文
         public string? StoreTag { get; set; }
         public decimal? Discount { get; set; }
 
