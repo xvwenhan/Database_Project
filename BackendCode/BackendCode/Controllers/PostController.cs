@@ -497,8 +497,8 @@ namespace BackendCode.Controllers
                     ReleaseTime=p.RELEASE_TIME,
                     CoverImageId = _context.POST_IMAGES
                 .Where(pi => pi.POST_ID == p.POST_ID)
-                .Select(pi => pi.IMAGE_ID)
-                .FirstOrDefault() ?? "0000000000" // 若没有图片则返回默认图片的ID
+                .Select(pi => new ImageModel { ImageId=pi.IMAGE_ID })
+                .FirstOrDefault() ?? new ImageModel { ImageId = "0000000000" } // 若没有图片则返回默认图片的ID
                 })
                 .ToListAsync();
 
@@ -533,8 +533,8 @@ namespace BackendCode.Controllers
                       ReleaseTime = p.RELEASE_TIME,
                       CoverImageId = _context.POST_IMAGES
                 .Where(pi => pi.POST_ID == p.POST_ID)
-                .Select(pi => pi.IMAGE_ID)
-                .FirstOrDefault() ?? "0000000000" // 若没有图片则返回默认图片的ID
+                .Select(pi =>new ImageModel {ImageId =pi.IMAGE_ID })
+                .FirstOrDefault() ?? new ImageModel { ImageId = "0000000000" }// 若没有图片则返回默认图片的ID
                   })
                 .ToListAsync();
 
@@ -600,9 +600,9 @@ namespace BackendCode.Controllers
                     p.AuthorName,
                     CoverImageId = _context.POST_IMAGES
                 .Where(pi => pi.POST_ID == p.PostId)
-                .Select(pi => pi.IMAGE_ID)
-                .FirstOrDefault() ?? "0000000000" // 若没有图片则返回默认图片的ID
-        })
+                .Select(pi => new ImageModel { ImageId = pi.IMAGE_ID })
+       .FirstOrDefault() ?? new ImageModel { ImageId = "0000000000" } // 若没有图片则返回默认图片的ID
+                })
                 .ToListAsync();
 
             //.Select选择所需的字段，将查询结果投影成一个新的对象
@@ -855,7 +855,11 @@ namespace BackendCode.Controllers
                             NumberOfLikes=post.NUMBER_OF_LIKES,
                             NumberOfComments=post.NUMBER_OF_COMMENTS,
                             AuthorId=post.ACCOUNT_ID,
-                            AuthorName = buyer.USER_NAME
+                            AuthorName = buyer.USER_NAME,
+                            Image = _context.POST_IMAGES
+                .Where(pi => pi.POST_ID == post.POST_ID)
+                .Select(pi =>new ImageModel {ImageId= pi.IMAGE_ID })
+                .FirstOrDefault() ?? new ImageModel { ImageId = "0000000000" } // 若没有图片则返回默认图片的ID
                         };
 
             if (model.SortBy.ToLower() == "time")
