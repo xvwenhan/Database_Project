@@ -21,18 +21,21 @@ const fetchStores = async (keyword: string, type: string) => {
     console.log('返回数据', response.data);
 
     if (response.data && response.data.length > 0) {
-      // products.value = response.data;
+      products.value = response.data;
       products.value = Array(100).fill(response.data).flat(); // 将数据重复100次并平展成一个数组
       errorMessage.value = ''; // 清除错误信息
     } else {
       products.value = [];
-      errorMessage.value = '你搜索的宝贝不存在...'; // 设置错误信息
+      errorMessage.value = '没找到相关的宝贝...'; // 设置错误信息
     }
   } catch (error) {
     console.error('Error fetching stores:', error);
-    errorMessage.value = '你搜索的宝贝不存在...'; // 设置错误信息
+    errorMessage.value = '没找到相关的宝贝...'; // 设置错误信息
   } finally {
-    loading.value = false;  // 数据获取完毕后关闭缓冲页面
+    if(response.data.length>12){
+      loading.value = false;  // 数据获取完毕后关闭缓冲页面
+    }
+    
   }
 };
 
@@ -59,7 +62,15 @@ onMounted(() => {
   <div 
   style="background-color: #f7f4ed;height: 100%;overflow-x: hidden;"
   >
-    <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
+    <!-- <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div> -->
+    <!-- 错误信息和图片 -->
+    <div v-if="errorMessage" class="error-message-container">
+      <div class="error-container">
+        <img src="@/assets/wy/cry.jpeg" alt="Cry" class="error-image" />
+        <div class="error-text">{{ errorMessage }}</div>
+      </div>
+      
+    </div>
     <div v-else class="product-display">
       <div v-for="product in products" :key="product.productId" class="product-item" @click="goToProductDetail(product.productId)">
         <img :src="'data:image/png;base64,' + product.productPic" :alt="product.productName" class="product-image" />
@@ -70,7 +81,10 @@ onMounted(() => {
           <h2 class="product-name">【{{ product.productName }}】{{ product.description }}</h2>
         </div>
       </div>
-      
+      <!-- 底部显示“已经到底了” -->
+      <div v-if="!loading &&products.length > 0" class="end-of-list">
+        <p>已经到底啦...</p>
+      </div>
     </div>
   </div>
 </template>
@@ -134,6 +148,17 @@ onMounted(() => {
   border-radius: 5px;
 }
 
+.end-of-list {
+  width: 100%;  /* 确保容器占满整个宽度 */
+  text-align: center;
+  margin: 20px 0;
+  font-size: 24px;
+  color: #a61b29;
+  display: flex;
+  justify-content: center; /* 水平居中 */
+  align-items: center; /* 垂直居中 */
+}
+
 .loading-overlay {
   position: fixed;
   top: 0;
@@ -160,11 +185,27 @@ onMounted(() => {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
-
-.error-message {
-  text-align: center;
-  font-size: 24px;
-  color: #e60012;
-  margin: 20px;
+.error-message-container {
+  background-color: white;
+  height: 100%;
+  
 }
+.error-container{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 50px;
+}
+.error-image {
+  width: 120px;
+  height: auto;
+  margin-bottom: 20px; /* 给图片和文字之间留出空隙 */
+}
+
+.error-text {
+  font-size: 24px;
+  color: #a61b29;
+  text-align: center;
+}
+
 </style>
