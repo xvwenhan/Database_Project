@@ -34,6 +34,9 @@ namespace BackendCode.Data
         public virtual DbSet<SUBMIT_AUTHENTICATION> SUBMIT_AUTHENTICATIONS { get; set; }
         public virtual DbSet<WALLET> WALLETS { get; set; }
         public virtual DbSet<POST_IMAGE> POST_IMAGES { get; set; }
+        public virtual DbSet<SUB_CATEGORY> SUB_CATEGORYS { get; set; }
+        public virtual DbSet<CATEGORY> CATEGORYS { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             /* 配置TPT表继承策略 */
@@ -518,6 +521,11 @@ namespace BackendCode.Data
                     .WithMany()
                     .HasForeignKey(s => s.ACCOUNT_ID)
                     .HasConstraintName("PRODUCT_FK");
+
+                entity.HasOne<SUB_CATEGORY>()
+                    .WithMany()
+                    .HasForeignKey(e => e.TAG)
+                    .HasConstraintName("PRODUCT_SUBCATEGORY_FK");
             });
 
             modelBuilder.Entity<WALLET>(entity =>
@@ -830,6 +838,54 @@ namespace BackendCode.Data
                                       .WithMany()
                                       .HasForeignKey(p => p.POST_ID)
                                       .HasConstraintName("POST_ID_FK");*/
+            });
+
+            modelBuilder.Entity<CATEGORY>(entity =>
+            {
+                entity.ToTable("CATEGORY");
+
+                entity.HasKey(e => e.CATEGORY_NAME)
+                      .HasName("CATEGORY_PK");
+
+                entity.Property(e => e.CATEGORY_NAME)
+                      .HasMaxLength(50)
+                      .HasColumnType("VARCHAR2(50)")
+                      .IsRequired();
+
+                entity.Property(e => e.CATEGORY_PIC)
+                      .HasColumnType("BLOB");
+
+                entity.Property(e => e.CATEGORY_DESCRIPTION)
+                      .HasMaxLength(500)
+                      .HasColumnType("VARCHAR2(500)");
+            });
+
+            modelBuilder.Entity<SUB_CATEGORY>(entity =>
+            {
+                entity.ToTable("SUB_CATEGORY");
+
+                entity.HasKey(e => e.SUBCATEGORY_ID)
+                      .HasName("SUB_CATEGORY_PK");
+
+                entity.Property(e => e.SUBCATEGORY_ID)
+                      .HasMaxLength(50)
+                      .HasColumnType("VARCHAR2(50)")
+                      .IsRequired();
+
+                entity.Property(e => e.CATEGORY_NAME)
+                      .HasMaxLength(50)
+                      .HasColumnType("VARCHAR2(50)")
+                      .IsRequired();
+
+                entity.Property(e => e.SUBCATEGORY_NAME)
+                      .HasMaxLength(50)
+                      .HasColumnType("VARCHAR2(50)")
+                      .IsRequired();
+
+                entity.HasOne<CATEGORY>()
+                      .WithMany()
+                      .HasForeignKey(e => e.CATEGORY_NAME)
+                      .HasConstraintName("SUB_CATEGORY_FK");
             });
         }
     }
