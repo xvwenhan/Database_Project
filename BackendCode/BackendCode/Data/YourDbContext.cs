@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using BackendCode.Models;
 using System.Reflection.Metadata;
 using Microsoft.Extensions.Hosting;
@@ -36,7 +36,9 @@ namespace BackendCode.Data
         public virtual DbSet<POST_IMAGE> POST_IMAGES { get; set; }
         public virtual DbSet<SUB_CATEGORY> SUB_CATEGORYS { get; set; }
         public virtual DbSet<CATEGORY> CATEGORYS { get; set; }
-
+        public virtual DbSet<PRODUCT_IMAGE> PRODUCT_IMAGES { get; set; }
+        public virtual DbSet<PRODUCT_DETAIL> PRODUCT_DETAILS { get; set; }
+        
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             /* 配置TPT表继承策略 */
@@ -526,6 +528,19 @@ namespace BackendCode.Data
                     .WithMany()
                     .HasForeignKey(e => e.TAG)
                     .HasConstraintName("PRODUCT_SUBCATEGORY_FK");
+                //实验：
+                entity.HasMany(b => b.PRODUCT_IMAGES)
+                      .WithOne(p => p.PRODUCT)
+                      .HasForeignKey(p => p.PRODUCT_ID);
+                entity.HasMany(b => b.PRODUCT_DETAILS)
+                  .WithOne(p => p.PRODUCT)
+                .HasForeignKey(p => p.PRODUCT_ID);
+                /*                entity.HasOne(b => b.BUYER)
+                                    .WithMany()
+                                    .HasForeignKey(b => b.ACCOUNT_ID)
+                                    .HasConstraintName("POST_FK")
+                                    .IsRequired();*/
+                //这个代码一加就有问题
             });
 
             modelBuilder.Entity<WALLET>(entity =>
@@ -886,6 +901,51 @@ namespace BackendCode.Data
                       .WithMany()
                       .HasForeignKey(e => e.CATEGORY_NAME)
                       .HasConstraintName("SUB_CATEGORY_FK");
+            });
+            modelBuilder.Entity<PRODUCT_IMAGE>(entity =>
+            {
+                entity.ToTable("PRODUCT_IMAGE");
+
+                entity.HasKey(e => new { e.IMAGE_ID });
+
+                entity.Property(e => e.PRODUCT_ID)
+                      .HasMaxLength(50)
+                      .HasColumnType("VARCHAR2(100)")
+                      .IsRequired();
+
+                entity.Property(e => e.IMAGE_ID)
+                      .HasMaxLength(50)
+                      .HasColumnType("VARCHAR2(100)")
+                      .IsRequired();
+
+                entity.Property(e => e.IMAGE)
+                      .HasColumnType("BLOB")
+                      .IsRequired();
+            });
+
+            modelBuilder.Entity<PRODUCT_DETAIL>(entity =>
+            {
+                entity.ToTable("PRODUCT_DETAIL");
+
+                entity.HasKey(e => new { e.IMAGE_ID });
+
+                entity.Property(e => e.PRODUCT_ID)
+                      .HasMaxLength(50)
+                      .HasColumnType("VARCHAR2(100)")
+                      .IsRequired();
+
+                entity.Property(e => e.IMAGE_ID)
+                      .HasMaxLength(50)
+                      .HasColumnType("VARCHAR2(100)")
+                      .IsRequired();
+
+                entity.Property(e => e.IMAGE)
+                      .HasColumnType("BLOB")
+                      .IsRequired();
+
+                entity.Property(e => e.DESCRIPTION)
+                      .HasMaxLength(500)
+                      .HasColumnType("VARCHAR2(500)");
             });
         }
     }

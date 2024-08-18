@@ -2,6 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using BackendCode.Data;
 using BackendCode.DTOs.Administrator;
+using Yitter.IdGenerator;
+
 
 namespace Administrator.Controllers
 {
@@ -10,6 +12,7 @@ namespace Administrator.Controllers
     public class AdministratorController : ControllerBase
     {
         private readonly YourDbContext _dbContext;
+        
 
         public AdministratorController(YourDbContext context)
         {
@@ -98,14 +101,17 @@ namespace Administrator.Controllers
         [HttpPut("AddMarket")]
         public async Task<IActionResult> AddMarket([FromForm] AMModel model)
         {
-            Random random = new();
+           /* Random random = new();
             int _marketId = random.Next(1, 10000000);
             string uidb = _marketId.ToString();
-            uidb = "M" + uidb;
+            uidb = "M" + uidb;*/
             var ms = new MemoryStream();
             var image = model.posterImg[0];
             await image.CopyToAsync(ms);
             var imageData = ms.ToArray();
+
+            string uidb = YitIdHelper.NextId().ToString();
+            uidb = "M" + uidb;
 
             _dbContext.MARKETS.Add(new BackendCode.Models.MARKET()
             {

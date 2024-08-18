@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using BackendCode.DTOs.ProductDTO;
 using BackendCode.Models;
+using Yitter.IdGenerator;
 
 namespace StoreViewProductController.Controllers
 {
@@ -265,46 +266,92 @@ namespace StoreViewProductController.Controllers
 
         //post接口，新建商品
         [HttpPost("addProduct")]
-        public async Task<IActionResult> AddProduct(string storeId, [FromBody] Product1DTO newProduct)
+        public async Task<IActionResult> AddProduct(string storeId, [FromForm] Product1DTO newProduct)
         {
-            // 生成唯一的 PRODUCT_ID
-            string productId;
-            do
+            try
             {
-                productId = "P" + new Random().Next(1000000, 9999999).ToString();
-            } while (await _dbContext.PRODUCTS.AnyAsync(p => p.PRODUCT_ID == productId));
-
-            var product = new PRODUCT
-            {
-                PRODUCT_ID = productId,
-                PRODUCT_NAME = newProduct.ProductName,
-                PRODUCT_PRICE = newProduct.ProductPrice,
-                SALE_OR_NOT = false, // 默认值
-                TAG = newProduct.Tag,
-                DESCRIBTION = newProduct.Description,
-                ACCOUNT_ID = storeId,
-                STORE_TAG = newProduct.StoreTag
-            };
-
-            if (!string.IsNullOrEmpty(newProduct.ProductPic))
-            {
-                try
+                // 生成唯一的 PRODUCT_ID
+                string productId;
+                do
                 {
-                    product.PRODUCT_PIC = Convert.FromBase64String(newProduct.ProductPic);
-                }
-                catch (FormatException)
+                    productId = "P" + new Random().Next(1000000, 9999999).ToString();
+                } while (await _dbContext.PRODUCTS.AnyAsync(p => p.PRODUCT_ID == productId));
+
+                var product = new PRODUCT
                 {
-                    return BadRequest("Invalid Base64 string for PRODUCT_PIC.");
+                    PRODUCT_ID = productId,
+                    PRODUCT_NAME = newProduct.ProductName,
+                    PRODUCT_PRICE = newProduct.ProductPrice,
+                    SALE_OR_NOT = false, // 默认值
+                    TAG = newProduct.Tag,
+                    DESCRIBTION = newProduct.Description,
+                    ACCOUNT_ID = storeId,
+                    STORE_TAG = newProduct.StoreTag
+                };
+                _dbContext.PRODUCTS.Add(product);
+                await _dbContext.SaveChangesAsync();
+
+                // 处理图片上传
+                //.Any检查集合中是否有任何元素（防止是空集）
+                if (newProduct.ProductImages != null && newProduct.ProductImages.Any())
+                {
+                    foreach (var image in newProduct.ProductImages)
+                    {
+                        string uidb = YitIdHelper.NextId().ToString();
+
+                        var productImage = new PRODUCT_IMAGE
+                        {
+                            PRODUCT_ID = productId,
+                            IMAGE_ID = uidb,
+                            IMAGE = Convert.FromBase64String(image)
+                        };
+                        _dbContext.PRODUCT_IMAGES.Add(productImage);
+                    }
+                    await _dbContext.SaveChangesAsync();
                 }
+
+                // 处理商品详情
+                //.Any检查集合中是否有任何元素（防止是空集）
+                if (newProduct.PicDes != null && newProduct.PicDes.Any())
+                {
+                    foreach (var picdes in newProduct.PicDes)
+                    {
+                        string uidb = YitIdHelper.NextId().ToString();
+
+                        var productDetail = new PRODUCT_DETAIL
+                        {
+                            PRODUCT_ID = productId,
+                            IMAGE_ID = uidb,
+                            IMAGE = Convert.FromBase64String(picdes.DetailPic),
+                            DESCRIPTION = picdes.Description != null ? picdes.Description : null,
+                        };
+                        _dbContext.PRODUCT_DETAILS.Add(productDetail);
+                        /*using (var ms = new MemoryStream())
+                        {
+                            await picdes.DetailPic.CopyToAsync(ms);
+                            var imageData = ms.ToArray();
+                            string uidb = YitIdHelper.NextId().ToString();
+                            var productDetail = new PRODUCT_DETAIL
+                            {
+                                PRODUCT_ID = productId,
+                                IMAGE_ID = uidb,
+                                IMAGE = imageData,
+                                DESCRIPTION = picdes.Description != null ? picdes.Description : null,
+                            };
+                            _dbContext.PRODUCT_DETAILS.Add(productDetail);
+                        }*/
+                    }
+                    await _dbContext.SaveChangesAsync();
+                }
+
+                return Ok("Product added successfully.");
+
             }
-
-            _dbContext.PRODUCTS.Add(product);
-            await _dbContext.SaveChangesAsync();
-
-            return Ok("Product added successfully.");
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
-
-
     }
 }
 
