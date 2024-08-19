@@ -1,12 +1,19 @@
 <template>
   <Navbar />
-  <div v-if="loading" class="loading-overlay">
+  <!-- <div v-if="loading" class="loading-overlay">
     <div class="loading-spinner"></div>
     <p>搜索中，请稍候...</p>
-  </div>
-  <div v-else>
-    <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
-    <div v-else class="store-page">
+  </div> -->
+  <div style="background-color: #f7f4ed;height: 100%;overflow-x: hidden;">
+    <!-- <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div> -->
+    <div v-if="errorMessage" class="error-message-container">
+      <div class="error-container">
+        <img src="@/assets/wy/cry.jpeg" alt="Cry" class="error-image" />
+        <div class="error-text">{{ errorMessage }}</div>
+      </div>
+      
+    </div>
+    <div v-else class="store-page" >
       <div v-for="store in stores" :key="store.storeId" class="store-container">
         <div class="store-content">
           <div class="store-header">
@@ -51,14 +58,15 @@ const fetchStores = async (keyword: string, type: string) => {
 
     if (response.data && response.data.length > 0) {
       stores.value = response.data;
+      // stores.value = Array(100).fill(response.data).flat(); // 将数据重复100次并平展成一个数组
       errorMessage.value = ''; // 清除错误信息
     } else {
       stores.value = [];
-      errorMessage.value = '你搜索的商家不存在...'; // 设置错误信息
+      errorMessage.value = '没找到相关的商家...'; // 设置错误信息
     }
   } catch (error) {
     console.error('Error fetching stores:', error);
-    errorMessage.value = '你搜索的商家不存在...'; // 设置错误信息
+    errorMessage.value = '没找到相关的商家...'; // 设置错误信息
   } finally {
     loading.value = false;  // 数据获取完毕后关闭缓冲页面
   }
@@ -93,6 +101,7 @@ onMounted(() => {
 }
 
 .store-container {
+  background-color: white;
   border: 1px solid #e7e7e7;
   border-radius: 10px;
   padding: 20px;
@@ -118,6 +127,7 @@ onMounted(() => {
 .store-avatar {
   width: 60px; /* 头像大小 */
   height: 60px; /* 头像大小 */
+  border-radius:2px;
   /* border-radius: 50%; 将头像裁剪为圆形 */
   object-fit: cover;
   cursor: pointer;
@@ -206,10 +216,25 @@ onMounted(() => {
   100% { transform: rotate(360deg); }
 }
 
-.error-message {
-  text-align: center;
+.error-message-container {
+  background-color: white;
+  height: 100%;
+}
+.error-container{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 50px;
+}
+.error-image {
+  width: 120px;
+  height: auto;
+  margin-bottom: 20px; /* 给图片和文字之间留出空隙 */
+}
+
+.error-text {
   font-size: 24px;
-  color: #e60012;
-  margin: 20px;
+  color: #a61b29;
+  text-align: center;
 }
 </style>

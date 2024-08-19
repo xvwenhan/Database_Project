@@ -11,7 +11,9 @@
           <span style="font-size: 17px;">{{ lunarDate }}</span>
           <span style="font-size: 17px; margin-left: 10px;">{{ weather }}</span>
         </div>
-        <img src="@/assets/wy/profilephoto.jpg" alt="Profile Photo" class="profile-photo" @click="openModal"/>
+        <!-- 使用动态图片链接 -->
+        <img :src="userProfilePhoto" alt="Profile Photo" class="profile-photo" @click="openModal"/>
+        <!-- <img src="@/assets/wy/profilephoto.jpg" alt="Profile Photo" class="profile-photo" @click="openModal"/> -->
       </div>
     </div>
     <div class="line"></div>
@@ -47,6 +49,7 @@ import UserModal from '../views/UserCenter.vue';
 import axios from 'axios';
 import { getLunar } from 'chinese-lunar-calendar';
 import { Search } from '@element-plus/icons-vue';
+import axiosInstance from '../components/axios';
 import chineseLunar from 'chinese-lunar';
 // 引入UserModal组件
 const userModal = ref(null);
@@ -64,6 +67,39 @@ const searchText = ref(''); // 搜索关键字
 const currentDate = ref('');
 const weather = ref('');
 const lunarDate = ref('');
+// 定义用于存储用户头像的 ref
+const userProfilePhoto = ref('');
+import defaultProfilePhoto from '@/assets/wy/profilephoto.jpg';
+
+
+
+
+// 写死 userId
+// const userId = 'U00000013';
+const userId=localStorage.getItem('userId')|| 'we0';
+
+// 获取用户信息，包括头像（Base64 格式）
+const fetchUserProfilePhoto = async () => {
+  try {
+    const response = await axiosInstance.get(`/Account/get_user_message/${userId}`);
+    const userInfo = response.data.target_user;
+
+    // 如果返回的数据中有头像字段，则将其赋值给 userProfilePhoto
+    if (userInfo && userInfo.photo) {
+      // 假设头像是 Base64 格式的字符串，且是 JPEG 格式
+      userProfilePhoto.value = `data:image/jpeg;base64,${userInfo.photo}`;
+    } else {
+      // console.log("123");
+      // 如果没有头像字段，使用默认头像
+      userProfilePhoto.value = defaultProfilePhoto;  // 使用 import 引入图片
+    }
+  } catch (error) {
+    // console.log("userId:",userId);
+    console.error('获取用户信息失败', error);
+    // 在失败的情况下使用默认头像
+    userProfilePhoto.value = defaultProfilePhoto;  // 使用 import 引入图片
+  }
+};
 
 
 const menuItems = reactive([
@@ -119,6 +155,7 @@ onMounted(() => {
   console.log('农历:', lunarDate.value);
 
   fetchWeather();
+  fetchUserProfilePhoto(); // 组件挂载时获取用户头像
 
   // 每小时更新日期和天气
   setInterval(() => {
