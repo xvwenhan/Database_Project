@@ -1,162 +1,330 @@
-<!-- 买家用户首页页面的广告 -->
 <template>
-    <div v-if="!isTestPage">
-        <Navbar class="narbar"/>
-        <div  class="LRcontainer">
-        <img
-            src="@/assets/mmy/arrow_left.svg"
-            class="arrow-button1"
-            @click="setAd((currentAdIndex - 1 + numAds) % numAds)"
-            @mouseenter="stopTimer"
-            @mouseleave="startTimer"
-        />
-        <img
-            src="@/assets/mmy/arrow_right.svg"
-            class="arrow-button2"
-            @click="setAd((currentAdIndex + 1) % numAds)"
-            @mouseenter="stopTimer"
-            @mouseleave="startTimer"
-        />
-        <div class="ad">
-            <img
-            v-show="currentAdIndex === 0"
-            src="@/assets/mmy/ad1.png"
-            />
-            <!-- class="ad_discount" -->
-            <img
-            v-show="currentAdIndex === 1"
-            src="@/assets/mmy/ad2.png"
-            />
-            <img
-            v-show="currentAdIndex === 2"
-            src="@/assets/mmy/ad3.png"
-            />
-        <div class="knotArea" @mouseenter="stopTimer" @mouseleave="startTimer">
-        <img
+  <swiper
+      :direction="'vertical'"
+      :slidesPerView="1"
+      :mousewheel="true"
+      :speed="1000"
+      :modules="[Mousewheel]"
+      class="mySwiper"
+      @slideChange="onSlideChange"
+  >
+      <swiper-slide>
+      <div class="page1">
+      <Navbar class="narbar"/>
+      <div  class="LRcontainer">
+      <img
+          src="@/assets/mmy/arrow_left.svg"
+          class="arrow-button1"
+          @click="setAd((currentAdIndex - 1 + numAds) % numAds)"
+          @mouseenter="stopTimer"
+          @mouseleave="startTimer"
+      />
+      <img
+          src="@/assets/mmy/arrow_right.svg"
+          class="arrow-button2"
+          @click="setAd((currentAdIndex + 1) % numAds)"
+          @mouseenter="stopTimer"
+          @mouseleave="startTimer"
+      />
+      <div class="ad">
+          <img
+          v-show="currentAdIndex === 0"
+          src="@/assets/mmy/ad1.png"
+          />
+          <img
+          v-show="currentAdIndex === 1"
+          src="@/assets/mmy/ad2.png"
+          />
+          <img
+          v-show="currentAdIndex === 2"
+          src="@/assets/mmy/ad3.png"
+          />
+      <div class="knotArea" @mouseenter="stopTimer" @mouseleave="startTimer">
+      <img
           v-show="currentAdIndex !== 0"
           src= "@/assets/mmy/knot.svg"
           class="knot1"
           @click="setAd(0)"
-        />
-        <img
-            v-show="currentAdIndex === 0"
-            src= "@/assets/mmy/active_knot.svg"
-            class="knot1"
-            @click="setAd(0)"
-        />
-        <img
-            v-show="currentAdIndex !== 1"
-            src="@/assets/mmy/knot.svg"
-            class="knot2"
-            @click="setAd(1)"
-        />
-        <img
-            v-show="currentAdIndex === 1"
-            src="@/assets/mmy/active_knot.svg"
-            class="knot2"
-            @click="setAd(1)"
-        />
-        <img
-            v-show="currentAdIndex !== 2"
-            src="@/assets/mmy/knot.svg"
-            class="knot3"
-            @click="setAd(2)"
-        />
-        <img
-            v-show="currentAdIndex === 2"
-            src="@/assets/mmy/active_knot.svg"
-            class="knot3"
-            @click="setAd(2)"
-        />
-        </div>
-        </div>  
-        </div>
-    </div>
-    
-    <HomeCategory v-else />
-  </template>
-  
-  <script setup lang="ts">
-  import Navbar from '../components/Navbar.vue';
-  import HomeCategory from './HomeCategory.vue';
-  import { ref, onMounted, onBeforeUnmount } from 'vue';
-  
-  const currentAdIndex = ref(0);
-  const numAds = 3;
-  const isTestPage = ref(false);
-  let adTimer: number | null = null;  // 用于存储计时器 ID，这样写是为了知道数据类型
+      />
+      <img
+          v-show="currentAdIndex === 0"
+          src= "@/assets/mmy/active_knot.svg"
+          class="knot1"
+          @click="setAd(0)"
+      />
+      <img
+          v-show="currentAdIndex !== 1"
+          src="@/assets/mmy/knot.svg"
+          class="knot2"
+          @click="setAd(1)"
+      />
+      <img
+          v-show="currentAdIndex === 1"
+          src="@/assets/mmy/active_knot.svg"
+          class="knot2"
+          @click="setAd(1)"
+      />
+      <img
+          v-show="currentAdIndex !== 2"
+          src="@/assets/mmy/knot.svg"
+          class="knot3"
+          @click="setAd(2)"
+      />
+      <img
+          v-show="currentAdIndex === 2"
+          src="@/assets/mmy/active_knot.svg"
+          class="knot3"
+          @click="setAd(2)"
+      />
+      </div>
+      </div>  
+      </div>
+     </div>
 
-  ////////////////////////// 每2.5秒调用setAd函数
-  const startTimer = () => {
-  if (adTimer === null) {
-    adTimer = setInterval(() => {
-      setAd((currentAdIndex.value + 1) % numAds);
-    }, 2500);
-  }
+      </swiper-slide>
+
+      <swiper-slide>
+      <div class="page2">
+          <transition 
+          v-show="activeSlideIndex === 1"
+          appear
+          class="animate__animated animate__slideInDown">
+          <img src="@/assets/mmy/fan_up.png" class="fan_up">
+          </transition>
+          <transition 
+          v-show="activeSlideIndex === 1"
+          appear
+          class="animate__animated animate__slideInUp">
+          <img src="@/assets/mmy/fan_down.png" class="fan_down">
+          </transition>
+      </div>
+      </swiper-slide>
+
+      <swiper-slide>
+      <div  class="page3">
+        <!-- 动画效果尝试失败 -->
+      <!-- <div class="sidebar">
+        <div class="one-choice1" @click="navigateTo('/merchandise/1')">
+        <transition
+          v-if="activeSlideIndex === 2"
+          appear
+          :name="'bounceInDown'"
+          :style="{ animationDelay: `0.3s` }">
+            <img class="IconPage3" src="@/assets/mmy/工艺品.png">
+        </transition>
+        <p>商品</p>
+      </div>
+      <div class="one-choice2" @click="navigateTo('/bazaar')">
+          <transition
+            v-if="activeSlideIndex === 2"
+            appear
+            :name="'bounceInDown'"
+            :style="{ animationDelay: `0.6s` }">
+              <img class="IconPage3" src="@/assets/mmy/家具.png">
+          </transition>
+          <p>市集</p>
+      </div>
+      <div class="one-choice1" @click="navigateTo('/forum')">
+          <transition
+            v-if="activeSlideIndex === 2"
+            appear
+            :name="'bounceInDown'"
+            :style="{ animationDelay: `0.9s` }">
+              <img class="IconPage3" src="@/assets/mmy/服装.png">
+          </transition>
+          <p>论坛</p>
+      </div>
+      <div class="one-choice2" @click="navigateTo('/cart')">
+          <transition
+            v-if="activeSlideIndex === 2"
+            appear
+            :name="'animate__bounceInDownanimate__animated animate__bounce'"
+            :style="{ animationDelay: `1.2s` }">
+              <img class="IconPage3" src="@/assets/mmy/首饰.png">
+          </transition>
+          <p>收藏夹</p>
+      </div>
+      <div class="one-choice1" @click="navigateTo('/ordercentre')">
+          <transition
+            v-if="activeSlideIndex === 2"
+            appear
+            :name="'bounceInDown'"
+            :style="{ animationDelay: `1.5s` }">
+              <img class="IconPage3" src="@/assets/mmy/小物件.png">
+          </transition>
+          <p>订单中心</p>
+      </div>
+        </div> -->
+        <div class="sidebar">
+          <div 
+            v-for="(item, index) in menuItems" 
+            :key="index"
+            :class="index % 2 === 0 ? 'one-choice1' : 'one-choice2'"
+            @click="navigateTo(item.link)"
+          >
+            <img class="IconPage3" :src="item.icon">
+            <p>{{ item.text }}</p>
+          </div>
+      </div>
+
+      <div class="foot">
+          <p>指导教师：袁时金、穆斌</p>
+          <p>机构官网：https://www.tongji.edu.cn</p>
+          <div class="police">
+          <img src="@/assets/mmy/公安.png" >
+          <div class="text">京公网安备&nbspXXXXXXXXXXXXXX号&nbsp&nbsp京ICP备XXXXXXXX号-1</div>
+          </div>
+          <p>网站维护：同济大学软件学院微瑕非遗研究团队&nbsp&nbsp联系方式：123456789</p>
+          <p>建议使用Edge、Chrome、Firefox浏览器，最佳分辨率1920×1080</p>
+      </div>
+      </div>
+      </swiper-slide>
+  </swiper>
+</template>
+
+<script setup>
+import { Swiper, SwiperSlide } from 'swiper/vue';
+import 'swiper/css';
+import { Mousewheel } from 'swiper/modules';
+import Navbar from '../components/Navbar.vue';
+// import HomeCategory from './HomeCategory.vue';
+import { ref, onMounted, onBeforeUnmount ,reactive} from 'vue';
+import 'animate.css';
+import { useRouter } from 'vue-router';
+
+const currentAdIndex = ref(0);
+const menuItems = reactive([
+  { text: "商品", link: "/merchandise/1", icon: "/src/assets/mmy/工艺品.png" },
+  { text: "市集", link: "/bazaar", icon: "/src/assets/mmy/家具.png" },
+  { text: "论坛", link: "/forum", icon: "/src/assets/mmy/服装.png" },
+  { text: "收藏夹", link: "/cart", icon: "/src/assets/mmy/首饰.png" },
+  { text: "订单中心", link: "/ordercentre", icon: "/src/assets/mmy/小物件.png" }
+]);
+const numAds = 3;
+const activeSlideIndex=ref(0);
+let adTimer = null;  // 用于存储计时器 ID，这样写是为了知道数据类型
+
+////////////////////////// 每2.5秒调用setAd函数
+const startTimer = () => {
+if (adTimer === null) {
+  adTimer = setInterval(() => {
+    setAd((currentAdIndex.value + 1) % numAds);
+  }, 2500);
+}
 };
 const stopTimer = () => {
-  if (adTimer !== null) {
-    clearInterval(adTimer);
-    adTimer = null;
-  }
+if (adTimer !== null) {
+  clearInterval(adTimer);
+  adTimer = null;
+}
 };
-  /////////////////////////// 用于处理鼠标滚动事件
-  const handleScroll = (event: WheelEvent) => {
-    if (event.deltaY > 0) {
-      isTestPage.value = true;
-    } else if (event.deltaY < 0) {
-      isTestPage.value = false;
-    }
-  };
-  ////////////////////////// 声明周期钩子
-  //////////////////////////onMounted 和 onBeforeUnmount 确保在组件的整个生命周期内正确设置和移除事件监听器
-  onMounted(() => {
-    startTimer();//内部调用计时器
-    window.addEventListener('wheel', handleScroll);//添加滚动事件监听器
-  });
-  onBeforeUnmount(() => {
-    window.removeEventListener('wheel', handleScroll);
-  });
+onMounted(() => {
+  startTimer();//内部调用计时器
+  console.log('Swiper initialized');
+});
+onBeforeUnmount(() => {
+  console.log('Swiper cleaned up');
+});
+
+function onSlideChange(swiper) {
+  activeSlideIndex.value = swiper.activeIndex;
+  console.log(`activeSlideIndex.value is ${activeSlideIndex.value}`);
+}
+
+function setAd(index) {
+  currentAdIndex.value = index;
+}
+const router = useRouter();
+
+function navigateTo(link) {
+  router.push(link);
+}
+
+</script>
   
-  function setAd(index: number) {
-    currentAdIndex.value = index;
-  }
-  </script>
-  
-  <style scoped>
-  .narbar {
+<style scoped>
+#app {
+height: 100%;
+}
+html,
+body {
+position: relative;
+height: 100%;
+}
+
+body {
+background: #eee;
+font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+font-size: 14px;
+color: #000;
+margin: 0;
+padding: 0;
+}
+
+.swiper {
+width: 100%;
+height: 100%;
+}
+
+.navbar {
   position: absolute;
   background-color: rgba(0, 0, 0, 0.3);
   color: #FFFFFF;
   z-index: 3;
 }
 
+/* Use :deep() to target the inner elements of the navbar */
+:deep(.navbar-bottom) {
+  background-color: rgba(0, 0, 0, 0.3) !important; 
+}
+
+:deep(.search-container) {
+  background-color: rgba(0, 0, 0, 0.3) !important;
+  color: #FFFFFF !important;
+}
+
+:deep(.search-input::placeholder) {
+  color: #FFFFFF !important; 
+}
+:deep(.search-button) {
+  background-color: rgba(0, 0, 0, 0.3) !important;
+  color: #FFFFFF !important;
+}
+:deep(.navbar-item .nav-link.active),
+:deep(.navbar-item .nav-link:hover) {
+  background-color: rgba(0, 0, 0, 0.3) !important; 
+  color: #FFFFFF !important; 
+}
+.mySwiper {
+height: 100vh;  
+width: 100%;    
+}
+
 .LRcontainer {
-  background-color: rgba(36, 63, 51);
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  /* padding: 20px; */
-  position: relative; /* 添加这个以便子元素可以使用绝对定位 */
+background-color: rgba(36, 63, 51);
+height: 100vh;
+display: flex;
+flex-direction: column;
+justify-content: center;
+align-items: center;
+position: relative; /* 添加这个以便子元素可以使用绝对定位 */
 }
 
 .ad {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  position: relative; /* 确保 .knotArea 绝对定位基于 .ad */
+display: flex;
+justify-content: center;
+align-items: center;
+width: 100%;
+height: 100%;
+overflow: hidden;
+position: relative; /* 确保 .knotArea 绝对定位基于 .ad */
 }
 
 .ad img {
-  width: 100%;
-  height: auto;
-  object-fit: cover; /* 保证图片自适应 */
-  z-index: 1;
+width: 100%;
+height: auto;
+object-fit: cover; /* 保证图片自适应 */
+z-index: 1;
 }
 
 .arrow-button1,
@@ -164,44 +332,151 @@ const stopTimer = () => {
 .knot1,
 .knot2,
 .knot3 {
-  cursor: pointer;
-  z-index: 2;
+cursor: pointer;
+z-index: 2;
 }
 
 .arrow-button1 {
-  width: 50px;
-  height: 50px;
-  position: fixed;
-  top: 50%;
-  left: 70px;
+width: 50px;
+height: 50px;
+position: fixed;
+top: 50%;
+left: 70px;
 }
 
 .arrow-button2 {
-  width: 50px;
-  height: 50px;
-  position: fixed;
-  top: 50%;
-  right: 70px;
+width: 50px;
+height: 50px;
+position: fixed;
+top: 50%;
+right: 70px;
 }
 
 .arrow-button2:hover,
 .arrow-button1:hover {
-  box-shadow: 0 0 5px rgba(229, 215, 215, 0.5);
-  transform: scale(1.1);
+box-shadow: 0 0 5px rgba(229, 215, 215, 0.5);
+transform: scale(1.1);
 }
 
 .knotArea {
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-  position: absolute;
-  bottom: 20px; /* 你可以调整这个值来改变位置 */
-  width: 10%;
+display: flex;
+justify-content: center;
+gap: 15px;
+position: absolute;
+bottom: 20px; /* 你可以调整这个值来改变位置 */
+width: 10%;
 }
 .ad_discount {
-  width: 130vh;
-  display: block;
-  margin: auto;
+width: 130vh;
+display: block;
+margin: auto;
 }
-  </style>
-  
+
+
+.page2{
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background-image: url("../assets/mmy/blue_background.jpg");
+}
+.fan_up{
+position:absolute;
+top: 0;
+right: 50%;
+margin-right: -95px;
+width: 990px;
+height: 472px;
+z-index:1;
+}
+.fan_down{
+position:absolute;
+bottom: 0;
+left: 50%;
+margin-left: -260px;
+width: 1222px;
+height: 540px;
+z-index:2;
+}
+.animate__animated.animate__slideInUp{
+--animate-duration: 1.2s;
+animation-delay: 0.5s;
+}
+.animate__animated.animate__slideInDown{
+--animate-duration: 1.2s;
+animation-delay: 0.5s;
+}
+.page3{
+width:100%;
+height:100%;
+display:flex;
+overflow: hidden;
+/* flex-direction: column; */
+justify-content: center;
+background-image: url("../assets/mmy/background.jpg");
+background-color: rgba(65, 33, 10, 0.2);
+font-family: 'Noto Serif SC', serif;
+
+}
+.sidebar{
+top:20%;
+display: flex;
+flex-direction: row;
+position: relative;
+width:1000px;
+/* align-items: center; */
+
+}
+.one-choice1,
+.one-choice2 {
+position: relative;
+width:200px;
+height:178.34px;
+}
+.one-choice1{
+background-image: url("../assets/mmy/红底.jpg");
+}
+.one-choice2{
+background-image: url("../assets/mmy/黄底.jpg");
+}
+.IconPage3 {
+position: absolute;
+top: 10px; 
+left: 50%; 
+transform: translateX(-50%); 
+z-index: 2;
+width: 60%;
+transition: transform 0.3s ease;
+transform-origin: center;
+cursor: pointer;
+}
+.IconPage3:hover{
+  transform: translateX(-50%) scale(1.05); 
+}
+.one-choice1 p,
+.one-choice2 p {
+position: absolute;
+font-family: 'Noto Serif SC', serif;
+font-size:20px;
+bottom: 10px; 
+left: 50%; 
+transform: translateX(-50%); 
+color:#FFFFFF;
+cursor: pointer;
+z-index: 2;
+}
+.foot{
+bottom:5%;
+display: flex;
+flex-direction: column;
+position:absolute;
+width:1000px;
+align-items: center;
+font-size: 16px;
+}
+.police{
+display: flex;
+flex-direction: row;
+}
+
+</style>

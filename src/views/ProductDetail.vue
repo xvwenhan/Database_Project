@@ -16,7 +16,7 @@ const functionName = () => {
         <div class="storeName">&nbsp&nbsp{{ product.storeName }}</div>
         <div class="storeScore">评分：{{  product.score}}</div>
         <!-- 店铺收藏按钮，与商品收藏差不多 -->
-        <el-button v-show="role==='买家'&&isAbleBuy"
+        <el-button v-show="role==='买家'"
               @click="starStore"
               class="starStore-button"
               style="display: flex;
@@ -208,8 +208,8 @@ const functionName = () => {
     //页面是否正在加载
     const isLoading=ref(true);
     //从浏览器中获取数据
-    const productId = '222222';
-    // const productId = localStorage.getItem('productIdOfDetail');
+    // const productId = '222222';
+    const productId = localStorage.getItem('productIdOfDetail');
     const userId =localStorage.getItem('userId');
     const role=localStorage.getItem('role');
     // 使用 useRoute 来访问路由参数
