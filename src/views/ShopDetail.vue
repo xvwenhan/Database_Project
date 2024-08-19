@@ -18,7 +18,12 @@
             </div>
           </div>
           <div class="favoriteButton">
-            <el-button @click="clickFavorite" >{{ isFavorite ? '已收藏' : '收藏' }}</el-button>
+            <el-button 
+              :class="isFavorite ? 'favorite-active' : 'favorite-inactive'" 
+              @click="clickFavorite" 
+            >
+              {{ isFavorite ? '已收藏' : '收藏' }}
+            </el-button>
           </div>
         </div>
 
@@ -474,6 +479,18 @@ onMounted(() => {
   align-self: end;
 }
 
+.favorite-active {
+  background-color: #bdaead;
+  font-weight: bold;
+  color:#ffffff;
+}
+
+.favorite-inactive {
+  background-color: #c21f30;
+  font-weight: bold;
+  color: white;
+}
+
 .shop-content{
   align-items: flex-start;
   display: flex;
@@ -511,6 +528,12 @@ onMounted(() => {
   gap: 10px;
 }
 
+.search-box .el-button:hover{
+  background-color: #bdaead;
+  font-weight: bold;
+  color:#ffffff;
+}
+
 .sidebar {
   background-color: #fff;
   padding: 8px;
@@ -527,9 +550,15 @@ onMounted(() => {
 }
 
 .category.selected {
-  background-color: #bbd0ed;
+  background-color: #a61b29;
   font-weight: bold;
-  color:#7495c3;
+  color:#ffffff;
+}
+
+.category:hover {
+  background-color: #bdaead;
+  font-weight: bold;
+  color:#fff;
 }
 
 .product {
@@ -608,9 +637,15 @@ onMounted(() => {
 }
 
 .toggle-row .el-button.active {
-  background-color: #bbd0ed;
+  background-color: #a61b29;
   font-weight: bold;
-  color:#7495c3;
+  color:#fff;
+}
+
+.toggle-row .el-button:hover {
+  background-color: #bdaead;
+  font-weight: bold;
+  color:#fff;
 }
 
 .shop-remarks{

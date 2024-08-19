@@ -43,28 +43,28 @@
                     <div 
                       v-for="store in paginatedStores" 
                       :key="store.storeId" 
-                      class="store-item">
-                        <div v-for="store in Stores" :key="store.storeId" class="store-container"
-                        @click="handleStoreClick(store.storeId)">
-                          <div class="store-content">
-                            <div class="store-header">
-                              <div class="store-info">
-                                <!-- <img :src="'data:image/png;base64,' + store.storePic" alt="Store Image" class="store-image" /> -->
-                                <img :src="store.storePic" alt="Store Image" class="store-image" />
-                                <h2 class="store-name">{{ store.storeName }}</h2>
-                                <p class="store-rating">评分: {{ store.storeScore }}</p>
-                              </div>
-                            </div>
-                            <div class="store-products">
-                              <div v-for="product in store.products" :key="product.productId" class="product-item">
-                                <!-- <img :src="'data:image/png;base64,' + product.productPic" alt="Product Image" class="product-image" /> -->
-                                <img :src="product.productPic" alt="Product Image" class="product-image" />
-                                <p class="product-price">{{ product.productName }}</p>
-                                <p class="product-price">¥{{ product.productPrice }}</p>
-                              </div>
-                            </div>
+                      class="store-container"
+                      @click="handleStoreClick(store.storeId)"
+                    >
+                      <div class="store-content">
+                        <div class="store-header">
+                          <div class="store-info">
+                            <!-- 该部分图片展示逻辑待修改 -->
+                            <!-- <img :src="'data:image/png;base64,' + store.storePic" alt="Store Image" class="store-image" /> -->
+                            <img :src="store.storePic" alt="Store Image" class="store-image" />
+                            <h2 class="store-name">{{ store.storeName }}</h2>
+                            <p class="store-rating">评分: {{ store.storeScore }}</p>
                           </div>
                         </div>
+                        <div class="store-products">
+                          <div v-for="product in store.products" :key="product.productId" class="product-item">
+                            <!-- <img :src="'data:image/png;base64,' + product.productPic" alt="Product Image" class="product-image" /> -->
+                            <img :src="product.productPic.imageUrl" alt="Product Image" class="product-image" />
+                            <p class="product-price">{{ product.productName }}</p>
+                            <p class="product-price">¥{{ product.productPrice }}</p>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                 </div>
                 <div class="pagination">
@@ -178,7 +178,7 @@ const fetchStores = async () => {
 };
 
 // 设置表格页面大小及当前页数
-const pageSize2 = ref(1);
+const pageSize2 = ref(2);
 const currentPage2 = ref(1);
 
 const totalStores = computed(() => Stores.length);
@@ -225,6 +225,8 @@ onMounted(() => {
   
   display: flex;
   height: 100vh;
+  /* background-color: #f8f8f8; */
+
 }
 
 .main-content{
@@ -248,14 +250,14 @@ onMounted(() => {
   top: 10px;
   width: 20%; */
   flex: 0 0 200px;
-  background-color: #f8f8f8;
+  background-color: #fff;
   padding: 20px;
   box-shadow: 2px 0 5px rgba(0,0,0,0.1);
 }
 
 .display{
-  background-color: #fff;
-  border-radius: 16px;
+  /* background-color: #fff;
+  border-radius: 16px; */
   box-sizing: border-box;
   margin-top: 16px;
   margin-left: 16px;
@@ -274,15 +276,16 @@ onMounted(() => {
 }
 
 .category.selected {
-  background-color: #bbd0ed;
+  background-color: #a61b29;
   font-weight: bold;
-  color:#7495c3;
+  color:#ffffff;
 }
 
 .display-items1{
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
+  min-height: 480px;
 }
 
 .product-item {
@@ -292,6 +295,7 @@ onMounted(() => {
   border-radius: 5px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
   transition: transform 0.3s, box-shadow 0.3s;
+  height: 250px;
 }
 
 .product-image {
@@ -321,6 +325,7 @@ onMounted(() => {
 .display-items2{
   flex-wrap: wrap;
   gap: 20px;
+  min-height: 480px;
 }
 
 .store-page {
@@ -335,8 +340,9 @@ onMounted(() => {
   border: 1px solid #e7e7e7;
   border-radius: 10px;
   padding: 20px;
-  width: 100%;
+  width: 97%;
   margin-right: 10px;
+  height: 240px;
 }
 
 .store-content {
@@ -366,12 +372,12 @@ onMounted(() => {
 }
 
 .store-name {
-  font-size: 24px; /* 调整为更大的字体 */
+  font-size: 24px;
   font-weight: bold;
 }
 
 .store-rating {
-  font-size: 18px; /* 调整为更大的字体 */
+  font-size: 18px;
   color: #888;
 }
 
@@ -387,11 +393,12 @@ onMounted(() => {
   flex-direction: column;
   align-items: center;
   width: 150px;
+  height: 200px;
 }
 
 .product-image {
-  width: 150px; /* 固定图片宽度 */
-  height: 150px; /* 固定图片高度 */
+  width: 150px;
+  height: 150px;
   object-fit: cover;
   border-radius: 5px;
 }
