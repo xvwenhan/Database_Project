@@ -184,6 +184,7 @@ const router = createRouter({
       component: () => import('../views/templates/2.vue')
     }
 
+
   ]
 })
 export default router

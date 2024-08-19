@@ -361,6 +361,8 @@ flex-direction: column;
 height: 100vh;
 overflow-x: hidden; /*隐藏水平滚动条 */
 overflow: auto;
+background-image: url("../assets/mmy/background.jpg");
+
 /* position:relative; */
 }
 .procedure{

@@ -22,6 +22,8 @@
     "element-china-area-data": "^6.1.0",
     "element-plus": "^2.7.6",
     "pinia": "^2.2.0",
+    "swiger": "^0.0.2",
+    "swiper": "^10.0.0",
     "vue": "^3.4.29",
     "vue-cookies": "^1.8.4",
     "vue-router": "^4.3.3"
