@@ -196,7 +196,7 @@ const fetchStoreInfo = async () => {
         storeId: shopinfo.storeId
       }
     });
-    console.log('获取id'+shopinfo.storeId);
+    console.log('获取商家id '+shopinfo.storeId);
     shopinfo.storeName = response.data.name;
     shopinfo.storeScore = response.data.score;
     shopinfo.Address = response.data.address;

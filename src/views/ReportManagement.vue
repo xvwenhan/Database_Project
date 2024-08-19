@@ -71,6 +71,8 @@ import { ElTable, ElTableColumn, ElPagination, ElButton, ElDialog, ElMessage } f
 import 'element-plus/dist/index.css';
 import axiosInstance from '../components/axios';
 
+const userId =localStorage.getItem('userId');
+
 const records = reactive([]);
 const message01 = ref('');
 
@@ -128,7 +130,7 @@ const auditReport = async (reportId,auditResult) => {
     const response = await axiosInstance.put('/Administrator/AuditReport', {
       "reportId": reportId,
       "auditResult": auditResult,
-      "adminId": "1"
+      "adminId": userId
     });
     message02.value = response.data;
     fetchRecords();
