@@ -434,7 +434,8 @@ namespace BackendCode.Controllers
                 /* 获取商品和店铺 */
                 var product = await _dbContext.PRODUCTS.FirstOrDefaultAsync(o => o.PRODUCT_ID == order.PRODUCT_ID);
                 var store = await _dbContext.STORES.FirstOrDefaultAsync(o => o.ACCOUNT_ID == order.STORE_ACCOUNT_ID);
-                var picture=await _dbContext.PRODUCT_IMAGES.FirstOrDefaultAsync(pi =>pi.PRODUCT_ID==order.PRODUCT_ID);
+                var picture = await _dbContext.PRODUCT_IMAGES.FirstOrDefaultAsync(pi =>pi.PRODUCT_ID==order.PRODUCT_ID);
+                
                 /* 订单详细信息 */
                 var orderInfo = new OrderInfoDTO
                 {
@@ -446,10 +447,13 @@ namespace BackendCode.Controllers
                     TotalPay = order.TOTAL_PAY,    //折扣价格
                     ActualPay = order.ACTUAL_PAY,  //实付金额
                     OrderStatus = order.ORDER_STATUS,
-                    Picture = new ImageModel { ImageId = picture.IMAGE_ID },//修改为ID
-
+                    
                     ProductId = product.PRODUCT_ID
                 };
+                if (picture != null)
+                {
+                    orderInfo.Picture = new ImageModel { ImageId = picture.IMAGE_ID };//修改为ID
+                }
                 orderInfos.Add(orderInfo); //将OrderInfoDTO对象添加到列表中
             }
 

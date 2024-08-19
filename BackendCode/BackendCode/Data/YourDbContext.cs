@@ -524,17 +524,19 @@ namespace BackendCode.Data
                     .HasForeignKey(s => s.ACCOUNT_ID)
                     .HasConstraintName("PRODUCT_FK");
 
-                entity.HasOne<SUB_CATEGORY>()
+                entity.HasOne(e => e.SUB_CATEGORY)
                     .WithMany()
                     .HasForeignKey(e => e.TAG)
                     .HasConstraintName("PRODUCT_SUBCATEGORY_FK");
+
                 //实验：
                 entity.HasMany(b => b.PRODUCT_IMAGES)
                       .WithOne(p => p.PRODUCT)
                       .HasForeignKey(p => p.PRODUCT_ID);
+
                 entity.HasMany(b => b.PRODUCT_DETAILS)
-                  .WithOne(p => p.PRODUCT)
-                .HasForeignKey(p => p.PRODUCT_ID);
+                      .WithOne(p => p.PRODUCT)
+                      .HasForeignKey(p => p.PRODUCT_ID);
                 /*                entity.HasOne(b => b.BUYER)
                                     .WithMany()
                                     .HasForeignKey(b => b.ACCOUNT_ID)
@@ -859,8 +861,7 @@ namespace BackendCode.Data
             {
                 entity.ToTable("CATEGORY");
 
-                entity.HasKey(e => e.CATEGORY_NAME)
-                      .HasName("CATEGORY_PK");
+                entity.HasKey(e => e.CATEGORY_NAME);
 
                 entity.Property(e => e.CATEGORY_NAME)
                       .HasMaxLength(50)
@@ -879,8 +880,7 @@ namespace BackendCode.Data
             {
                 entity.ToTable("SUB_CATEGORY");
 
-                entity.HasKey(e => e.SUBCATEGORY_ID)
-                      .HasName("SUB_CATEGORY_PK");
+                entity.HasKey(e => e.SUBCATEGORY_ID);
 
                 entity.Property(e => e.SUBCATEGORY_ID)
                       .HasMaxLength(50)
@@ -897,11 +897,12 @@ namespace BackendCode.Data
                       .HasColumnType("VARCHAR2(50)")
                       .IsRequired();
 
-                entity.HasOne<CATEGORY>()
+                entity.HasOne(e => e.CATEGORY)
                       .WithMany()
                       .HasForeignKey(e => e.CATEGORY_NAME)
                       .HasConstraintName("SUB_CATEGORY_FK");
             });
+
             modelBuilder.Entity<PRODUCT_IMAGE>(entity =>
             {
                 entity.ToTable("PRODUCT_IMAGE");
