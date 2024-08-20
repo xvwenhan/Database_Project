@@ -14,14 +14,12 @@
                 <el-form-item label="用户名" :rules="[{ required: true, message: '请输入用户名', trigger: 'blur' }]">
                   <el-input v-model="userInfo.username" placeholder="请输入用户名"></el-input>
                 </el-form-item>
-                <!-- 新增性别选项 -->
                 <el-form-item label="性别" :rules="[{ required: true, message: '请选择性别', trigger: 'change' }]">
                   <el-select v-model="userInfo.gender" placeholder="请选择性别">
                     <el-option label="男" value="male"></el-option>
                     <el-option label="女" value="female"></el-option>
                   </el-select>
                 </el-form-item>
-                <!-- 新增年龄选项 -->
                 <el-form-item label="年龄" :rules="[{ required: true, message: '请输入年龄', trigger: 'blur' }]">
                   <el-input v-model.number="userInfo.age" type="number" placeholder="请输入年龄"></el-input>
                 </el-form-item>
@@ -34,6 +32,7 @@
               </el-form>
             </div>
           </el-tab-pane>
+
           <el-tab-pane label="消费积分" name="points">
             <div class="points">
               <el-card>
@@ -42,6 +41,7 @@
               </el-card>
             </div>
           </el-tab-pane>
+
           <el-tab-pane label="钱包" name="wallet">
             <div class="wallet">
               <el-card>
@@ -59,64 +59,58 @@
             </div>
           </el-tab-pane>
 
-          <!-- 修改密码选项卡 -->
-          <el-tab-pane label="修改密码" name="changePassword">
-            <div class="account-info">
-              <el-form :model="password" label-width="80px">
-                <!-- <el-form-item label="当前密码" :rules="[{ required: true, message: '请输入当前密码', trigger: 'blur' }]">
-                  <el-input 
-                    v-model="password.current"
-                    :type="passwordVisibility.current ? 'text' : 'password'"
-                    placeholder="请输入当前密码"
-                  >
-                    <template #suffix>
-                      <img 
-                        :src="currentImage"
-                        @click="toggleVisibility()"
-                        class="password-visibility-toggle"
-                        alt="toggle visibility"
-                      />
-                    </template>
-                  </el-input>
-                </el-form-item> -->
-                <el-form-item label="新密码" :rules="[{ required: true, message: '请输入新密码', trigger: 'blur' }]">
-                  <el-input 
-                    v-model="password.new"
-                    :type="passwordVisibility.new ? 'text' : 'password'"
-                    placeholder="请输入新密码"
-                  >
-                    <template #suffix>
-                      <img 
-                      :src="currentImageTw"
-                        @click="toggleVisibilityTw()"
-                        class="password-visibility-toggle"
-                        alt="toggle visibility"
-                      />
-                    </template>
-                  </el-input>
-                </el-form-item>
-                <el-form-item label="确认密码" :rules="[{ required: true, message: '请确认新密码', trigger: 'blur' }]">
-                  <el-input 
-                    v-model="password.confirm"
-                    :type="passwordVisibility.confirm ? 'text' : 'password'"
-                    placeholder="请确认新密码"
-                  >
-                    <template #suffix>
-                      <img 
-                        :src="currentImageTh"
-                        @click="toggleVisibilityTh()"
-                        class="password-visibility-toggle"
-                        alt="toggle visibility"
-                      />
-                    </template>
-                  </el-input>
-                </el-form-item>
-                <el-form-item>
-                  <el-button type="primary" @click="updateAccountInfo">保存</el-button>
-                </el-form-item>
-              </el-form>
-            </div>
-          </el-tab-pane>
+          <el-tab-pane label="修改密码" name="account">
+  <div class="account-info">
+    <el-form :model="password" label-width="80px">
+      <el-form-item label="新密码" :rules="[{ required: true, message: '请输入新密码', trigger: 'blur' }]">
+        <el-input 
+          v-model="password.new"
+          :type="passwordVisibility.new ? 'text' : 'password'"
+          placeholder="请输入新密码"
+        >
+          <template #suffix>
+            <img 
+              :src="currentImageTw"
+              @click="toggleVisibilityTw()"
+              class="password-visibility-toggle"
+              alt="toggle visibility"
+            />
+          </template>
+        </el-input>
+      </el-form-item>
+      <el-form-item label="确认密码" :rules="[{ required: true, message: '请确认新密码', trigger: 'blur' }]">
+        <el-input 
+          v-model="password.confirm"
+          :type="passwordVisibility.confirm ? 'text' : 'password'"
+          placeholder="请确认新密码"
+        >
+          <template #suffix>
+            <img 
+              :src="currentImageTh"
+              @click="toggleVisibilityTh()"
+              class="password-visibility-toggle"
+              alt="toggle visibility"
+            />
+          </template>
+        </el-input>
+      </el-form-item>
+
+      <!-- 添加发送验证码的部分 -->
+      <el-form-item>
+        <el-button type="primary" :disabled="isButtonDisabled" @click="getVerificationCode">
+          {{buttonText}}
+        </el-button>
+      </el-form-item>
+      <el-form-item label="验证码" :rules="[{ required: true, message: '请输入验证码', trigger: 'blur' }]">
+        <el-input v-model="verificationCode" placeholder="请输入收到的验证码"></el-input>
+      </el-form-item>
+      
+      <el-form-item>
+        <el-button type="primary" @click="updateAccountInfo">保存</el-button>
+      </el-form-item>
+    </el-form>
+  </div>
+</el-tab-pane>
 
           <!-- 退出登录选项卡 -->
           <el-tab-pane label="退出登录" name="accountManagement">
@@ -174,6 +168,12 @@ export default {
   },
   data() {
     return {
+    verificationCode: '',
+    serverVerificationCode: '', // 用于存储后端返回的验证码
+    isButtonDisabled: false,
+    buttonText: '获取验证码',
+    timeLeft: 0,
+    countdownTime: 60, // 倒计时时间
       userimades:{
         ima:'',
         descri:'',
@@ -181,8 +181,8 @@ export default {
       activeTab: 'userInfo',
       userInfo: {
         username: '',
-        gender: '', // 新增性别字段
-        age: null // 新增年龄字段
+        gender: '', 
+        age: null 
       },
       points: 0,
       address: {
@@ -217,15 +217,11 @@ export default {
     },
   },
   methods: {
-    // 关闭用户中心的方法
-    // closeUserCenter() {
-    //   this.$emit('close'); // 触发父组件的关闭事件
-    // },
     async getUserInfo(userId) {
       try {
         const response = await axiosInstance.get(`/Account/get_user_message/${userId}`);
         
-        if (response.data.message === '用户查找成功！') { // 根据实际响应内容调整
+        if (response.data.message === '用户查找成功！') {
           this.userInfo = {
             username: response.data.target_user.useR_NAME,
             gender: response.data.target_user.gender,
@@ -234,7 +230,6 @@ export default {
           this.address = {
         detail: response.data.target_user.address
       };
-          // this.currentPass=response.data.target_user.password;
         } else {
           this.$message.error('获取用户信息失败');
         }
@@ -444,11 +439,48 @@ async fetchImageAndText(id) {
   this.recharge.amount = 0; // 重置充值金额
 },
 
-async updateAccountInfo() {
+async getVerificationCode() {
+    if (this.isButtonDisabled) return;
+
+    if (!this.businessInfo.email) {
+      this.$message.error('获取用户邮箱失败');
+    } else {
+      this.startCountdown();
+      try {
+        const response = await axiosInstance.get(`/Account/send_verification_code/${encodeURIComponent(this.businessInfo.email)}`);
+        this.serverVerificationCode = response.data.verificationCode;
+        this.$message.success('验证码已发送，请检查您的邮箱');
+      } catch (error) {
+        const message = error.response ? error.response.data : '获取验证码失败，请检查邮箱后重试！';
+        this.$message.error(message);
+      }
+    }
+  },
+  startCountdown() {
+    this.isButtonDisabled = true; // 禁用按钮
+    this.buttonText = `${this.countdownTime}s后再次发送`;
+    this.timeLeft = this.countdownTime;
+
+    const intervalId = setInterval(() => {
+      this.timeLeft -= 1;
+      this.buttonText = `${this.timeLeft}s后可再次发送`;
+
+      if (this.timeLeft <= 0) {
+        clearInterval(intervalId); // 清除定时器
+        this.buttonText = '获取验证码';
+        this.isButtonDisabled = false; // 启用按钮
+      }
+    }, 1000);
+  },
+    async updateAccountInfo() {
   if (this.password.current === '' || this.password.new === '' || this.password.confirm === '') {
     this.$message.error('请填写所有必填项');
     return;
-  }
+  };
+  if (this.verificationCode !== this.serverVerificationCode) {
+      this.$message.error('验证码错误');
+      return;
+    }
   // console.log(this.password.current);
   // console.log(this.currentPass);
 
@@ -481,6 +513,7 @@ async resetPassword() {
       this.password.current = '';
       this.password.new = '';
       this.password.confirm = '';
+      this.verificationCode ='';
     } else {
       this.$message.error(`密码重置失败: ${response.data.message}`);
     }
@@ -504,6 +537,7 @@ async resetPassword() {
     }
   },
   mounted() {
+    
     const userId = localStorage.getItem('userId');  // 替换为实际的用户 ID
     console.log('Stored User ID:', localStorage.getItem('userId'));
     if (userId) {
@@ -535,11 +569,7 @@ async resetPassword() {
   
   .modal-content {
     margin-top: 200px;
-<<<<<<< HEAD
     height: 45%;
-=======
-    height: 45%; /*控制卡片的高度*/
->>>>>>> 88bad51135fc39f14b9e266c3c16d2e632a310bd
     background-color: #fefefe;
     padding: 20px;
     border-radius: 8px;

@@ -243,11 +243,12 @@ const filterMarkets = () => {
   
 <style scoped>
   .CommodityShow {
-    width: 86%;
-    height: 88.5vh;
     position: fixed;
-    top: 10.5vh;
-    background-color: rgb(164, 197, 181);
+    top: 10vh;
+    left: 150px; 
+    right: 0;
+    bottom: 0;
+    background-color: #DFCDC7  ;
   }
   
   .TableContainer {
@@ -299,6 +300,16 @@ const filterMarkets = () => {
   color: black;
   text-decoration: none;
   cursor: pointer;
+}
+
+.el-button--primary {
+    background-color: #a13232;
+    border-color: #a13232;
+}
+
+.el-button--primary:hover {
+    background-color: #8b2b2b;
+    border-color: #8b2b2b;
 }
   
   </style>

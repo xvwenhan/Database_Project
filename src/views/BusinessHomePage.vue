@@ -1,75 +1,88 @@
 <!-- 商家首页 -->
 <template>
+  <div class="whole">
+    <Sidebar />
   <div class="Background">
+    <hr>
     <div class="BlockOne">
       <span class="BlockThree">
-        <div style="background-color: seagreen;">待办订单</div>
-        <br>
-        <el-card class="box-card" >
-          <span class="Number">
-            <el-statistic :value="stats.waitingForShipment" />
-          </span>
-        </el-card>
-        <el-card class="box-card-two">
-          <span class="Number">
-            <el-statistic :value="stats.waitingForReturn" />
-          </span>
-        </el-card>
-        <br>
-        <span class="Frame">待发货</span>
-        <span>待售后</span>
+        <el-card>
+          <div style="color: #977c7c;font-weight: bold;font-size: 1.2em;">待办订单</div>
+          <hr>
+          <el-card class="box-card" >
+            <span class="Number">
+              <el-statistic :value="stats.waitingForShipment" />
+            </span>
+          </el-card>
+          <el-card class="box-card-two">
+            <span class="Number">
+              <el-statistic :value="stats.waitingForReturn" />
+            </span>
+          </el-card>
+          <br>
+          <span class="Frame">待发货</span>
+          <span>待售后</span>
+      </el-card>
       </span>
       <span class="BlockThree">
-        <div style="background-color: seagreen;">相关市集</div>
-        <br>
-        <el-card class="box-card" >
-          <span class="Number">
-            <el-statistic :value="stats.inCount" />
-          </span>
+        <el-card>
+          <div style="color: #977c7c;font-weight: bold;font-size: 1.2em;">相关市集</div>
+          <hr>
+          <el-card class="box-card" >
+            <span class="Number">
+              <el-statistic :value="stats.inCount" />
+            </span>
+          </el-card>
+          <el-card class="box-card-two">
+            <span class="Number">
+              <el-statistic :value="stats.outCount" />
+            </span>
+          </el-card>
+          <br>
+          <span class="Frame">已参与</span>
+          <span>可报名</span>
         </el-card>
-        <el-card class="box-card-two">
-          <span class="Number">
-            <el-statistic :value="stats.outCount" />
-          </span>
-        </el-card>
-        <br>
-        <span class="Frame">已参与</span>
-        <span>可报名</span>
       </span>
       <span class="BlockThree">
-        <div style="background-color: seagreen;">今日总览</div>
-        <br>
-        <el-card class="box-card" >
-          <span class="Number">
-            <el-statistic :value="stats.orderCount" />
-          </span>
+        <el-card>
+          <div style="color: #977c7c;font-weight: bold;font-size: 1.2em;">今日总览</div>
+          <hr>
+          <el-card class="box-card" >
+            <span class="Number">
+              <el-statistic :value="stats.orderCount" />
+            </span>
+          </el-card>
+          <el-card class="box-card-two">
+            <span class="Number">
+              <el-statistic :value="stats.totalRevenue" />
+            </span>
+          </el-card>
+          <br>
+          <span class="FrameTwo">今日新订单</span>
+          <span>今日营业额</span>
         </el-card>
-        <el-card class="box-card-two">
-          <span class="Number">
-            <el-statistic :value="stats.totalRevenue" />
-          </span>
-        </el-card>
-        <br>
-        <span class="FrameTwo">今日新订单</span>
-        <span>今日营业额</span>
       </span>
     </div>
+    
     <div class="BlockTwo">
-      <span class="OrderStatistics">
-        <div style="background-color: seagreen;">订单统计</div>
+      <el-card class="OrderStatistics">
+        <div style="color: #977c7c;font-weight: bold;font-size: 1.2em;">订单统计</div>
+        <hr>
         <OrderStatisticsChart :data="orderData" :labels="lastSevenDays" />
-      </span>
+      </el-card>
     </div>
     </div>
+  </div>
 </template>
 
 <script>
 import OrderStatisticsChart from './OverviewView.vue';
 import axiosInstance from '../components/axios';
-
+import Sidebar from './BusinessSidebar.vue'
 export default {
   components: {
     OrderStatisticsChart,
+    Sidebar
   },
   data() {
     return {
@@ -160,10 +173,10 @@ export default {
 
 <style scoped>
 .Background {
-  background-color: rgb(84, 138, 87);
+  background-color: rgb(237,227,228);
   position: fixed;
   top: 6vh;
-  left: 23vh; 
+  left: 150px; 
   right: 0;
   bottom: 0;
 }
@@ -177,8 +190,8 @@ export default {
 .BlockTwo {
   display: flex;
   width: 1500px;
-  padding-left: 100px;
-  padding-top: 70px;
+  padding-left: 115px;
+  padding-top: 40px;
 }
 
 .BlockThree {
@@ -208,7 +221,8 @@ export default {
 .box-card {
   width: 90px;
   height: 160px;
-  background-color: rgb(110, 216, 142);
+  margin-top: 20px;
+  background-color:  #dcc8ca  ;
   display: inline-block;
 }
 
@@ -216,7 +230,7 @@ export default {
   width: 90px;
   height: 160px;
   margin-left:30px;
-  background-color: rgb(110, 216, 142);
+  background-color: #dcc8ca  ;
   display: inline-block;
 }
 

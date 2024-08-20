@@ -1,25 +1,65 @@
 <!-- 商家侧边栏顶侧栏页面组件 -->
 <template>
-    <div class="Sidebar">
+  <aside class="sidebar">
+      <nav>
+        <ul>
+          <li>
+            <router-link to="/BusinessHomePage" class="nav-link" active-class="active-link">
+              <div class="button-content">
+                <img src="@/assets/wy/homepage.png" alt="Icon2" class="sidebar-icon white-icon">
+                <span>首页</span>
+              </div>
+            </router-link>
+          </li>
+          <li>
+            <router-link to="/BusinessOrder" class="nav-link" active-class="active-link">
+              <div class="button-content">
+                <img src="@/assets/wy/order.png" alt="Icon3" class="sidebar-icon white-icon">
+                <span>订单管理</span>
+              </div>
+            </router-link>
+          </li>
+          <li>
+            <router-link to="/BusinessCommodity" class="nav-link" active-class="active-link">
+              <div class="button-content">
+                <img src="@/assets/wy/shop.png" alt="Icon4" class="sidebar-icon white-icon">
+                <span>商品管理</span>
+              </div>
+            </router-link>
+          </li>
+          <li>
+            <router-link to="/BusinessMarket" class="nav-link" active-class="active-link">
+              <div class="button-content">
+                <img src="@/assets_dxy/market_icon.svg" alt="Icon4" class="sidebar-icon white-icon">
+                <span>参与市集</span>
+              </div>
+            </router-link>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+    <!-- <div class="Sidebar">
       <ul>
         <li @click="$emit('changeView', 'BusinessHomePage')">
-          <img src="@/assets/test.svg" alt="BusinessHomePage" class="SidebarIcon">
-          <span>首页</span>
+          <div class="button-content">
+            <img src="@/assets_dxy/certification_icon.svg" alt="BusinessHomePage" class="SidebarIcon">
+            <span>首页</span>
+          </div>
         </li>
         <li @click="$emit('changeView', 'BusinessOrder')">
-          <img src="@/assets/test.svg" alt="BusinessOrder" class="SidebarIcon">
+          <img src="@/assets_dxy/certification_icon.svg" alt="BusinessOrder" class="SidebarIcon">
           <span>订单管理</span>
         </li>
         <li @click="$emit('changeView', 'BusinessCommodity')">
-          <img src="@/assets/test.svg" alt="BusinessCommodity" class="SidebarIcon">
+          <img src="@/assets_dxy/certification_icon.svg" alt="BusinessCommodity" class="SidebarIcon">
           <span>商品管理</span>
         </li>
         <li @click="$emit('changeView', 'BusinessMarket')">
-          <img src="@/assets/test.svg" alt="BusinessMarket" class="SidebarIcon">
+          <img src="@/assets_dxy/certification_icon.svg" alt="BusinessMarket" class="SidebarIcon">
           <span>参与市集</span>
         </li>
       </ul>
-    </div>
+    </div> -->
 
     <div class="Topbar">
         <span class="Website">
@@ -27,27 +67,51 @@
             <span>旧时王谢堂前燕，飞入寻常百姓家</span>
         </span>
         <ul>
-            <li @click="$emit('changeView', 'BusinessHomePage')">
+            <!-- <li @click="$emit('changeView', 'BusinessHomePage')">
                 <img src="@/assets/home.svg" alt="HomePage" class="TopbarIcon">
-            </li>
+            </li> -->
             <!-- <li @click="show = true">
                 <img src="@/assets/setting.svg" alt="Setting"  id="Setting">
             </li> -->
-            <li @click="showModal = true">
+            <!-- <li @click="showModal = true">
                 <img src="@/assets/setting.svg" alt="Setting" id="Setting">
-            </li>
+            </li> -->
+            <!-- <li @click="$emit('changeView', 'BusinessInformation')">
+              <img src="@/assets/setting.svg" alt="Setting" id="Setting">
+            </li> -->
+            <li>
+            <router-link to="/BusinessInformation">
+              <img src="@/assets/setting.svg" alt="Setting" id="Setting">
+            </router-link>
+          </li>
         </ul>
         <div class="StoreScore">
       <span v-if="loading">Loading...</span>
       <span v-if="error">{{ error }}</span>
       <span v-if="storeScoreName">
+        <!-- <img src="@/assets_dxy/person_icon.svg" alt="Icon" class="icon">
         Store Score: {{ storeScoreName.storeScore }}
-        Store Name: {{ storeScoreName.storeName }}
+        <img src="@/assets_dxy/person_icon.svg" alt="Icon" class="icon">
+        Store Name: {{ storeScoreName.storeName }} -->
+        <div class="HeadEnd">
+        <img src="@/assets/wy/point.png" alt="Icon" class="icon" >
+        <span id="TEnd1"> {{ storeScoreName.storeScore }}</span>
+        <img :src="userimades.ima" alt="Icon" class="icon"id="TEnd2">
+        <span id="TEnd1">{{ storeScoreName.storeName }}</span>
+      </div>
       </span>
+
+      <!-- <div class="HeadEnd">
+        <img src="@/assets/wy/point.png" alt="Icon" class="icon" >
+        <span id="TEnd1"> {{ storeScoreName.storeScore }}</span>
+        <img :src="userimades.ima" alt="Icon" class="icon"id="TEnd2">
+        <span id="TEnd1">{{ storeScoreName.storeName }}</span>
+      </div> -->
     </div>
+    <hr>
     </div>
 
-    <div v-if="show" class="SettingPopUp">
+    <!-- <div v-if="show" class="SettingPopUp">
       <div class="SettingContent">
         <span class="close" @click="closeModalT">&times;</span>
         <UserCenter />
@@ -59,7 +123,7 @@
         <span class="close" @click="closeModal">&times;</span>
         <BusinessSetting />
       </div>
-    </div>
+    </div> -->
   </template>
   
   <script>
@@ -75,15 +139,20 @@
     return {
       showModal: false,
       show:false,
-      storeScoreName: null,
+      storeScoreName: {},
       loading: false,
-      error: null
+      error: null,
+      //头像简介
+      userimades:{
+                ima:'',
+                descri:'',
+            },
     };
     
   },
-  created() {
-    this.fetchStoreScore();  // 在组件创建时调用方法获取店铺评分
-  },
+  // created() {
+  //   this.fetchStoreScore();  // 在组件创建时调用方法获取店铺评分
+  // },
   methods: {
     closeModal() {
       this.showModal = false;
@@ -91,10 +160,30 @@
     closeModalT() {
       this.show = false;
     },
+     //获取头像简介
+     async fetchImageAndText(id) {
+            try {
+                console.log(id,'!');
+                const response = await axiosInstance.post('/UserInfo/GetPhotoAndDescribtion', {
+                id
+                });
+
+                const { describtion, photo } = response.data;
+                console.log('1:',this.userimades.ima);
+                console.log('2:',this.userimades.descri);
+                this.userimades.ima = `data:image/jpeg;base64,${photo}`;
+                this.userimades.descri = describtion;
+
+                console.log('获取到的头像和文字描述:', this.userimades);
+            } catch (error) {
+                console.error('获取头像和简介失败:', error);
+                this.$message.error('获取头像和简介描述失败，请稍后再试');
+            }
+        },
     async fetchStoreScore() {
       const storeId =localStorage.getItem('userId');
       this.loading = true;
-      this.error = null;
+      this.error = null;       
       this.storeScoreName = null;
 
       try {
@@ -110,51 +199,59 @@
         this.loading = false;
       }
     }
-  }
+  },
+  mounted() {          
+        const userId = localStorage.getItem('userId');
+        this.fetchStoreScore();
+        this.fetchImageAndText(userId);
+    }
   }
   </script>
   
   <style scoped>
-  .Sidebar {
-    width: 23vh;
-    background-color: #367151;
+  /* .Sidebar {
+    width: 150px;
+    background-color:#82111f;
     color: white;
-    height: 94vh;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-  }
+    height: 100vh; */
+    /* position: fixed; */
+    /* bottom: 0;
+    left: 0; */
+    /* padding: 60px 0;
+    display: flex;
+  } */
   
-  .Sidebar ul {
+  /* .Sidebar ul {
     padding: 0;
   }
-  
   .Sidebar li {
     display: flex;
-    /* 垂直中心 */
+    flex-direction: column;
     align-items: center;
     padding: 1.5vh;
     cursor: pointer;
   }
   
   .SidebarIcon {
-    margin-right: 1vh;
+    margin-left: 3vh;
+    margin-right:3vh;
   }
   
   .Sidebar li:hover {
-    background-color: #065f43;
-  }
+    background-color:#6e0e1a;
+  } */
+  
 
   .Topbar {
-    width:100%;
-    background-color: #6ca795;
-    color: white;
+    background-color: rgb(237,227,228);
+    color: rgb(11, 2, 2);
     height: 6vh;
+    width: calc(100% - 150px);
     display: flex;
     align-items: center;
     position: fixed;
     top: 0;
-    left: 0;
+    right: 0;
   }
   
   .Website {
@@ -193,43 +290,78 @@
     background-color: #0b8d77;
   }
 
-  .SettingPopUp {
-  position: fixed;
-  z-index: 1;
-  left: 0;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0,0,0,0.4);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.SettingContent {
-  color: #065f43;
-  background-color: #fefefe;
-  display: inline-block;
-  padding:2vh;
-  position: relative;
-}
-
-.close {
-  color: #aaa;
-  float: right;
-  font-size: 28px;
-  font-weight: bold;
-  z-index: 2;
-  position: absolute;
-  right: 10px;
-  top: 10px;
-}
- 
-.close:hover,
-.close:focus {
-  color: black;
-  text-decoration: none;
-  cursor: pointer;
-}
+.sidebar {
+    width: 150px;
+    /* background-color: rgb(241,164,164); */
+    /* background-color: rgb(171,79,79); */
+    background-color:#82111f;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 60px 0;
+    height: 100vh;
+  }
+  
+  .white-icon {
+    filter: brightness(0) invert(1);
+  }
+  
+  .button-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  nav ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  nav li {
+    width: 100%;
+    text-align: center;
+    margin: 0 0;
+  }
+  
+  .nav-link {
+    color: #ffffff;
+    /* background-color: rgb(241,164,164); */
+    /* background-color: rgb(171,79,79); */
+    background-color:#82111f;
+    border: none;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 150px;
+    height: 130px;
+    padding: 10px 0;
+    cursor: pointer;
+  }
+  
+  .nav-link:hover {
+    /* background: rgb(238,142,142); */
+    /* background-color: rgb(180,69,69); */
+    background-color:#6e0e1a;
+  }
+  
+  .active-link {
+    border: 1px solid #fff;
+  }
+  #TEnd1 {
+    margin-right: 80px;
+  }
+  #TEnd2 {
+    width: 30px;
+    height: 30px;
+    border-radius: 20px;
+    margin-right: 10px;
+  }
+  .HeadEnd {
+    margin-left: 800px;
+    display: flex;
+    align-items: center;
+  }
 
   </style>

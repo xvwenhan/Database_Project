@@ -21,6 +21,20 @@ import MerchantShowcase from '../views/MerchantShowcase.vue'
 import SearchProductShowcase from '../views/SearchProductShowcase.vue'
 import BazaarMerchandise from '../views/BazaarMerchandise.vue'
 
+//设置界面
+import BuyerInformation from '../views/InformationSetting.vue'
+import BuyerWallet from '../views/WalletSetting.vue'
+import BuyerPassword from '../views/PasswordSetting.vue'
+import LogoutSetting from '../views/LogoutSetting.vue'
+import BusinessInformation from '../views/InformationSettingBusiness.vue'
+import BusinessPassword from '../views/PasswordSettingBusiness.vue'
+import BusinessLogout from '../views/LogoutSettingBusiness.vue'
+//商家界面
+import BusinessHomePage from '../views/BusinessHomePage.vue';
+import BusinessMarket from '../views/BusinessMarket.vue';
+import BusinessOrder from '../views/BusinessOrderManage.vue';
+import BusinessCommodity from '../views/BusinessCommodity.vue';
+
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -172,8 +186,57 @@ const router = createRouter({
       path: '/shopdetail',
       name: 'ShopDetail',
       component: () => import('../views/ShopDetail.vue')
-    }
-  
+    },
+    //设置界面
+    { path: '/BuyerInformation', 
+      name: 'BuyerInformation', 
+      component: BuyerInformation 
+    },
+    { path: '/BuyerWallet', 
+      name: 'BuyerWallet', 
+      component: BuyerWallet
+    },
+    { path: '/BuyerPassword', 
+      name: 'BuyerPassword', 
+      component: BuyerPassword
+    },
+    { path: '/LogoutSetting', 
+      name: 'LogoutSetting', 
+      component: LogoutSetting
+    },
+    { path: '/LogoutSetting', 
+      name: 'LogoutSetting', 
+      component: LogoutSetting
+    },
+    { path: '/BusinessInformation', 
+      name: 'BusinessInformation', 
+      component: BusinessInformation
+    },
+    { path: '/BusinessPassword', 
+      name: 'BusinessPassword', 
+      component: BusinessPassword
+    },
+    { path: '/BusinessLogout', 
+      name: 'BusinessLogout', 
+      component: BusinessLogout
+    },
+    //商家界面
+    { path: '/BusinessHomePage', 
+      name: 'BusinessHomePage', 
+      component: BusinessHomePage
+    },
+    { path: '/BusinessMarket', 
+      name: 'BusinessMarket', 
+      component: BusinessMarket
+    },
+    { path: '/BusinessOrder', 
+      name: 'BusinessOrder', 
+      component: BusinessOrder
+    },
+    { path: '/BusinessCommodity', 
+      name: 'BusinessCommodity', 
+      component: BusinessCommodity
+    },
   ]
 })
 export default router

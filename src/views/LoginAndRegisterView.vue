@@ -261,7 +261,7 @@ const clearData=()=>{
 
 const getVerificationCode= async () =>{
   if(isButtonDisabled.value) return;
-  console.log(registerEmail.value);
+  console.log(registerEmail.value);   
   if(!registerEmail.value){
     ElMessage.error('请保证邮箱不为空');
   }else{

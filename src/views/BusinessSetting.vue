@@ -43,62 +43,57 @@
       </el-tab-pane>
 
       <el-tab-pane label="修改密码" name="account">
-        <div class="account-info">
-          <el-form :model="password" label-width="80px">
-            <!-- <el-form-item label="当前密码" :rules="[{ required: true, message: '请输入当前密码', trigger: 'blur' }]">
-              <el-input 
-                v-model="password.current"
-                :type="passwordVisibility.current ? 'text' : 'password'"
-                placeholder="请输入当前密码"
-              >
-                <template #suffix>
-                  <img 
-                    :src="currentImage"
-                    @click="toggleVisibility()"
-                    class="password-visibility-toggle"
-                    alt="toggle visibility"
-                  />
-                </template>
-              </el-input>
-            </el-form-item> -->
-            <el-form-item label="新密码" :rules="[{ required: true, message: '请输入新密码', trigger: 'blur' }]">
-              <el-input 
-                v-model="password.new"
-                :type="passwordVisibility.new ? 'text' : 'password'"
-                placeholder="请输入新密码"
-              >
-                <template #suffix>
-                  <img 
-                   :src="currentImageTw"
-                    @click="toggleVisibilityTw()"
-                    class="password-visibility-toggle"
-                    alt="toggle visibility"
-                  />
-                </template>
-              </el-input>
-            </el-form-item>
-            <el-form-item label="确认密码" :rules="[{ required: true, message: '请确认新密码', trigger: 'blur' }]">
-              <el-input 
-                v-model="password.confirm"
-                :type="passwordVisibility.confirm ? 'text' : 'password'"
-                placeholder="请确认新密码"
-              >
-                <template #suffix>
-                  <img 
-                    :src="currentImageTh"
-                    @click="toggleVisibilityTh()"
-                    class="password-visibility-toggle"
-                    alt="toggle visibility"
-                  />
-                </template>
-              </el-input>
-            </el-form-item>
-            <el-form-item>
-              <el-button type="primary" @click="updateAccountInfo">保存</el-button>
-            </el-form-item>
-          </el-form>
-        </div>
-      </el-tab-pane>
+  <div class="account-info">
+    <el-form :model="password" label-width="80px">
+      <el-form-item label="新密码" :rules="[{ required: true, message: '请输入新密码', trigger: 'blur' }]">
+        <el-input 
+          v-model="password.new"
+          :type="passwordVisibility.new ? 'text' : 'password'"
+          placeholder="请输入新密码"
+        >
+          <template #suffix>
+            <img 
+              :src="currentImageTw"
+              @click="toggleVisibilityTw()"
+              class="password-visibility-toggle"
+              alt="toggle visibility"
+            />
+          </template>
+        </el-input>
+      </el-form-item>
+      <el-form-item label="确认密码" :rules="[{ required: true, message: '请确认新密码', trigger: 'blur' }]">
+        <el-input 
+          v-model="password.confirm"
+          :type="passwordVisibility.confirm ? 'text' : 'password'"
+          placeholder="请确认新密码"
+        >
+          <template #suffix>
+            <img 
+              :src="currentImageTh"
+              @click="toggleVisibilityTh()"
+              class="password-visibility-toggle"
+              alt="toggle visibility"
+            />
+          </template>
+        </el-input>
+      </el-form-item>
+
+      <!-- 添加发送验证码的部分 -->
+      <el-form-item>
+        <el-button type="primary" :disabled="isButtonDisabled" @click="getVerificationCode">
+          {{buttonText}}
+        </el-button>
+      </el-form-item>
+      <el-form-item label="验证码" :rules="[{ required: true, message: '请输入验证码', trigger: 'blur' }]">
+        <el-input v-model="verificationCode" placeholder="请输入收到的验证码"></el-input>
+      </el-form-item>
+      
+      <el-form-item>
+        <el-button type="primary" @click="updateAccountInfo">保存</el-button>
+      </el-form-item>
+    </el-form>
+  </div>
+</el-tab-pane>
 
       <!-- 新增退出登录选项卡 -->
       <el-tab-pane label="退出登录" name="accountManagement">
@@ -109,7 +104,7 @@
 
       <el-tab-pane label="头像和简介" name="userIn">
     <div>
-      <el-form :model="userimades" :rules="rules" ref="form">
+      <el-form :model="userimades"  ref="form">
         <el-form-item label="上传头像(.jpg)" prop="image">
           <img v-if="userimades.ima" :src="userimades.ima" alt="当前图片" style="width: 200px; height: 200px;" />
           <input type="file" @change="handleFile" accept=".jpg" />
@@ -134,6 +129,12 @@ export default {
   name:'BusinessSetting',
   data() {
     return {
+    verificationCode: '',
+    serverVerificationCode: '', // 用于存储后端返回的验证码
+    isButtonDisabled: false,
+    buttonText: '获取验证码',
+    timeLeft: 0,
+    countdownTime: 60, // 倒计时时间
       userimades:{
         ima:'',
         descri:'',
@@ -144,11 +145,11 @@ export default {
         image:'',
         description:''
       },
-      uploadStatus:false,
       passStatus:false,
       businessInfo: {
         username: '',
-        address: ''
+        address: '',
+        email: ''
       },
       password: {
         // current: '',
@@ -184,7 +185,7 @@ export default {
     },
   },
   created() {
-    this.updateBusinessInfo();  // 在组件创建时调用方法获取店铺评分
+    this.updateBusinessInfo();  
   },
   methods: {
     
@@ -227,6 +228,25 @@ handleFile(event) {
     } else {
       this.$message.error('请上传正确格式的图片 (.jpg 或 .png)');
     }
+  }
+},
+async fetchImageAndText(id) {
+  try {
+    console.log(id,'!');
+    const response = await axiosInstance.post('/UserInfo/GetPhotoAndDescribtion', {
+      id
+    });
+
+    const { describtion, photo } = response.data;
+    console.log('1:',this.userimades.ima);
+    console.log('2:',this.userimades.descri);
+    this.userimades.ima = `data:image/jpeg;base64,${photo}`;
+    this.userimades.descri = describtion;
+
+    console.log('获取到的头像和文字描述:', this.userimades);
+  } catch (error) {
+    console.error('获取头像和简介失败:', error);
+    this.$message.error('获取头像和简介描述失败，请稍后再试');
   }
 },
 
@@ -310,7 +330,7 @@ async handleCertificationUpload() {
           this.businessInfo = {
             // username: response.data.target_user.useR_NAME,
             // gender: response.data.target_user.gender,
-            // age: response.data.target_user.age,
+            email: response.data.target_user.email,
             address:response.data.target_user.address
           };
 
@@ -345,41 +365,74 @@ async handleCertificationUpload() {
       }
     },
     async updateBusinessInfo() {
-      const storeId = localStorage.getItem('userId'); // 替换为实际的 storeid
-      this.loading = true;
-      this.error = null;
+  const storeId = localStorage.getItem('userId'); // 替换为实际的 storeId
+  this.loading = true;
+  this.error = null;
+  
+  // 确保用户名和地址不为空
+  if (!this.businessInfo.username || !this.businessInfo.address) {
+    // this.$message.error('所有字段都必须填写');
+    return;
+  }
 
-      if (!this.businessInfo.username || !this.businessInfo.address) {
-        // this.$message.error('所有字段都必须填写');
-        return;
-      }
-      const payload = {
-        StoreName: String(this.businessInfo.username),
-        Address: String(this.businessInfo.address),
-      };
+  try {
+    const response = await axiosInstance.post('/Account/modify_seller_message', {
+      accountId: storeId, // 传递 accountId 参数
+      userName: String(this.businessInfo.username), // 传递 userName 参数
+      storeName: String(this.businessInfo.username), // 传递 storeName 参数
+      address: String(this.businessInfo.address), // 传递 address 参数
+    });
+    console.log('Update response:', response.data); // 打印响应数据
+    this.$message.success('商家信息更新成功');
+  } catch (error) {
+    this.$message.error('更新商家信息失败');
+    console.error('Error updating business info:', error);
+  } finally {
+    this.loading = false;
+  }
+},
+async getVerificationCode() {
+    if (this.isButtonDisabled) return;
 
-      console.log('Request payload:', payload); 
-
+    if (!this.businessInfo.email) {
+      this.$message.error('获取用户邮箱失败');
+    } else {
+      this.startCountdown();
       try {
-        const response = await axiosInstance.put('/StoreFront/UpdateStoreInfo', payload, {
-          params: {
-            storeId: storeId,
-          },
-        });
-        console.log('Update response:', response.data); // 打印响应数据
-        this.$message.success('商家信息更新成功');
+        const response = await axiosInstance.get(`/Account/send_verification_code/${encodeURIComponent(this.businessInfo.email)}`);
+        this.serverVerificationCode = response.data.verificationCode;
+        this.$message.success('验证码已发送，请检查您的邮箱');
       } catch (error) {
-        this.$message.error('更新商家信息失败');
-        console.error('Error updating business info:', error);
-      }finally {
-        this.loading = false;
+        const message = error.response ? error.response.data : '获取验证码失败，请检查邮箱后重试！';
+        this.$message.error(message);
       }
-    },
+    }
+  },
+  startCountdown() {
+    this.isButtonDisabled = true; // 禁用按钮
+    this.buttonText = `${this.countdownTime}s后再次发送`;
+    this.timeLeft = this.countdownTime;
+
+    const intervalId = setInterval(() => {
+      this.timeLeft -= 1;
+      this.buttonText = `${this.timeLeft}s后可再次发送`;
+
+      if (this.timeLeft <= 0) {
+        clearInterval(intervalId); // 清除定时器
+        this.buttonText = '获取验证码';
+        this.isButtonDisabled = false; // 启用按钮
+      }
+    }, 1000);
+  },
     async updateAccountInfo() {
   if (this.password.current === '' || this.password.new === '' || this.password.confirm === '') {
     this.$message.error('请填写所有必填项');
     return;
-  }
+  };
+  if (this.verificationCode !== this.serverVerificationCode) {
+      this.$message.error('验证码错误');
+      return;
+    }
   // console.log(this.password.current);
   // console.log(this.currentPass);
 
@@ -414,6 +467,7 @@ async resetPassword() {
       this.password.current = '';
       this.password.new = '';
       this.password.confirm = '';
+      this.verificationCode ='';
     } else {
       this.$message.error(`密码重置失败: ${response.data.message}`);
     }
@@ -489,12 +543,14 @@ async fetchCertificationImageAndText(storeId) {
   }
 }
   },                           
-  mounted() {               
+  mounted() {          
+         
     const userId = localStorage.getItem('userId'); 
     console.log('Stored User ID:', localStorage.getItem('userId'));
     this.getUserInfo(userId);
     this.fetchStoreName();
     this.checkCertificationStatus(); 
+    this.fetchImageAndText(userId);
   }
 };
 </script>
