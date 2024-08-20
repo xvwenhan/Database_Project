@@ -67,7 +67,12 @@
                   class="product-item"
                 >
                   <div @click="handleProductClick(product.productId)">
-                    <img :src="product.productPic" :alt="product.productId" class="product-image" />
+                    <!-- <img :src="product.productPics.imageUrl" :alt="product.productId" class="product-image" /> -->
+                    <img 
+                      :src="product.productPics.length > 0 ? product.productPics[0].imageUrl : 'default-image-url.jpg'" 
+                      :alt="product.productId" 
+                      class="product-image" 
+                    />
                     <div class="product-text">
                       <h2>{{ product.productName }}</h2>
                       <p>价格: ¥{{ product.productPrice }}</p>
@@ -249,10 +254,10 @@ const fetchAllProducts = async () => {
       }
     });
     if (products.length > 0) {
-      products.splice(0, products.length);
+      products.splice(0, products.length);//清空数组
     }
     response.data.forEach(product => {
-      product.productPic = `data:image/png;base64,${product.productPic}`;
+      // product.productPic = `data:image/png;base64,${product.productPic}`;
       products.push(product);
     });
     message3.value = '已获取全部商品信息';
@@ -596,7 +601,8 @@ onMounted(() => {
 .product-image {
   width: 100%;
   height: auto;
-  max-height: 150px;
+  max-height: 200px;
+  min-height: 150px;
   object-fit: cover;
   border-radius: 5px;
   margin-bottom: 10px;
