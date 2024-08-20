@@ -127,12 +127,18 @@
         </el-form-item>
         <el-form-item label="系统分类" prop="categorySys">
           <el-select v-model="newProduct.categorySys">
-            <el-option
-              v-for="category in options"
-              :key="category.value"
-              :label="category.value"
-              :value="category.value"
-            ></el-option>
+            <el-option-group
+        v-for="group in options"
+        :key="group.label"
+        :label="group.label"
+      >
+        <el-option
+          v-for="item in group.children"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value"
+        ></el-option>
+      </el-option-group>
           </el-select>
         </el-form-item>
         <el-form-item label="商家分类" prop="categoryInit">
@@ -368,13 +374,51 @@ const fetchProductByTag = async (storeTag) => {
     });
 
     const options = [
-      { value: '服装', label: '服装' },
-      { value: '首饰', label: '首饰' },
-      { value: '家具', label: '家具' },
-      { value: '工艺品', label: '工艺品' },
-      { value: '小物件', label: '小物件' }
-    ];
-
+  {
+    label: '服装',
+    children: [
+      { value: '001', label: '汉族传统服饰' },
+      { value: '002', label: '少数民族服饰' },
+      { value: '003', label: '地方特色服装' }
+    ]
+  },
+  {
+    label: '首饰',
+    children: [
+      { value: '004', label: '银饰' },
+      { value: '005', label: '玉饰' },
+      { value: '006', label: '宝石首饰' },
+      { value: '007', label: '民族特色首饰' }
+    ]
+  },
+  {
+    label: '家具',
+    children: [
+      { value: '008', label: '床榻类' },
+      { value: '009', label: '桌案类' },
+      { value: '010', label: '椅凳类' },
+      { value: '011', label: '柜架类' },
+      { value: '012', label: '屏风类' }
+    ]
+  },
+  {
+    label: '工艺品',
+    children: [
+      { value: '013', label: '陶瓷' },
+      { value: '014', label: '漆器' },
+      { value: '015', label: '刺绣' },
+      { value: '016', label: '景泰蓝' }
+    ]
+  },
+  {
+    label: '小物件',
+    children: [
+      { value: '017', label: '文房四宝' },
+      { value: '018', label: '剪纸艺术' },
+      { value: '019', label: '竹编' }
+    ]
+  }
+];
     const OnOrNot = [
       {value: true, label: '是'},
       {value: false, label: '否'}
@@ -600,8 +644,7 @@ const newImageText = ref('');
   if (file) {
     const reader = new FileReader();
     reader.onload = (e) => {
-      const base64Image = e.target.result; // 获取完整的 Base64 字符串
-      newImage.value = base64Image; // 更新 newImage 的值
+      newImage.value = e.target.result; // 获取完整的 Base64 字符串
     };
     reader.readAsDataURL(file);
   }
@@ -626,7 +669,6 @@ const addImageWithText = () => {
     if (valid) {
       // 确保 productPic 是有效的 Base64 字符串或处理空情况
       const productPic = newProduct.value.image ? newProduct.value.image.split(',')[1] : '';
-
       // const newProductData = {
       //   productName: newProduct.value.name,
       //   productPrice: newProduct.value.price,
@@ -635,25 +677,45 @@ const addImageWithText = () => {
       //   StoreTag: newProduct.value.categorySys,
       //   ProductImages: productPic
       // };
-
        // 使用 FormData 处理文件上传
-       const formData = new FormData();
-formData.append('ProductName', newProduct.value.name || '');
-formData.append('ProductPrice', newProduct.value.price || '');
-formData.append('Tag', newProduct.value.categoryInit || '');
-formData.append('Description', newProduct.value.description || '');
-formData.append('StoreTag', newProduct.value.categorySys || '');
-formData.append('ProductImages', productPic ? `data:image/jpeg;base64,${productPic}` : '');
-
-newProduct.value.imagesWithText.forEach((item, index) => {
-        formData.append(`ProductImages[${index}]`, item.image);
-        formData.append(`ProductTexts[${index}]`, item.text);
+      // 使用 URLSearchParams 处理数据
+      const params = new URLSearchParams();
+      params.append('ProductName', newProduct.value.name || '');
+      params.append('ProductPrice', newProduct.value.price || '');
+      params.append('Tag', newProduct.value.categoryInit || '');
+      params.append('Description', newProduct.value.description || '');
+      params.append('StoreTag', newProduct.value.categorySys || '');
+      params.append('ProductImages', productPic ? `data:image/jpeg;base64,${productPic}` : '');
+      
+      // 使用 Promise.all 处理所有文件
+      const promises = newProduct.value.imagesWithText.map((item, index) => {
+        return new Promise((resolve, reject) => {
+          // 确保 item.image 是 File 对象
+          console.log(item.image); // 确认 item.image 的实际内容
+          console.log(item.image instanceof File); // 确认 item.image 是否是 File 对象
+          if (item.image && item.image instanceof File) {
+            const reader = new FileReader();
+            reader.onloadend = function () {
+              const base64String = reader.result.split(',')[1]; // 获取 Base64 字符串部分
+              params.append(`PicDes[${index}].DetailPic`, base64String);
+              params.append(`PicDes[${index}].Description`, item.text);
+              resolve(); // 处理完成
+            };
+            reader.onerror = function () {
+              reject(new Error('Failed to read file'));
+            };
+            reader.readAsDataURL(item.image); // 读取文件并触发 onloadend
+          } else {
+            // 处理不符合预期的 item.image
+            reject(new Error('item.image is not a valid File object'));
+          }
+        });
       });
 
-// 检查 FormData 内容
-for (const [key, value] of formData.entries()) {
-  console.log(`${key}: ${value}`);
-}
+      // 检查 URLSearchParams 内容
+      for (const [key, value] of params.entries()) {
+        console.log(`${key}: ${value}`);
+      }
 
       const storeId = localStorage.getItem('userId');// 替换为实际的storeId
       if (!storeId) {
@@ -669,18 +731,17 @@ for (const [key, value] of formData.entries()) {
         //     storeId: storeId
         //   }
         // });
-        const response = await axiosInstance.post(`/StoreViewProduct/addProduct?storeId=${storeId}`, formData, {
-          headers: { 'Content-Type': 'multipart/form-data' }
+
+        const response = await axiosInstance.post(`/StoreViewProduct/addProduct?storeId=${storeId}`, params, {
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          params: { storeId: storeId } // 将 storeId 作为查询参数传递
         });
 
-        // const response = await axiosInstance.post('/Account/modify_seller_message', {
-        //         accountId: storeId, // 传递 accountId 参数
-        //         userName: String(this.businessInfo.username), // 传递 userName 参数
-        //         storeName: String(this.businessInfo.username), // 传递 storeName 参数
-        //         address: String(this.businessInfo.address), // 传递 address 参数
-        //         });
+        // const response = await axiosInstance.post(`/StoreViewProduct/addProduct`, params, {
+        //   headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        //   params: { storeId: storeId } // 将 storeId 作为查询参数传递
+        // });
 
-        // 处理响应
         if (response.status === 200) {
           fetchProducts();
           ElMessage({
@@ -694,7 +755,8 @@ for (const [key, value] of formData.entries()) {
             price: null,
             isOnSale: null,
             description: '',
-            image: ''
+            image: '',
+            imagesWithText:[]
           });
           addDialogVisible.value = false;
         } else {

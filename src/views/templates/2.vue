@@ -46,7 +46,7 @@ const text=ref('瓷器，也做“磁器” 。是由瓷石、高岭土、石�
     border-radius: 15px;
 	color: #fff;
 	display: inline-block;
-	margin: 2rem;
+	margin: 2rem auto;
 	max-width: 60%;
 	position: relative;	
 	&::before {
