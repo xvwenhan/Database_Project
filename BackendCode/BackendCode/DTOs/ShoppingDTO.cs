@@ -41,7 +41,7 @@
     public class ProductDetailsDTO
     {
         public string Name { get; set; }
-        public ImageModel Picture { get; set; }//改为首张图片的ID
+        public List<ImageModel>? Pictures { get; set; } 
         public decimal Price { get; set; }
         public string Description { get; set; }
         public string StoreName { get; set; }
@@ -52,6 +52,7 @@
         public bool IsProductStared { get; set; }
         public bool IsStoreStared { get; set; }
         public byte[]? StoreAvatar { get;set; }
+        public Dictionary<string, string>? ImageAndText { get; set; }
     }
 
     public class StoreOrderDTO

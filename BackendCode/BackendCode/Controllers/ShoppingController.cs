@@ -215,18 +215,22 @@ namespace BackendCode.Controllers
             var isStoreStared = await _dbContext.BUYER_STORE_BOOKMARKS
                 .AnyAsync(bsb => bsb.BUYER_ACCOUNT_ID == userId && bsb.STORE_ACCOUNT_ID == store.ACCOUNT_ID); //检查店铺是否被收藏
 
-            /* 查询商品的第一个图片ID */
-            var firstImage = await _dbContext.PRODUCT_IMAGES
+            /* 查询商品的所有图片 */
+            var productImages = await _dbContext.PRODUCT_IMAGES
                 .Where(pi => pi.PRODUCT_ID == productId)
-                .OrderBy(pi => pi.IMAGE_ID) //根据图片ID排序，获取第一个
-                .Select(pi => new ImageModel { ImageId = pi.IMAGE_ID })  
-                .FirstOrDefaultAsync();
+                .Select(pi => new ImageModel { ImageId = pi.IMAGE_ID }) 
+                .ToListAsync();
+
+            /* 查询商品详情图片和文字对应的字典数组 */
+            var imageAndTextDetails = await _dbContext.PRODUCT_DETAILS
+                .Where(pd => pd.PRODUCT_ID == productId)
+                .ToDictionaryAsync(pd => $"https://localhost:7262/api/images/{pd.IMAGE_ID}", pd => pd.DESCRIPTION);
 
             /* 创建商品详情DTO */
             var productDetails = new ProductDetailsDTO
             {
                 Name = product.PRODUCT_NAME, //商品名称
-                Picture = firstImage, //商品图片
+                Pictures = productImages, //商品所有图片数组
                 Price = product.PRODUCT_PRICE, //商品价格
                 Description = product.DESCRIBTION, //商品描述
                 StoreName = store.STORE_NAME, //店铺名称
@@ -236,7 +240,8 @@ namespace BackendCode.Controllers
                 Score = store.STORE_SCORE, //店铺评分
                 IsProductStared = isProductStared, //商品是否被收藏
                 IsStoreStared = isStoreStared, //店铺是否被收藏
-                StoreAvatar = store.PHOTO //商家头像
+                StoreAvatar = store.PHOTO, //商家头像
+                ImageAndText = imageAndTextDetails //图片和文字对应的字典数组
             };
 
             return Ok(productDetails); //返回商品详情信息
