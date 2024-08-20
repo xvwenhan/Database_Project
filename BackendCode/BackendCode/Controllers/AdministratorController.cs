@@ -20,12 +20,13 @@ namespace Administrator.Controllers
         }
 
 
-        [HttpGet("GetAllAuthentication")]
-        public async Task<IActionResult> GetAllAuthenticationAsync()
+        [HttpPost("GetAllAuthentication")]
+        public async Task<IActionResult> GetAllAuthenticationAsync([FromBody]GAAModel model)
         {
 
             // 获取所有申请信息
             var authentications = await _dbContext.SUBMIT_AUTHENTICATIONS
+                .Where(p => p.ADMINISTRATOR_ACCOUNT_ID == model.adminId)
                 .ToListAsync();
 
             if (authentications == null || !authentications.Any())

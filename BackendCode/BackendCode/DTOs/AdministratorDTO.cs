@@ -64,4 +64,5 @@ namespace BackendCode.DTOs.Administrator
         public string? auditResult { get; set; }
         public string? adminId { get; set; }
     }
+    
 }
