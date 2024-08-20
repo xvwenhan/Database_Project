@@ -1,19 +1,26 @@
 <template>
   <Navbar />
-  <div v-if="loading" class="loading-overlay">
+  <!-- <div v-if="loading" class="loading-overlay">
     <div class="loading-spinner"></div>
     <p>搜索中，请稍候...</p>
-  </div>
-  <div v-else>
-    <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
-    <div v-else class="store-page">
+  </div> -->
+  <div style="background-color: #f7f4ed;height: 100%;overflow-x: hidden;">
+    <!-- <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div> -->
+    <div v-if="errorMessage" class="error-message-container">
+      <div class="error-container">
+        <img src="@/assets/wy/cry.jpeg" alt="Cry" class="error-image" />
+        <div class="error-text">{{ errorMessage }}</div>
+      </div>
+      
+    </div>
+    <div v-else class="store-page" >
       <div v-for="store in stores" :key="store.storeId" class="store-container">
         <div class="store-content">
           <div class="store-header">
             <img :src="'data:image/png;base64,' + store.storePhoto.result" alt="Store Avatar" class="store-avatar" @click="goToStoreDetail(store.storeId)"/>
             <div class="store-info">
               <h2 class="store-name" @click="goToStoreDetail(store.storeId)">{{ store.storeName }}</h2>
-              <p class="store-rating">好评率: {{ (store.storeScore * 100).toFixed(2) }}%</p>
+              <p class="store-rating">评分: {{ (store.storeScore ) }}</p>
             </div>
           </div>
           <div class="store-products">
@@ -51,14 +58,15 @@ const fetchStores = async (keyword: string, type: string) => {
 
     if (response.data && response.data.length > 0) {
       stores.value = response.data;
+      // stores.value = Array(100).fill(response.data).flat(); // 将数据重复100次并平展成一个数组
       errorMessage.value = ''; // 清除错误信息
     } else {
       stores.value = [];
-      errorMessage.value = '你搜索的商家不存在...'; // 设置错误信息
+      errorMessage.value = '没找到相关的商家...'; // 设置错误信息
     }
   } catch (error) {
     console.error('Error fetching stores:', error);
-    errorMessage.value = '你搜索的商家不存在...'; // 设置错误信息
+    errorMessage.value = '没找到相关的商家...'; // 设置错误信息
   } finally {
     loading.value = false;  // 数据获取完毕后关闭缓冲页面
   }
@@ -93,6 +101,7 @@ onMounted(() => {
 }
 
 .store-container {
+  background-color: white;
   border: 1px solid #e7e7e7;
   border-radius: 10px;
   padding: 20px;
@@ -112,18 +121,23 @@ onMounted(() => {
   align-items: center; /* 头像和名称居中对齐 */
   gap: 10px; /* 调整头像和店铺名称之间的间距 */
   margin-bottom: 20px;
+  width: 100%; 
 }
 
 .store-avatar {
   width: 60px; /* 头像大小 */
   height: 60px; /* 头像大小 */
-  border-radius: 50%; /* 将头像裁剪为圆形 */
+  border-radius:2px;
+  /* border-radius: 50%; 将头像裁剪为圆形 */
   object-fit: cover;
+  cursor: pointer;
 }
 
 .store-info {
   display: flex;
   flex-direction: column;
+  align-items: flex-start; /* 确保左对齐 */
+  width: 100%; /* 让店铺名称和评分都占据同样的宽度 */
 }
 
 .store-name {
@@ -131,15 +145,20 @@ onMounted(() => {
   font-weight: bold;
   margin: 0;
   cursor: pointer; /* 鼠标悬停时显示为指针 */
-}
-.store-name:hover {
-  color: #3498db; /* 鼠标悬停时更改颜色 */
+  text-align: left; /* 确保左对齐 */
 }
 
 .store-rating {
   font-size: 18px; /* 调整为更大的字体 */
   color: #888;
+  text-align: left; /* 确保左对齐 */
 }
+
+.store-name:hover {
+  color: #a61b29; /* 鼠标悬停时更改颜色 */
+}
+
+
 
 .store-products {
   display: flex;
@@ -159,8 +178,11 @@ onMounted(() => {
   height: 150px; /* 固定图片高度 */
   object-fit: cover;
   border-radius: 5px;
+  cursor: pointer;
 }
-
+.product-image:hover {
+  border-color: #a61b29;
+}
 .product-price {
   font-size: 16px;
   color: #333;
@@ -194,10 +216,25 @@ onMounted(() => {
   100% { transform: rotate(360deg); }
 }
 
-.error-message {
-  text-align: center;
+.error-message-container {
+  background-color: white;
+  height: 100%;
+}
+.error-container{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 50px;
+}
+.error-image {
+  width: 120px;
+  height: auto;
+  margin-bottom: 20px; /* 给图片和文字之间留出空隙 */
+}
+
+.error-text {
   font-size: 24px;
-  color: #e60012;
-  margin: 20px;
+  color: #a61b29;
+  text-align: center;
 }
 </style>

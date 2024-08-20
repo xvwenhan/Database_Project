@@ -12,7 +12,11 @@
                     leave-active-class="animate__zoomOut"
                     appear
             >
-            <div class="title" v-show="isLogin">LOGIN </div>
+            <div class="login_head" v-show="isLogin">
+              <h2>网站名字</h2>
+              <p>专注于微瑕非物质文化遗产产品交易</p>
+            </div>
+
         </transition>
         <transition
                     name="animate__animated animate__bounce"
@@ -26,14 +30,20 @@
           placeholder="请输入邮箱" 
           type="email" 
           clearable 
-          style="width: 215px;margin-left: 10px;height:40px;margin-bottom: 30px"
+          style="width: 215px;
+          margin-left: 10px;
+          height:40px;
+          margin-bottom: 30px;"
         ></el-input>
           <el-input 
           v-model="password" 
           placeholder="请输入密码" 
           show-password 
           clearable 
-          style="width: 215px;margin-left: 10px;height:40px;margin-bottom: 15px"
+          style="width: 215px;
+          margin-left: 10px;
+          height:40px;
+          margin-bottom: 15px"
         ></el-input>
         <div>
           <label class="forget-password" @click="handleForgetPassword">忘记密码?</label>
@@ -42,7 +52,14 @@
           <label class="forget-password" @click="log_out">点击登出</label> -->
 
         </div>
-          <el-button type="success" round style="background-color: #257b5e; letter-spacing: 5px; width: 250px; margin-left: 10px;margin-top:20px" @click="login">登录</el-button>
+          <el-button type="success" round 
+          style="background-color: #82111f; 
+          letter-spacing: 5px; 
+          width: 150px; 
+          margin-left: 10px;
+          margin-top:20px;
+          color:#FFFFFF" 
+          @click="login">登录</el-button>
         </div>
          </transition>
       </div>
@@ -55,7 +72,7 @@
                     appear
             >
             <div class="registForm" v-show="!isLogin">
-      <el-radio-group v-show="!isLookfor" v-model="userType" style="margin-left: 10px;margin-bottom:0px">
+      <el-radio-group v-show="!isChangePsw" v-model="userType" style="margin-left: 10px;margin-bottom:0px">
         <el-radio label="买家">买家</el-radio>
         <el-radio label="商家">商家</el-radio>
       </el-radio-group>
@@ -66,6 +83,24 @@
         type="email"
         style="width: 250px;margin-left: 10px;margin-top: 20px"
       ></el-input>
+      <div >
+      <el-input 
+      v-model="verificationCode" 
+      placeholder="请输入验证码" 
+      clearable 
+      style="width: 120px;margin-left: 10px;margin-top: 20px;"></el-input>
+      <el-button type="success" round 
+      :disabled="isButtonDisabled"
+      style="background-color: #82111f; 
+      /*letter-spacing调整间距 */
+      font-size:auto;
+      width: 120px; 
+      margin-left: 10px;
+      margin-top: 20px;
+      " 
+      @click="getVerificationCode">{{buttonText}}</el-button>
+    </div>
+
       <el-input 
         v-model="newPassword" 
         placeholder="请输入新密码" 
@@ -80,27 +115,10 @@
         show-password
         style="width: 250px;margin-left: 10px;margin-top: 20px"
       ></el-input>
-    <div >
-      <el-input 
-      v-model="verificationCode" 
-      placeholder="请输入验证码" 
-      clearable 
-      style="width: 120px;margin-left: 10px;margin-top: 20px;margin-bottom: 30px"></el-input>
-      <el-button type="success" round 
-      :disabled="isButtonDisabled"
-      style="background-color: #257b5e; 
-      /*letter-spacing调整间距 */
-      font-size:auto;
-      width: 120px; 
-      margin-left: 10px;
-      margin-top: 20px;
-      margin-bottom: 30px" 
-      @click="getVerificationCode">{{buttonText}}</el-button>
-    </div>
-      <el-button v-show="!isLookfor" type="success" round style="background-color: #257b5e; letter-spacing: 5px; width: 250px; margin-left: 10px;margin-bottom: 40px" @click="register" >
+      <el-button v-show="!isChangePsw" type="success" round style="background-color: #82111f; letter-spacing: 5px; width: 250px; margin-left: 10px;margin-top: 30px" @click="register" >
         注册
       </el-button>
-      <el-button v-show="isLookfor" type="success" round style="background-color: #257b5e; letter-spacing: 5px; width: 250px; margin-left: 10px;margin-bottom: 40px" @click="changPsw" >
+      <el-button v-show="isChangePsw" type="success" round style="background-color: #82111f; letter-spacing: 5px; width: 250px; margin-left: 10px;margin-top: 30px" @click="changPsw" >
         修改密码
       </el-button>
       </div>
@@ -118,11 +136,21 @@
             }">
             <!-- 登录时的遮挡页 -->
             <div v-show="isLogin" class="button-container">
-            <el-button type="success" style="background-color:#257B5E; border: 1px solid #ffffff;" round @click="changeToRegist">点击注册</el-button>
+            <el-button type="success" 
+            style="background-color:#f7f4ed; 
+            /* border: 1px solid #ffffff; */
+            color:#82111f;
+            " round @click="changeToRegist">点击注册</el-button>
             </div>
            <!-- 注册或修改密码时的遮挡页 -->
             <div v-show="!isLogin" class="button-container" >
-                <el-button type="success"  style="background-color:#257B5E;border: 1px solid #ffffff;" round @click="changeToLogin">返回登录</el-button>
+                <el-button type="success"  
+                style="background-color:#f7f4ed;
+                /* border: 1px solid #ffffff; */
+                color:#82111f;
+                " 
+                round 
+                @click="changeToLogin">返回登录</el-button>
            </div>
         </div>
      </div>
@@ -154,7 +182,7 @@ const buttonText = ref('获取验证码');
 const isButtonDisabled = ref(false);
 //控制变量
 const isLogin=ref(true);
-const isLookfor=ref(false);
+const isChangePsw=ref(false);//是否在修改密码
 //el展示信息
 const message = ref('');
 
@@ -166,11 +194,6 @@ const styleObj = ref({
   borderbottomleftradius: '0px',
   rightDis: '0px'
 });
-//前端测试用：预定义数组
-const dataArr=reactive([
-  {email:"123456@qq.com",psw:"123456"},
-  {email:"654321@qq.com",psw:"654321"}
-])
 const validateEmail = (email) => {
   const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return re.test(email);
@@ -186,12 +209,6 @@ const clearData=()=>{
   verificationCode.value='';
   realVerificationCode.value='';
 }
-///////////////////////对产品详情页面的传参测试
-// const login = () => {
-//   router.push({ path: '/productdetail', query: { id: '01' } });
-//   // router.push('/productdetail')
-//   // router.push('/pay');
-// }
 ///////////////////////通信最终版
  const login = async () => {
     if(!loginEmail.value||!password.value){
@@ -258,31 +275,51 @@ const clearData=()=>{
 //   }
 //   console.log(message.value);
 // };
-
+const isRegistered=async()=>{
+  console.log(`进入isRegistered`);
+  try {
+      const response = await axiosInstance.get(`/Account/check_register/${encodeURIComponent(registerEmail.value)}`);
+      return false;
+    } catch (error) {
+      console.log('该邮箱已被注册');
+    }
+    message.value='';
+    return true;
+}
+// 获取验证码前先检查该邮箱是否已经注册
+// 根据当前在注册还是修改密码来决定是否可以发送验证码
 const getVerificationCode= async () =>{
   if(isButtonDisabled.value) return;
   console.log(registerEmail.value);   
   if(!registerEmail.value){
     ElMessage.error('请保证邮箱不为空');
   }else{
-    // 启动倒计时
-    startCountdown();
-    try {
-      // const response = await axiosInstance.get('/Account/send_verification_code',
-      // {params: { email: registerEmail.value }});
-      const response = await axiosInstance.get(`/Account/send_verification_code/${encodeURIComponent(registerEmail.value)}`);
-      realVerificationCode.value=response.data.verificationCode;
+    const isR=await isRegistered();
+    const canSend =(isChangePsw.value==true? isR:!isR);
+    console.log(`canSend is ${canSend}`);
+    console.log(` isChangePsw is ${isChangePsw.value}`);
+    if(!canSend&&isChangePsw.value==true){
+      ElMessage.error('该邮箱尚未注册，请先注册！');
+    }else if(!canSend&&isChangePsw.value==false){
+      ElMessage.error('邮箱已存在！无法重复注册！');
+    }else if(canSend){
+      startCountdown();
+      try {
+        console.log(`开始发送验证码`);
+        const response = await axiosInstance.get(`/Account/send_verification_code/${encodeURIComponent(registerEmail.value)}`);
+        realVerificationCode.value=response.data.verificationCode;
 
-      ElMessage.success('验证码发送成功');
-    } catch (error) {
-      if (error.response) {
-        message.value = error.response.data;
-      } else {
-        message.value = '获取验证码失败，请检查邮箱后重试！';
+        ElMessage.success('验证码发送成功');
+      } catch (error) {
+        if (error.response) {
+          message.value = error.response.data;
+        } else {
+          message.value = '获取验证码失败，请检查邮箱后重试！';
+        }
+        ElMessage.error( '获取验证码失败，请检查邮箱后重试！');
       }
-      ElMessage.error(message.value);
+      message.value='';
     }
-    message.value='';
   }
 }
 const startCountdown = () => {
@@ -301,6 +338,7 @@ const startCountdown = () => {
     }
   }, 1000);
 };
+
 const register= async () =>{
   if(!registerEmail.value||!newPassword.value||!confirmPassword.value||!verificationCode.value){
         ElMessage.error('请保证不为空');
@@ -330,7 +368,6 @@ const register= async () =>{
         message.value='';
       }
 }
-
 const changPsw=async ()=>{
   if(!registerEmail.value||!newPassword.value||!confirmPassword.value||!verificationCode.value){
         ElMessage.error('请保证不为空');
@@ -341,7 +378,7 @@ const changPsw=async ()=>{
       }else if(!verificationCode.value||verificationCode.value!==realVerificationCode.value){
         ElMessage.error("验证码错误");
       }else{
-        try {
+          try {
           const response = await axiosInstance.post('/Account/password_reset',{
             'username':registerEmail.value,
             'password':newPassword.value,
@@ -358,11 +395,12 @@ const changPsw=async ()=>{
           ElMessage.error(message.value);
         }
         message.value='';
+
       }
 }
 //指场景的切换
 const handleForgetPassword=()=>{
-  isLookfor.value=true;
+  isChangePsw.value=true;
   changeToRegist();
 }
 function changeToRegist() {
@@ -375,7 +413,7 @@ function changeToRegist() {
   clearData();
 }
 function changeToLogin() {
-  isLookfor.value=false;
+  isChangePsw.value=false;
   styleObj.value.bordertoprightradius = '15px';
   styleObj.value.borderbottomrightradius = '15px';
   styleObj.value.bordertopleftradius = '0px';
@@ -397,25 +435,59 @@ html, body {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); /* 点击时的阴影效果 */
   transform: scale(0.95); /* 点击时缩小效果 */
 }
-.el-radio__input.is-checked .el-radio__inner {
-  border-color: #257B5E; 
-  background-color: #257B5E; 
+:deep(.el-radio.is-checked .el-radio__inner) {
+  border-color: #82111f; /* 修改边框颜色 */
+  background-color: #82111f; /* 修改选中颜色 */
 }
+:deep(.el-radio .el-radio__label) {
+  color: #82111f; /* 修改文字颜色 */
+  font-size: 16px; /* 修改文字大小 */
+}
+/* .el-radio__input.is-checked .el-radio__inner {
+  border-color: #82111f; 
+  background-color: #82111f; 
+} */
 .base {
+  /* 华文宋 */
+  font-family: 'Noto Serif SC', serif;
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background-color: rgb(39, 65, 39); /* 设置背景色为绿色 */
+  background-color: #D6CAC8 ; 
+  background-image: url("../assets/mmy/background.jpg");
+  background-size: cover; 
+}
+/* 背景覆盖层 */
+.base::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background:rgba(189, 174, 173,0.5)  ; 
+  z-index: 1; 
+} 
+.login_head h2{
+    color:#82111f;
+    margin-top:30px;
+    margin-bottom:10px;
+}
+.login_head p{
+  color:#82111f;
+  padding-bottom:10px;
+  border-bottom: 2px solid #82111f;
+  margin-bottom:30px;
 }
 .title{
     width: 70%;
     height:25%;
-    border-bottom: 1px solid #257B5E;
+    border-bottom: 1px solid #82111f;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #257B5E;
+    color: #82111f;
     font-weight: bold;
     font-size: 24px;
     margin-bottom: 40px;
@@ -424,7 +496,7 @@ html, body {
   margin-left:150px;
   font-size: 13px; 
   cursor: pointer; 
-  color:#257B5E
+  color:#82111f
 }
 .loginAndRegist {
   position: relative;
@@ -470,10 +542,10 @@ html, body {
     z-index:2;
     top: 0;
     right: 0;
-    background-image: url("../assets/mmy/greenLeaf.png");
-    background-size: 90%;
+    background-image: url("../assets/mmy/red.jpg");
+    background-size: 85%;
     /* 匀速过渡效果 */
-    transition: 0.3s linear;
+    transition: 0.5s linear;
 }
 .showInfo:hover {
   background-size: 100%;

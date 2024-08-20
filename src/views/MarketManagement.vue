@@ -114,6 +114,8 @@ import { ElTable, ElTableColumn, ElPagination, ElButton, ElDialog, ElForm, ElFor
 import 'element-plus/dist/index.css';
 import axiosInstance from '../components/axios';
 
+const userId =localStorage.getItem('userId');
+
 const records = reactive([]);
 const message01 = ref('');
 
@@ -204,7 +206,7 @@ const addMarket = async () => {
   putData.append('endTime', formData.end);
   putData.append('detail', formData.detail);
   putData.append('posterImg', formData.img);
-  putData.append('adminId', '1');
+  putData.append('adminId', userId);
 
   try {
     const response = await axiosInstance.put('/Administrator/AddMarket', putData, {

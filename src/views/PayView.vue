@@ -211,8 +211,8 @@ const productStr = route.query.product ;
 return productStr ? JSON.parse(productStr) : null;
 });
 //根据是否已经付款订单会显示不同状态
-// const isPaid = route.query.isPaid === 'true';
-const isPaid =false;
+const isPaid = route.query.isPaid === 'true';
+// const isPaid =false;
 const order=ref({id:'',createTime:''});
 //收货人相关信息
 const customer=ref({name:'',
@@ -252,7 +252,9 @@ onMounted(async () => {
   console.log(`productId is ${productId}`);
   console.log(`userId is ${userId}`);
   console.log(`creditPrice is ${creditPrice}`);
-
+  if(isPaid==false){
+    product.finalPrice=product.discountPrice;
+  }
   const formData = new FormData();
   formData.append('BuyerId',userId);
   formData.append('ProductId',productId);
@@ -359,6 +361,8 @@ flex-direction: column;
 height: 100vh;
 overflow-x: hidden; /*隐藏水平滚动条 */
 overflow: auto;
+background-image: url("../assets/mmy/background.jpg");
+
 /* position:relative; */
 }
 .procedure{

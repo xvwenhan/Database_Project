@@ -78,13 +78,6 @@ const functionName = () => {
           <div class="discountPrice">￥{{ product.price }}</div>
           <div class="price">￥{{ product.discountPrice }}</div>
         </div>
-        <!-- <div v-show="product.discount!==1" class="dis_price">
-          <div class="dis">-{{ product.discount*100 }}%</div>
-          <div class="original_and_dis_price">
-            <div class="original_price">￥{{ product.price }}</div>
-            <div class="final_price">￥{{ (product.price*product.discount) .toFixed(2)}}&nbsp&nbsp&nbsp</div>
-          </div>
-        </div> -->
 
         <div class="name">{{ product.name }}</div>
         <div class="store">来自 {{ product.storeName }} | 100%非遗正品保证</div>
@@ -98,7 +91,7 @@ const functionName = () => {
         </div>
         <div class="star_and_buy">
           <!-- 收藏 -->
-          <el-button v-show="role==='买家'"
+          <el-button v-show="role==='买家'&&isAbleBuy"
           @click="starProduct"
           class="starProduct-button"
           style="display: flex;
@@ -125,7 +118,7 @@ const functionName = () => {
         </el-button>
         <!-- 购买 -->
         <el-button type="success" 
-        v-show="role==='买家'"
+        v-show="role==='买家'&&isAbleBuy"
         @click="enterPay"
         style="background-color: #257b5e; 
         letter-spacing: 5px; 
@@ -215,8 +208,8 @@ const functionName = () => {
     //页面是否正在加载
     const isLoading=ref(true);
     //从浏览器中获取数据
-    const productId = '222222';
-    // const productId = localStorage.getItem('productIdOfDetail');
+    // const productId = '222222';
+    const productId = localStorage.getItem('productIdOfDetail');
     const userId =localStorage.getItem('userId');
     const role=localStorage.getItem('role');
     // 使用 useRoute 来访问路由参数
@@ -232,11 +225,13 @@ const functionName = () => {
       discountPrice: 0,
       fromWhere: '',
       score: 0,
-      isProductStared: false,/////////注意1，补一条所属店铺是否被收藏
+      isProductStared: false,
       isStoreStared:false,
       storeAvatar:'',
       finalPrice:0
     }) ;
+    //是否已经存在相关订单导致无法购买
+    const isAbleBuy=ref(false);
     //处理商品和评论预览
     const activeSection = ref('preview');
     const displayProducts = reactive([]); 
@@ -244,6 +239,8 @@ const functionName = () => {
     const message=ref('');
     onMounted(async () => {
       console.log(`当前登录用户id为${userId}`);
+      isOrderExist();
+      //获取商品信息
       try {
         const response = await axiosInstance.get(`/Shopping/GetProductDetails/`,{
           params:{
@@ -263,6 +260,19 @@ const functionName = () => {
           ElMessage.error('页面加载失败！');
         }
     })
+    const isOrderExist=async()=>{
+      try {
+        const response = await axiosInstance.get(`/Shopping/IsOrderExist/`,{
+          params:{
+            productId:productId
+          }
+        });
+        isAbleBuy.value=!response.data;
+        console.log(`isAbleBuy.value is ${isAbleBuy.value}`);
+        } catch (error) {
+        }
+    }
+    
     const enterStore=()=>{
       localStorage.setItem('storeIdOfDetail',product.value.storeId);
       router.push('/shopdetail');
@@ -403,8 +413,8 @@ const functionName = () => {
 };
 
     const handleButtonClick = () => {
-      // Handle button click
-      console.log('按钮点击');
+      localStorage.setItem('storeIdOfDetail',product.value.storeId);
+      router.push('/shopdetail');
     };
     const handleProductClick = (productId) => {
       console.log('正在被点击');

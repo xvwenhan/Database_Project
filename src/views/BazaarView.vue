@@ -1,20 +1,29 @@
 <template>
   <Navbar />
-  <div class="carousel-container">
+  <div class="market-page">
+    <h2 class="market-title"><< 近期市集 >></h2>
     <button class="carousel-button left" @click="prevSlide">
-      <el-icon :size="20"><ArrowLeftBold /></el-icon>
+      <img src="@/assets/wy/leftslide.png" alt="左翻按钮" />
     </button>
-    <div class="carousel-slide" :style="slideStyle">
-      <div v-for="(market, index) in markets" :key="index" class="carousel-item">
-        <h1>{{ market.theme }}</h1>
-        <div class="image-container">
-          <img :src="'data:image/png;base64,' + market.posterImg" class="carousel-image" @click="goToMerchantShowcase(market.marketId)" />
-          <div class="date-overlay">截至：{{ formatDate(market.endTime) }}</div>
+    <div class="carousel-container">
+      
+      <div class="carousel-slide" :style="slideStyle">
+        <div v-for="(market, index) in markets" :key="index" class="carousel-item">
+          <div class="image-container">
+            <img :src="'data:image/png;base64,' + market.posterImg" class="carousel-image" @click="goToMerchantShowcase(market.marketId,market.theme,market.posterImg,market.detail)" />
+            <div class="overlay">
+              <span class="end-time">至{{ formatDate(market.endTime) }}</span>
+            </div>
+          </div>
+          <div class="market-info">
+            <h3>{{ market.theme }}</h3>
+            <p>{{ market.detail }}</p>
+          </div>
         </div>
       </div>
     </div>
     <button class="carousel-button right" @click="nextSlide">
-      <el-icon :size="20"><ArrowRightBold /></el-icon>
+      <img src="@/assets/wy/rightslide.png" alt="右翻按钮" />
     </button>
   </div>
 </template>
@@ -23,57 +32,87 @@
 import Navbar from '../components/Navbar.vue';
 import { ref, onMounted, computed } from 'vue';
 import router from '@/router';
-import { ArrowLeftBold, ArrowRightBold } from '@element-plus/icons-vue';
 import axiosInstance from '../components/axios';
 
 const markets = ref([]);
 const currentIndex = ref(0);
 
+// 获取市集数据
 const fetchMarkets = async () => {
   try {
     const response = await axiosInstance.get('/Administrator/GetAllMarket');
-    console.log('返回数据', response.data);
     markets.value = response.data;
   } catch (error) {
-    console.error('Error fetching markets:', error);
+    console.error('获取市集数据时出错:', error);
   }
 };
 
 onMounted(() => {
   fetchMarkets();
+
+  const savedIndex = localStorage.getItem('currentMarketIndex');
+  if (savedIndex !== null) {
+    currentIndex.value = parseInt(savedIndex, 10); // 恢复保存的索引
+  }
 });
 
+// 上一页
 const prevSlide = () => {
-  currentIndex.value = (currentIndex.value - 1 + markets.value.length) % markets.value.length;
+  currentIndex.value = (currentIndex.value - 2 + markets.value.length) % markets.value.length;
 };
 
+// 下一页
 const nextSlide = () => {
-  currentIndex.value = (currentIndex.value + 1) % markets.value.length;
+  currentIndex.value = (currentIndex.value + 2) % markets.value.length;
 };
 
-const goToMerchantShowcase = (marketId) => {
-  // 将marketId存入localStorage
+// 跳转到市集商品页面
+const goToMerchantShowcase = (marketId,theme,posterImg,detail) => {
   localStorage.setItem('selectedMarketId', marketId);
-  // 跳转到市集商品页面
+  localStorage.setItem('selectedMarkettheme', theme);
+  localStorage.setItem('selectedMarketposterImg', posterImg);
+  localStorage.setItem('selectedMarketdetail', detail);
+  localStorage.setItem('currentMarketIndex', currentIndex.value); // 保存当前索引
   router.push('/bazaarmerchandise');
 };
 
+// 滑动样式
 const slideStyle = computed(() => ({
-  transform: `translateX(-${currentIndex.value * 100}%)`
+  width: `${markets.value.length * 50}%`,
+  transform: `translateX(-${(currentIndex.value / markets.value.length) * 100}%)`,
 }));
 
+// 日期格式化
 const formatDate = (dateString) => {
   const options = { year: 'numeric', month: 'numeric', day: 'numeric' };
-  return new Date(dateString).toLocaleDateString(undefined, options);
+  return new Date(dateString).toLocaleDateString('zh-CN', options);
 };
 </script>
 
 <style scoped>
+/* 市集页面背景颜色和整体布局 */
+.market-page {
+  background-color: #bdaead;
+  padding: 20px;
+  text-align: center;
+  height: 100%;
+}
+
+h2 {
+  font-size: 28px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+.market-title{
+  padding-top: 20px;
+}
+
+/* 轮播容器样式 */
 .carousel-container {
   position: relative;
   width: 100%;
   overflow: hidden;
-  max-width: 1420px;
+  max-width: 1200px;
   margin: 0 auto;
 }
 
@@ -82,59 +121,74 @@ const formatDate = (dateString) => {
   transition: transform 0.5s ease;
 }
 
+/* 每个市集项的样式 */
 .carousel-item {
-  width: 100%;
-  flex-shrink: 0;
-  text-align: center;
+  width: 50%; /* 每个市集占50%宽度 */
   padding: 20px;
   box-sizing: border-box;
+  text-align: left;
 }
 
 .image-container {
   position: relative;
   width: 100%;
-  height: 650px; /* 固定高度 */
+  height: 350px;
+  /* margin-bottom: 10px; */
 }
 
 .carousel-image {
   width: 100%;
   height: 100%;
-  object-fit: cover; /* 使图片适应容器 */
+  object-fit: cover;
   cursor: pointer;
 }
 
-.date-overlay {
+/* 海报右上角的日期覆盖层样式 */
+.overlay {
   position: absolute;
-  bottom: 10px;
-  right: 10px;
-  background-color: rgba(0, 0, 0, 0.5);
+  top: 0;
+  right: 0;
+  background-color: #a61b29;
   color: white;
-  padding: 5px;
-  font-size: 12px;
+  padding: 5px 10px;
+  font-size: 14px;
 }
 
+.market-info {
+  background-color: white;
+  padding: 10px;
+  /* border-radius: 5px; */
+  /* box-shadow: 0px 0px 5px rgba(0,0,0,0.1); 添加轻微的阴影效果 */
+}
+
+.market-info h3 {
+  margin: 0;
+  font-size: 18px;
+  color: #333;
+}
+
+.market-info p {
+  margin: 5px 0 0;
+  font-size: 14px;
+  color: #666;
+}
+
+/* 左右翻页按钮样式 */
 .carousel-button {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  background-color: rgba(0, 0, 0, 0.5);
-  color: white;
+  background-color: transparent;
   border: none;
-  padding: 20px;
   cursor: pointer;
   z-index: 10;
-  border-radius: 50%;
 }
 
 .carousel-button.left {
-  left: 10px;
+  left: 25px;
 }
 
 .carousel-button.right {
-  right: 10px;
-}
-
-.carousel-button:hover {
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  right: 25px;
 }
 </style>

@@ -61,6 +61,8 @@ import { ElTable, ElTableColumn, ElPagination, ElButton, ElMessage, ElDialog } f
 import 'element-plus/dist/index.css';
 import axiosInstance from '../components/axios';
 
+const userId =localStorage.getItem('userId');
+
 const records = reactive([]);
 const message = ref('');
 const fetchRecords = async () => {
@@ -88,7 +90,7 @@ const updateRecord = async (storeId,result) => {
     const response = await axiosInstance.put('/Administrator/UpdateStoreAuthentication', {
       "storeId": storeId,
       "result": result,
-      "adminId": "1"
+      "adminId": userId
     });
     message1.value = response.data;
     fetchRecords();
