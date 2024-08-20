@@ -21,6 +21,7 @@
     "echarts": "^5.5.1",
     "element-china-area-data": "^6.1.0",
     "element-plus": "^2.7.6",
+    "i": "^0.3.7",
     "pinia": "^2.2.0",
     "swiger": "^0.0.2",
     "swiper": "^10.0.0",

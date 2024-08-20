@@ -1,16 +1,10 @@
-<!-- 外部调用 -->
-<!-- 
-const functionName = () => {
-  router.push({ path: '/productdetail', query: { id: '01' } });
-} 
-其中'01'可变,需填入对应商品的id
--->
 <template>
   <!-- <Navbar class="narbar"/> -->
-  <div v-show="isLoading" class="loading">
+  <!-- <div v-show="isLoading" class="loading">
     <div class="loading-text">加载中...</div>
-  </div>
+  </div> -->
   <div v-show="!isLoading" class="PDcontainer">
+    <Navbar class="narbar"/>
     <div class="storeContent">
         <img :src="`data:image/png;base64,${product.storeAvatar}`" class="Avatar" />
         <div class="storeName">&nbsp&nbsp{{ product.storeName }}</div>
@@ -40,8 +34,8 @@ const functionName = () => {
             src="@/assets/mmy/star.svg"
             alt="star"
             class="icon"/>
-            {{ product.isStoreStared ? '已收藏' : '&nbsp收&nbsp&nbsp藏&nbsp' }}
-            </el-button>
+            {{ product.isStoreStared ? '已收藏' : '收&nbsp藏' }}
+        </el-button>
         <!-- 进入店铺按钮 -->
         <el-button
               class="enterStore-button"
@@ -62,15 +56,30 @@ const functionName = () => {
             src="@/assets/mmy/store.svg"
             class="icon"/>
             进店逛逛 
-            </el-button>
+        </el-button>
       </div>
     <div class="productContent">
       <div class="image">
-        <img
+        <div class="thumbnails">
+          <div
+            v-for="(item, index) in imagesWithDescriptions.slice(0, 4)"
+            :key="index"
+            class="thumbnail"
+            :class="{ active: currentIndex === index }"
+            @click="setCurrentImage(index)"
+          >
+            <img :src="item.url" :alt="`缩略图 ${index + 1}`" />
+          </div>
+        </div>
+        <!-- 右侧的大图预览 -->
+        <div class="preview">
+          <img :src="currentImage.url" :alt="`预览图 ${currentIndex + 1}`" />
+        </div>
+        <!-- <img
           :src="`data:image/png;base64,${product.picture}`"
           class="image_inside"
         />
-        <div class="overlay">细节描述：{{ product.description }}</div>
+        <div class="overlay">细节描述：{{ product.description }}</div> -->
       </div>
       <div class="text">
         <div v-show="product.discountPrice===product.price" class="price">￥{{ product.price }}</div>
@@ -78,17 +87,22 @@ const functionName = () => {
           <div class="discountPrice">￥{{ product.price }}</div>
           <div class="price">￥{{ product.discountPrice }}</div>
         </div>
-
         <div class="name">{{ product.name }}</div>
+        <div class="description">（细节描述）零一二三四五六七八九零一二三四五六七八九零一二三四五六七八九零一二三四五六七八九零一二三四五六七八九零一二三四五六七八九零一二三四五六七八九零一二三四五六七八九零一二三四五六七八九零一二三四五六七八九</div>
         <div class="store">来自 {{ product.storeName }} | 100%非遗正品保证</div>
         <div class="fromwhere">
           <div class="from1">发货地</div>
           <div class="from2">{{ product.fromWhere }}</div>
         </div>
         <div class="baozhang">
-          <div class="baozhang1">保&nbsp&nbsp&nbsp&nbsp障</div>
-          <div class="baozhang2">假一赔十&nbsp&nbsp&nbsp&nbsp七天无理由退货 </div>
+          <div class="baozhang1">保&nbsp障</div>
+          <div class="baozhang2">假一赔十&nbsp七天无理由退货 </div>
         </div>
+        <div class="baozhang">
+          <div class="baozhang1">数&nbsp量</div>
+          <div class="baozhang2">{{isAbleBuy===true?'1&nbsp有货':'0&nbsp无货'}} </div>
+        </div>
+
         <div class="star_and_buy">
           <!-- 收藏 -->
           <el-button v-show="role==='买家'&&isAbleBuy"
@@ -114,13 +128,13 @@ const functionName = () => {
         src="@/assets/mmy/star.svg"
         alt="star"
         class="icon"/>
-        {{ product.isProductStared ? '已收藏' : '&nbsp收&nbsp&nbsp藏&nbsp' }}
+        {{ product.isProductStared ? '已收藏' : '收&nbsp藏' }}
         </el-button>
         <!-- 购买 -->
         <el-button type="success" 
         v-show="role==='买家'&&isAbleBuy"
         @click="enterPay"
-        style="background-color: #257b5e; 
+        style="background-color: #a61b29; 
         letter-spacing: 5px; 
         font-size: 22px;
         width: 25%; 
@@ -135,7 +149,7 @@ const functionName = () => {
     <div class="productAndCommentContent">
         <!-- 侧边导航栏 -->
         <div class="sidebar">
-          <div class="nav-item" @click="showProducts">商品预览</div>
+          <div class="nav-item" @click="showProducts">店铺商品</div>
           <div class="nav-item" @click="showComments">店铺评论</div>
         </div>
         <!-- 内容区域 -->
@@ -205,8 +219,26 @@ const functionName = () => {
     import { useRouter } from 'vue-router';
     import axiosInstance from '../components/axios';
     
+    //商品图片显示部分
+    const imagesWithDescriptions = ref([
+      { url: 'https://swiperjs.com/demos/images/nature-1.jpg', description: '描述 1' },
+      { url: 'https://swiperjs.com/demos/images/nature-2.jpg', description: '描述 2' },
+      { url: 'https://swiperjs.com/demos/images/nature-3.jpg', description: '描述 3' },
+      { url: 'https://swiperjs.com/demos/images/nature-4.jpg', description: '描述 4' },
+      { url: 'https://swiperjs.com/demos/images/nature-5.jpg', description: '描述 5' },
+      { url: 'https://swiperjs.com/demos/images/nature-6.jpg', description: '描述 6' },
+      { url: 'https://swiperjs.com/demos/images/nature-7.jpg', description: '描述 7' },
+      { url: 'https://swiperjs.com/demos/images/nature-8.jpg', description: '描述 8' },
+      { url: 'https://swiperjs.com/demos/images/nature-9.jpg', description: '描述 9' },
+    ]);
+    const currentIndex = ref(0);
+    const currentImage = ref(imagesWithDescriptions.value[currentIndex.value]);
+    const setCurrentImage = (index) => {
+      currentIndex.value = index;
+      currentImage.value = imagesWithDescriptions.value[index];
+    };
     //页面是否正在加载
-    const isLoading=ref(true);
+    const isLoading=ref(false);
     //从浏览器中获取数据
     // const productId = '222222';
     const productId = localStorage.getItem('productIdOfDetail');
@@ -231,7 +263,7 @@ const functionName = () => {
       finalPrice:0
     }) ;
     //是否已经存在相关订单导致无法购买
-    const isAbleBuy=ref(false);
+    const isAbleBuy=ref(true);
     //处理商品和评论预览
     const activeSection = ref('preview');
     const displayProducts = reactive([]); 
@@ -436,30 +468,33 @@ const functionName = () => {
 box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); /* 点击时的阴影效果 */
 transform: scale(0.95); /* 点击时缩小效果 */
 }
+.el-button {
+  font-family: 'Noto Serif SC', serif;
+  font-weight: bold;
+}
 
 /* 容器样式 */
 .PDcontainer {
-  background-color: #CCCCCC;
+  font-family: 'Noto Serif SC', serif;
   display: flex;
   align-items: center;/*这才是水平对齐 */
   flex-direction: column;
   /* 哇趣！！！！！！min-height！！！I love you!!*/
   min-height: 100vh;
-  overflow-x: hidden; /*隐藏水平滚动条 */
+  overflow-x: hidden; 
   padding-bottom:15px;
-  /* overflow: auto; */
+  background-image: url("../assets/mmy/background.jpg");
 }
 .productContent,.storeContent{
   background-color: #FFFFFF;
-  width: 70%; /*百分比都是相对于父容器说的*/ 
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* 添加阴影效果（可选） */
-  box-sizing: border-box; /* 使内边距和边框包含在宽度和高度内 */
+  width: 1050px; 
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); 
+  box-sizing: border-box; 
   border-radius: 15px; 
   margin-top:15px;
 }
 
 .storeContent{
-  /* height:80px; */
   padding: 10px 30px 10px 10px;
   position: relative;
   display: flex;
@@ -475,7 +510,7 @@ transform: scale(0.95); /* 点击时缩小效果 */
   flex-direction: row; 
 }
 .productAndCommentContent {
-  width: 70%; /*百分比都是相对于父容器说的*/ 
+  width: 1050px; 
   margin-top:15px;
   display: flex;
   flex-direction: row;
@@ -483,49 +518,48 @@ transform: scale(0.95); /* 点击时缩小效果 */
 }
 
 .image {
-  width: 48%;
+  width: 600px;
   height: 100%;
   border-radius: 15px;
   position: relative; /* 确保覆盖层绝对定位在此容器内 */
+  display: flex;
+  flex-direction: row;
 }
-.image_inside,.overlay {
+/* .image_inside,.overlay {
   width: 100%;
   height: 100%;
   border-radius: 15px;
-}
-.overlay{
-  position: absolute;/*absolute 定位相对于最近的 position 属性不为 static 的父元素*/
-  top: 0;/*将 .overlay 的上边缘对齐到 .image 的上边缘 */
+} */
+/* .overlay{
+  position: absolute;
+  top: 0;
   left: 0;
   display: flex;
   align-items: center;
   justify-content: center;
 
-  background: rgba(0, 0, 0, 0.3); /* 黑色半透明背景 */
+  background: rgba(0, 0, 0, 0.3); 
   color: white;
-  opacity: 0; /* 默认隐藏 */
-  transition: opacity 0.3s; /* 平滑过渡 */
+  opacity: 0; 
+  transition: opacity 0.3s; 
   padding: 80px;
-  box-sizing: border-box; /* 确保内边距不会影响元素宽度 */
+  box-sizing: border-box; 
   text-align: center;
   z-index: 2; 
 }
-/* 当鼠标悬停在 .image 元素上时，.overlay 元素的样式变化 */
 .image:hover .overlay {
-  opacity: 1; /* 鼠标悬停时显示覆盖层 */
-}
+  opacity: 1;
+} */
 .text{
   display: flex;
   flex-direction: column; 
   align-items: flex-start;
-  /* justify-content: center;  */
-  width: 49%;
+  width: 450px;
   height: auto;
-  padding:30px;
+  padding:0px 30px 30px 0px;
   position: relative; /* 使得按钮能定位在 text 内部 */
   box-sizing: border-box;
 }
-
 .name, .price,.store{
   margin-top: 5px;;
   text-align: left; /*文字左对齐*/ 
@@ -533,7 +567,7 @@ transform: scale(0.95); /* 点击时缩小效果 */
 }
 .price,.dis_price{
   font-size: 30px;
-  color:rgb(139, 49, 31);
+  color:#a61b29;
 }
 .price{
   /* border:2px solid #232020; */
@@ -584,7 +618,8 @@ transform: scale(0.95); /* 点击时缩小效果 */
   border: 1px solid #ddd; /* 浅灰色边界 */
   padding: 5px; /* 为内容添加一些内边距，以便边界不会直接贴近内容 */
   box-sizing: border-box; /* 确保内边距和边界不会影响元素的宽度 */
-  background-color: #CCCCCC;
+  background-color: #a61b29;
+  color:white;
   font-size: 20px;
   transition: transform 0.3s ease, box-shadow 0.3s ease; /* 平滑过渡效果 */
   will-change: transform;/*告诉浏览器将要发生变化 */
@@ -626,7 +661,7 @@ transform: scale(0.95); /* 点击时缩小效果 */
 }
 .storeScore{
   font-size:20px;
-  color:rgba(0, 0, 0,0.3);
+  color:#a61b29;
   padding-left:20px;
   /* padding-top:5px; */
 }
@@ -646,6 +681,7 @@ transform: scale(0.95); /* 点击时缩小效果 */
 }
 
 .nav-item {
+  font-size:18px;
   padding: 10px;
   cursor: pointer;
   border-bottom: 1px solid rgba(0,0,0,0.4);
@@ -665,6 +701,8 @@ transform: scale(0.95); /* 点击时缩小效果 */
   border-radius:15px ;
   width: 100%;
   padding: 10px;
+  min-height:300px;
+
 }
 .loading-text{
   font-size:22px;
@@ -786,5 +824,50 @@ transform: scale(0.95); /* 点击时缩小效果 */
   height: 1px;
   background-color: #f0f3f5;
 }
+
+.thumbnails {
+  display: flex;
+  flex-direction: column;
+  width:70px;
+
+}
+.thumbnail {
+  cursor: pointer;
+  border: 2px solid transparent;
+  width: 100%;
+  height:90px;
+  overflow:hidden;
+  padding: 3px;
+  text-align: center;
+  border-radius: 15px;
+}
+.thumbnail img {
+  width: 100%;
+  height: 100%;
+  border-radius: 15px;
+  object-fit: cover;
+}
+.thumbnail.active {
+  border-color: #a61b29;
+}
+.preview {
+  margin-left: 40px;
+}
+.preview img {
+  border-radius: 15px;
+  width: 400px;
+  height: 100%;
+  object-fit: cover;
+}
+.description{
+
+	/* 华文宋 */
+	font-family: 'Noto Serif SC', serif;
+	font-size: 16px;
+	overflow-y: auto; 
+	max-height: 50px; /* 限制最大高度为父容器高度 */
+	text-align: left;
+}
+
 </style> 
   

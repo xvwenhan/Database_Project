@@ -1,6 +1,7 @@
 
 <template>
   <div class="BusinessCommodity">
+    <Sidebar />
        <BusinessCommodityTopbar @changeView="handleChangeView" />
        <div class="CommodityContent">
        <component :is="currentView" ref="currentView"></component>
@@ -11,12 +12,14 @@
 <script> 
 import BusinessCommodityShow from './BusinessCommodityShow.vue'
 import BusinessCommodityTopbar from './BusinessCommodityTopbar.vue'
+import Sidebar from './BusinessSidebar.vue'
 
 export default {
    name: 'BusinessCommodity',
    components: {  
        BusinessCommodityShow,
        BusinessCommodityTopbar,
+       Sidebar
    },
    data() {
        return {

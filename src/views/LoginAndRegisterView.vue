@@ -290,7 +290,7 @@ const isRegistered=async()=>{
 // 根据当前在注册还是修改密码来决定是否可以发送验证码
 const getVerificationCode= async () =>{
   if(isButtonDisabled.value) return;
-  console.log(registerEmail.value);
+  console.log(registerEmail.value);   
   if(!registerEmail.value){
     ElMessage.error('请保证邮箱不为空');
   }else{
