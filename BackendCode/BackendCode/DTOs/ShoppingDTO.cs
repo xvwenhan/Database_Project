@@ -52,7 +52,13 @@
         public bool IsProductStared { get; set; }
         public bool IsStoreStared { get; set; }
         public string? StoreAvatar { get;set; }
-        public Dictionary<string, string>? ImageAndText { get; set; }
+        public List<ImageAndTextDetailDTO>? ImageAndText { get; set; }
+    }
+
+    public class ImageAndTextDetailDTO
+    {
+        public string Url { get; set; } //图片URL
+        public string Description { get; set; } //图片描述
     }
 
     public class StoreOrderDTO

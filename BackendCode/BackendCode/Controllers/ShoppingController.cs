@@ -221,10 +221,15 @@ namespace BackendCode.Controllers
                 .Select(pi => new ImageModel { ImageId = pi.IMAGE_ID }) 
                 .ToListAsync();
 
-            /* 查询商品详情图片和文字对应的字典数组 */
+            /* 查询商品详情图片和文字对应的数组 */
             var imageAndTextDetails = await _dbContext.PRODUCT_DETAILS
                 .Where(pd => pd.PRODUCT_ID == productId)
-                .ToDictionaryAsync(pd => $"https://localhost:7262/api/images/{pd.IMAGE_ID}", pd => pd.DESCRIPTION);
+                .Select(pd => new ImageAndTextDetailDTO
+                {
+                    Url = $"https://localhost:7262/api/images/{pd.IMAGE_ID}",
+                    Description = pd.DESCRIPTION
+                })
+                .ToListAsync();
 
             /* 创建商品详情DTO */
             var productDetails = new ProductDetailsDTO
