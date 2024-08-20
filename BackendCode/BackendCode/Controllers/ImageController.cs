@@ -22,19 +22,26 @@ namespace BackendCode.Controllers
             {
                 return File(image.IMAGE, "image/jpeg"); //根据图片类型调整MIME类型
             }
+
             var image2 = _context.PRODUCT_IMAGES.FirstOrDefault(i => i.IMAGE_ID == imageId);
             if (image2 != null)
             {
                 return File(image2.IMAGE, "image/jpeg"); //根据图片类型调整MIME类型
             }
+
             var image3 = _context.PRODUCT_DETAILS.FirstOrDefault(pd => pd.IMAGE_ID == imageId);
             if (image3 != null)
             {
                 return File(image3.IMAGE, "image/jpeg"); //根据图片类型调整MIME类型
             }
-                return NotFound();
 
+            var image4 = _context.STORES.FirstOrDefault(pd => pd.ACCOUNT_ID == imageId);
+            if (image4 != null)
+            {
+                return File(image4.PHOTO, "image/jpeg"); //根据图片类型调整MIME类型
+            }
 
+            return NotFound();
         }
     }
 }

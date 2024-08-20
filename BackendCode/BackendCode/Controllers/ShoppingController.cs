@@ -240,7 +240,7 @@ namespace BackendCode.Controllers
                 Score = store.STORE_SCORE, //店铺评分
                 IsProductStared = isProductStared, //商品是否被收藏
                 IsStoreStared = isStoreStared, //店铺是否被收藏
-                StoreAvatar = store.PHOTO, //商家头像
+                StoreAvatar = $"https://localhost:7262/api/images/{store.ACCOUNT_ID}", //商家头像
                 ImageAndText = imageAndTextDetails //图片和文字对应的字典数组
             };
 

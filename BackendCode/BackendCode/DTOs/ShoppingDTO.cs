@@ -51,7 +51,7 @@
         public decimal? Score { get; set; }
         public bool IsProductStared { get; set; }
         public bool IsStoreStared { get; set; }
-        public byte[]? StoreAvatar { get;set; }
+        public string? StoreAvatar { get;set; }
         public Dictionary<string, string>? ImageAndText { get; set; }
     }
 
