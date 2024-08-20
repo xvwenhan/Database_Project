@@ -265,15 +265,19 @@ namespace Administrator.Controllers
                 var query = from report in _dbContext.REPORTS
                             join complainPost in _dbContext.COMPLAIN_POSTS on report.REPORT_ID equals complainPost.REPORT_ID
                             join post in _dbContext.POSTS on complainPost.POST_ID equals post.POST_ID
+                            join postImage in _dbContext.POST_IMAGES on post.POST_ID equals postImage.POST_ID into postImagesGroup
                             select new ShowReportDTO
                             {
                                 reportId = report.REPORT_ID,
                                 buyerAccountId = complainPost.BUYER_ACCOUNT_ID,
                                 reportingTime = report.REPORT_TIME,
+                                postTime=post.RELEASE_TIME,
                                 reportingReason = report.REPORT_REASON,
                                 postContent = post.POST_CONTENT,
+                                postTitle = post.POST_TITLE,
                                 auditResults = report.AUDIT_RESULTS,
-                            };
+                                postImages = postImagesGroup.Select(pi => Convert.ToBase64String(pi.IMAGE)) .ToList(),
+            };
                 var res = await query.ToListAsync();
                 return Ok(res);
             }

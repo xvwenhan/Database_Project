@@ -25,10 +25,13 @@ namespace BackendCode.DTOs.Administrator
     {
         public string? reportId { get; set; }
         public string? buyerAccountId { get; set; }//举报人ID
-        public DateTime? reportingTime { get; set; }
-        public string? reportingReason { get; set; }
-        public string? postContent { get; set; }
-        public string? auditResults { get; set; }
+        public DateTime? reportingTime { get; set; }//举报时间
+        public DateTime? postTime { get; set; }//帖子发布时间
+        public string? reportingReason { get; set; }//举报原因
+        public string? postContent { get; set; }//帖子内容
+        public string? postTitle { get; set; }//帖子标题
+        public string? auditResults { get; set; }//审核结果
+        public List<string>? postImages { get; set; }//帖子图片
     }
 
     //传入的数据结构
