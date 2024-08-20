@@ -1,8 +1,9 @@
 <template>
+
   <div class="CommodityShow">
     <div class="SearchContainer">
       <el-input v-model="searchOrder" placeholder="请输入订单ID（在全部订单中搜索）" style="display: inline-block;"></el-input>
-      <el-button type="primary" @click="searchOrderById">搜索</el-button>
+      <el-button type="primary" @click="searchOrderById" >搜索</el-button>
       <el-input v-model="searchTime" placeholder="根据创建时间筛选（在全部订单中搜索）" style="display: inline-block;"></el-input>
       <el-button type="primary" @click="searchOrderByTime">筛选</el-button>
     </div>
@@ -82,6 +83,7 @@
       ></el-pagination>
     </div>
   </div>
+
 </template>
 
 <script>
@@ -113,6 +115,7 @@ export default {
 
     const fetchOrders = async () => {
       const storeId = localStorage.getItem('userId');  // 替换为实际的 storeId
+      // const storeId = 'S1234567';
 
       try {
         const response = await axiosInstance.get('/StoreOrder/GetOrders', {
@@ -442,11 +445,12 @@ export default {
 
 <style scoped>
 .CommodityShow {
-  width: 86%;
-  height: 88.5vh;
   position: fixed;
-  top: 10.5vh;
-  background-color: rgb(164, 197, 181);
+  top: 10vh;
+  left: 150px; 
+  right: 0;
+  bottom: 0;
+  background-color: #DFCDC7  ;
 }
 
 .TableContainer {
@@ -503,5 +507,15 @@ export default {
 
 .space {
   margin-left: 20px;
+}
+
+.el-button--primary {
+    background-color: #a13232;
+    border-color: #a13232;
+}
+
+.el-button--primary:hover {
+    background-color: #8b2b2b;
+    border-color: #8b2b2b;
 }
 </style>

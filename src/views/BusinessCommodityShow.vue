@@ -127,12 +127,18 @@
         </el-form-item>
         <el-form-item label="系统分类" prop="categorySys">
           <el-select v-model="newProduct.categorySys">
-            <el-option
-              v-for="category in options"
-              :key="category.value"
-              :label="category.value"
-              :value="category.value"
-            ></el-option>
+            <el-option-group
+        v-for="group in options"
+        :key="group.label"
+        :label="group.label"
+      >
+        <el-option
+          v-for="item in group.children"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value"
+        ></el-option>
+      </el-option-group>
           </el-select>
         </el-form-item>
         <el-form-item label="商家分类" prop="categoryInit">
@@ -148,9 +154,21 @@
         <el-form-item label="商品描述" prop="description">
           <el-input v-model="newProduct.description"></el-input>
         </el-form-item>
+
+         <!-- 图片和文字的输入区域 -->
+         <el-form-item label="图片和文字">
+        <div v-for="(item, index) in newProduct.imagesWithText" :key="index" class="image-text-item">
+          <img :src="item.image" alt="图片" style="width: 50px; height: 50px;" />
+          <p>{{ item.text }}</p>
+        </div>
+        <input type="file" @change="handleFileChange($event, 'newImage')">
+        <el-input v-model="newImageText" placeholder="输入图片描述"></el-input>
+        <el-button @click="addImageWithText(newImage, newImageText)">添加图片和文字</el-button>
+      </el-form-item>
+
       </el-form>
       <el-button type="primary" @click="addNewProduct">添加</el-button>
-      <el-button @click="addDialogVisible = false">取消</el-button>
+      <el-button type="primary" @click="addDialogVisible = false">取消</el-button>
     </div>
   </div>
 
@@ -356,13 +374,51 @@ const fetchProductByTag = async (storeTag) => {
     });
 
     const options = [
-      { value: '服装', label: '服装' },
-      { value: '首饰', label: '首饰' },
-      { value: '家具', label: '家具' },
-      { value: '工艺品', label: '工艺品' },
-      { value: '小物件', label: '小物件' }
-    ];
-
+  {
+    label: '服装',
+    children: [
+      { value: '001', label: '汉族传统服饰' },
+      { value: '002', label: '少数民族服饰' },
+      { value: '003', label: '地方特色服装' }
+    ]
+  },
+  {
+    label: '首饰',
+    children: [
+      { value: '004', label: '银饰' },
+      { value: '005', label: '玉饰' },
+      { value: '006', label: '宝石首饰' },
+      { value: '007', label: '民族特色首饰' }
+    ]
+  },
+  {
+    label: '家具',
+    children: [
+      { value: '008', label: '床榻类' },
+      { value: '009', label: '桌案类' },
+      { value: '010', label: '椅凳类' },
+      { value: '011', label: '柜架类' },
+      { value: '012', label: '屏风类' }
+    ]
+  },
+  {
+    label: '工艺品',
+    children: [
+      { value: '013', label: '陶瓷' },
+      { value: '014', label: '漆器' },
+      { value: '015', label: '刺绣' },
+      { value: '016', label: '景泰蓝' }
+    ]
+  },
+  {
+    label: '小物件',
+    children: [
+      { value: '017', label: '文房四宝' },
+      { value: '018', label: '剪纸艺术' },
+      { value: '019', label: '竹编' }
+    ]
+  }
+];
     const OnOrNot = [
       {value: true, label: '是'},
       {value: false, label: '否'}
@@ -410,8 +466,16 @@ const fetchProductByTag = async (storeTag) => {
         reader.readAsDataURL(file);
       }
     };
+   
     // 编辑
     const handleEdit = (item) => {
+      if (row.isOnSale) {
+        ElMessage({
+          message: '该商品已经出售，无法编辑',
+          type: 'warning'
+        });
+        return;
+      }
       currentProduct.value = item;
       preProduct.value = {
         id: item.id,
@@ -559,8 +623,11 @@ const fetchProductByTag = async (storeTag) => {
       categoryInit: '',
       price: null,
       description: '',
-      image: ''
+      image: '',
+      imagesWithText: []
     });
+    const newImage = ref('');
+const newImageText = ref('');
     const showAddDialog = () => {
       newProduct.value = {
         name: '',
@@ -572,31 +639,109 @@ const fetchProductByTag = async (storeTag) => {
       };
       addDialogVisible.value = true;
     };
+    const handleFileChange = (event) => {
+  const file = event.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      newImage.value = e.target.result; // 获取完整的 Base64 字符串
+    };
+    reader.readAsDataURL(file);
+  }
+};
+
+const addImageWithText = () => {
+  console.log('newImage:', newImage.value);
+  console.log('newImageText:', newImageText.value);
+  console.log('imagesWithText:', newProduct.value.imagesWithText);
+
+  if (newImage.value && newImageText.value) {
+    if (!Array.isArray(newProduct.value.imagesWithText)) {
+      newProduct.value.imagesWithText = [];
+    }
+    newProduct.value.imagesWithText.push({ image: newImage.value, text: newImageText.value });
+    newImage.value = ''; // 清空 newImage
+    newImageText.value = ''; // 清空 newImageText
+  }
+};
     const addNewProduct = async () => {
   form.value.validate(async (valid) => {
     if (valid) {
       // 确保 productPic 是有效的 Base64 字符串或处理空情况
       const productPic = newProduct.value.image ? newProduct.value.image.split(',')[1] : '';
+      // const newProductData = {
+      //   productName: newProduct.value.name,
+      //   productPrice: newProduct.value.price,
+      //   Tag: newProduct.value.categoryInit,
+      //   Description: newProduct.value.description,
+      //   StoreTag: newProduct.value.categorySys,
+      //   ProductImages: productPic
+      // };
+       // 使用 FormData 处理文件上传
+      // 使用 URLSearchParams 处理数据
+      const params = new URLSearchParams();
+      params.append('ProductName', newProduct.value.name || '');
+      params.append('ProductPrice', newProduct.value.price || '');
+      params.append('Tag', newProduct.value.categoryInit || '');
+      params.append('Description', newProduct.value.description || '');
+      params.append('StoreTag', newProduct.value.categorySys || '');
+      params.append('ProductImages', productPic ? `data:image/jpeg;base64,${productPic}` : '');
+      
+      // 使用 Promise.all 处理所有文件
+      const promises = newProduct.value.imagesWithText.map((item, index) => {
+        return new Promise((resolve, reject) => {
+          // 确保 item.image 是 File 对象
+          console.log(item.image); // 确认 item.image 的实际内容
+          console.log(item.image instanceof File); // 确认 item.image 是否是 File 对象
+          if (item.image && item.image instanceof File) {
+            const reader = new FileReader();
+            reader.onloadend = function () {
+              const base64String = reader.result.split(',')[1]; // 获取 Base64 字符串部分
+              params.append(`PicDes[${index}].DetailPic`, base64String);
+              params.append(`PicDes[${index}].Description`, item.text);
+              resolve(); // 处理完成
+            };
+            reader.onerror = function () {
+              reject(new Error('Failed to read file'));
+            };
+            reader.readAsDataURL(item.image); // 读取文件并触发 onloadend
+          } else {
+            // 处理不符合预期的 item.image
+            reject(new Error('item.image is not a valid File object'));
+          }
+        });
+      });
 
-      const newProductData = {
-        productName: newProduct.value.name,
-        productPrice: newProduct.value.price,
-        tag: newProduct.value.categoryInit,
-        description: newProduct.value.description,
-        storeTag: newProduct.value.categorySys,
-        productPic: productPic
-      };
+      // 检查 URLSearchParams 内容
+      for (const [key, value] of params.entries()) {
+        console.log(`${key}: ${value}`);
+      }
+
+      const storeId = localStorage.getItem('userId');// 替换为实际的storeId
+      if (!storeId) {
+        ElMessage({ message: '未找到有效的 storeId', type: 'error' });
+        return;
+      }
+      console.log('请求 URL:', `/StoreViewProduct/addProduct?storeId=${storeId}`);
 
       try {
         // 发送请求到后端，storeId 作为查询参数传递
-        const storeId = localStorage.getItem('userId');// 替换为实际的storeId
-        const response = await axiosInstance.post(`/StoreViewProduct/addProduct`, newProductData, {
-          params: {
-            storeId: storeId
-          }
+        // const response = await axiosInstance.post(`/StoreViewProduct/addProduct`, newProductData, {
+        //   params: {
+        //     storeId: storeId
+        //   }
+        // });
+
+        const response = await axiosInstance.post(`/StoreViewProduct/addProduct?storeId=${storeId}`, params, {
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          params: { storeId: storeId } // 将 storeId 作为查询参数传递
         });
 
-        // 处理响应
+        // const response = await axiosInstance.post(`/StoreViewProduct/addProduct`, params, {
+        //   headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        //   params: { storeId: storeId } // 将 storeId 作为查询参数传递
+        // });
+
         if (response.status === 200) {
           fetchProducts();
           ElMessage({
@@ -610,7 +755,8 @@ const fetchProductByTag = async (storeTag) => {
             price: null,
             isOnSale: null,
             description: '',
-            image: ''
+            image: '',
+            imagesWithText:[]
           });
           addDialogVisible.value = false;
         } else {
@@ -723,6 +869,8 @@ const deleteSelectedCommodities = async () => {
       OnOrNot,
       preProduct,
       newProduct,
+      newImage,
+      newImageText,
       addDialogVisible,
       confirmDialogVisible,
       selectedProducts,
@@ -746,7 +894,9 @@ const deleteSelectedCommodities = async () => {
       handleChange,
       filterProducts,
       filterProductsTag,
-      onFileChange
+      onFileChange,
+      addImageWithText,
+      handleFileChange
     };
   }
 }
@@ -754,11 +904,12 @@ const deleteSelectedCommodities = async () => {
 
 <style scoped>
 .CommodityShow {
-  width: 86%;
-  height: 88.5vh;
   position: fixed;
-  top: 10.5vh;
-  background-color: rgb(164, 197, 181);
+  top: 10vh;
+  left: 150px; 
+  right: 0;
+  bottom: 0;
+  background-color: #DFCDC7  ;
 }
 
 .TableContainer {
@@ -815,5 +966,24 @@ const deleteSelectedCommodities = async () => {
   color: black;
   text-decoration: none;
   cursor: pointer;
+} 
+
+.el-button--primary {
+    background-color: #a13232;
+    border-color: #a13232;
+}
+
+.el-button--primary:hover {
+    background-color: #8b2b2b;
+    border-color: #8b2b2b;
+}
+.el-button--danger {
+    background-color: #a13232;
+    border-color: #a13232;
+}
+
+.el-button--danger:hover {
+    background-color: #8b2b2b;
+    border-color: #8b2b2b;
 }
 </style>

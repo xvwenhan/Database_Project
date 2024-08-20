@@ -27,7 +27,7 @@
                       class="product-item"
                       @click="handleProductClick(product.productId)"
                     >
-                      <img :src="product.productPic" :alt="product.productId" class="product-image" />
+                      <img :src="product.productPic.imageUrl" :alt="product.productId" class="product-image" />
                       <h2>{{ product.productName }}</h2>
                       <p>价格: ¥{{ product.productPrice }}</p>
                     </div>
@@ -49,14 +49,16 @@
                           <div class="store-content">
                             <div class="store-header">
                               <div class="store-info">
-                                <img :src="'data:image/png;base64,' + store.storePic" alt="Store Image" class="store-image" />
+                                <!-- <img :src="'data:image/png;base64,' + store.storePic" alt="Store Image" class="store-image" /> -->
+                                <img :src="store.storePic" alt="Store Image" class="store-image" />
                                 <h2 class="store-name">{{ store.storeName }}</h2>
                                 <p class="store-rating">评分: {{ store.storeScore }}</p>
                               </div>
                             </div>
                             <div class="store-products">
                               <div v-for="product in store.products" :key="product.productId" class="product-item">
-                                <img :src="'data:image/png;base64,' + product.productPic" alt="Product Image" class="product-image" />
+                                <!-- <img :src="'data:image/png;base64,' + product.productPic" alt="Product Image" class="product-image" /> -->
+                                <img :src="product.productPic" alt="Product Image" class="product-image" />
                                 <p class="product-price">{{ product.productName }}</p>
                                 <p class="product-price">¥{{ product.productPrice }}</p>
                               </div>
@@ -112,7 +114,7 @@ const fetchProducts = async () => {
     });
 
     response.data.forEach(product => {
-      product.productPic = `data:image/png;base64,${product.productPic}`;
+      //product.productPic = `data:image/png;base64,${product.productPic}`;
       Products.push(product);
     });
     message01.value = '已获取收藏商品数据';

@@ -27,19 +27,31 @@
           </template>
         </el-table-column>
       </el-table>
-    </div>
+    </div>  
 
     <div v-if="dialogVisible" class="SettingPopUp">
-      <div v-if="currentMarket" class="SettingContent">
-        <span class="close" @click="dialogVisible = false">&times;</span>
-        <p>市集ID: {{ currentMarket.marketId }}</p>
-        <p>市集主题: {{ currentMarket.theme }}</p>
-        <p>开始时间: {{ currentMarket.startTime }}</p>
-        <p>结束时间: {{ currentMarket.endTime }}</p>
-        <p>详细信息: {{ currentMarket.detail }}</p>
-        <p>海报图片:
-          <img :src="currentMarket.posterImg" alt="MarketPoster">
-        </p>
+      <div v-if="currentMarket">
+        <div class="container-block">
+          <img src="@/assets/mmy/blue_background.jpg">
+          <div class="inner-block">
+            <div class="slider-top-right">
+              <div class="picture-and-text">
+                <transition class="animate__animated animate__fadeInDown">
+                  <img class="picture":src="currentMarket.posterImg" alt="MarketPoster">
+                </transition>
+                <transition class="animate__animated animate__fadeInUp">
+                  <div class="text">
+                    <span class="close" @click="dialogVisible = false">&times;</span>
+                    <br>
+                    <h2> {{ currentMarket.theme }}</h2>
+                    <p style="text-align: end;font-size: 8px;"> {{ currentMarket.startTime }}-{{ currentMarket.endTime }}</p>
+                    <p style="font-size: 16px;">{{ currentMarket.detail }}</p>
+                  </div>
+                </transition>
+              </div>
+            </div>
+          </div>
+        </div> 
       </div>
     </div>  
 
@@ -59,6 +71,7 @@
 import { ref, computed, onMounted } from 'vue';
 import axiosInstance from '../components/axios';
 import imageA from '@/assets/setting.svg';
+import 'animate.css';
 import { ElSelect, ElOption, ElButton ,ElMessage} from 'element-plus';
 import 'element-plus/dist/index.css';
 
@@ -243,11 +256,12 @@ const filterMarkets = () => {
   
 <style scoped>
   .CommodityShow {
-    width: 86%;
-    height: 88.5vh;
     position: fixed;
-    top: 10.5vh;
-    background-color: rgb(164, 197, 181);
+    top: 10vh;
+    left: 150px; 
+    right: 0;
+    bottom: 0;
+    background-color: #DFCDC7  ;
   }
   
   .TableContainer {
@@ -281,10 +295,18 @@ const filterMarkets = () => {
 }
 
 .SettingContent {
-  color: #065f43;
   background-color: #fefefe;
   display: inline-block;
-  padding:5vh;
+  /* position: relative;
+  width: 80%; 
+  height: 60%; 
+  background: #fff; 
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); 
+  overflow: hidden; 
+  display: flex;
+  flex-direction: column;
+  background-color: rgb(109,99,59); */
 }
 
 .close {
@@ -300,5 +322,165 @@ const filterMarkets = () => {
   text-decoration: none;
   cursor: pointer;
 }
+
+.el-button--primary {
+    background-color: #a13232;
+    border-color: #a13232;
+}
+
+.el-button--primary:hover {
+    background-color: #8b2b2b;
+    border-color: #8b2b2b;
+}
   
+
+.animate__animated.animate__fadeInUp{
+	--animate-duration: 1.5s;
+}
+.animate__animated.animate__fadeInDown{
+	--animate-duration: 1.5s;
+}
+.container-block {
+    overflow: hidden;
+    border-radius: 15px;
+	color: #fff;
+	display: inline-block;
+	margin: 2rem auto;
+	max-width: 60%;
+	position: relative;	
+	&::before {
+		/* 特别修改1 */
+        /* 企图用覆盖层的颜色改变原本背景色,并保留原本图案*/
+		/* background-color: rgba(59, 69, 109,0.3); */
+        /* background-color: rgba(255, 255, 255,0.3); */
+		bottom: 0;
+		content: '';
+		display: block;
+		position: absolute;
+		top: 0;
+		width: 100%;
+	}
+	&:hover {
+		.inner-block:before,
+		.slider-top-right:after {
+			height: 100%;
+		}
+		.inner-block:after,
+		.slider-top-right:before {
+			width: 100%;
+		}
+	}
+	img {
+		display: block;
+		max-width: 100%;
+	}
+}
+
+.slider-top-right:before,
+.inner-block:after {
+	height: 2px;
+	transition: width .75s ease;
+	width: 0%;
+}
+
+.slider-top-right:after,
+.inner-block:before {
+	height: 0%;
+	transition: height .75s ease;
+	width: 2px;
+}
+
+.inner-block:before,
+.inner-block:after,
+.slider-top-right:before,
+.slider-top-right:after {
+	background-color: #fff;
+	content: '';
+	display: block;
+	position: absolute;
+}
+
+.inner-block {
+	font-size: 2em;
+	width: 90%;
+	height: 90%;
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	margin: auto;
+	&:before {
+		bottom: 0;
+		left: 0;
+	}
+	&:after {
+		bottom: 0;
+		right: 0;
+	}
+}
+
+.slider-top-right {
+	position: relative;
+	width: 100%;
+	height: 100%;
+	display: flex; /* 使用 Flexbox */
+	justify-content: center; /* 水平居中 */
+	align-items: center; /* 垂直居中 */
+	&:before {
+		top: 0;
+		left: 0;
+	}
+	&:after {
+		top: 0;
+		right: 0;
+	}
+}
+.picture-and-text{
+	width: 90%;
+	height:90%;
+	display: flex; 
+	flex-direction: row;
+}
+.picture{
+	width:50%;
+	border-radius: 20px;
+}
+.text{
+	/* 华文宋 */
+	width: 50%;
+	font-family: 'Noto Serif SC', serif;
+	font-size: 20px;
+	padding: 10px 10px 20px 20px;
+	overflow-y: auto; 
+	max-height: 100%; /* 限制最大高度为父容器高度 */
+	text-align: left;
+	
+}
+/* 特别修改2 */
+/* 自定义滚动条样式 */
+.text::-webkit-scrollbar {
+  width: 5px;
+}
+
+.text::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.text::-webkit-scrollbar-thumb {
+  background: #5f697a;
+  border-radius: 10px;
+}
+h2 {
+    font-size: 1.5em;
+    /* margin-block-start: 0.83em;
+    margin-block-end: 0.83em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px; */
+    font-weight: bold;
+    unicode-bidi: isolate;
+    color: #ecdada;
+    text-align: center;
+  }
   </style>
