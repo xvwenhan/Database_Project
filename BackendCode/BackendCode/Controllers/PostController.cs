@@ -17,24 +17,24 @@ namespace BackendCode.Controllers
     public class PostController : Controller
     {
         private readonly YourDbContext _context;
-        public string filePath = "./Services/post_id.txt";
+        //public string filePath = "./Services/post_id.txt";
         public IdGenerator postIdGenerator;
 
-        public string filePath2 = "./Services/image_id.txt";
+        //public string filePath2 = "./Services/image_id.txt";
         public IdGenerator imageIdGenerator;
 
-        public string filePath3 = "./Services/comment_id.txt";
+        //public string filePath3 = "./Services/comment_id.txt";
         public IdGenerator commentIdGenerator;
 
-        public string filePath4 = "./Services/report_id.txt";
+        //public string filePath4 = "./Services/report_id.txt";
         public IdGenerator reportIdGenerator;
         public PostController(YourDbContext context)
         {
             _context = context;
-            postIdGenerator = new IdGenerator(filePath);
-            imageIdGenerator = new IdGenerator(filePath2, 10);//id为10位
-            commentIdGenerator = new IdGenerator(filePath3, 10);//id为10位
-            reportIdGenerator = new IdGenerator(filePath4);
+            postIdGenerator = new IdGenerator();
+            imageIdGenerator = new IdGenerator();
+            commentIdGenerator = new IdGenerator();
+            reportIdGenerator = new IdGenerator();
         }
 
         //发布帖子 （同时传文本和不定数量的图片）（注意得先登录才能成功调试此接口）

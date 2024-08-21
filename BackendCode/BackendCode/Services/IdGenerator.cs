@@ -1,30 +1,33 @@
-﻿namespace BackendCode.Services
+﻿using Yitter.IdGenerator;
+namespace BackendCode.Services
 {
     public class IdGenerator
     {
-        private readonly string _filePath;
+       /* private readonly string _filePath;
         private readonly object _lock = new object();
         private int _currentId;
-        private int _idLength;
+        private int _idLength;*/
 
-        public IdGenerator(string filePath,int idLength=8)
+        public IdGenerator(/*string filePath,int idLength=8*/)
         {
-            _filePath = filePath;
+            /*_filePath = filePath;
             _currentId = ReadCurrentIdFromFile();
-            _idLength = idLength;//默认生成八位长度ID
+            _idLength = idLength;//默认生成八位长度ID*/
         }
 
         public string GetNextId()
         {
-            lock (_lock)
+            /*lock (_lock)
             {
                 int newId = _currentId++;
                 WriteCurrentIdToFile(_currentId);
                 return newId.ToString($"D{_idLength}"); // 将newId格式化为固定位数的字符串
-            }
+            }*/
+            string nextId=YitIdHelper.NextId().ToString();
+            return nextId;
         }
 
-        private int ReadCurrentIdFromFile()
+        /*private int ReadCurrentIdFromFile()
         {
             if (!File.Exists(_filePath))
             {
@@ -40,12 +43,12 @@
             {
                 throw new InvalidOperationException("无法从文件中读取有效的ID值");
             }
-        }
+        }*/
 
-        private void WriteCurrentIdToFile(int id)
+        /*private void WriteCurrentIdToFile(int id)
         {
             File.WriteAllText(_filePath, id.ToString());
-        }
+        }*/
     }
 }
 
