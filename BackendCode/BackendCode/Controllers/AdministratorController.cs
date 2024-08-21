@@ -257,8 +257,8 @@ namespace Administrator.Controllers
         }
 
 
-        [HttpGet("GetAllReport")]
-        public async Task<IActionResult> GetAllReport()
+        [HttpGet("GetPostReport")]
+        public async Task<IActionResult> GetPostReport()
         {
             try
             {
@@ -288,6 +288,37 @@ namespace Administrator.Controllers
             
         }
 
+
+        [HttpGet("GetCommentReport")]
+        public async Task<IActionResult> GetCommentReport()
+        {
+            try
+            {
+                var query = from report in _dbContext.REPORTS
+                            join complainC in _dbContext.COMPLAIN_COMMENTS on report.REPORT_ID equals complainC.REPORT_ID
+                            join post in _dbContext.COMMENT_POSTS on complainC.COMMENT_ID equals post.COMMENT_ID
+                            select new ShowCommentRepoDTO
+                            {
+                                ReportId = report.REPORT_ID,
+                                BuyerAccountId = complainC.ACCOUNT_ID,
+                                ReportingTime = report.REPORT_TIME,
+                                PostTime = post.EVALUATION_TIME ,
+                                ReportingReason = report.REPORT_REASON,
+                                PostContent = post.EVALUATION_CONTENT,
+                                CommentId = complainC.COMMENT_ID,
+                                AuditResults = report.AUDIT_RESULTS,
+
+                            };
+
+                var res = await query.ToListAsync();
+                return Ok(res);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"访问失败: {ex.Message}");
+            }
+
+        }
 
 
         //修改

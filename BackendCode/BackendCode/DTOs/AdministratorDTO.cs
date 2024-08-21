@@ -34,6 +34,18 @@ namespace BackendCode.DTOs.Administrator
         public List<string>? postImages { get; set; }//帖子图片
     }
 
+    public class ShowCommentRepoDTO
+    {
+        public string? ReportId { get; set; }
+        public string? BuyerAccountId { get; set; }//举报人ID
+        public DateTime? ReportingTime { get; set; }//举报时间
+        public DateTime? PostTime { get; set; }//评论发布时间
+        public string? ReportingReason { get; set; }//举报原因
+        public string? PostContent { get; set; }//评论内容
+        public string? CommentId { get; set; }//评论id
+        public string? AuditResults { get; set; }//审核结果
+    }
+
     //传入的数据结构
     public class GAAModel
     {
