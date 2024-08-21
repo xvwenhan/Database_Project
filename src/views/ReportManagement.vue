@@ -11,9 +11,10 @@
           <h2>举报管理</h2>
           <div class='table-content'>
             <el-table :data="paginatedData">
-                <el-table-column prop="buyerAccountId" label="举报者账号"></el-table-column>
-                <el-table-column prop="reportingTime" label="举报时间"></el-table-column>
-                <el-table-column label="审核状态">
+                <el-table-column prop="type" label="举报类型" width="170"></el-table-column>
+                <el-table-column prop="buyerAccountId" label="举报者账号" width="210"></el-table-column>
+                <el-table-column prop="reportingTime" label="举报时间" width="330"></el-table-column>
+                <el-table-column label="审核状态" width="170">
                   <template #default="scope">
                     <div v-if="scope.row.auditResults === null">
                       未审核
@@ -23,7 +24,7 @@
                     </div>
                   </template>
                 </el-table-column>
-                <el-table-column label="操作">
+                <el-table-column label="操作" width="400">
                 <template #default="scope">
                   <el-button @click="search(scope.row.reportId)" type="primary">举报详情</el-button>
                   <el-button @click="auditReport(scope.row.reportId,'删除')" :disabled="scope.row.auditResults !== null" type="danger">删除帖子</el-button>
@@ -34,15 +35,25 @@
 
             <el-dialog v-model="dialogVisible" title="举报详情" width="60%" >
               <div v-if="selectedDetail">
-                <p>举报者账号: {{ selectedDetail.buyerAccountId }}</p>
-                <p>举报时间: {{ selectedDetail.reportingTime }}</p>
-                <p>举报原因: {{ selectedDetail.reportingReason }}</p>
-                <hr>
-                <p style="font-weight: bold; font-size:16px">帖子内容</p>
-                <p>帖子作者账号: {{ selectedDetail.buyerAccountId }}</p>
-                <p>帖子发布时间: {{ selectedDetail.postTime }}</p>
-                <p>帖子标题: {{ selectedDetail.postTitle }}</p>
-                <p>帖子内容: {{ selectedDetail.postContent }}</p>
+                <div v-if="selectedDetail.type=='帖子'">
+                  <p>举报者账号: {{ selectedDetail.buyerAccountId }}</p>
+                  <p>举报时间: {{ selectedDetail.reportingTime }}</p>
+                  <p>举报原因: {{ selectedDetail.reportingReason }}</p>
+                  <hr>
+                  <p style="font-weight: bold; font-size:16px">帖子内容</p>
+                  <p>帖子发布时间: {{ selectedDetail.postTime }}</p>
+                  <p>帖子标题: {{ selectedDetail.postTitle }}</p>
+                  <p>帖子内容: {{ selectedDetail.postContent }}</p>
+                </div>
+                <div v-else>
+                  <p>举报者账号: {{ selectedDetail.buyerAccountId }}</p>
+                  <p>举报时间: {{ selectedDetail.reportingTime }}</p>
+                  <p>举报原因: {{ selectedDetail.reportingReason }}</p>
+                  <hr>
+                  <p style="font-weight: bold; font-size:16px">评论内容</p>
+                  <p>评论发布时间: {{ selectedDetail.postTime }}</p>
+                  <p>评论内容: {{ selectedDetail.postContent }}</p>
+                </div>
               </div>
             </el-dialog>
 
@@ -91,8 +102,36 @@ const fetchRecords = async () => {
   });
 
   try {
-    const response = await axiosInstance.get('/Administrator/GetAllReport');
-    records.splice(0, records.length, ...response.data);
+    // const response = await axiosInstance.get('/Administrator/GetPostReport');
+    // records.splice(0, records.length, ...response.data);
+
+    //获取举报帖子数据
+    const postReportsResponse = await axiosInstance.get('/Administrator/GetPostReport');
+    const postReports = postReportsResponse.data.map(report => ({
+      ...report,
+      type: '帖子', //添加类型标识
+      postTime: report.postTime.split('.')[0], //截断秒的小数部分
+      reportingTime: report.reportingTime.split('.')[0]
+    }));
+
+    //获取举报评论数据
+    const commentReportsResponse = await axiosInstance.get('/Administrator/GetCommentReport');
+    const commentReports = commentReportsResponse.data.map(report => ({
+      ...report,
+      type: '评论',
+      postTime: report.postTime.split('.')[0],
+      reportingTime: report.reportingTime.split('.')[0]
+    }));
+    const allReports = [...postReports, ...commentReports];
+
+    //排序
+    allReports.sort((a, b) => {
+      if (a.auditResults === null && b.auditResults !== null) return -1;
+      if (a.auditResults !== null && b.auditResults === null) return 1;
+      return 0;
+    });
+    records.splice(0, records.length, ...allReports);
+
     message01.value = '已获取举报记录数据';
     console.log(records.values);
   } catch (error) {
@@ -196,6 +235,10 @@ h2 {
   background-color: #ffffff;
   padding: 0 10px;
   text-align: left;
+}
+
+.table-content {
+  width: 100%;
 }
 
 .pagination-container {
