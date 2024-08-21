@@ -1,13 +1,13 @@
 <template>
   <!-- <Navbar class="narbar"/> -->
-  <!-- <div v-show="isLoading" class="loading">
+  <div v-show="isLoading" class="loading">
     <div class="loading-text">加载中...</div>
-  </div> -->
+  </div>
   <div v-show="!isLoading" class="PDcontainer">
     <Navbar class="narbar"/>
     <div class="storeContent">
-        <img :src="`data:image/png;base64,${product.storeAvatar}`" class="Avatar" />
-        <div class="storeName">&nbsp&nbsp{{ product.storeName }}</div>
+        <img :src="product.storeAvatar" class="Avatar" />
+        <div class="storeName">&nbsp{{ product.storeName }}</div>
         <div class="storeScore">评分：{{  product.score}}</div>
         <!-- 店铺收藏按钮，与商品收藏差不多 -->
         <el-button v-show="role==='买家'"
@@ -62,18 +62,18 @@
       <div class="image">
         <div class="thumbnails">
           <div
-            v-for="(item, index) in imagesWithDescriptions.slice(0, 4)"
+          v-for="(item, index) in (Array.isArray(productImages) ? productImages.slice(0, 4) : [])"
             :key="index"
             class="thumbnail"
             :class="{ active: currentIndex === index }"
             @click="setCurrentImage(index)"
           >
-            <img :src="item.url" :alt="`缩略图 ${index + 1}`" />
+            <img :src="item.imageUrl" :alt="`缩略图 ${index + 1}`" />
           </div>
         </div>
         <!-- 右侧的大图预览 -->
         <div class="preview">
-          <img :src="currentImage.url" :alt="`预览图 ${currentIndex + 1}`" />
+          <img v-if="currentImage && currentImage.imageUrl" :src="currentImage.imageUrl" :alt="`预览图 ${currentIndex + 1}`" />
         </div>
         <!-- <img
           :src="`data:image/png;base64,${product.picture}`"
@@ -157,6 +157,7 @@
                     <!-- 内容区域内的跳转按钮 -->
             <el-button 
             @click="handleButtonClick"
+            v-show="activeSection==='comments'&&isRemarksNull===false"
             class="enter-button"
             style="
                 font-size: 21px;
@@ -165,7 +166,19 @@
                 cursor: pointer;
                 width: auto;
                 height:35px;
-                ">{{ activeSection=='comments'?'查看全部评价':'查看全部商品' }}</el-button>
+                ">查看全部评价</el-button>
+            <el-button 
+            @click="handleButtonClick"
+            v-show="activeSection!=='comments'"
+            class="enter-button"
+            style="
+                font-size: 21px;
+                border-radius: 15px;
+                border: 2px solid rgba(0,0,0,0.4);
+                cursor: pointer;
+                width: auto;
+                height:35px;
+                ">查看全部商品</el-button>
 
             <div v-if="activeSection === 'preview'" class="preview-section">
                 <div 
@@ -174,7 +187,7 @@
                   :key="product.productId" 
                   @click="handleProductClick(product.productId)"
                   >
-                    <img :src="product.productPic" alt="图片加载失败" class="product-image" />
+                    <img :src="product.productPics.length>0?product.productPics[0].imageUrl:null" alt="图片缺失" class="product-image" />
                     <div class="product-text">
                       <h2>{{ product.productName }}</h2>
                       <p>价格: ¥{{ product.productPrice }}</p>
@@ -183,7 +196,8 @@
             </div>
 
             <div v-if="activeSection === 'comments'" class="shop-remarks">
-              <div class="remarks-content">
+              <div v-show="isRemarksNull===true" class="remarksNull">该店铺暂无评论</div>
+              <div v-show="isRemarksNull===false" class="remarks-content">
                 <div 
                   v-for="remark in remarks" 
                   :key="remark.orderId" 
@@ -208,6 +222,18 @@
           </div>
       </div>
     </div>
+    <div class="detailContent">
+      <h2>图文详情</h2>
+      <div
+            v-for="(item, index) in imagesWithDescriptions.slice(0, 4)"
+            :key="index"
+            class="image-and-text"
+          >
+            <p>{{ item.description }}</p>
+            <img :src="item.url" :alt="`缩略图 ${index + 1}`" />
+          </div>
+
+    </div>
   </div>
 </template>
   
@@ -219,28 +245,10 @@
     import { useRouter } from 'vue-router';
     import axiosInstance from '../components/axios';
     
-    //商品图片显示部分
-    const imagesWithDescriptions = ref([
-      { url: 'https://swiperjs.com/demos/images/nature-1.jpg', description: '描述 1' },
-      { url: 'https://swiperjs.com/demos/images/nature-2.jpg', description: '描述 2' },
-      { url: 'https://swiperjs.com/demos/images/nature-3.jpg', description: '描述 3' },
-      { url: 'https://swiperjs.com/demos/images/nature-4.jpg', description: '描述 4' },
-      { url: 'https://swiperjs.com/demos/images/nature-5.jpg', description: '描述 5' },
-      { url: 'https://swiperjs.com/demos/images/nature-6.jpg', description: '描述 6' },
-      { url: 'https://swiperjs.com/demos/images/nature-7.jpg', description: '描述 7' },
-      { url: 'https://swiperjs.com/demos/images/nature-8.jpg', description: '描述 8' },
-      { url: 'https://swiperjs.com/demos/images/nature-9.jpg', description: '描述 9' },
-    ]);
-    const currentIndex = ref(0);
-    const currentImage = ref(imagesWithDescriptions.value[currentIndex.value]);
-    const setCurrentImage = (index) => {
-      currentIndex.value = index;
-      currentImage.value = imagesWithDescriptions.value[index];
-    };
     //页面是否正在加载
-    const isLoading=ref(false);
+    const isLoading=ref(true);
     //从浏览器中获取数据
-    // const productId = '222222';
+    // const productId = 'p581618339418117';
     const productId = localStorage.getItem('productIdOfDetail');
     const userId =localStorage.getItem('userId');
     const role=localStorage.getItem('role');
@@ -249,7 +257,7 @@
 
     const product = ref({
       name: '',
-      picture: '',
+      pictures: [],
       price: 0,
       description: '',
       storeName: '',
@@ -260,14 +268,27 @@
       isProductStared: false,
       isStoreStared:false,
       storeAvatar:'',
-      finalPrice:0
+      finalPrice:0,
+      imageAndText:[]
     }) ;
+    //商品图片显示部分
+    const imagesWithDescriptions = ref([]);
+    const productImages=ref([]);
+    const currentIndex = ref(null);
+    const currentImage = ref(productImages.value[currentIndex.value]);
+    const setCurrentImage = (index) => {
+      currentIndex.value = index;
+      currentImage.value = productImages.value[index];
+    };
+
+    // const product=reactive([])
     //是否已经存在相关订单导致无法购买
     const isAbleBuy=ref(true);
     //处理商品和评论预览
     const activeSection = ref('preview');
     const displayProducts = reactive([]); 
-    const remarks=reactive([]);          
+    const remarks=reactive([]);
+    const isRemarksNull=ref(false);          
     const message=ref('');
     onMounted(async () => {
       console.log(`当前登录用户id为${userId}`);
@@ -283,6 +304,11 @@
         isLoading.value=false;
         product.value=response.data;
         product.value.finalPrice=product.value.discountPrice;
+        imagesWithDescriptions.value = product.value.imageAndText || [];
+        productImages.value=product.value.pictures || [];
+        console.log(`productImages.value is ${JSON.stringify(productImages.value, null, 2)}`)
+        currentImage.value = productImages.value[0] || null;
+
         showProducts();
         console.log('页面加载完成');
         ////////////////////////////////折扣测试
@@ -395,6 +421,9 @@
           remarks.splice(0, remarks.length);
         }
         const limitedRemarks = response.data.slice(0, 3);
+        if(limitedRemarks.length===0){
+          isRemarksNull.value=true;
+        }
         limitedRemarks.forEach(remark => {
           remark.buyerAvatar = `data:image/png;base64,${remark.buyerAvatar}`;
           remarks.push(remark);
@@ -411,8 +440,6 @@
       }
       console.log(message.value);
     };
-    
-
     const showProducts = async () => {
       activeSection.value='preview';
       console.log(`product.value.storeId${product.value.storeId}`);
@@ -430,7 +457,7 @@
       // 只取返回数据的前三个商品
       const limitedProducts = response.data.slice(0, 3);
       limitedProducts.forEach(product => {
-        product.productPic = `data:image/png;base64,${product.productPic}`;
+        // product.productPic = `data:image/png;base64,${product.productPic}`;
         displayProducts.push(product);
       });
       console.log(`displayProducts is ${JSON.stringify(displayProducts, null, 2)}`)
@@ -452,7 +479,8 @@
       console.log('正在被点击');
       console.log(`productId is ${productId}`);
       localStorage.setItem('productIdOfDetail',productId);
-      router.replace('/productdetail').catch(err => {});
+      // router.replace('/productdetail').catch(() => {});
+      location.reload();
     };
     const enterPay=()=>{
       const productStr = JSON.stringify(product.value);//序列化对象
@@ -464,6 +492,11 @@
 </script>
 
  <style scoped>
+div {
+  user-select: none;
+  outline: none; 
+  cursor: default; 
+}
 .el-button:active{
 box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); /* 点击时的阴影效果 */
 transform: scale(0.95); /* 点击时缩小效果 */
@@ -485,7 +518,7 @@ transform: scale(0.95); /* 点击时缩小效果 */
   padding-bottom:15px;
   background-image: url("../assets/mmy/background.jpg");
 }
-.productContent,.storeContent{
+.productContent,.storeContent,.detailContent{
   background-color: #FFFFFF;
   width: 1050px; 
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); 
@@ -516,7 +549,12 @@ transform: scale(0.95); /* 点击时缩小效果 */
   flex-direction: row;
   position: relative;
 }
-
+.detailContent{
+  /* min-height:300px; */
+  padding:20px 40px 40px 20px;
+  display: flex;
+  flex-direction: column;
+}
 .image {
   width: 600px;
   height: 100%;
@@ -771,7 +809,6 @@ transform: scale(0.95); /* 点击时缩小效果 */
   background-color: #fff;
   border-radius: 16px;
   box-sizing: border-box;
-  min-height: 70vh;
   margin-top: 10px;
   padding: 8px;
   position: sticky;
@@ -860,14 +897,30 @@ transform: scale(0.95); /* 点击时缩小效果 */
   object-fit: cover;
 }
 .description{
-
-	/* 华文宋 */
 	font-family: 'Noto Serif SC', serif;
 	font-size: 16px;
 	overflow-y: auto; 
-	max-height: 50px; /* 限制最大高度为父容器高度 */
+	max-height: 50px;
 	text-align: left;
 }
-
+.detailContent h2{
+  border-bottom:2px solid rgb(166, 27, 41,0.2);
+  color:#a61b29;
+  text-align: left;
+  padding-left:40px;
+}
+.image-and-text img{
+  width:80%;
+  border-radius: 15px;
+}
+.image-and-text p{
+  font-size:22px;
+}
+.remarksNull{
+  font-size:40px;
+  position:relative;
+  top:80px;
+  color:rgba(0,0,0,0.3);
+}
 </style> 
   
