@@ -26,14 +26,14 @@ namespace Account.Controllers
     public class AccountController : ControllerBase
     {
         private readonly YourDbContext _context;
-        public string filePath = "./Services/account_id.txt";
+        //public string filePath = "./Services/account_id.txt";
         public IdGenerator idGenerator;
         private readonly ILogger<AccountController> _logger;
 
         public AccountController(YourDbContext context, ILogger<AccountController> logger)
         {
             _context = context;
-            idGenerator = new IdGenerator(filePath);
+            idGenerator = new IdGenerator();
             _logger = logger;//方便调试///////////////////////
         }
 
