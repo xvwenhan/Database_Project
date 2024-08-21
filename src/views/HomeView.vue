@@ -243,6 +243,11 @@ function navigateTo(link) {
 </script>
   
 <style scoped>
+div {
+  user-select: none;
+  outline: none; 
+  cursor: default; 
+}
 #app {
 height: 100%;
 }
