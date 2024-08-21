@@ -5,6 +5,8 @@ using BackendCode.Models;
 using BackendCode.DTOs.Payment;
 using System.Data;
 using BackendCode.DTOs;
+using Alipay.AopSdk.Core.Domain;
+using System.Linq;
 
 namespace BackendCode.Controllers
 {
@@ -137,6 +139,12 @@ namespace BackendCode.Controllers
             {
                 return NotFound("未找到商品");
             }
+           
+            /* 第一张商品图片 */
+            var productImage = await _dbContext.PRODUCT_IMAGES
+                .Where(pi => pi.PRODUCT_ID == orderDTO.ProductId)
+                .Select(pi => new ImageModel { ImageId = pi.IMAGE_ID })
+                .FirstOrDefaultAsync();
 
             /* 获取买家信息 */
             var buyer = await _dbContext.BUYERS.FirstOrDefaultAsync(w => w.ACCOUNT_ID == orderDTO.BuyerId);
@@ -168,7 +176,8 @@ namespace BackendCode.Controllers
                         orderId = order_exist.ORDER_ID,
                         createTime = order_exist.CREATE_TIME.ToString("yyyy年MM月dd日 HH:mm:ss"),
                         //格式化createTime为易读的格式
-                        isPaid = order_exist.ORDER_STATUS != "待付款"
+                        isPaid = order_exist.ORDER_STATUS != "待付款",
+                        picture = productImage
                     };
 
                     return Ok(order_Info); //返回订单相关信息
@@ -244,7 +253,8 @@ namespace BackendCode.Controllers
                 orderId = orderId,
                 createTime = order.CREATE_TIME.ToString("yyyy年MM月dd日 HH:mm:ss"),
                 //格式化createTime为易读的格式
-                isPaid = order.ORDER_STATUS != "待付款"
+                isPaid = order.ORDER_STATUS != "待付款",
+                picture = productImage
             };
 
             return Ok(orderInfo); //返回订单相关信息

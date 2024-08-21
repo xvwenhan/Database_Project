@@ -26,6 +26,7 @@
         public string orderId { get; set; }
         public string createTime { get; set; }
         public bool isPaid { get; set; } //是否付款
+        public ImageModel picture { get; set; }
     }
 
     public class OrderConfirmDTO
