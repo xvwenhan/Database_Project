@@ -20,6 +20,7 @@
         </aside>
         <div class="display">
             <div v-if="selectedCategory==1" >
+              <div v-if="paginatedProducts.length!==0">
                 <div class="display-items1">
                     <div 
                       v-for="product in paginatedProducts" 
@@ -37,9 +38,16 @@
                     <span>第 {{ currentPage1 }} 页 / 共 {{ productsPages }} 页</span>
                     <button @click="productPageChange(currentPage1 + 1)" :disabled="currentPage1 === productsPages">下一页</button>
                 </div>
+              </div>
+              <div v-else>
+                <span style="font-family: Arial, sans-serif; font-size: 20px; display: block; margin-bottom: 13px;">
+                暂无收藏商品
+                </span>
+              </div>
             </div>
             <div v-else>
                 <div class="display-items2">
+                  <div v-if="paginatedStores.length!==0">
                     <div 
                       v-for="store in paginatedStores" 
                       :key="store.storeId" 
@@ -66,6 +74,12 @@
                         </div>
                       </div>
                     </div>
+                  </div>
+                  <div v-else>
+                    <span style="font-family: Arial, sans-serif; font-size: 20px; display: block; margin-bottom: 13px;">
+                    暂无收藏店铺
+                    </span>
+                  </div>
                 </div>
                 <div class="pagination">
                     <button @click="storePageChange(currentPage2 - 1)" :disabled="currentPage2 === 1">上一页</button>
@@ -300,7 +314,7 @@ onMounted(() => {
 
 .product-image {
   width: 100%;
-  height: auto;
+  height: 150px;
   object-fit: cover;
   border-radius: 5px;
   margin-bottom: 10px;

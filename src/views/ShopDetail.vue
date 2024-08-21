@@ -89,26 +89,32 @@
             <span style="font-family: Arial, sans-serif; font-size: 20px; font-weight: bold; text-align: left; display: block; margin-bottom: 13px;">
               用户评价
             </span>
-            <div 
-              v-for="remark in remarks" 
-              :key="remark.orderId" 
-              class="remarks">
-              <div class="remark-header">
-                <div class='remark-avatar'>
-                  <img :src="remark.buyerAvatar" :alt="buyerAvatar" class='remark-avatar'/>
+            <div v-if="remarks.length !== 0">
+              <div 
+                v-for="remark in remarks" 
+                :key="remark.orderId" 
+                class="remarks">
+                <div class="remark-header">
+                  <div class='remark-avatar'>
+                    <img :src="remark.buyerAvatar" :alt="buyerAvatar" class='remark-avatar'/>
+                  </div>
+                  <div class="remark-buyerName" style="font-size: 16px; font-weight: bold; "> {{ remark.buyerName }} </div>
                 </div>
-                <div class="remark-buyerName" style="font-size: 16px; font-weight: bold; "> {{ remark.buyerName }} </div>
+                <div class="remark-content">
+                  <div class="remark-score" style="font-size: 16px; text-align: left;">
+                    评分：{{ remark.orderScore }}
+                  </div>
+                  <div class="remark-text" style="font-size: 16px; text-align: left;">
+                    评价：{{ remark.orderRemark }}
+                  </div>
+                  <div class="splitLine"></div>
+                </div>
               </div>
-              <div class="remark-content">
-                <div class="remark-score" style="font-size: 16px; text-align: left;">
-                  评分：{{ remark.orderScore }}
-                </div>
-                <div class="remark-text" style="font-size: 16px; text-align: left;">
-                  评价：{{ remark.orderRemark }}
-                </div>
-                <div class="splitLine"></div>
-              </div>
-
+            </div>
+            <div v-else>
+              <span style="font-family: Arial, sans-serif; font-size: 20px; display: block; margin-bottom: 13px;">
+              暂无评价
+              </span>
             </div>
           </div>
         </div>
@@ -600,9 +606,7 @@ onMounted(() => {
 
 .product-image {
   width: 100%;
-  height: auto;
-  max-height: 200px;
-  min-height: 150px;
+  height: 150px;
   object-fit: cover;
   border-radius: 5px;
   margin-bottom: 10px;
