@@ -1,19 +1,13 @@
-<!-- 外部调用 -->
-<!-- 
-const functionName = () => {
-  router.push({ path: '/productdetail', query: { id: '01' } });
-} 
-其中'01'可变,需填入对应商品的id
--->
 <template>
   <!-- <Navbar class="narbar"/> -->
   <div v-show="isLoading" class="loading">
     <div class="loading-text">加载中...</div>
   </div>
   <div v-show="!isLoading" class="PDcontainer">
+    <Navbar class="narbar"/>
     <div class="storeContent">
-        <img :src="`data:image/png;base64,${product.storeAvatar}`" class="Avatar" />
-        <div class="storeName">&nbsp&nbsp{{ product.storeName }}</div>
+        <img :src="product.storeAvatar" class="Avatar" />
+        <div class="storeName">&nbsp{{ product.storeName }}</div>
         <div class="storeScore">评分：{{  product.score}}</div>
         <!-- 店铺收藏按钮，与商品收藏差不多 -->
         <el-button v-show="role==='买家'"
@@ -40,8 +34,8 @@ const functionName = () => {
             src="@/assets/mmy/star.svg"
             alt="star"
             class="icon"/>
-            {{ product.isStoreStared ? '已收藏' : '&nbsp收&nbsp&nbsp藏&nbsp' }}
-            </el-button>
+            {{ product.isStoreStared ? '已收藏' : '收&nbsp藏' }}
+        </el-button>
         <!-- 进入店铺按钮 -->
         <el-button
               class="enterStore-button"
@@ -62,15 +56,30 @@ const functionName = () => {
             src="@/assets/mmy/store.svg"
             class="icon"/>
             进店逛逛 
-            </el-button>
+        </el-button>
       </div>
     <div class="productContent">
       <div class="image">
-        <img
+        <div class="thumbnails">
+          <div
+          v-for="(item, index) in (Array.isArray(productImages) ? productImages.slice(0, 4) : [])"
+            :key="index"
+            class="thumbnail"
+            :class="{ active: currentIndex === index }"
+            @click="setCurrentImage(index)"
+          >
+            <img :src="item.imageUrl" :alt="`缩略图 ${index + 1}`" />
+          </div>
+        </div>
+        <!-- 右侧的大图预览 -->
+        <div class="preview">
+          <img v-if="currentImage && currentImage.imageUrl" :src="currentImage.imageUrl" :alt="`预览图 ${currentIndex + 1}`" />
+        </div>
+        <!-- <img
           :src="`data:image/png;base64,${product.picture}`"
           class="image_inside"
         />
-        <div class="overlay">细节描述：{{ product.description }}</div>
+        <div class="overlay">细节描述：{{ product.description }}</div> -->
       </div>
       <div class="text">
         <div v-show="product.discountPrice===product.price" class="price">￥{{ product.price }}</div>
@@ -78,17 +87,22 @@ const functionName = () => {
           <div class="discountPrice">￥{{ product.price }}</div>
           <div class="price">￥{{ product.discountPrice }}</div>
         </div>
-
         <div class="name">{{ product.name }}</div>
+        <div class="description">（细节描述）零一二三四五六七八九零一二三四五六七八九零一二三四五六七八九零一二三四五六七八九零一二三四五六七八九零一二三四五六七八九零一二三四五六七八九零一二三四五六七八九零一二三四五六七八九零一二三四五六七八九</div>
         <div class="store">来自 {{ product.storeName }} | 100%非遗正品保证</div>
         <div class="fromwhere">
           <div class="from1">发货地</div>
           <div class="from2">{{ product.fromWhere }}</div>
         </div>
         <div class="baozhang">
-          <div class="baozhang1">保&nbsp&nbsp&nbsp&nbsp障</div>
-          <div class="baozhang2">假一赔十&nbsp&nbsp&nbsp&nbsp七天无理由退货 </div>
+          <div class="baozhang1">保&nbsp障</div>
+          <div class="baozhang2">假一赔十&nbsp七天无理由退货 </div>
         </div>
+        <div class="baozhang">
+          <div class="baozhang1">数&nbsp量</div>
+          <div class="baozhang2">{{isAbleBuy===true?'1&nbsp有货':'0&nbsp无货'}} </div>
+        </div>
+
         <div class="star_and_buy">
           <!-- 收藏 -->
           <el-button v-show="role==='买家'&&isAbleBuy"
@@ -114,13 +128,13 @@ const functionName = () => {
         src="@/assets/mmy/star.svg"
         alt="star"
         class="icon"/>
-        {{ product.isProductStared ? '已收藏' : '&nbsp收&nbsp&nbsp藏&nbsp' }}
+        {{ product.isProductStared ? '已收藏' : '收&nbsp藏' }}
         </el-button>
         <!-- 购买 -->
         <el-button type="success" 
         v-show="role==='买家'&&isAbleBuy"
         @click="enterPay"
-        style="background-color: #257b5e; 
+        style="background-color: #a61b29; 
         letter-spacing: 5px; 
         font-size: 22px;
         width: 25%; 
@@ -135,7 +149,7 @@ const functionName = () => {
     <div class="productAndCommentContent">
         <!-- 侧边导航栏 -->
         <div class="sidebar">
-          <div class="nav-item" @click="showProducts">商品预览</div>
+          <div class="nav-item" @click="showProducts">店铺商品</div>
           <div class="nav-item" @click="showComments">店铺评论</div>
         </div>
         <!-- 内容区域 -->
@@ -143,6 +157,7 @@ const functionName = () => {
                     <!-- 内容区域内的跳转按钮 -->
             <el-button 
             @click="handleButtonClick"
+            v-show="activeSection==='comments'&&isRemarksNull===false"
             class="enter-button"
             style="
                 font-size: 21px;
@@ -151,7 +166,19 @@ const functionName = () => {
                 cursor: pointer;
                 width: auto;
                 height:35px;
-                ">{{ activeSection=='comments'?'查看全部评价':'查看全部商品' }}</el-button>
+                ">查看全部评价</el-button>
+            <el-button 
+            @click="handleButtonClick"
+            v-show="activeSection!=='comments'"
+            class="enter-button"
+            style="
+                font-size: 21px;
+                border-radius: 15px;
+                border: 2px solid rgba(0,0,0,0.4);
+                cursor: pointer;
+                width: auto;
+                height:35px;
+                ">查看全部商品</el-button>
 
             <div v-if="activeSection === 'preview'" class="preview-section">
                 <div 
@@ -160,7 +187,7 @@ const functionName = () => {
                   :key="product.productId" 
                   @click="handleProductClick(product.productId)"
                   >
-                    <img :src="product.productPic" alt="图片加载失败" class="product-image" />
+                    <img :src="product.productPics.length>0?product.productPics[0].imageUrl:null" alt="图片缺失" class="product-image" />
                     <div class="product-text">
                       <h2>{{ product.productName }}</h2>
                       <p>价格: ¥{{ product.productPrice }}</p>
@@ -169,7 +196,8 @@ const functionName = () => {
             </div>
 
             <div v-if="activeSection === 'comments'" class="shop-remarks">
-              <div class="remarks-content">
+              <div v-show="isRemarksNull===true" class="remarksNull">该店铺暂无评论</div>
+              <div v-show="isRemarksNull===false" class="remarks-content">
                 <div 
                   v-for="remark in remarks" 
                   :key="remark.orderId" 
@@ -194,6 +222,18 @@ const functionName = () => {
           </div>
       </div>
     </div>
+    <div class="detailContent">
+      <h2>图文详情</h2>
+      <div
+            v-for="(item, index) in imagesWithDescriptions.slice(0, 4)"
+            :key="index"
+            class="image-and-text"
+          >
+            <p>{{ item.description }}</p>
+            <img :src="item.url" :alt="`缩略图 ${index + 1}`" />
+          </div>
+
+    </div>
   </div>
 </template>
   
@@ -208,7 +248,7 @@ const functionName = () => {
     //页面是否正在加载
     const isLoading=ref(true);
     //从浏览器中获取数据
-    // const productId = '222222';
+    // const productId = 'p581618339418117';
     const productId = localStorage.getItem('productIdOfDetail');
     const userId =localStorage.getItem('userId');
     const role=localStorage.getItem('role');
@@ -217,7 +257,7 @@ const functionName = () => {
 
     const product = ref({
       name: '',
-      picture: '',
+      pictures: [],
       price: 0,
       description: '',
       storeName: '',
@@ -228,14 +268,27 @@ const functionName = () => {
       isProductStared: false,
       isStoreStared:false,
       storeAvatar:'',
-      finalPrice:0
+      finalPrice:0,
+      imageAndText:[]
     }) ;
+    //商品图片显示部分
+    const imagesWithDescriptions = ref([]);
+    const productImages=ref([]);
+    const currentIndex = ref(null);
+    const currentImage = ref(productImages.value[currentIndex.value]);
+    const setCurrentImage = (index) => {
+      currentIndex.value = index;
+      currentImage.value = productImages.value[index];
+    };
+
+    // const product=reactive([])
     //是否已经存在相关订单导致无法购买
-    const isAbleBuy=ref(false);
+    const isAbleBuy=ref(true);
     //处理商品和评论预览
     const activeSection = ref('preview');
     const displayProducts = reactive([]); 
-    const remarks=reactive([]);          
+    const remarks=reactive([]);
+    const isRemarksNull=ref(false);          
     const message=ref('');
     onMounted(async () => {
       console.log(`当前登录用户id为${userId}`);
@@ -251,6 +304,11 @@ const functionName = () => {
         isLoading.value=false;
         product.value=response.data;
         product.value.finalPrice=product.value.discountPrice;
+        imagesWithDescriptions.value = product.value.imageAndText || [];
+        productImages.value=product.value.pictures || [];
+        console.log(`productImages.value is ${JSON.stringify(productImages.value, null, 2)}`)
+        currentImage.value = productImages.value[0] || null;
+
         showProducts();
         console.log('页面加载完成');
         ////////////////////////////////折扣测试
@@ -363,6 +421,9 @@ const functionName = () => {
           remarks.splice(0, remarks.length);
         }
         const limitedRemarks = response.data.slice(0, 3);
+        if(limitedRemarks.length===0){
+          isRemarksNull.value=true;
+        }
         limitedRemarks.forEach(remark => {
           remark.buyerAvatar = `data:image/png;base64,${remark.buyerAvatar}`;
           remarks.push(remark);
@@ -379,8 +440,6 @@ const functionName = () => {
       }
       console.log(message.value);
     };
-    
-
     const showProducts = async () => {
       activeSection.value='preview';
       console.log(`product.value.storeId${product.value.storeId}`);
@@ -398,7 +457,7 @@ const functionName = () => {
       // 只取返回数据的前三个商品
       const limitedProducts = response.data.slice(0, 3);
       limitedProducts.forEach(product => {
-        product.productPic = `data:image/png;base64,${product.productPic}`;
+        // product.productPic = `data:image/png;base64,${product.productPic}`;
         displayProducts.push(product);
       });
       console.log(`displayProducts is ${JSON.stringify(displayProducts, null, 2)}`)
@@ -420,7 +479,8 @@ const functionName = () => {
       console.log('正在被点击');
       console.log(`productId is ${productId}`);
       localStorage.setItem('productIdOfDetail',productId);
-      router.replace('/productdetail').catch(err => {});
+      // router.replace('/productdetail').catch(() => {});
+      location.reload();
     };
     const enterPay=()=>{
       const productStr = JSON.stringify(product.value);//序列化对象
@@ -432,34 +492,42 @@ const functionName = () => {
 </script>
 
  <style scoped>
+div {
+  user-select: none;
+  outline: none; 
+  cursor: default; 
+}
 .el-button:active{
 box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); /* 点击时的阴影效果 */
 transform: scale(0.95); /* 点击时缩小效果 */
 }
+.el-button {
+  font-family: 'Noto Serif SC', serif;
+  font-weight: bold;
+}
 
 /* 容器样式 */
 .PDcontainer {
-  background-color: #CCCCCC;
+  font-family: 'Noto Serif SC', serif;
   display: flex;
   align-items: center;/*这才是水平对齐 */
   flex-direction: column;
   /* 哇趣！！！！！！min-height！！！I love you!!*/
   min-height: 100vh;
-  overflow-x: hidden; /*隐藏水平滚动条 */
+  overflow-x: hidden; 
   padding-bottom:15px;
-  /* overflow: auto; */
+  background-image: url("../assets/mmy/background.jpg");
 }
-.productContent,.storeContent{
+.productContent,.storeContent,.detailContent{
   background-color: #FFFFFF;
-  width: 70%; /*百分比都是相对于父容器说的*/ 
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* 添加阴影效果（可选） */
-  box-sizing: border-box; /* 使内边距和边框包含在宽度和高度内 */
+  width: 1050px; 
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); 
+  box-sizing: border-box; 
   border-radius: 15px; 
   margin-top:15px;
 }
 
 .storeContent{
-  /* height:80px; */
   padding: 10px 30px 10px 10px;
   position: relative;
   display: flex;
@@ -475,57 +543,61 @@ transform: scale(0.95); /* 点击时缩小效果 */
   flex-direction: row; 
 }
 .productAndCommentContent {
-  width: 70%; /*百分比都是相对于父容器说的*/ 
+  width: 1050px; 
   margin-top:15px;
   display: flex;
   flex-direction: row;
   position: relative;
 }
-
+.detailContent{
+  /* min-height:300px; */
+  padding:20px 40px 40px 20px;
+  display: flex;
+  flex-direction: column;
+}
 .image {
-  width: 48%;
+  width: 600px;
   height: 100%;
   border-radius: 15px;
   position: relative; /* 确保覆盖层绝对定位在此容器内 */
+  display: flex;
+  flex-direction: row;
 }
-.image_inside,.overlay {
+/* .image_inside,.overlay {
   width: 100%;
   height: 100%;
   border-radius: 15px;
-}
-.overlay{
-  position: absolute;/*absolute 定位相对于最近的 position 属性不为 static 的父元素*/
-  top: 0;/*将 .overlay 的上边缘对齐到 .image 的上边缘 */
+} */
+/* .overlay{
+  position: absolute;
+  top: 0;
   left: 0;
   display: flex;
   align-items: center;
   justify-content: center;
 
-  background: rgba(0, 0, 0, 0.3); /* 黑色半透明背景 */
+  background: rgba(0, 0, 0, 0.3); 
   color: white;
-  opacity: 0; /* 默认隐藏 */
-  transition: opacity 0.3s; /* 平滑过渡 */
+  opacity: 0; 
+  transition: opacity 0.3s; 
   padding: 80px;
-  box-sizing: border-box; /* 确保内边距不会影响元素宽度 */
+  box-sizing: border-box; 
   text-align: center;
   z-index: 2; 
 }
-/* 当鼠标悬停在 .image 元素上时，.overlay 元素的样式变化 */
 .image:hover .overlay {
-  opacity: 1; /* 鼠标悬停时显示覆盖层 */
-}
+  opacity: 1;
+} */
 .text{
   display: flex;
   flex-direction: column; 
   align-items: flex-start;
-  /* justify-content: center;  */
-  width: 49%;
+  width: 450px;
   height: auto;
-  padding:30px;
+  padding:0px 30px 30px 0px;
   position: relative; /* 使得按钮能定位在 text 内部 */
   box-sizing: border-box;
 }
-
 .name, .price,.store{
   margin-top: 5px;;
   text-align: left; /*文字左对齐*/ 
@@ -533,7 +605,7 @@ transform: scale(0.95); /* 点击时缩小效果 */
 }
 .price,.dis_price{
   font-size: 30px;
-  color:rgb(139, 49, 31);
+  color:#a61b29;
 }
 .price{
   /* border:2px solid #232020; */
@@ -584,7 +656,8 @@ transform: scale(0.95); /* 点击时缩小效果 */
   border: 1px solid #ddd; /* 浅灰色边界 */
   padding: 5px; /* 为内容添加一些内边距，以便边界不会直接贴近内容 */
   box-sizing: border-box; /* 确保内边距和边界不会影响元素的宽度 */
-  background-color: #CCCCCC;
+  background-color: #a61b29;
+  color:white;
   font-size: 20px;
   transition: transform 0.3s ease, box-shadow 0.3s ease; /* 平滑过渡效果 */
   will-change: transform;/*告诉浏览器将要发生变化 */
@@ -626,7 +699,7 @@ transform: scale(0.95); /* 点击时缩小效果 */
 }
 .storeScore{
   font-size:20px;
-  color:rgba(0, 0, 0,0.3);
+  color:#a61b29;
   padding-left:20px;
   /* padding-top:5px; */
 }
@@ -646,6 +719,7 @@ transform: scale(0.95); /* 点击时缩小效果 */
 }
 
 .nav-item {
+  font-size:18px;
   padding: 10px;
   cursor: pointer;
   border-bottom: 1px solid rgba(0,0,0,0.4);
@@ -665,6 +739,8 @@ transform: scale(0.95); /* 点击时缩小效果 */
   border-radius:15px ;
   width: 100%;
   padding: 10px;
+  min-height:300px;
+
 }
 .loading-text{
   font-size:22px;
@@ -733,7 +809,6 @@ transform: scale(0.95); /* 点击时缩小效果 */
   background-color: #fff;
   border-radius: 16px;
   box-sizing: border-box;
-  min-height: 70vh;
   margin-top: 10px;
   padding: 8px;
   position: sticky;
@@ -785,6 +860,67 @@ transform: scale(0.95); /* 点击时缩小效果 */
   margin: 12px 0;
   height: 1px;
   background-color: #f0f3f5;
+}
+
+.thumbnails {
+  display: flex;
+  flex-direction: column;
+  width:70px;
+
+}
+.thumbnail {
+  cursor: pointer;
+  border: 2px solid transparent;
+  width: 100%;
+  height:90px;
+  overflow:hidden;
+  padding: 3px;
+  text-align: center;
+  border-radius: 15px;
+}
+.thumbnail img {
+  width: 100%;
+  height: 100%;
+  border-radius: 15px;
+  object-fit: cover;
+}
+.thumbnail.active {
+  border-color: #a61b29;
+}
+.preview {
+  margin-left: 40px;
+}
+.preview img {
+  border-radius: 15px;
+  width: 400px;
+  height: 100%;
+  object-fit: cover;
+}
+.description{
+	font-family: 'Noto Serif SC', serif;
+	font-size: 16px;
+	overflow-y: auto; 
+	max-height: 50px;
+	text-align: left;
+}
+.detailContent h2{
+  border-bottom:2px solid rgb(166, 27, 41,0.2);
+  color:#a61b29;
+  text-align: left;
+  padding-left:40px;
+}
+.image-and-text img{
+  width:80%;
+  border-radius: 15px;
+}
+.image-and-text p{
+  font-size:22px;
+}
+.remarksNull{
+  font-size:40px;
+  position:relative;
+  top:80px;
+  color:rgba(0,0,0,0.3);
 }
 </style> 
   

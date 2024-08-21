@@ -38,14 +38,14 @@
 
     </div>
     <div class="line bottom-line"></div>
-    <UserModal ref="userModal" />
+    <!-- <UserModal ref="userModal" /> -->
   </nav>
 </template>
 
 <script setup>
 import { reactive, ref, onMounted, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import UserModal from '../views/UserCenter.vue';
+// import UserModal from '../views/UserCenter.vue';
 import axios from 'axios';
 import { getLunar } from 'chinese-lunar-calendar';
 import { Search } from '@element-plus/icons-vue';
@@ -56,7 +56,7 @@ const userModal = ref(null);
 
 // 打开模态框的函数
 const openModal = () => {
-  userModal.value.isUserCenterOpen = true;
+  router.push(`/BuyerInformation`);
 };
 
 const router = useRouter();
@@ -73,8 +73,6 @@ import defaultProfilePhoto from '@/assets/wy/profilephoto.jpg';
 
 
 
-
-// 写死 userId
 // const userId = 'U00000013';
 const userId=localStorage.getItem('userId')|| 'we0';
 

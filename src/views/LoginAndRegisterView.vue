@@ -425,6 +425,11 @@ function changeToLogin() {
 </script>
 
 <style scoped>
+div {
+  user-select: none;
+  outline: none; 
+  cursor: default; 
+}
 html, body {
   height: 100%;
   margin: 0;
