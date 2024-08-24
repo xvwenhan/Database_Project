@@ -4,41 +4,47 @@
   </div>
 
   <div v-show="!isLoading" class="Pcontainer">
-      <div class="procedure">
+      <div ></div>
+      <div class="procedure" >
           <div class="procedure1">
               <img src="@/assets/mmy/number1.svg" class="number"/>
               <div class="text">1.确认订单信息</div>
           </div>
-          <div class="line">————————————</div>
+          <div class="line">———————</div>
           <div class="procedure2">
               <img src="@/assets/mmy/number2.svg" class="number"/>
-              <div class="text">2.支付</div>
+              <div class="text">&nbsp2.支付&nbsp&nbsp</div>
+          </div>
+          <div class="line" v-show="isPaid===true">———————</div>
+          <div class="procedure3" v-show="isPaid===true">
+              <img src="@/assets/mmy/number3.svg" class="number"/>
+              <div class="text-active">3.产看订单信息</div>
           </div>
       </div>
       <div class="address">
+        <div class="highlight-text">收货信息</div>
+        <div class="addressInfo">
           <img class="addressImage" src="@/assets/mmy/location.svg">
-          <div class="text1">寄送至&nbsp&nbsp&nbsp&nbsp</div>
-          <div class="customerAddress">{{ customer.address }}&nbsp&nbsp({{ customer.name }}&nbsp收)&nbsp&nbsp</div>
+          <div class="text1">寄送至&#8201;&#8201;&#8201;&#8201;</div>
+          <div class="customerAddress">{{ customer.address }}&#8201;&#8201;({{ customer.name }}&#8201;收)&#8201;&#8201;</div>
           <el-button v-show='isPaid===false'
               @click="openDialog"
               class="changeAddress"
-              style="display: flex;
-              align-items: center;
-              justify-content: center;
+              style="
               font-size: 20px;
-              border-radius: 15px;
-              border: 2px solid rgba(0,0,0,0.4);
+              border-radius: 5px;
+              border: 2px solid #a61b29;
+              color:#a61b29;
               cursor: pointer;
               width: auto;
-              height:80%;
+              height:32px;
+              margin-top:5px;
               padding-left:20px;
               padding-right:20px;
-              right:5%;
-              bottom:10%;
+              right:40px;
               position: absolute" 
           >修改地址</el-button>
-          <!-- 弹窗写法参考 -->
-          <!-- 圆角设置 -->
+        </div>
           <el-dialog 
               v-model="dialogVisible"
               width="35%"
@@ -47,7 +53,7 @@
               <div class="dialog-content">
                   
                   <div class="dialog-line">
-                      <div class="dialog-text">&nbsp收&nbsp件&nbsp人&nbsp </div>
+                      <div class="dialog-text">&#8201;收&#8201;件&#8201;人&#8201; </div>
                       <el-input 
                       v-model="customer.name" 
                       placeholder="请输入收件人姓名" 
@@ -57,17 +63,7 @@
                       font-size:17px;"
                       ></el-input>
                   </div>
-                  <!-- <div class="dialog-line">
-                      <div class="dialog-text">&nbsp手&nbsp机&nbsp号&nbsp </div>
-                      <el-input 
-                      v-model="customer.phone" 
-                      placeholder="请输入收件人手机号" 
-                      clearable 
-                      style="width: 350px;
-                      height:40px;
-                      font-size:17px;"
-                      ></el-input>
-                  </div> -->
+
                   <div class="dialog-line">
                       <div class="dialog-text">所在地区 </div>
                       <el-cascader :options='options' 
@@ -110,63 +106,52 @@
       </div>
       <div class="orderInfo">
           <div class="storeArea">
-              <img src="@/assets/mmy/store.svg" class="storeImage">
-              <div class="text2">{{ product.storeName }}&nbsp&nbsp></div>
+              <img src="@/assets/mmy/store-active.svg" class="storeImage" @click="enterStore">
+              <div class="text2" @click="enterStore">{{ product.storeName }}&#8201;&#8201;></div>
           </div>
           <div class="productArea">
-              <img :src="`data:image/png;base64,${product.picture}`" class="productImage">
+              <img :src="product.picture" class="productImage" alt="图片加载失败">
               <div class="orderDetail">
-                  <div class="text-p">{{ product.name }}&nbsp&nbsp￥{{ product.price }}</div>
-                  <div class="text-p1">订单编号:&nbsp&nbsp{{ order.id }}</div>
-                  <div class="text-p1">创建时间:&nbsp&nbsp{{ order.createTime }}</div>
+                  <div class="text-p">{{ product.name }}</div>
+                  <div class="text-p2">￥{{ product.price }}</div>
+                  <div class="text-p1">订单编号:&#8201;&#8201;{{ order.id }}</div>
+                  <div class="text-p1">创建时间:&#8201;&#8201;{{ order.createTime }}</div>
               </div>
           </div>
       </div>
       <div class="price" v-show="isPaid===false">
-          <div class="text3">￥价格明细</div>
-          <div class="text-price">商品原价：&nbsp&nbsp{{ (product.price) }}元</div>
-          <div class="text-price">活动折扣：&nbsp&nbsp{{ product.discountPrice===product.price?'本商品未参与活动': '* '+product.discount*100+'%'}}</div>
-          <div class="text-price">折扣价格：&nbsp&nbsp{{ product.discountPrice }}元</div>
-          <!-- 注意vue中的整除 -->
-          <div class="text-price">积分抵扣：当前积分{{ customer.credits }},可抵扣{{ creditPrice }}元</div>
-          <div class="text-price" v-show="creditPrice!==0">
+        <div class="storeArea">
+              <img src="@/assets/mmy/price.svg" class="storeImage" @click="enterStore">
+              <div class="text-price1" >价格明细</div>
+          </div>
+          <div class="text-price">商品原价：&#8201;&#8201;{{ (product.price) }}元</div>
+          <div class="text-price">活动折扣：&#8201;&#8201;{{ product.discountPrice===product.price?'本商品未参与活动': '* '+product.discount*100+'%'}}</div>
+          <div class="text-price">折后价格：&#8201;&#8201;{{ product.discountPrice }}元</div>
+          <div v-show="creditPrice!==0">
               <div class="useCredit">
-                  <div>是否使用积分</div>
+                  <div class="text-price-active">是否使用积分</div>
                   <el-radio-group  v-model="isUseCredits" style="margin-left: 10px;margin-bottom:0px" @change="priceCalculate">
                   <el-radio label="yes">是</el-radio>
                   <el-radio label="no">否</el-radio>
                   </el-radio-group>
               </div>
           </div>
-          <div class="text-price">价格合计：{{ product.finalPrice }}元</div>
-      </div>
-      <div class="price" v-show="isPaid===true">
-          <div class="text3">￥价格明细</div>
-          <div class="text-price">商品原价：&nbsp&nbsp{{ (product.price) }}元</div>
-          <div class="text-price">活动折扣：&nbsp&nbsp{{ product.discountPrice===product.price?'本商品未参与活动': '* '+product.discount*100+'%'}}</div>
-          <div class="text-price">折扣价格：&nbsp&nbsp{{ product.discountPrice }}元</div>
-          <!-- 注意vue中的整除 -->
-          <div class="text-price">积分抵扣：&nbsp&nbsp{{ product.discountPrice-product.finalPrice }}元</div>
-          <div class="text-price">价格合计：{{ product.finalPrice }}元</div>
-
-      </div>
-      <div class="pay">
-          <el-button v-show="isPaid===false"
-              @click="openPay"
+          <div class="text-price-active-small">当前积分{{ customer.credits }},可抵扣{{ creditPrice }}元</div>
+          <div class="text-price-active">价格合计：{{ product.finalPrice }}元</div>
+          <div class="pay">
+          <el-button
+              @click="checkPay"
               class="payMoney"
-              style="display: flex;
-              align-items: flex-end;
-              justify-content: center;
-              font-size: 22px;
-              border-radius: 15px;
-              border: 2px solid rgba(0,0,0,0.4);
-              background-color: rgba(0,0,0,0.4);
+              style="
+              font-size: 20px;
+              border-radius: 5px;
+              background-color: #a61b29;
               color:white;
               cursor: pointer;
               width: auto;
-              height:80%;
-              right:5%;
-              bottom:10%;
+              height:43px;
+              right:60px;
+              bottom:20px;
               position: absolute" 
           >支付￥{{ product.finalPrice }}</el-button>
           <el-dialog 
@@ -176,8 +161,8 @@
               >
               <div v-show="isPaySuccess===true">
                   <p class="text_pay_isSuccess">支付成功</p>
-                  <p class="text_pay">获得积分：&nbsp&nbsp{{ bonusCredits }}</p>
-                  <p class="text_pay">积分余额：&nbsp&nbsp{{ finalCredits }}</p>
+                  <p class="text_pay">获得积分：&#8201;&#8201;{{ bonusCredits }}</p>
+                  <p class="text_pay">积分余额：&#8201;&#8201;{{ finalCredits }}</p>
               </div>
               <div v-show="isPaySuccess===false">
                   <p class="text_pay_isSuccess">支付失败</p>
@@ -185,7 +170,19 @@
               </div>
 
           </el-dialog>
+      </div>
 
+      </div>
+      <div class="price" v-show="isPaid===true">
+        <div class="storeArea">
+              <img src="@/assets/mmy/price.svg" class="storeImage" @click="enterStore">
+              <div class="text-price1" >价格明细</div>
+          </div>
+          <div class="text-price">商品原价：&#8201;&#8201;{{ (product.price) }}元</div>
+          <div class="text-price">活动折扣：&#8201;&#8201;{{ product.discountPrice===product.price?'本商品未参与活动': '* '+product.discount*100+'%'}}</div>
+          <div class="text-price">折后价格：&#8201;&#8201;{{ product.discountPrice }}元</div>
+          <div class="text-price-active">积分抵扣：&#8201;&#8201;{{ product.discountPrice-product.finalPrice }}元</div>
+          <div class="text-price-active">价格合计：{{ product.finalPrice }}元</div>
       </div>
   </div>
 </template>
@@ -206,10 +203,11 @@ const productid = localStorage.getItem('productIdOfDetail');
 const userid =localStorage.getItem('userId');
 const userId=userid?userid:'000000';
 const productId=productid?productid:'555555';
-const product = computed(() => {
-const productStr = route.query.product ;
-return productStr ? JSON.parse(productStr) : null;
-});
+const product=ref({});
+// const product = computed(() => {
+// const productStr = route.query.product ;
+// return productStr ? JSON.parse(productStr) : null;
+// });
 //根据是否已经付款订单会显示不同状态
 const isPaid = route.query.isPaid === 'true';
 // const isPaid =false;
@@ -248,12 +246,18 @@ watch(payVisible, (newValue, oldValue) => {
   }
 });
 onMounted(async () => {
+  const productStr = route.query.product;
+  if (productStr) {
+    product.value = JSON.parse(productStr);
+  }else {
+    product.value = {}; // 确保对象是初始化的
+  }
   console.log(`product is ${JSON.stringify(product.value)}`);
   console.log(`productId is ${productId}`);
   console.log(`userId is ${userId}`);
-  console.log(`creditPrice is ${creditPrice}`);
+  console.log(`creditPrice is ${JSON.stringify(creditPrice, null, 2)}`);
   if(isPaid==false){
-    product.finalPrice=product.discountPrice;
+    product.value.finalPrice=product.value.discountPrice;
   }
   const formData = new FormData();
   formData.append('BuyerId',userId);
@@ -303,7 +307,7 @@ const priceCalculate=()=>{
   // 确保 discountPrice 和 creditPrice 是数字进行计算
   const discount = parseFloat(product.value.discountPrice);
   const credits = creditPrice.value;
-
+  console.log(`isUseCredits.value is ${isUseCredits.value}`);
   if (isUseCredits.value === 'yes') {
       product.value.finalPrice = parseInt((discount - credits).toFixed(2)); // 计算最终价格并保留两位小数
   } else {
@@ -312,8 +316,20 @@ const priceCalculate=()=>{
   if(product.value.finalPrice<0){
       product.value.finalPrice=0;
   }
-}
+  console.log(`product.value.finalPrice is ${product.value.finalPrice}`);
 
+}
+const enterStore=()=>{
+      localStorage.setItem('storeIdOfDetail',product.value.storeId);
+      router.push('/shopdetail');
+}
+const checkPay=()=>{
+    if(customer.value.name==="未知收货人"||customer.value.address==="未知地"){
+      ElMessage.error("请补充收货信息");
+    }else{
+      openPay();
+    }
+}
 //确认订单信息并完成支付
 const openPay=async()=>{
   const formData = new FormData();
@@ -350,10 +366,25 @@ const openPay=async()=>{
   message.value='';
   payVisible.value=true;
 }
+
 </script>
 
 <style scoped>
+div {
+  user-select: none;
+  outline: none; 
+  cursor: default; 
+}
+:deep(.el-radio.is-checked .el-radio__inner) {
+  border-color: #a61b29; /* 修改边框颜色 */
+  background-color: #a61b29; /* 修改选中颜色 */
+}
+:deep(.el-radio .el-radio__label) {
+  color: #a61b29; /* 修改文字颜色 */
+  font-size: 16px; /* 修改文字大小 */
+}
 .Pcontainer {
+  font-family: 'Noto Serif SC', serif;
 background-color: rgba(204, 204, 204,0.4);
 display: flex;
 align-items: center;/*这才是水平对齐 */
@@ -372,7 +403,7 @@ align-items: center;/*这才是水平对齐 */
 flex-direction: row;
 align-items: right;
 }
-.procedure1,.procedure2{
+.procedure1,.procedure2,.procedure3{
   display: flex;
   flex-direction: column;
   align-items: center;/*这才是水平对齐 */
@@ -385,30 +416,41 @@ margin-right: 8px; /* 图标与文本之间的间距 */
 .text{
 font-size:15px;
 }
+.text-active{
+  font-size:15px;
+  color:#a61b29;
+}
 .line{
   padding-bottom:15px ;
   padding-right:20px;
 }
 .address,.orderInfo,.price{
   background-color: #FFFFFF;
-  width: 70%; 
+  width: 900px; 
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* 添加阴影效果（可选） */
   box-sizing: border-box; /* 使内边距和边框包含在宽度和高度内 */
   border-radius: 15px; 
   position:relative;
-  padding:5px;
   margin-top:15px;
+}
+.orderInfo{
+  padding:5px;
 }
 .address{
   display: flex;
-  flex-direction: row;
-  padding-left:20px;
+  flex-direction: column;
   /* height:40px; */
-  height:55px;
+  min-height:90px;
+}
+.addressInfo{
+  display: flex;
+  flex-direction: row;
+  width:100%;
 }
 .addressImage{
   width:35px;
-  height:35px;
+  height:30px;
+  padding-top:5px;
 }
 .text1,.customerAddress{
   font-size:20px;
@@ -454,17 +496,21 @@ padding-top:25px;
   width:30px;
   height:30px;
   padding-right:5px;
+  cursor: pointer;
 }
 .productArea{
   margin-top:20px;
-  height:150px;
+  min-height:150px;
   display: flex;
   flex-direction: row;
 }
 .productImage{
-  height:100%;
-  border-radius: 50%;
+  width:125px;
+  height:125px;
+  border-radius: 5px;
   margin-left:30px;
+  background-color: #a61b29;
+  color:#FFFFFF;
 }
 .orderDetail{
   display: flex;
@@ -474,39 +520,71 @@ padding-top:25px;
 }
 .text2{
   font-size:20px;
+  margin-right:10px;
+  cursor: pointer;
+  color:#a61b29;
 }
 .text-p{
   font-size:23px;
 }
 .text-p1{
-  padding-top:15px;
   font-size:20px;
   color:rgba(0,0,0,0.6);
+}
+.text-p2{
+  font-size:19px;
+  color:rgba(0,0,0,0.8);
 }
 .price{
   display: flex;
   flex-direction: column;
-  padding-left:40px;
-  padding-right:40px;
-  height:35%;
-  align-items: center; 
-  /* justify-content: center; */
+  min-height:250px;
+  align-items: start; 
+  padding:10px 0px 15px 20px;
   position:relative;
 }
+.highlight-text{
+  width:100%;
+  border-radius:15px 15px 0px 0px ;
+  background-color: #a61b29;
+  color:#FFFFFF;
+
+  text-align: left;
+  padding-left:20px;
+  font-size:21px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
 .text-price{
+  padding-left:20px;
   font-size:20px;
+  padding-bottom: 2px;
+}
+.text-price-active{
+  padding-left:20px;
+  font-size:20px;
+  /* padding-bottom: 2px; */
+  font-weight:bold;
+  color:#a61b29;
+}
+.text-price-active-small{
+  padding-left:60px;
+  font-size:17px;
+  padding-bottom: 2px;
+  font-weight:bold;
+  color:#000000;
+}
+.text-price1{
+  font-size:20px;
+  text-align: left;
+  color:#a61b29;
+  padding-bottom: 10px;
 }
 .useCredit{
   display: flex;
   flex-direction: row;
 }
-.text3{
-  font-size:22px;
-  margin-top: 10px;
-  width:100%;
-  border-bottom:1.5px solid black ;
-  /* padding-bottom: 10px; */
-}
+
 .text_pay_isSuccess{
   font-size:22px;
   margin-bottom: 10px;
@@ -516,16 +594,6 @@ padding-top:25px;
   font-size:20px;
 }
 
-.pay{
-  width: 70%; 
-  position:relative;
-  padding:5px;
-  margin-top:15px;
-  /* display: flex;
-  align-items: center; 
-  justify-content: center; */
-  height:60px;
-}
 .payMoney:hover{
   transform: scale(1.02); /* Scale up by 20% */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);

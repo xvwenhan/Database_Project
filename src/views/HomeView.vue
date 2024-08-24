@@ -29,7 +29,7 @@
       <div class="ad">
           <img
           v-show="currentAdIndex === 0"
-          src="@/assets/mmy/ad1.png"
+          src="@/assets/mmy/ad3.png"
           />
           <img
           v-show="currentAdIndex === 1"
@@ -37,7 +37,7 @@
           />
           <img
           v-show="currentAdIndex === 2"
-          src="@/assets/mmy/ad3.png"
+          src="@/assets/mmy/ad1.png"
           />
       <div class="knotArea" @mouseenter="stopTimer" @mouseleave="startTimer">
       <img
