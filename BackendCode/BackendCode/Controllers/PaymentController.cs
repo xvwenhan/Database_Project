@@ -7,6 +7,7 @@ using System.Data;
 using BackendCode.DTOs;
 using Alipay.AopSdk.Core.Domain;
 using System.Linq;
+using BackendCode.Services;
 
 namespace BackendCode.Controllers
 {
@@ -15,10 +16,12 @@ namespace BackendCode.Controllers
     public class PaymentController : ControllerBase
     {
         private readonly YourDbContext _dbContext;
+        public IdGenerator idGenerator;
 
         public PaymentController(YourDbContext context)
         {
             _dbContext = context;
+            idGenerator = new IdGenerator();
         }
 
         /********************************/
@@ -188,30 +191,8 @@ namespace BackendCode.Controllers
                 }
             }
 
-            /* 商品未售出—随机生成订单号 */
-            Guid guid = Guid.NewGuid(); //生成一个Guid
-            int hashCode = Math.Abs(guid.GetHashCode()); //获取Guid的哈希码，并取其绝对值
-            string orderId = hashCode.ToString("X").PadLeft(10, '0'); //字符串前十个字符
-            //如果生成的字符串长度超过10位，则截取前10位
-            if (orderId.Length > 10)
-            {
-                orderId = orderId.Substring(0, 10);
-            }
-
-            /* 检查订单号是否已存在 */
-            var existingOrder = await _dbContext.ORDERS.FirstOrDefaultAsync(o => o.ORDER_ID == orderId);
-            //如果订单号已存在，重复生成
-            while (existingOrder != null)
-            {
-                guid = Guid.NewGuid();
-                hashCode = Math.Abs(guid.GetHashCode());
-                orderId = hashCode.ToString("X").PadLeft(10, '0');
-
-                if (orderId.Length > 10)
-                {
-                    orderId = orderId.Substring(0, 10);
-                }
-            }
+            /* 商品未售出 */
+            string orderId = idGenerator.GetNextId(); //生成订单号
 
             product.SALE_OR_NOT = true; //修改商品售出状态
 

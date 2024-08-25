@@ -250,33 +250,7 @@ namespace BackendCode.Controllers
             };
 
             return Ok(productDetails); //返回商品详情信息
-        }
-
-        /***************************************/
-        /* 获取商品详情信息接口-商品图片       */
-        /*              停用                   */
-        /***************************************/
-/*        [HttpGet("GetProductPic")]
-        public async Task<IActionResult> GetProductPicAsync(string productId)
-        {
-            *//* 查询商品信息 *//*
-            var product = await _dbContext.PRODUCTS.FirstOrDefaultAsync(a => a.PRODUCT_ID == productId);
-            if (product == null) //商品ID不存在
-            {
-                return NotFound("未找到该商品信息");
-            }
-
-            *//* 获取产品展示图片的ID *//*
-            var pictures = await _dbContext.PRODUCT_IMAGES
-                .Where(pi => pi.PRODUCT_ID == productId)
-                .ToListAsync();
-            if (pictures == null)
-            {
-                return NotFound("未找到该商品图片");
-            }
-
-            return File(product.PRODUCT_PIC, "image/jpeg"); //返回商品图片}*/
-        
+        }        
 
         /***************************************/
         /* 获取买家消费积分接口                */
