@@ -363,7 +363,7 @@ namespace StoreViewProductController.Controllers
         }
 
         [HttpGet("getProductImages/{productId}")]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> GetProductImages(string productId)
         {
             try
@@ -391,7 +391,7 @@ namespace StoreViewProductController.Controllers
         }
 
         [HttpDelete("deleteProductImage/{productId}/{imageId}")]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> DeleteProductImage(string productId, string imageId)
         {
             try
@@ -416,7 +416,7 @@ namespace StoreViewProductController.Controllers
         }
 
         [HttpPost("addProductImage/{productId}")]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> AddProductImage(string productId, [FromForm] List<IFormFile> images)
         {
             try
@@ -434,20 +434,30 @@ namespace StoreViewProductController.Controllers
                         await image.CopyToAsync(ms); // 将图片拷贝到内存流中
                         var imageData = ms.ToArray(); // 转换为字节数组
 
+                        // 新增到 PRODUCT_IMAGES 表
                         var productImage = new PRODUCT_IMAGE
                         {
                             PRODUCT_ID = productId,
                             IMAGE_ID = imageId,
                             IMAGE = imageData
                         };
+                        _dbContext.PRODUCT_IMAGES.Add(productImage);
 
-                        _dbContext.PRODUCT_IMAGES.Add(productImage); // 将新图片对象添加到数据库中
+                        // 同时新增到 PRODUCT_DETAILS 表
+                        var productDetail = new PRODUCT_DETAIL
+                        {
+                            IMAGE_ID = imageId,
+                            PRODUCT_ID = productId,
+                            IMAGE = imageData,
+                            DESCRIPTION = null // 默认描述为空
+                        };
+                        _dbContext.PRODUCT_DETAILS.Add(productDetail);
                     }
                 }
 
                 await _dbContext.SaveChangesAsync(); // 保存更改到数据库中
 
-                return Ok("Images added successfully.");
+                return Ok("Images added and details updated successfully.");
             }
             catch (Exception ex)
             {
@@ -457,7 +467,7 @@ namespace StoreViewProductController.Controllers
 
 
         [HttpGet("getProductDescription")]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> GetProductDescription(string imageId)
         {
             try
