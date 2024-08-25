@@ -266,59 +266,6 @@ namespace StoreFrontController.Controllers
                 return StatusCode(500, "Internal server error");
             }
         }
-        //put接口修改店铺名称和地址，此处传""这样的空值即代表不修改原值
-        /*[HttpPut("UpdateStoreInfo")]
-        public async Task<IActionResult> UpdateStoreInfo(string storeId, [FromBody] StoreUpdateDto storeUpdateDto)
-        {
-            if (string.IsNullOrEmpty(storeId))
-            {
-                return BadRequest("Store ID is required.");
-            }
-
-            if (storeUpdateDto == null)
-            {
-                return BadRequest("Store update information is required.");
-            }
-
-            try
-            {
-                // 查找对应的store
-                var store = await _dbContext.STORES
-                    .FirstOrDefaultAsync(s => s.ACCOUNT_ID == storeId);
-                var account = await _dbContext.ACCOUNTS
-                   .FirstOrDefaultAsync(a => a.ACCOUNT_ID == storeId);
-                if (store == null)
-                {
-                    return NotFound("Store not found.");
-                }
-
-                // 更新store的STORE_NAME和ADDRESS
-                if (!string.IsNullOrEmpty(storeUpdateDto.StoreName))
-                {
-                    store.STORE_NAME = storeUpdateDto.StoreName;
-                    account.USER_NAME= storeUpdateDto.StoreName;
-                }
-
-                if (!string.IsNullOrEmpty(storeUpdateDto.Address))
-                {
-                    store.ADDRESS = storeUpdateDto.Address;
-                }
-
-                // 保存更改
-                await _dbContext.SaveChangesAsync();
-
-                return Ok(new
-                {
-                    StoreName = store.STORE_NAME,
-                    Address = store.ADDRESS
-                });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error updating store info for store {storeId}", storeId);
-                return StatusCode(500, "Internal server error");
-            }
-        }*/
         //Post提交审核接口
         [HttpPost("SubmitAuthentication")]
         public async Task<IActionResult> SubmitAuthentication(string storeId, [FromBody] SubmitAuthenticationRequest request)
