@@ -17,8 +17,9 @@
               align-items: center;
               justify-content: center;
               font-size: 21px;
-              border-radius: 15px;
-              border: 2px solid rgba(0,0,0,0.4);
+              border-radius: 5px;
+              border: 2px solid #a61b29;
+              color:#a61b29;
               cursor: pointer;
               width: auto;
               height:65%;
@@ -44,8 +45,9 @@
               align-items: center;
               justify-content: center;
               font-size: 21px;
-              border-radius: 15px;
-              border: 2px solid rgba(0,0,0,0.4);
+              border-radius: 5px;
+              border: 2px solid #a61b29;
+              color:#a61b29;
               cursor: pointer;
               width: auto;
               height:65%;
@@ -53,7 +55,7 @@
               right:5%;" 
             >
             <img  
-            src="@/assets/mmy/store.svg"
+            src="@/assets/mmy/store-active.svg"
             class="icon"/>
             进店逛逛 
         </el-button>
@@ -113,6 +115,8 @@
           justify-content: center;
           font-size: 21px;
           border-radius: 5px;
+          border: 2px solid #a61b29;
+          color:#a61b29;
           cursor: pointer;
           width: auto;
           height:50px;
@@ -137,6 +141,7 @@
         style="background-color: #a61b29; 
         letter-spacing: 5px; 
         font-size: 22px;
+        border: 2px solid #a61b29;
         width: 25%; 
         height:50px;
         right: 5%;
@@ -161,8 +166,9 @@
             class="enter-button"
             style="
                 font-size: 21px;
-                border-radius: 15px;
-                border: 2px solid rgba(0,0,0,0.4);
+                border-radius: 5px;
+                border: 2px solid #a61b29;
+                color:#a61b29;
                 cursor: pointer;
                 width: auto;
                 height:35px;
@@ -173,8 +179,9 @@
             class="enter-button"
             style="
                 font-size: 21px;
-                border-radius: 15px;
-                border: 2px solid rgba(0,0,0,0.4);
+                border-radius: 5px;
+                border: 2px solid #a61b29;
+                color:#a61b29;
                 cursor: pointer;
                 width: auto;
                 height:35px;
@@ -676,7 +683,7 @@ transform: scale(0.95); /* 点击时缩小效果 */
 }
 .from1,.baozhang1{
   font-size: 20px;
-  color:#CCCCCC;
+  color:rgba(0,0,0,0.5);
 }
 .from2,.baozhang2{
   font-size: 20px;
@@ -695,6 +702,7 @@ transform: scale(0.95); /* 点击时缩小效果 */
 }
 .storeName{
   font-size: 20px;
+  font-weight:bold;
   /* padding-top:5px; */
 }
 .storeScore{
@@ -722,11 +730,13 @@ transform: scale(0.95); /* 点击时缩小效果 */
   font-size:18px;
   padding: 10px;
   cursor: pointer;
-  border-bottom: 1px solid rgba(0,0,0,0.4);
+  color:#a61b29;
+  font-weight:bold;
+  border-bottom: 1px solid rgba(166, 27, 41,0.6);
 }
 
 .nav-item:hover {
-  border-bottom: 2px solid rgba(0,0,0,1);
+  border-bottom: 2px solid rgba(166, 27, 41,1);
 }
 
 /* 主内容区域 */
@@ -772,7 +782,7 @@ transform: scale(0.95); /* 点击时缩小效果 */
   width:100%;
 }
 .displayProductItem{
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* 添加阴影效果（可选） */
+  box-shadow: 0 0 10px rgba(166, 27, 41,0.1); 
   box-sizing: border-box; /* 使内边距和边框包含在宽度和高度内 */
   border-radius: 15px; 
   transition: transform 0.3s, box-shadow 0.3s;
@@ -819,7 +829,7 @@ transform: scale(0.95); /* 点击时缩小效果 */
 }
 
 .remarks{
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* 添加阴影效果（可选） */
+  box-shadow: 0 0 10px rgba(166, 27, 41,0.1); /* 添加阴影效果（可选） */
   box-sizing: border-box; /* 使内边距和边框包含在宽度和高度内 */
   border-radius: 15px; 
   transition: transform 0.3s, box-shadow 0.3s;
