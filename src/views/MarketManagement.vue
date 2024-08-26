@@ -60,41 +60,43 @@
 
           <div class="table-container">
             <h2>市集管理</h2>
-            <el-table :data="paginatedData">
-                <el-table-column prop="theme" label="市集主题"></el-table-column>
-                <el-table-column prop="startTime" label="开始时间"></el-table-column>
-                <el-table-column prop="endTime" label="结束时间"></el-table-column>
-                <el-table-column label="操作">
-                  <template #default="scope">
-                    <el-button @click="search(scope.row.marketId)" type="primary">查看详情</el-button>
-                    <el-button @click="deleteMarket(scope.row.marketId)" type="danger">取消市集</el-button>
-                  </template>
-                </el-table-column>
-            </el-table>
+            <div class="table-content">
+              <el-table :data="paginatedData">
+                  <el-table-column prop="theme" label="市集主题"></el-table-column>
+                  <el-table-column prop="startTime" label="开始时间"></el-table-column>
+                  <el-table-column prop="endTime" label="结束时间"></el-table-column>
+                  <el-table-column label="操作">
+                    <template #default="scope">
+                      <el-button @click="search(scope.row.marketId)" type="primary">查看详情</el-button>
+                      <el-button @click="deleteMarket(scope.row.marketId)" type="danger">取消市集</el-button>
+                    </template>
+                  </el-table-column>
+              </el-table>
 
-            <el-dialog v-model="dialogVisible" title="市集详情" width="60%" >
-              <div v-if="selectedDetail">
-                <p>主题: {{ selectedDetail.theme }}</p>
-                <p>开始时间: {{ selectedDetail.startTime }}</p>
-                <p>结束时间: {{ selectedDetail.endTime }}</p>
-                <p>详细信息: {{ selectedDetail.detail }}</p>
-                <img :src="selectedDetail.imageSrc" alt="Market Poster" v-if="selectedDetail.imageSrc" style="width: 90%; object-fit: cover;" />
-              </div>
-            </el-dialog>
+              <el-dialog v-model="dialogVisible" title="市集详情" width="60%" >
+                <div v-if="selectedDetail">
+                  <p>主题: {{ selectedDetail.theme }}</p>
+                  <p>开始时间: {{ selectedDetail.startTime }}</p>
+                  <p>结束时间: {{ selectedDetail.endTime }}</p>
+                  <p>详细信息: {{ selectedDetail.detail }}</p>
+                  <img :src="selectedDetail.imageSrc" alt="Market Poster" v-if="selectedDetail.imageSrc" style="width: 90%; object-fit: cover;" />
+                </div>
+              </el-dialog>
 
-            <div class="pagination-container">
-              <div class="pagination">
-                <div style="text-align: center;">
-                  <span>共 {{ totalItems }} 条</span>
-                </div>          
-                <el-pagination
-                  background
-                  layout="prev, pager, next"
-                  :total="totalItems"
-                  :page-size="pageSize"
-                  @current-change="handlePageChange"
-                  :current-page="currentPage">
-                </el-pagination>
+              <div class="pagination-container">
+                <div class="pagination">
+                  <div style="text-align: center;">
+                    <span>共 {{ totalItems }} 条</span>
+                  </div>          
+                  <el-pagination
+                    background
+                    layout="prev, pager, next"
+                    :total="totalItems"
+                    :page-size="pageSize"
+                    @current-change="handlePageChange"
+                    :current-page="currentPage">
+                  </el-pagination>
+                </div>
               </div>
             </div>
           </div>
@@ -111,6 +113,7 @@ import AdminSidebarMenu from '../components/AdminSidebarMenu.vue'
 import AdminHeaderSec from '../components/AdminHeaderSec.vue'
 import { reactive, ref, computed, onMounted  } from 'vue';
 import { ElTable, ElTableColumn, ElPagination, ElButton, ElDialog, ElForm, ElFormItem, ElInput, ElRow, ElCol, ElSelect, ElOption, ElMessage } from 'element-plus';
+import { ElLoading } from 'element-plus';
 import 'element-plus/dist/index.css';
 import axiosInstance from '../components/axios';
 
@@ -120,18 +123,29 @@ const records = reactive([]);
 const message01 = ref('');
 
 const fetchRecords = async () => {
+  //加载缓冲
+  const loadingInstance = ElLoading.service({
+    lock: true,
+    text: '正在加载...',
+    target: '.table-content',
+  });
+
   try {
     const response = await axiosInstance.get('/Administrator/GetAllMarket');
     records.splice(0, records.length, ...response.data);
     message01.value = '已获取市集数据';
     console.log(records.values);
   } catch (error) {
+    loadingInstance.close();
     if (error.response) {
       message01.value = error.response.data;
     } else {
       message01.value = '获取数据失败';
     }
+    ElMessage.error('获取数据失败，请稍后再试');
   }
+
+  loadingInstance.close();
   console.log(message01.value);
 };
 onMounted(() => {

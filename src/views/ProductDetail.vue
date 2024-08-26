@@ -88,7 +88,7 @@
           <div class="price">￥{{ product.discountPrice }}</div>
         </div>
         <div class="name">{{ product.name }}</div>
-        <div class="description">（细节描述）零一二三四五六七八九零一二三四五六七八九零一二三四五六七八九零一二三四五六七八九零一二三四五六七八九零一二三四五六七八九零一二三四五六七八九零一二三四五六七八九零一二三四五六七八九零一二三四五六七八九</div>
+        <div class="description">（细节描述）{{ product.description }}</div>
         <div class="store">来自 {{ product.storeName }} | 100%非遗正品保证</div>
         <div class="fromwhere">
           <div class="from1">发货地</div>
@@ -274,7 +274,7 @@
     //商品图片显示部分
     const imagesWithDescriptions = ref([]);
     const productImages=ref([]);
-    const currentIndex = ref(null);
+    const currentIndex = ref(0);
     const currentImage = ref(productImages.value[currentIndex.value]);
     const setCurrentImage = (index) => {
       currentIndex.value = index;
