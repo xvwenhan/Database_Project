@@ -20,11 +20,13 @@
 			</section>
 			
 			</div>
+
+
+
 </template>
 
 <style scoped>
-/*author MARY LOU */
-/* COMPONENTS */
+
 .container{
 	background-color: #b9af8a;
 }
@@ -120,4 +122,7 @@ section {
 	padding: 4em 2em;
 	text-align: center;
 }
+
+
+
 </style>

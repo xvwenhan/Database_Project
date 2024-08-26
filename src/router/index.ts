@@ -259,11 +259,15 @@ const router = createRouter({
       component: () => import('../views/templates/3.vue')
     },
     {
+      path:'/load',
+      name:'load',
+      component: () => import('../views/templates/load.vue')
+    },
+    {
       path:'/4',
       name:'4',
       component: () => import('../views/templates/4.vue')
     }
-
 
   ]
 })
