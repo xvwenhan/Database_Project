@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Hosting;
-
-namespace BackendCode.Models
+﻿namespace BackendCode.Models
 {
     public class BUYER : ACCOUNT
     {

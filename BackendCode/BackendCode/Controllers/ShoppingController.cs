@@ -174,7 +174,7 @@ namespace BackendCode.Controllers
 
         /***************************************/
         /* 获取商品详情信息接口                */
-        /* 传入{userid(买家),productid}        */
+        /* 传入{userid(买家/商家),productid}   */
         /* 返回商品的详细信息                  */
         /***************************************/
         [HttpGet("GetProductDetails")]
@@ -189,9 +189,10 @@ namespace BackendCode.Controllers
 
             /* 查询买家信息 */
             var buyer = await _dbContext.BUYERS.FirstOrDefaultAsync(a => a.ACCOUNT_ID == userId);
-            if (buyer == null) //买家ID不存在
+            bool isStore = false;
+            if (buyer == null) //商家
             {
-                return NotFound("未找到买家信息");
+                isStore = true;
             }
 
             /* 查询商家信息 */
@@ -230,6 +231,12 @@ namespace BackendCode.Controllers
                     Description = pd.DESCRIPTION
                 })
                 .ToListAsync();
+
+            if(isStore)
+            {
+                isProductStared = false;
+                isStoreStared = false; 
+            }
 
             /* 创建商品详情DTO */
             var productDetails = new ProductDetailsDTO

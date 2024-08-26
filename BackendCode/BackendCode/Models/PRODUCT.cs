@@ -9,7 +9,6 @@
         public string? TAG { get; set; }
         public string? DESCRIBTION { get; set; }
         public string? ACCOUNT_ID { get; set; }
-        //public byte[]? PRODUCT_PIC { get; set; }
         public string? STORE_TAG { get; set; }
         public STORE STORE { get; set; }
         public SUB_CATEGORY SUB_CATEGORY { get; set; }

@@ -10,7 +10,6 @@ using BackendCode.Models;
 using Yitter.IdGenerator;
 using Alipay.AopSdk.Core.Domain;
 using BackendCode.DTOs.PostModel;
-using Microsoft.Extensions.Hosting;
 using BackendCode.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;

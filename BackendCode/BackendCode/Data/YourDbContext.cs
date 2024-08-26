@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using BackendCode.Models;
 using System.Reflection.Metadata;
-using Microsoft.Extensions.Hosting;
 
 namespace BackendCode.Data
 {
@@ -499,10 +498,6 @@ namespace BackendCode.Data
                     .HasColumnType("NUMBER(1)")
                     .HasConversion<bool>()
                     .IsRequired();
-
-/*                entity.Property(e => e.PRODUCT_PIC)
-                    .HasColumnType("BLOB")
-                    .IsRequired();*/
 
                 entity.Property(e => e.TAG)
                     .HasMaxLength(50)
