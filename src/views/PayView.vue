@@ -18,7 +18,7 @@
           <div class="line" v-show="isPaid===true">———————</div>
           <div class="procedure3" v-show="isPaid===true">
               <img src="@/assets/mmy/number3.svg" class="number"/>
-              <div class="text-active">3.产看订单信息</div>
+              <div class="text-active">3.查看订单信息</div>
           </div>
       </div>
       <div class="address">
@@ -135,8 +135,9 @@
                   <el-radio label="no">否</el-radio>
                   </el-radio-group>
               </div>
+              <div class="text-price-active-small" >当前积分{{ customer.credits }},可抵扣{{ creditPrice }}元</div>
           </div>
-          <div class="text-price-active-small">当前积分{{ customer.credits }},可抵扣{{ creditPrice }}元</div>
+          <div class="text-price" v-show="creditPrice===0">积分抵扣：当前积分{{ customer.credits }},可抵扣{{ creditPrice }}元</div>
           <div class="text-price-active">价格合计：{{ product.finalPrice }}元</div>
           <div class="pay">
           <el-button
