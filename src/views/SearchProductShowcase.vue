@@ -60,7 +60,7 @@ onMounted(() => {
     <p>搜索中，请稍候...</p>
   </div> -->
   <div 
-  style="background-color: #f7f4ed;height: 100%;overflow-x: hidden;"
+  style="background-image: url('@/assets/wy/background.jpg'); background-size: cover; background-position: center; height: 100%; overflow-x: hidden;"
   >
     <!-- <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div> -->
     <!-- 错误信息和图片 -->
@@ -73,7 +73,7 @@ onMounted(() => {
     </div>
     <div v-else class="product-display">
       <div v-for="product in products" :key="product.productId" class="product-item" @click="goToProductDetail(product.productId)">
-        <img :src="'data:image/png;base64,' + product.productPic" :alt="product.productName" class="product-image" />
+        <img :src="product.productPics.length ? product.productPics[0].imageUrl : ''" :alt="product.productName" class="product-image" />
         <div class="product-info">
           <p class="product-price">
             <span class="special-price">价格</span> ¥{{ product.productPrice }}
@@ -97,6 +97,7 @@ onMounted(() => {
   padding-top: 20px;
   padding-left: 100px;
   padding-right: 100px;
+  background-image: url('@/assets/wy/background.jpg'); background-size: cover; background-position: center; height: 100%; overflow-x: hidden;
   
 }
 

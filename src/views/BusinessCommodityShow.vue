@@ -37,18 +37,31 @@
 
   <!-- 查看 -->
   <div v-if="dialogVisible" class="SettingPopUp">
-      <div v-if="currentProduct" class="SettingContent">
-        <span class="close" @click="dialogVisible = false">&times;</span>
-        <p>商品ID: {{ currentProduct.id }}</p>
-        <p>商品名称: {{ currentProduct.name }}</p>
-        <p>系统分类: {{ currentProduct.categorySys }}</p>
-        <p>商家分类: {{ currentProduct.categoryInit }}</p>
-        <p>商品价格: {{ currentProduct.price }}</p>
-        <p>是否出售: {{ currentProduct.isOnSale ? '是' : '否' }}</p>
-        <p>商品具体描述: {{ currentProduct.description}}</p>
-        <p>商品图片:
-          <img :src="currentProduct.image" alt="ProductImage" style="width: 200px; height: 200px;">
-        </p>
+      <div v-if="currentProduct">
+        <div class="container-block">
+          <img src="@/assets/mmy/blue_background.jpg">
+          <div class="inner-block">
+            <div class="slider-top-right">
+              <div class="picture-and-text">
+                <transition class="animate__animated animate__fadeInDown">
+                  <img class="picture":src="currentProduct.images" alt="ProductImage" >
+                </transition>
+                <transition class="animate__animated animate__fadeInUp">
+                  <div class="text">
+                    <span class="close" @click="dialogVisible = false">&times;</span>
+                    <h2>商品名称: {{ currentProduct.name }}</h2>
+                    <br>
+                    <p>系统分类: {{ getCategoryLabel(currentProduct.categorySys) }}</p>
+                    <p>商家分类: {{ currentProduct.categoryInit }}</p>
+                    <p>商品价格: {{ currentProduct.price }}</p>
+                    <p>是否出售: {{ currentProduct.isOnSale ? '是' : '否' }}</p>
+                    <p>商品具体描述: {{ currentProduct.description}}</p>
+                  </div>
+                </transition>
+              </div>
+            </div>
+          </div>
+        </div> 
       </div>
   </div>   
 
@@ -64,12 +77,18 @@
           </el-form-item>
           <el-form-item label="系统分类" prop="categorySys">
               <el-select v-model="preProduct.categorySys">
-                <el-option
-                  v-for="category in options"
-                  :key="category.value"
-                  :label="category.value"
-                  :value="category.value"
-                ></el-option>
+                <el-option-group
+        v-for="group in options"
+        :key="group.label"
+        :label="group.label"
+      >
+        <el-option
+          v-for="item in group.children"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value"
+        ></el-option>
+      </el-option-group>
               </el-select>
             </el-form-item>
             <el-form-item label="商家分类" prop="categoryInit">
@@ -89,27 +108,18 @@
           <el-form-item label="商品具体描述" prop="description">
             <el-input v-model="preProduct.description"></el-input>
           </el-form-item>
-          <el-form-item label="商品图片(.jpg)" prop="image">
+          <!-- <el-form-item label="商品图片(.jpg)" prop="image">
             <img :src="preProduct.image" alt="当前图片" v-if="preProduct.image" style="width: 200px; height: 200px;" />
             <input type="file" @change="(e) => onFileChange(e, 'preProduct')">
-          </el-form-item>
-          <el-form-item>
+          </el-form-item> -->
+          <div style="display: flex;justify-content: center;margin-top: 30px">
             <el-button type="primary" @click="onsubmit()">保存</el-button>
-            <el-button @click="dialogVisibleTwo = false">取消</el-button>
-          </el-form-item>
+            <el-button  type="primary"  @click="dialogVisibleTwo = false">取消</el-button>
+          </div>
     </el-form>
   </div>
   </div>   
 
-  <!-- <el-dialog title="商品详情" :visible.sync="dialogVisible">
-      <div v-if="currentProduct" > 
-        <p>商品ID: {{ currentProduct.id }}</p>
-        <p>商品名称: {{ currentProduct.name }}</p>
-        <p>商品分类: {{ currentProduct.category }}</p>
-        <p>商品价格: {{ currentProduct.price }}</p>
-        <p>是否出售: {{ currentProduct.isOnSale ? '是' : '否' }}</p>
-      </div>
-  </el-dialog>  -->
 
   <!-- 添加商品和批量删除按钮 -->
   <div id="BottomButton">
@@ -120,7 +130,7 @@
   <!-- 添加商品对话框 -->
   <div v-if="addDialogVisible" class="SettingPopUp">
     <div class="SettingContent">
-      <span class="close" @click="addDialogVisible = false">&times;</span>
+      <!-- <span class="close" @click="addDialogVisible = false">&times;</span> -->
       <el-form :model="newProduct" :rules="rules" ref="form"> 
         <el-form-item label="商品名称" prop="name">
           <el-input v-model="newProduct.name"></el-input>
@@ -147,25 +157,28 @@
         <el-form-item label="商品价格" prop="price">
           <el-input v-model.number="newProduct.price"></el-input>
         </el-form-item>
-        <el-form-item label="商品图片(.jpg)" prop="image">
-          <img :src="newProduct.image" alt="当前图片" v-if="newProduct.image" style="width: 200px; height: 200px;" />
-          <input type="file" @change="(e) => onFileChange(e, 'newProduct')">
-        </el-form-item>
         <el-form-item label="商品描述" prop="description">
           <el-input v-model="newProduct.description"></el-input>
         </el-form-item>
+        <el-form-item label="商品图片" prop="image">
+          <div v-if="newProduct.images.length > 0" class="image-preview">
+    <div v-for="(image, index) in newProduct.images" :key="index" class="image-item">
+      <img :src="image" alt="图片" style="width: 100px; height: 100px;display:flex" />
+    </div>
+  </div>
+  <input type="file" multiple @change="(e) => onFileChange(e, 'newProduct')">
+        </el-form-item>
 
-         <!-- 图片和文字的输入区域 -->
-         <el-form-item label="图片和文字">
+        <el-form-item label="瑕疵图文描述（图文一一对应）" prop="imagesWithText">
         <div v-for="(item, index) in newProduct.imagesWithText" :key="index" class="image-text-item">
-          <img :src="item.image" alt="图片" style="width: 50px; height: 50px;" />
+          <img :src="item.image" alt="图片" style="width: 50px; height: 50px; margin-right: 5px" />
           <p>{{ item.text }}</p>
         </div>
         <input type="file" @change="handleFileChange($event, 'newImage')">
-        <el-input v-model="newImageText" placeholder="输入图片描述"></el-input>
-        <el-button @click="addImageWithText(newImage, newImageText)">添加图片和文字</el-button>
+        <el-input   type="textarea"  :rows="4"  v-model="newImageText" placeholder="输入瑕疵文字描述"></el-input>
+       
+        <el-button   @click="addImageWithText(newImage, newImageText)">添加瑕疵图文描述</el-button>
       </el-form-item>
-
       </el-form>
       <el-button type="primary" @click="addNewProduct">添加</el-button>
       <el-button type="primary" @click="addDialogVisible = false">取消</el-button>
@@ -419,6 +432,18 @@ const fetchProductByTag = async (storeTag) => {
     ]
   }
 ];
+
+// 获取标签的方法
+const getCategoryLabel = (value) => {
+      for (const category of options) {
+        const found = category.children.find(child => child.value === value);
+        if (found) {
+          return found.label;
+        }
+      }
+      return '未知分类';
+    };
+
     const OnOrNot = [
       {value: true, label: '是'},
       {value: false, label: '否'}
@@ -431,6 +456,7 @@ const fetchProductByTag = async (storeTag) => {
       // console.log(currentProduct.value);
       dialogVisible.value = true;
       // console.log("Dialog visible:", dialogVisible.value);
+      console.log( currentProduct.value);
     };
 
     const rules = {
@@ -448,28 +474,48 @@ const fetchProductByTag = async (storeTag) => {
           }, trigger: 'blur' }],
       isOnSale: [{ required: true, message: '请选择是否出售', trigger: 'change' }],
       description: [{ required: true, message: '请输入商品描述', trigger: 'blur' }],
-      image: [{ required: true, message: '请上传商品图片', trigger: 'change' }]
+      // image: [{ required: true, message: '请上传商品图片', trigger: 'change' }],
+      images: [
+    { validator: (rule, value, callback) => {
+      if (value.length === 0) {
+        callback(new Error('请上传至少一张商品图片'));
+      } else {
+        callback();
+      }
+    }, trigger: 'change' }
+  ],
+      imagesWithText: [
+    { validator: (rule, value, callback) => {
+        if (!Array.isArray(value) || value.length === 0) {
+          callback(new Error('请添加至少一组瑕疵描述'));
+        } else {
+          callback();
+        }
+      }, trigger: 'change'
+    }
+  ]
     };
 
     const onFileChange = (event, target) => {
-      const file = event.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const base64Image = `data:image/jpeg;base64,${e.target.result.split(',')[1]}`;
-          if (target === 'newProduct') { 
-            newProduct.value.image = base64Image;
-          } else if (target === 'preProduct') {
-            preProduct.value.image = base64Image;
-          }
-        };
-        reader.readAsDataURL(file);
-      }
-    };
+  const files = event.target.files;
+  if (files && target === 'newProduct') {
+    Array.from(files).forEach(file => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const base64Image = `data:image/jpeg;base64,${e.target.result.split(',')[1]}`;
+        newProduct.value.images.push(base64Image); // 将 Base64 数据添加到 images 数组中
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+  else if(target === 'preProduct'){
+    preProduct.value.image = base64Image;
+  }
+};
    
     // 编辑
     const handleEdit = (item) => {
-      if (row.isOnSale) {
+      if (item.isOnSale) {
         ElMessage({
           message: '该商品已经出售，无法编辑',
           type: 'warning'
@@ -485,7 +531,7 @@ const fetchProductByTag = async (storeTag) => {
         price: item.price,
         // isOnSale: item.isOnSale,
         description: item.description,
-        image:item.image 
+        // image:item.image 
       };
       dialogVisibleTwo.value = true;
     };
@@ -493,26 +539,39 @@ const fetchProductByTag = async (storeTag) => {
     const onsubmit = async () => {
     editForm.value.validate(async (valid) => {
         if (valid) {
-          console.log('preProduct.image:', preProduct.value.image);
+          // console.log('preProduct.image:', preProduct.value.image);
             // 确保 productPic 是有效的 Base64 字符串或处理空情况
-            const productPic = preProduct.value.image ? preProduct.value.image.split(',')[1] : '';
-
-            const updatedProduct = {
-                productId: preProduct.value.id,
-                productName: preProduct.value.name,
-                productPrice: preProduct.value.price,
-                storeTag: preProduct.value.categoryInit,
-                tag: preProduct.value.categorySys,
-                description: preProduct.value.description,
-                productPic: productPic
-            };
+            // const productPic = preProduct.value.image ? preProduct.value.image.split(',')[1] : '';
+            // const updatedProduct = {
+            //     productId: preProduct.value.id,
+            //     productName: preProduct.value.name,
+            //     productPrice: preProduct.value.price,
+            //     storeTag: preProduct.value.categoryInit,
+            //     tag: preProduct.value.categorySys,
+            //     description: preProduct.value.description,
+            //     // productPic: productPic
+            // };
+            const formData = new FormData();
+            
+            // 将数据添加到 FormData 对象
+            formData.append('productId', preProduct.value.id);
+            formData.append('productName', preProduct.value.name);
+            formData.append('productPrice', preProduct.value.price);
+            formData.append('storeTag', preProduct.value.categoryInit);
+            formData.append('tag', preProduct.value.categorySys);
+            formData.append('description', preProduct.value.description);
             const userId = localStorage.getItem('userId'); 
             try {
                 // 发送请求到后端，storeId 作为查询参数传递
-                const response = await axiosInstance.put('/StoreViewProduct/editProduct', updatedProduct, {
+                // const response = await axiosInstance.put('/StoreViewProduct/editProduct', updatedProduct, {
+                //     params: {
+                //         storeId: userId // 替换为实际的 storeId
+                //     }
+                // });
+                const response = await axiosInstance.put('/StoreViewProduct/editProduct', formData, {
                     params: {
                         storeId: userId // 替换为实际的 storeId
-                    }
+                    },
                 });
 
                 // 处理响应
@@ -623,7 +682,7 @@ const fetchProductByTag = async (storeTag) => {
       categoryInit: '',
       price: null,
       description: '',
-      image: '',
+      images: [], // 存储多个商品图片
       imagesWithText: []
     });
     const newImage = ref('');
@@ -635,7 +694,8 @@ const newImageText = ref('');
         categoryInit: '',
         price: null,
         description: '',
-        image: ''
+        images: [], // 存储多个商品图片
+        imagesWithText: []
       };
       addDialogVisible.value = true;
     };
@@ -644,17 +704,26 @@ const newImageText = ref('');
   if (file) {
     const reader = new FileReader();
     reader.onload = (e) => {
-      newImage.value = e.target.result; // 获取完整的 Base64 字符串
+      const base64Image = `data:image/jpeg;base64,${e.target.result.split(',')[1]}`;// 获取完整的 Base64 字符串
+      newImage.value = base64Image; // 更新 newImage 的值
     };
     reader.readAsDataURL(file);
   }
 };
-
+const dataURLToBlob = (dataURL) => {
+  const [header, data] = dataURL.split(',');
+  const mime = header.match(/:(.*?);/)[1];
+  const binary = atob(data);
+  const array = [];
+  for (let i = 0; i < binary.length; i++) {
+    array.push(binary.charCodeAt(i));
+  }
+  return new Blob([new Uint8Array(array)], { type: mime });
+};
 const addImageWithText = () => {
   console.log('newImage:', newImage.value);
   console.log('newImageText:', newImageText.value);
   console.log('imagesWithText:', newProduct.value.imagesWithText);
-
   if (newImage.value && newImageText.value) {
     if (!Array.isArray(newProduct.value.imagesWithText)) {
       newProduct.value.imagesWithText = [];
@@ -669,53 +738,32 @@ const addImageWithText = () => {
     if (valid) {
       // 确保 productPic 是有效的 Base64 字符串或处理空情况
       const productPic = newProduct.value.image ? newProduct.value.image.split(',')[1] : '';
-      // const newProductData = {
-      //   productName: newProduct.value.name,
-      //   productPrice: newProduct.value.price,
-      //   Tag: newProduct.value.categoryInit,
-      //   Description: newProduct.value.description,
-      //   StoreTag: newProduct.value.categorySys,
-      //   ProductImages: productPic
-      // };
-       // 使用 FormData 处理文件上传
-      // 使用 URLSearchParams 处理数据
-      const params = new URLSearchParams();
-      params.append('ProductName', newProduct.value.name || '');
-      params.append('ProductPrice', newProduct.value.price || '');
-      params.append('Tag', newProduct.value.categoryInit || '');
-      params.append('Description', newProduct.value.description || '');
-      params.append('StoreTag', newProduct.value.categorySys || '');
-      params.append('ProductImages', productPic ? `data:image/jpeg;base64,${productPic}` : '');
-      
-      // 使用 Promise.all 处理所有文件
-      const promises = newProduct.value.imagesWithText.map((item, index) => {
-        return new Promise((resolve, reject) => {
-          // 确保 item.image 是 File 对象
-          console.log(item.image); // 确认 item.image 的实际内容
-          console.log(item.image instanceof File); // 确认 item.image 是否是 File 对象
-          if (item.image && item.image instanceof File) {
-            const reader = new FileReader();
-            reader.onloadend = function () {
-              const base64String = reader.result.split(',')[1]; // 获取 Base64 字符串部分
-              params.append(`PicDes[${index}].DetailPic`, base64String);
-              params.append(`PicDes[${index}].Description`, item.text);
-              resolve(); // 处理完成
-            };
-            reader.onerror = function () {
-              reject(new Error('Failed to read file'));
-            };
-            reader.readAsDataURL(item.image); // 读取文件并触发 onloadend
-          } else {
-            // 处理不符合预期的 item.image
-            reject(new Error('item.image is not a valid File object'));
-          }
-        });
+     
+      const formData = new FormData();
+      formData.append('ProductName', newProduct.value.name || '');
+      formData.append('ProductPrice', newProduct.value.price || '');
+      formData.append('StoreTag', newProduct.value.categoryInit || '');
+      formData.append('Description', newProduct.value.description || '');
+      formData.append('Tag', newProduct.value.categorySys || '');
+
+      // 主图
+      // if (newProduct.value.image) {
+      //   const productPicBlob = dataURLToBlob(newProduct.value.image);
+      //   formData.append('ProductImages', productPicBlob, 'product-image.jpg');
+      // }
+      // 上传多个图片
+      newProduct.value.images.forEach((image, index) => {
+        const imageBlob = dataURLToBlob(image);
+        formData.append(`ProductImages[${index}]`, imageBlob, `product-image${index}.jpg`);
       });
 
-      // 检查 URLSearchParams 内容
-      for (const [key, value] of params.entries()) {
-        console.log(`${key}: ${value}`);
-      }
+      // 图片和描述
+      newProduct.value.imagesWithText.forEach((item, index) => {
+        const detailPicBlob = dataURLToBlob(item.image);
+        formData.append(`PicDes[${index}].DetailPic`, detailPicBlob, `detail-image${index}.jpg`);
+        formData.append(`PicDes[${index}].Description`, item.text);
+      });
+
 
       const storeId = localStorage.getItem('userId');// 替换为实际的storeId
       if (!storeId) {
@@ -723,24 +771,14 @@ const addImageWithText = () => {
         return;
       }
       console.log('请求 URL:', `/StoreViewProduct/addProduct?storeId=${storeId}`);
+      // console.log(newProductData);
+      console.log(newProduct.value.categorySys);
 
       try {
-        // 发送请求到后端，storeId 作为查询参数传递
-        // const response = await axiosInstance.post(`/StoreViewProduct/addProduct`, newProductData, {
-        //   params: {
-        //     storeId: storeId
-        //   }
-        // });
-
-        const response = await axiosInstance.post(`/StoreViewProduct/addProduct?storeId=${storeId}`, params, {
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          params: { storeId: storeId } // 将 storeId 作为查询参数传递
+        const response = await axiosInstance.post(`/StoreViewProduct/addProduct?storeId=${storeId}`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+          params: { storeId: storeId }
         });
-
-        // const response = await axiosInstance.post(`/StoreViewProduct/addProduct`, params, {
-        //   headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        //   params: { storeId: storeId } // 将 storeId 作为查询参数传递
-        // });
 
         if (response.status === 200) {
           fetchProducts();
@@ -755,7 +793,7 @@ const addImageWithText = () => {
             price: null,
             isOnSale: null,
             description: '',
-            image: '',
+            images: [], // 存储多个商品图片
             imagesWithText:[]
           });
           addDialogVisible.value = false;
@@ -896,7 +934,8 @@ const deleteSelectedCommodities = async () => {
       filterProductsTag,
       onFileChange,
       addImageWithText,
-      handleFileChange
+      handleFileChange,
+      getCategoryLabel
     };
   }
 }
@@ -948,10 +987,11 @@ const deleteSelectedCommodities = async () => {
 }
 
 .SettingContent {
-  color: #065f43;
   background-color: #fefefe;
+  color: black;
   display: inline-block;
-  padding:5vh;
+  padding: 5vh;
+  border-radius: 20px;
 }
 
 .close {
@@ -985,5 +1025,173 @@ const deleteSelectedCommodities = async () => {
 .el-button--danger:hover {
     background-color: #8b2b2b;
     border-color: #8b2b2b;
+}
+
+.animate__animated.animate__fadeInUp{
+	--animate-duration: 1.5s;
+}
+.animate__animated.animate__fadeInDown{
+	--animate-duration: 1.5s;
+}
+.container-block {
+    overflow: hidden;
+    border-radius: 15px;
+	color: #fff;
+	display: inline-block;
+	margin: 2rem auto;
+	max-width: 60%;
+	position: relative;	
+	&::before {
+		/* 特别修改1 */
+        /* 企图用覆盖层的颜色改变原本背景色,并保留原本图案*/
+		/* background-color: rgba(59, 69, 109,0.3); */
+        background-color: rgba(250, 13, 40, 0.3);
+        /* background-color:#82111f; */
+		bottom: 0;
+		content: '';
+		display: block;
+		position: absolute;
+		top: 0;
+		width: 100%;
+	}
+	&:hover {
+		.inner-block:before,
+		.slider-top-right:after {
+			height: 100%;
+		}
+		.inner-block:after,
+		.slider-top-right:before {
+			width: 100%;
+		}
+	}
+	img {
+		display: block;
+		max-width: 100%;
+	}
+}
+
+.slider-top-right:before,
+.inner-block:after {
+	height: 2px;
+	transition: width .75s ease;
+	width: 0%;
+}
+
+.slider-top-right:after,
+.inner-block:before {
+	height: 0%;
+	transition: height .75s ease;
+	width: 2px;
+}
+
+.inner-block:before,
+.inner-block:after,
+.slider-top-right:before,
+.slider-top-right:after {
+	background-color: #fff;
+	content: '';
+	display: block;
+	position: absolute;
+}
+
+.inner-block {
+	font-size: 2em;
+	width: 90%;
+	height: 90%;
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	margin: auto;
+	&:before {
+		bottom: 0;
+		left: 0;
+	}
+	&:after {
+		bottom: 0;
+		right: 0;
+	}
+}
+
+.slider-top-right {
+	position: relative;
+	width: 100%;
+	height: 100%;
+	display: flex; /* 使用 Flexbox */
+	justify-content: center; /* 水平居中 */
+	align-items: center; /* 垂直居中 */
+	&:before {
+		top: 0;
+		left: 0;
+	}
+	&:after {
+		top: 0;
+		right: 0;
+	}
+}
+.picture-and-text{
+	width: 90%;
+	height:90%;
+	display: flex; 
+	flex-direction: row;
+}
+.picture{
+	width:50%;
+	border-radius: 20px;
+}
+.text{
+	/* 华文宋 */
+	width: 50%;
+	font-family: 'Noto Serif SC', serif;
+	font-size: 20px;
+	padding: 10px 10px 20px 20px;
+	overflow-y: auto; 
+	max-height: 100%; /* 限制最大高度为父容器高度 */
+	text-align: left;
+	
+}
+/* 特别修改2 */
+/* 自定义滚动条样式 */
+.text::-webkit-scrollbar {
+  width: 5px;
+}
+
+.text::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.text::-webkit-scrollbar-thumb {
+  background: #5f697a;
+  border-radius: 10px;
+}
+h2 {
+    font-size: 1.5em;
+    /* margin-block-start: 0.83em;
+    margin-block-end: 0.83em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px; */
+    font-weight: bold;
+    unicode-bidi: isolate;
+    color: #ecdada;
+    text-align: center;
+  }
+
+  .image-preview {
+  display: flex;
+  flex-wrap: wrap; /* 使图片在容器宽度不足时自动换行 */
+  gap: 10px; /* 图片之间的间距 */
+}
+
+.image-item {
+  display: flex;
+  align-items: center; /* 垂直居中对齐图片 */
+}
+
+.image-item img {
+  max-width: 100px; /* 控制图片最大宽度 */
+  max-height: 100px; /* 控制图片最大高度 */
+  object-fit: cover; /* 保持图片比例，并填充容器 */
 }
 </style>

@@ -13,7 +13,7 @@
                     appear
             >
             <div class="login_head" v-show="isLogin">
-              <h2>网站名字</h2>
+              <h2>瑕宝阁</h2>
               <p>专注于微瑕非物质文化遗产产品交易</p>
             </div>
 
@@ -440,8 +440,13 @@ html, body {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); /* 点击时的阴影效果 */
   transform: scale(0.95); /* 点击时缩小效果 */
 }
+
+:deep(.el-input__wrapper.is-focus) {
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.3);
+}
+
 :deep(.el-radio.is-checked .el-radio__inner) {
-  border-color: #82111f; /* 修改边框颜色 */
+  border-color: hwb(353 7% 49%); /* 修改边框颜色 */
   background-color: #82111f; /* 修改选中颜色 */
 }
 :deep(.el-radio .el-radio__label) {

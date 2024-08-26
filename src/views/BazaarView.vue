@@ -92,7 +92,8 @@ const formatDate = (dateString) => {
 <style scoped>
 /* 市集页面背景颜色和整体布局 */
 .market-page {
-  background-color: #bdaead;
+  /* background-color: #bdaead; */
+  background-image: url('@/assets/wy/background.jpg'); background-size: cover; background-position: center; height: 100%; overflow-x: hidden;
   padding: 20px;
   text-align: center;
   height: 100%;

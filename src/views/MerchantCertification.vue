@@ -8,7 +8,7 @@
         <hr>
         <div class="container">
           <h2>审核商家认证申请</h2>
-          <div>
+          <div class="table-content">
             <el-table :data="paginatedData">
               <el-table-column prop="storeId" label="商家账号"></el-table-column>
               <el-table-column prop="status" label="申请状态"></el-table-column>
@@ -57,7 +57,7 @@
 import AdminSidebarMenu from '../components/AdminSidebarMenu.vue'
 import AdminHeaderSec from '../components/AdminHeaderSec.vue'
 import { reactive, ref, computed, onMounted  } from 'vue';
-import { ElTable, ElTableColumn, ElPagination, ElButton, ElMessage, ElDialog } from 'element-plus';
+import { ElTable, ElTableColumn, ElPagination, ElButton, ElMessage, ElDialog, ElLoading } from 'element-plus';
 import 'element-plus/dist/index.css';
 import axiosInstance from '../components/axios';
 
@@ -66,8 +66,19 @@ const userId =localStorage.getItem('userId');
 const records = reactive([]);
 const message = ref('');
 const fetchRecords = async () => {
+  //加载缓冲
+  const loadingInstance = ElLoading.service({
+    lock: true,
+    text: '正在加载...',
+    target: '.table-content',
+  });
+
   try {
-    const response = await axiosInstance.get('/Administrator/GetAllAuthentication');
+    // const response = await axiosInstance.get('/Administrator/GetAllAuthentication');
+    const response = await axiosInstance.post('/Administrator/GetAllAuthentication', {
+      "adminId": userId
+    });
+
     records.splice(0, records.length, ...response.data);
     message.value = '已获取申请数据';
   } catch (error) {
@@ -76,7 +87,10 @@ const fetchRecords = async () => {
     } else {
       message.value = '获取数据失败';
     }
+    ElMessage.error('获取数据失败，请稍后再试');
   }
+
+  loadingInstance.close();
   console.log(message.value);
 };
 onMounted(() => {

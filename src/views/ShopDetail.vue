@@ -18,7 +18,12 @@
             </div>
           </div>
           <div class="favoriteButton">
-            <el-button @click="clickFavorite" >{{ isFavorite ? '已收藏' : '收藏' }}</el-button>
+            <el-button 
+              :class="isFavorite ? 'favorite-active' : 'favorite-inactive'" 
+              @click="clickFavorite" 
+            >
+              {{ isFavorite ? '已收藏' : '收藏' }}
+            </el-button>
           </div>
         </div>
 
@@ -62,7 +67,12 @@
                   class="product-item"
                 >
                   <div @click="handleProductClick(product.productId)">
-                    <img :src="product.productPic" :alt="product.productId" class="product-image" />
+                    <!-- <img :src="product.productPics.imageUrl" :alt="product.productId" class="product-image" /> -->
+                    <img 
+                      :src="product.productPics.length > 0 ? product.productPics[0].imageUrl : 'default-image-url.jpg'" 
+                      :alt="product.productId" 
+                      class="product-image" 
+                    />
                     <div class="product-text">
                       <h2>{{ product.productName }}</h2>
                       <p>价格: ¥{{ product.productPrice }}</p>
@@ -79,26 +89,32 @@
             <span style="font-family: Arial, sans-serif; font-size: 20px; font-weight: bold; text-align: left; display: block; margin-bottom: 13px;">
               用户评价
             </span>
-            <div 
-              v-for="remark in remarks" 
-              :key="remark.orderId" 
-              class="remarks">
-              <div class="remark-header">
-                <div class='remark-avatar'>
-                  <img :src="remark.buyerAvatar" :alt="buyerAvatar" class='remark-avatar'/>
+            <div v-if="remarks.length !== 0">
+              <div 
+                v-for="remark in remarks" 
+                :key="remark.orderId" 
+                class="remarks">
+                <div class="remark-header">
+                  <div class='remark-avatar'>
+                    <img :src="remark.buyerAvatar" :alt="buyerAvatar" class='remark-avatar'/>
+                  </div>
+                  <div class="remark-buyerName" style="font-size: 16px; font-weight: bold; "> {{ remark.buyerName }} </div>
                 </div>
-                <div class="remark-buyerName" style="font-size: 16px; font-weight: bold; "> {{ remark.buyerName }} </div>
+                <div class="remark-content">
+                  <div class="remark-score" style="font-size: 16px; text-align: left;">
+                    评分：{{ remark.orderScore }}
+                  </div>
+                  <div class="remark-text" style="font-size: 16px; text-align: left;">
+                    评价：{{ remark.orderRemark }}
+                  </div>
+                  <div class="splitLine"></div>
+                </div>
               </div>
-              <div class="remark-content">
-                <div class="remark-score" style="font-size: 16px; text-align: left;">
-                  评分：{{ remark.orderScore }}
-                </div>
-                <div class="remark-text" style="font-size: 16px; text-align: left;">
-                  评价：{{ remark.orderRemark }}
-                </div>
-                <div class="splitLine"></div>
-              </div>
-
+            </div>
+            <div v-else>
+              <span style="font-family: Arial, sans-serif; font-size: 20px; display: block; margin-bottom: 13px;">
+              暂无评价
+              </span>
             </div>
           </div>
         </div>
@@ -244,10 +260,10 @@ const fetchAllProducts = async () => {
       }
     });
     if (products.length > 0) {
-      products.splice(0, products.length);
+      products.splice(0, products.length);//清空数组
     }
     response.data.forEach(product => {
-      product.productPic = `data:image/png;base64,${product.productPic}`;
+      // product.productPic = `data:image/png;base64,${product.productPic}`;
       products.push(product);
     });
     message3.value = '已获取全部商品信息';
@@ -474,6 +490,18 @@ onMounted(() => {
   align-self: end;
 }
 
+.favorite-active {
+  background-color: #bdaead;
+  font-weight: bold;
+  color:#ffffff;
+}
+
+.favorite-inactive {
+  background-color: #c21f30;
+  font-weight: bold;
+  color: white;
+}
+
 .shop-content{
   align-items: flex-start;
   display: flex;
@@ -511,6 +539,12 @@ onMounted(() => {
   gap: 10px;
 }
 
+.search-box .el-button:hover{
+  background-color: #bdaead;
+  font-weight: bold;
+  color:#ffffff;
+}
+
 .sidebar {
   background-color: #fff;
   padding: 8px;
@@ -527,9 +561,15 @@ onMounted(() => {
 }
 
 .category.selected {
-  background-color: #bbd0ed;
+  background-color: #a61b29;
   font-weight: bold;
-  color:#7495c3;
+  color:#ffffff;
+}
+
+.category:hover {
+  background-color: #bdaead;
+  font-weight: bold;
+  color:#fff;
 }
 
 .product {
@@ -566,8 +606,7 @@ onMounted(() => {
 
 .product-image {
   width: 100%;
-  height: auto;
-  max-height: 150px;
+  height: 150px;
   object-fit: cover;
   border-radius: 5px;
   margin-bottom: 10px;
@@ -608,9 +647,15 @@ onMounted(() => {
 }
 
 .toggle-row .el-button.active {
-  background-color: #bbd0ed;
+  background-color: #a61b29;
   font-weight: bold;
-  color:#7495c3;
+  color:#fff;
+}
+
+.toggle-row .el-button:hover {
+  background-color: #bdaead;
+  font-weight: bold;
+  color:#fff;
 }
 
 .shop-remarks{
