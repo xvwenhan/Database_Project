@@ -2,7 +2,10 @@
   <Navbar />
   <div class="market-page">
     <div class="left-panel">
-      <h2 class="market-title" @click="goBackToMarketList">市集 > {{ marketTheme }}</h2>
+      <h2 class="market-title">
+        <span class="market-back" @click="goBackToMarketList">市集</span>
+        > {{ marketTheme }}
+      </h2>
       <div class="left-panel-bottom">
         <img src="@/assets/wy/market1.png" alt="市场图片1" class="market-image" style="position: absolute;top: 50px;"/>
         <p class="market-middle-text" >市集·{{ marketTheme }}</p>
@@ -21,7 +24,7 @@
       </div>
       <div class="product-display">
         <div v-for="product in products" :key="product.id" class="product-item" @click="goToProductDetail(product.id)">
-          <img :src="product.image" :alt="product.name" class="product-image" />
+          <img :src="product.productPics.length ? product.productPics[0].imageUrl : ''"  :alt="product.name" class="product-image" />
           <div class="product-info">
             <p class="product-price">
               <span class="special-price">特卖价</span> ¥{{ product.price }}
@@ -64,7 +67,7 @@ const fetchProducts = async (marketId) => {
       originalPrice: item.productPrice.toFixed(2),
       discount: (item.discount * 10).toFixed(1),
       description: item.description,
-      image: 'data:image/png;base64,' + item.productPic
+      productPics: item.productPics
     }));
   } catch (error) {
     console.error('Error fetching products:', error);
@@ -120,7 +123,7 @@ onMounted(() => {
   margin-top: 20px;
   cursor: pointer;
 }
-.market-title:hover {
+.market-back:hover {
   color: #a61b29;
 }
 

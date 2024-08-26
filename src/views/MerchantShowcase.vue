@@ -25,7 +25,7 @@
           </div>
           <div class="store-products">
             <div v-for="product in store.homeProducts" :key="product.productId" class="product-item">
-              <img :src="'data:image/png;base64,' + product.productPic" alt="Product Image" class="product-image" @click="goToProductDetail(product.productId)"/>
+              <img :src="product.productPics.length ? product.productPics[0].imageUrl : ''" alt="Product Image" class="product-image" @click="goToProductDetail(product.productId)"/>
               <p class="product-price">¥{{ product.productPrice }}</p>
             </div>
           </div>
@@ -161,17 +161,22 @@ onMounted(() => {
 
 
 .store-products {
-  display: flex;
+  display: grid;
   gap: 10px;
-  flex-wrap: wrap;
+  grid-template-columns: repeat(4, 1fr); /* 每行显示四个商品 */
+  justify-content: end; /* 将商品从右往左对齐 */
+  direction: rtl; /* 设置内容从右往左排列 */
+  width: 100%; /* 保持容器的宽度 */
 }
 
 .product-item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 150px;
+  direction: ltr; /* 保持商品内部从左到右的布局 */
 }
+
+
 
 .product-image {
   width: 150px; /* 固定图片宽度 */
