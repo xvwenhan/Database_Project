@@ -1,11 +1,12 @@
 <!-- 论坛的消息中心 -->
 <script setup lang="ts">
 import { ref, reactive } from 'vue';
-import { ElMenu,} from 'element-plus';
+import { ElMenu,ElMessage} from 'element-plus';
 import 'element-plus/dist/index.css';
 import axiosInstance from '../components/axios';
 import router from '@/router';
 const commentId=ref('');
+
 interface commentMessage {
   id:string;
   author: string;
@@ -24,6 +25,16 @@ const myCommentsMessageOld = ref<{
 }>({
   comments:[]
 });
+const mySubCommentsMessage = ref<{
+  comments: Array<commentMessage>
+}>({
+  comments:[]
+});
+const mySubCommentsMessageOld = ref<{
+  comments: Array<commentMessage>
+}>({
+  comments:[]
+});
 const fetchComment = async () => {
   axiosInstance.get(`/Post/my_new_comments`)
     .then(response => {
@@ -32,8 +43,8 @@ const fetchComment = async () => {
         myCommentsMessage.value = {
           comments: data.data.map(comment => ({
             id:comment.commentId||'',
-            author: comment.authorName || '',
-            time: comment.commentTime || '',
+            author: comment.authorName || '匿名',
+            time: convertToReadableTime(comment.commentTime) || '',
             content: comment.commentContent || '',
             postTitle:comment.postTitle||'',
           })),
@@ -56,8 +67,8 @@ const fetchCommentOld = async () => {
         myCommentsMessageOld.value = {
           comments: data.data.map(comment => ({
             id:comment.commentId||'',
-            author: comment.authorName || '',
-            time: comment.commentTime || '',
+            author: comment.authorName || '匿名',
+            time: convertToReadableTime(comment.commentTime) || '',
             content: comment.commentContent || '',
             postTitle:comment.postTitle||'',
           })),
@@ -72,6 +83,7 @@ const fetchCommentOld = async () => {
     });
 }
 fetchCommentOld();
+
 interface likeMessage {
   id: string;
   time: string;
@@ -90,7 +102,7 @@ const fetchLike = async () => {
         myLikeMessage.value = {
           likes: data.data.map(comment => ({
             id: comment.postId || '',
-            time: comment.postReleaseTime || '',
+            time: convertToReadableTime(comment.postReleaseTime) || '',
             postTitle:comment.postTitle||'',
           })),
         };
@@ -104,18 +116,19 @@ const fetchLike = async () => {
     });
 }
 fetchLike();
-const myPosts = ref<Array<{ id: string, title: string, time: string ,like:string,comment:string}>>([]);
-  const getMyPost = async () => {
+const myPosts = ref<Array<{ id: string, title: string, time: string ,like:string,comment:string,image:string}>>([]);
+const getMyPost = async () => {
   axiosInstance.get(`/Post/get_my_posts`)
     .then(response => {
         const data = response.data;
         if (data && Array.isArray(data.target_posts)) {
             myPosts.value = data.target_posts.map(post => ({
-                id: post.posT_ID || '',
-                title: post.posT_TITLE || '',
-                time: convertToReadableTime(post.releasE_TIME) || '',
-                like: post.numbeR_OF_LIKES || 0,
-                comment: post.numbeR_OF_COMMENTS || 0
+                id: post.postId || '',
+                title: post.postTitle || '',
+                time: convertToReadableTime(post.releaseTime) || '',
+                like: post.numberOfLikes || 0,
+                comment: post.numberOfComments || 0,
+                image:post.coverImageId.imageUrl,
             }));
             console.log("成功获得帖子");
         } else {
@@ -141,45 +154,98 @@ function convertToReadableTime(isoTime) {
     second: '2-digit'
   });
 }
-const option=ref('news');
+const fetchSubComment = async () => {
+  axiosInstance.get(`/Post/my_new_subcomments`)
+    .then(response => {
+      const data = response.data;
+       if (data && data.data) {
+        mySubCommentsMessage.value = {
+          comments: data.data.map(comment => ({
+            id:comment.commentId||'',
+            author: comment.authorName || '匿名',
+            time: convertToReadableTime(comment.commentTime) || '',
+            content: comment.commentContent || '',
+            postTitle:comment.commentedCommentId||'',
+          })),
+        };
+        console.log("成功获得二级评论");
+      } else {
+        console.error('Invalid data format.');
+      }
+    })
+    .catch(error => {
+      console.log("失败获得评论");
+    });
+}
+fetchSubComment();
+const fetchSubCommentOld = async () => {
+  axiosInstance.get(`/Post/my_read_subcomments`)
+    .then(response => {
+      const data = response.data;
+       if (data && data.data) {
+        mySubCommentsMessageOld.value = {
+          comments: data.data.map(comment => ({
+            id:comment.commentId||'',
+            author: comment.authorName || '匿名',
+            time: convertToReadableTime(comment.commentTime) || '',
+            content: comment.commentContent || '',
+            postTitle:comment.postTitle||'',
+          })),
+        };
+        console.log("成功获得评论过去");
+      } else {
+        console.error('Invalid data format.');
+      }
+    })
+    .catch(error => {
+      console.log("失败获得评论过去");
+    });
+}
+fetchSubCommentOld();
+// const option=ref('news');
 
-function myNews(){
-     option.value='news';
-};
-function myLikes(){
-  option.value='likes';
-};
-function myComments(){
-  option.value='comments';
-};
+// function myNews(){
+//      option.value='news';
+// };
+// function myLikes(){
+//   option.value='likes';
+// };
+// function myComments(){
+//   option.value='comments';
+// };
 
-const button = reactive([
-  { id: 1, text: 'like', background: 'src/assets/czw/back.svg', backgroundColor: 'transparent' },
+// const button = reactive([
+//   { id: 1, text: 'like', background: 'src/assets/czw/back.svg', backgroundColor: 'transparent' },
 
   
-]);
-const changeButtonColor = (button, isHovered) => {
-  if (isHovered) {
-    if(button.id==1)
-    button.backgroundColor = '#87c2a5'; // 设置鼠标悬停时的背景颜色
-    else if(button.id==2)
-    button.backgroundColor = '#5169e6'; 
-  } else {
-    button.backgroundColor = 'transparent'; // 恢复背景颜色为透明
-  }
-};
-const buttonClick = (button) => {
-  if(button.id==1){
-    router.push('/forum'); // 跳转回 /forum 页面
-  }
-};
+// ]);
+// const changeButtonColor = (button, isHovered) => {
+//   if (isHovered) {
+//     if(button.id==1)
+//     button.backgroundColor = '#87c2a5'; // 设置鼠标悬停时的背景颜色
+//     else if(button.id==2)
+//     button.backgroundColor = '#5169e6'; 
+//   } else {
+//     button.backgroundColor = 'transparent'; // 恢复背景颜色为透明
+//   }
+// };
+// const buttonClick = (button) => {
+//   if(button.id==1){
+//     router.push('/forum'); // 跳转回 /forum 页面
+//   }
+// };
 function markAsRead(id) {
   commentId.value=id;
+  console.log(commentId.value);
   isRead();
 }
 const isRead=async()=>{
   axiosInstance.post(`/Post/mark_comment/${ commentId.value}`).then(response => {
         console.log("成功已读");
+        ElMessage({
+        message: '已读',
+        type: 'success',
+        });
       }).catch(error => {
         console.log("失败已读");
       });
@@ -188,68 +254,198 @@ function viewPost(id,event)
 {
   localStorage.setItem('postId', id);
   localStorage.setItem('way', way.value);
+  // localStorage.setItem('option', String(option.value));
   router.push( 'viewpost'); // 跳转至 /viewpost 页面
 };
+
+const activeIndex = ref('1');
+const option=ref(1);
+// const storedValue = localStorage.getItem('option');
+// const option = ref(storedValue !== null ? parseInt(storedValue, 10) : 1);
+const menuItems = ref([
+  { index: 1, title: '我的帖子' },
+  { index: 2, title: '我的点赞' },
+  { index: 3, title: '回复我的帖子' },
+  { index: 4, title: '回复我的评论' },
+  { index: 5, title: '返回论坛' },
+
+]);
+const menuChange = (index:any) => {
+  activeIndex.value = index.toString();
+  option.value = parseInt(index);
+  if(option.value==5){
+    router.push('/forum'); // 跳转回 /forum 页面
+  }
+};
+
+function deletePost(id,event)
+{
+  event.stopPropagation(); // 停止事件传播
+  axiosInstance.delete('/Post/delete_post', {
+      params: {
+        postId:id
+      }
+   })
+  .then(response => {
+    console.log('删除:成功');
+    ElMessage({
+        message: '删除成功',
+        type: 'success',
+        });
+    }).catch(error => {
+      console.error('Error submitting return:', error);
+    });
+}
 </script>
 
 <template>
    <el-container>
-    <el-aside width="200px" style="background-color: rgb(238, 241, 246)">
-      <h2>消息中心</h2>
-    <el-menu :default-openeds="['1', '3']">
-      <el-menu-item index="1" @click="myNews">
-        <i class="el-icon-menu"></i>
-        <span slot="title">我的消息</span>
-      </el-menu-item>
-      <el-menu-item index="2"  @click="myComments">
-        <i class="el-icon-menu"></i>
-        <span slot="title">回复我的</span>
-      </el-menu-item>
-      <el-menu-item index="3"  @click="myLikes">
-        <i class="el-icon-menu"></i>
-        <span slot="title">我的点赞</span>
+    <el-aside width="18vh" style="background-color:  #82111f; ">
+  <div class="big-title" style="display: flex; justify-content: center; align-items: center; width: 100%;">
+    <img class="image" src="/src/assets/czw/aside.svg" alt="Original Image"  />
+    <span>消息</span>
+    <img class="flipped-image" src="/src/assets/czw/aside.svg" alt="Flipped Image" />
+  </div>
+  <div style="width: 100%;">
+    <el-menu
+      :default-active="activeIndex"
+      mode="vertical"
+      background-color="#ffffff"
+      text-color="black"
+      active-text-color="#d42517"
+      @select="menuChange"
+      style="width: 100%;"
+    >
+      <el-menu-item 
+        v-for="item in menuItems" 
+        :key="item.index" 
+        :index="item.index.toString()"
+        
+      >
+        <span class="el-icon-menu">{{ item.title }}</span>
       </el-menu-item>
     </el-menu>
-  </el-aside>
+  </div>
+</el-aside>
    <el-container>
     <el-header style="text-align: left">
-      <button :style="{ backgroundImage: `url(${button[0].background})`, 
+      <!-- <button :style="{ backgroundImage: `url(${button[0].background})`, 
         backgroundColor: button[0].backgroundColor }" @click="buttonClick(button[0])" class="back_button" 
-        @mouseover="changeButtonColor(button[0], true)" @mouseout="changeButtonColor(button[0], false)"></button>
-      <div v-if="option === 'news'" style="line-height: 6vh;">
-        <span style="font-size: 2vh; color: #333;">我的消息</span>
+        @mouseover="changeButtonColor(button[0], true)" @mouseout="changeButtonColor(button[0], false)"></button> -->
+      <div v-if="option === 1" style="line-height: 6vh;">
+        <span style="font-size: 2vh; color: #ffff; " >我的帖子</span>
       </div>
-      <div v-if="option === 'likes'" style="line-height: 6vh;">
-        <span style="font-size: 2vh; color: #333;">我的点赞</span>
+      <div v-if="option === 2" style="line-height: 6vh;">
+        <span style="font-size: 2vh; color: #ffff;">我的点赞</span>
       </div>
-      <div v-if="option === 'comments'" style="line-height: 6vh;">
-        <span style="font-size: 2vh; color: #333;">回复我的</span>
+      <div v-if="option === 3" style="line-height: 6vh;">
+        <span style="font-size: 2vh; color: #ffff;">回复我的帖子</span>
+      </div>
+      <div v-if="option === 4" style="line-height: 6vh;">
+        <span style="font-size: 2vh; color: #ffff;">回复我的评论</span>
       </div>
     </el-header>
     <el-menu>
-      <div v-if="option === 'news'">
-    <el-menu-item v-for="(anew, index) in  myPosts" :key="index">
-      <a class="post_title" href="#" @click="viewPost(anew.id)">{{ anew.title }}</a>
-      <div>{{ anew.title }}</div>
-      <div>{{ anew.time }}</div>
-    </el-menu-item>
+      <div v-if="option === 1">
+    <main class="main-content">
+    <div class="post-display">
+      <div v-for="(post, index) in myPosts" :key="index" class="post-item" @click="viewPost(post.id)">
+        <img :src="post.image" alt="Post Image" class="post-image" />
+        <a class="post-title">{{ post.title }}</a>
+        <p>发布时间: {{ post.time }}</p>
+        <el-button type="text" @click="deletePost(post.id,$event)" class="deleteButton">删除</el-button>
+      </div>
+    </div>
+  </main>
       </div>
 
-      <div v-if="option === 'likes'">
-    <el-menu-item v-for="(like, index) in  myLikeMessage.likes" :key="index">
-      <a class="post_title" href="#"  @click="viewPost(like.id)">{{ like.postTitle }}</a>
-      <div>{{ like.time }}</div>
-    </el-menu-item>
+      <div v-if="option === 2">
+        <main class="main-content">
+        <div class="post-display">
+      <div v-for="(like, index) in myLikeMessage.likes"  :key="index" class="post-item" @click="viewPost(like.id)">
+        <a class="post-title">{{ like.postTitle }}</a>
+        <p>点赞时间: {{ like.time }}</p>
+      </div>
+    </div>
+  </main>
       </div>
 
-      <div v-if="option === 'comments'">
-    <el-menu-item v-for="(comment, index) in  myCommentsMessage.comments" :key="index" @click="markAsRead(comment.id)">
-      <span class="new-comment-dot">&#8226;</span>
-      <div>{{ comment.content }} </div>
-    </el-menu-item>
-    <el-menu-item v-for="(comment, index) in  myCommentsMessageOld.comments" :key="index">
-      <div>{{ comment.content }} </div>
-    </el-menu-item>
+      <div v-if="option === 3">
+  <div class="container">
+    <el-row>
+      <el-col :span="24">
+        <div v-for="(comment, index) in myCommentsMessage.comments" :key="index" class="comment-item" @click="markAsRead(comment.id)">
+          <div>
+            <span class="author">{{ comment.author }}</span>
+            <span class="time">回复了我的帖子：{{ comment.postTitle }}</span>
+            <div class="comment-body">{{ comment.content }}</div>
+            <div class="time">{{ comment.time }}</div>
+          </div>
+          <div class="bottom-border"></div>
+        </div>
+      </el-col>
+    </el-row>
+  </div>
+  <div>
+          <el-row class="dashed-line-container">
+            <div class="dashed-line"></div>
+            <div class="message-text">历史消息</div>
+            <div class="dashed-line"></div>
+          </el-row>
+        </div>
+        <div class="container">
+    <el-row>
+      <el-col :span="24">
+        <div v-for="(comment, index) in myCommentsMessageOld.comments" :key="index" class="comment-item" >
+          <div>
+            <span class="author">{{ comment.author }}</span>
+            <span class="time">回复了我的帖子：{{ comment.postTitle }}</span>
+            <div class="comment-body">{{ comment.content }}</div>
+            <div class="time">{{ comment.time }}</div>
+          </div>
+          <div class="bottom-border"></div>
+        </div>
+      </el-col>
+    </el-row>
+  </div>
+      </div>
+      <div v-if="option === 4">
+        <div class="container">
+    <el-row>
+      <el-col :span="24">
+        <div v-for="(comment, index) in mySubCommentsMessage.comments" :key="index" class="comment-item" @click="markAsRead(comment.id)">
+          <div>
+            <span class="author">{{ comment.author }}</span>
+            <span class="time">回复了我的评论</span>
+            <div class="comment-body">{{ comment.content }}</div>
+            <div class="time">{{ comment.time }}</div>
+          </div>
+          <div class="bottom-border"></div>
+        </div>
+      </el-col>
+    </el-row>
+  </div>
+  <el-row class="dashed-line-container">
+            <div class="dashed-line"></div>
+            <div class="message-text">历史消息</div>
+            <div class="dashed-line"></div>
+          </el-row>
+        <div class="container">
+    <el-row>
+      <el-col :span="24">
+        <div v-for="(comment, index) in mySubCommentsMessageOld.comments" :key="index" class="comment-item">
+          <div>
+            <span class="author">{{ comment.author }}</span>
+            <span class="time">回复了我的评论</span>
+            <div class="comment-body">{{ comment.content }}</div>
+            <div class="time">{{ comment.time }}</div>
+          </div>
+          <div class="bottom-border"></div>
+        </div>
+      </el-col>
+    </el-row>
+
+      </div>
       </div>
   </el-menu>
 
@@ -263,10 +459,74 @@ function viewPost(id,event)
 </template>
 
 <style scoped>
+.deleteButton{
+  color: #82111f ;
+}
+.deleteButton:hover {
+  color: #d42517; /* 可选：根据需要更改文字颜色 */
+}
+.author{
+  font-size:large;
+  /* color: #808080; */
+}
+.time{
+  font-size: small;
+  color: #808080;
+}
+.container {
+  width: 100vh; /* 你可以根据需要调整宽度 */
+  margin: 0 auto; /* 居中显示 */
+  padding: 10px; /* 内边距 */
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+}
+
+.comment-item {
+  padding: 10px 0;
+}
+
+.comment-body {
+  font-size: 16px;
+  margin: 5px 0;
+}
+
+.comment-item div {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* 确保所有内容左对齐 */
+}
+
+.bottom-border {
+  width: 100vh;
+  border-bottom: 1px solid #ddd; /* 灰线颜色 */
+  margin-top: 10px;
+}
+.dashed-line-container {
+      display: flex;
+      align-items: center;
+      width: 95%;
+      margin-top: 20px; /* Optional: Adjust the margin */
+      margin-left: 4vh;
+    }
+    .dashed-line {
+      flex-grow: 1;
+      border-top: 1px dashed #000;
+      position: relative;
+      top: 1px;
+    }
+    .message-text {
+      padding: 0 10px;
+      background-color: white;
+      font-size: 14px; /* Optional: Adjust font size */
+      white-space: nowrap;
+    }
 .el-header {
-    background-color: #B3C0D1;
-    color: #333;
+    background-color: #82111f;
+    color: #ffffff;
     line-height: 18vh;
+    font-family: "华文中宋", sans-serif;
+    font-size: larger;
   }
   .back_button {
   float: left;
@@ -281,5 +541,112 @@ function viewPost(id,event)
 .new-comment-dot {
   color: red; /* 设置红色点的样式 */
   margin-right: 5px; /* 距离评论内容一定距离 */
+}
+.image {
+    width: 30px; /* 根据需求调整大小 */
+    height: auto;
+    /* transform: rotate(-90deg);*/
+  }
+  
+  .flipped-image {
+    width: 30px; /* 确保与第一张图一致 */
+    height: auto;
+    transform: scaleX(-1); /* 使用CSS进行垂直翻转 */
+
+  }
+  .big-title{
+    font-size:4vh;  /* 将字体大小设置为32像素 */
+    font-weight: bold; /* 可选：让文字加粗 */
+    text-align: center; /* 可选：使文字水平居中 */
+    margin: 20px 0; /* 可选：设置上下的外边距 */
+    font-family: "华文中宋", sans-serif;
+    color: #ffffff; /* 设置文字颜色为白色 */
+  }
+  .el-menu {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .el-menu-item {
+    position: relative;
+    transition: background-color 0.3s ease;
+  }
+  
+  .el-menu-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 0;
+    height: 100%;
+    background-color: #bdaead;
+    z-index: 0;
+    transition: width 0.3s ease;
+  }
+  
+  .el-menu-item:hover::before {
+    width: 100%;
+  }
+  
+  .el-menu-item > span {
+    position: relative;
+    z-index: 1; /* 确保文本始终在滑块上方 */
+    transition: color 0.3s ease;
+  }
+  
+  .el-menu-item:hover {
+    color: #ffffff;
+  }
+  .el-icon-menu{
+    font-size:2vh;
+    font-weight: bold; /* 可选：让文字加粗 */  
+    font-family: "华文中宋", sans-serif;
+  }
+  .main-content {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.main-content h1 {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+.post-title {
+  color: #000; /* 默认标题颜色 */
+  text-decoration: none;
+  transition: color 0.2s ease; /* 动画过渡效果 */
+  font-size: 20px;
+}
+.post-display {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.post-item {
+  flex: 0 0 30%;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.post-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+.post-image {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+.post-item p {
+  font-size: 16px;
+  margin: 0 0 10px;
 }
 </style>
