@@ -91,7 +91,8 @@ onMounted(() => {
 <style scoped>
 .market-page {
   display: flex;
-  background-color: #f7f4ed;
+  /* background-color: #f7f4ed; */
+  background-image: url('@/assets/wy/background.jpg'); background-size: cover; background-position: center; height: 100%; overflow-x: hidden;
   height: 100%;
   overflow: hidden;
 }

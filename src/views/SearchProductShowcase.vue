@@ -60,7 +60,7 @@ onMounted(() => {
     <p>搜索中，请稍候...</p>
   </div> -->
   <div 
-  style="background-color: #f7f4ed;height: 100%;overflow-x: hidden;"
+  style="background-image: url('@/assets/wy/background.jpg'); background-size: cover; background-position: center; height: 100%; overflow-x: hidden;"
   >
     <!-- <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div> -->
     <!-- 错误信息和图片 -->
@@ -97,6 +97,7 @@ onMounted(() => {
   padding-top: 20px;
   padding-left: 100px;
   padding-right: 100px;
+  background-image: url('@/assets/wy/background.jpg'); background-size: cover; background-position: center; height: 100%; overflow-x: hidden;
   
 }
 

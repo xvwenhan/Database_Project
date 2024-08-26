@@ -4,7 +4,7 @@
     <div class="loading-spinner"></div>
     <p>搜索中，请稍候...</p>
   </div> -->
-  <div style="background-color: #f7f4ed;height: 100%;overflow-x: hidden;">
+  <div style="background-image: url('@/assets/wy/background.jpg'); background-size: cover; background-position: center; height: 100%; overflow-x: hidden;">
     <!-- <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div> -->
     <div v-if="errorMessage" class="error-message-container">
       <div class="error-container">
@@ -98,6 +98,7 @@ onMounted(() => {
   gap: 20px;
   padding: 20px;
   align-items: center; /* 居中对齐 */
+  background-image: url('@/assets/wy/background.jpg'); background-size: cover; background-position: center; height: 100%; overflow-x: hidden;
 }
 
 .store-container {
