@@ -92,49 +92,52 @@ namespace NaviSearchController.Controllers
                                 EF.Functions.Like(s.STORE_NAME, $"%{likePattern}%"))
                     .ToListAsync();
 
-                var storeDtos = stores.Select(s => new
-                {
-                    StoreId = s.ACCOUNT_ID,
-                    StoreName = s.STORE_NAME,
-                    StoreScore = s.STORE_SCORE,
-                    StorePhoto =  _dbContext.ACCOUNTS
-                        .Where(p => p.ACCOUNT_ID == s.ACCOUNT_ID)
-                        .Select(p => p.PHOTO) // 假设 Photo 是账户表中的字段
-                        .FirstOrDefaultAsync(),
+                var storeDtos = stores
+                    .AsEnumerable() // 将查询结果加载到内存中
+                    .Select(s => new
+                    {
+                        StoreId = s.ACCOUNT_ID,
+                        StoreName = s.STORE_NAME,
+                        StoreScore = s.STORE_SCORE,
+                        StorePhoto = _dbContext.ACCOUNTS
+                            .Where(p => p.ACCOUNT_ID == s.ACCOUNT_ID)
+                            .Select(p => p.PHOTO)
+                            .FirstOrDefault(), // 这里不再是异步调用
 
-                    HomeProducts = _dbContext.PRODUCTS
-                        .Where(p => p.ACCOUNT_ID == s.ACCOUNT_ID && !p.SALE_OR_NOT)
-                        .Take(4)
-                        .Select(p => new
-                        {
-                            ProductId = p.PRODUCT_ID,
-                            ProductName = p.PRODUCT_NAME,
-                            ProductPrice = p.PRODUCT_PRICE,
-                            ProductPics = _dbContext.PRODUCT_IMAGES
-                                .Where(img => img.PRODUCT_ID == p.PRODUCT_ID)
-                                .Select(img => new ImageModel
-                                {
-                                    ImageId = img.IMAGE_ID
-                                })
-                                .ToList(),//修改首页图
-                            ProductDes = _dbContext.PRODUCT_DETAILS
-                                .Where(img => img.PRODUCT_ID == p.PRODUCT_ID)
-                                .Select(img => new ShowPicDes
-                                {
-                                    Description = img.DESCRIPTION,
-                                    DetailPic = new ImageModel
+                        HomeProducts = _dbContext.PRODUCTS
+                            .Where(p => p.ACCOUNT_ID == s.ACCOUNT_ID && !p.SALE_OR_NOT)
+                            .Take(4)
+                            .Select(p => new
+                            {
+                                ProductId = p.PRODUCT_ID,
+                                ProductName = p.PRODUCT_NAME,
+                                ProductPrice = p.PRODUCT_PRICE,
+                                ProductPics = _dbContext.PRODUCT_IMAGES
+                                    .Where(img => img.PRODUCT_ID == p.PRODUCT_ID)
+                                    .Select(img => new ImageModel
                                     {
                                         ImageId = img.IMAGE_ID
-                                    }
-                                })
-                                .ToList(),//修改图文详情
-                        }).ToList()
-                })
-                .OrderByDescending(s => s.StoreName == keyword)
-                .ThenByDescending(s => s.StoreName.StartsWith(keyword))
-                .ThenBy(s => s.StoreName.Contains(keyword))
-                .ThenBy(s => s.StoreName.IndexOf(keyword))
-                .ToList();
+                                    })
+                                    .ToList(), // 修改首页图
+                                ProductDes = _dbContext.PRODUCT_DETAILS
+                                    .Where(img => img.PRODUCT_ID == p.PRODUCT_ID)
+                                    .Select(img => new ShowPicDes
+                                    {
+                                        Description = img.DESCRIPTION,
+                                        DetailPic = new ImageModel
+                                        {
+                                            ImageId = img.IMAGE_ID
+                                        }
+                                    })
+                                    .ToList(), // 修改图文详情
+                            })
+                            .ToList()
+                    })
+                    .OrderByDescending(s => s.StoreName == keyword)
+                    .ThenByDescending(s => s.StoreName.StartsWith(keyword))
+                    .ThenBy(s => s.StoreName.Contains(keyword))
+                    .ThenBy(s => s.StoreName.IndexOf(keyword))
+                    .ToList();
 
                 if (!storeDtos.Any())
                 {

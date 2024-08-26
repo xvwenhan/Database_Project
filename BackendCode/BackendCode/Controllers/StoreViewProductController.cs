@@ -192,17 +192,6 @@ namespace StoreViewProductController.Controllers
             if (!string.IsNullOrEmpty(updatedProduct.Tag)) product.TAG = updatedProduct.Tag;
             if (!string.IsNullOrEmpty(updatedProduct.Description)) product.DESCRIBTION = updatedProduct.Description;
 
-/*            if (!string.IsNullOrEmpty(updatedProduct.ProductPic))
-            {
-                try
-                {
-                    product.PRODUCT_PIC = Convert.FromBase64String(updatedProduct.ProductPic);
-                }
-                catch (FormatException)
-                {
-                    return BadRequest("Invalid Base64 string for PRODUCT_PIC.");
-                }
-            }*/  ///////////////////////////备注：暂时不修改首页图和详情图等。可以另写接口
 
             if (!string.IsNullOrEmpty(updatedProduct.StoreTag)) product.STORE_TAG = updatedProduct.StoreTag;
 
@@ -372,6 +361,170 @@ namespace StoreViewProductController.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+
+        [HttpGet("getProductImages/{productId}")]
+        [Authorize]
+        public async Task<IActionResult> GetProductImages(string productId)
+        {
+            try
+            {
+                var images = await _dbContext.PRODUCT_IMAGES
+                    .Where(p => p.PRODUCT_ID == productId)
+                    .Select(p => new
+                    {
+                        ImageId = p.IMAGE_ID,
+                        Image = p.IMAGE
+                    })
+                    .ToListAsync();
+
+                if (images == null || !images.Any())
+                {
+                    return NotFound("No images found for the given product ID.");
+                }
+
+                return Ok(images);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [HttpDelete("deleteProductImage/{productId}/{imageId}")]
+        [Authorize]
+        public async Task<IActionResult> DeleteProductImage(string productId, string imageId)
+        {
+            try
+            {
+                var image = await _dbContext.PRODUCT_IMAGES
+                    .FirstOrDefaultAsync(p => p.PRODUCT_ID == productId && p.IMAGE_ID == imageId);
+
+                if (image == null)
+                {
+                    return NotFound("Image not found for the given product ID and image ID.");
+                }
+
+                _dbContext.PRODUCT_IMAGES.Remove(image);
+                await _dbContext.SaveChangesAsync();
+
+                return Ok("Image deleted successfully.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [HttpPost("addProductImage/{productId}")]
+        [Authorize]
+        public async Task<IActionResult> AddProductImage(string productId, [FromForm] List<IFormFile> images)
+        {
+            try
+            {
+                if (images == null || !images.Any())
+                {
+                    return BadRequest("No images uploaded.");
+                }
+
+                foreach (var image in images)
+                {
+                    using (var ms = new MemoryStream())
+                    {
+                        string imageId = YitIdHelper.NextId().ToString(); // 生成唯一的 IMAGE_ID
+                        await image.CopyToAsync(ms); // 将图片拷贝到内存流中
+                        var imageData = ms.ToArray(); // 转换为字节数组
+
+                        // 新增到 PRODUCT_IMAGES 表
+                        var productImage = new PRODUCT_IMAGE
+                        {
+                            PRODUCT_ID = productId,
+                            IMAGE_ID = imageId,
+                            IMAGE = imageData
+                        };
+                        _dbContext.PRODUCT_IMAGES.Add(productImage);
+
+                        // 同时新增到 PRODUCT_DETAILS 表
+                        var productDetail = new PRODUCT_DETAIL
+                        {
+                            IMAGE_ID = imageId,
+                            PRODUCT_ID = productId,
+                            IMAGE = imageData,
+                            DESCRIPTION = null // 默认描述为空
+                        };
+                        _dbContext.PRODUCT_DETAILS.Add(productDetail);
+                    }
+                }
+
+                await _dbContext.SaveChangesAsync(); // 保存更改到数据库中
+
+                return Ok("Images added and details updated successfully.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+
+        [HttpGet("getProductDescription")]
+        [Authorize]
+        public async Task<IActionResult> GetProductDescription(string imageId)
+        {
+            try
+            {
+                var productDetails = await _dbContext.PRODUCT_DETAILS
+                    .Where(p => p.IMAGE_ID == imageId)
+                    .ToListAsync();
+
+                if (productDetails == null || !productDetails.Any())
+                {
+                    return NotFound("No details found for the given product ID.");
+                }
+
+                var descriptions = productDetails.Select(pd => new
+                {
+                    pd.DESCRIPTION
+                }).ToList();
+
+                return Ok(descriptions);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+        public class UpdateDescriptionRequest
+        {
+            public string ImageId { get; set; }
+            public string Description { get; set; }
+        }
+
+        [HttpPost("updateProductDescription")]
+        [Authorize]
+        public async Task<IActionResult> UpdateProductDescription([FromBody] UpdateDescriptionRequest request)
+        {
+            try
+            {
+                var detail = await _dbContext.PRODUCT_DETAILS
+                    .FirstOrDefaultAsync(p => p.IMAGE_ID == request.ImageId);
+
+                if (detail == null)
+                {
+                    return NotFound("No details found for the given image ID.");
+                }
+
+                detail.DESCRIPTION = request.Description;
+
+                await _dbContext.SaveChangesAsync();
+
+                return Ok("Product description updated successfully.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
     }
 }
 
