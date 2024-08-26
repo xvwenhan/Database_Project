@@ -347,7 +347,8 @@
   }
   
   .active-link {
-    border: 1px solid #fff;
+    border-top: 1px solid #fff;
+    border-bottom: 1px solid #fff;
   }
   #TEnd1 {
     margin-right: 80px;
