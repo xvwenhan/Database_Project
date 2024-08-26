@@ -85,6 +85,7 @@
 
       <swiper-slide>
       <div class="page2">
+        
           <transition 
           v-show="activeSlideIndex === 1"
           appear
@@ -97,6 +98,9 @@
           class="animate__animated animate__slideInUp">
           <img src="@/assets/mmy/fan_down.png" class="fan_down">
           </transition>
+
+
+
       </div>
       </swiper-slide>
 
@@ -240,9 +244,23 @@ function navigateTo(link) {
   router.push(link);
 }
 
+document.querySelectorAll('.icon').forEach(icon => {
+            icon.addEventListener('click', () => {
+                icon.classList.add('shake');
+                // Remove the class after animation ends
+                setTimeout(() => {
+                    icon.classList.remove('shake');
+                }, 500); // Match the duration of the animation
+            });
+        });
 </script>
   
 <style scoped>
+
+
+
+
+
 div {
   user-select: none;
   outline: none; 

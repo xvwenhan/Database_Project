@@ -2,6 +2,11 @@
 import Navbar from '../components/Navbar.vue';
 import { ref, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { Swiper, SwiperSlide } from 'swiper/vue';
+import 'swiper/css';
+
+import 'animate.css';
+import { METHODS } from 'http';
 
 const categories = [
   { id: 1, name: '服装' },
@@ -10,6 +15,10 @@ const categories = [
   { id: 4, name: '工艺品' },
   { id: 5, name: '小物件' },
 ];
+
+
+
+
 
 const products = ref([
   { id: 1, name: '景泰蓝花瓶', category: 4, price: 199, image: '/src/assets/example1.png' },
@@ -57,48 +66,58 @@ const totalPages = computed(() => {
   return Math.ceil(totalItems / itemsPerPage);
 });
 
-const isProductFavorite = (product) => {
-  return favorites.value.some(fav => fav.id === product.id);
-};
-
-const addToFavorites = (product) => {
-  if (!isProductFavorite(product)) {
-    favorites.value.push(product);
-    localStorage.setItem('favorites', JSON.stringify(favorites.value));
-    alert(`${product.name} 已加入收藏夹`);
-  }
-};
-
-const removeFromFavorites = (product) => {
-  const index = favorites.value.findIndex(p => p.id === product.id);
-  if (index !== -1) {
-    favorites.value.splice(index, 1);
-    localStorage.setItem('favorites', JSON.stringify(favorites.value));
-    alert(`${product.name} 已从收藏夹移除`);
-  }
-};
-
-const handleFavoriteToggle = (product) => {
-  if (isProductFavorite(product)) {
-    removeFromFavorites(product);
-  } else {
-    addToFavorites(product);
-  }
-};
 
 const goToPage = (pageNumber) => {
   if (pageNumber >= 1 && pageNumber <= totalPages.value) {
     currentPage.value = pageNumber;
   }
 };
+
+const typeChange = (id) =>{
+  router.push(`/merchandise/${id.toString()}`);
+  //使界面下滑 xx px
+  window.scrollBy(0,750);
+}
 </script>
 
 <template>
+    <swiper-slide>
+      <div class="page1">
   <Navbar />
   
+          <div class="container">
+  <div class="card green" style="top: 200px;" @click="typeChange(1)">
+  
+    <img src="/src/assets/mmy/工艺品.png" alt="首饰">
+    <p>首饰</p>
+    
+  </div>
+  <div class="card blue" style="top: 250px;"@click="typeChange(2)">
+    <img src="/src/assets/mmy/家具.png" alt="家具">
+    <p>家具</p>
+  </div>
+  <div class="card beige" style="top: 150px;"@click="typeChange(3)">
+    <img src="/src/assets/mmy/服装.png" alt="服装">
+    <p>服装</p>
+  </div>
+  <div class="card purple" style="top: 230px;"@click="typeChange(4)">
+    <img src="/src/assets/mmy/首饰.png" alt="工艺品">
+    <p>工艺品</p>
+  </div>
+  <div class="card red" style="top: 180px;"  @click="typeChange(5)">
+    <img src="/src/assets/mmy/小物件.png" alt="小物件">
+    <p>小物件</p>
+  </div>
+</div>
+
+      </div>
+      </swiper-slide>
+
+
   <div class="merchandise-container">
-    <aside class="sidebar">
-      <h2>分类</h2>
+    
+    <aside class="sidebar" v-show="false">
+     
       <ul>
         <li v-for="category in categories" :key="category.id"
             :class="{ 'category-block': true, 'active': selectedCategory === category.id.toString() }"
@@ -106,35 +125,23 @@ const goToPage = (pageNumber) => {
           {{ category.name }}
         </li>
       </ul>
-      <!-- 收藏夹按钮 -->
-      <div class="favorites-section">
-        <button @click="showFavoritesDropdown = !showFavoritesDropdown" class="favorites-button">
-          收藏夹
-          <i :class="showFavoritesDropdown ? 'fa fa-chevron-up' : 'fa fa-chevron-down'"></i>
-        </button>
-        <div v-if="showFavoritesDropdown" class="favorites-dropdown">
-          <ul>
-            <li v-for="product in favorites" :key="product.id">
-              {{ product.name }}
-              <button @click="removeFromFavorites(product)">
-  &#x2716;
-</button>
-            </li>
-          </ul>
-        </div>
-      </div>
+  
+   
+      
+
+    
     </aside>
     
     <main class="main-content">
-      <h1>{{ selectedCategoryName }}</h1>
+      <!-- <h1>{{ selectedCategoryName }}</h1> -->
       <div class="product-display">
         <div v-for="product in filteredProducts" :key="product.id" class="product-item">
           <img :src="product.image" :alt="product.name" class="product-image" />
           <h2>{{ product.name }}</h2>
           <p>价格: ¥{{ product.price }}</p>
-          <button @click="handleFavoriteToggle(product)">
-            {{ isProductFavorite(product) ? '取消收藏夹' : '加入收藏夹' }}
-          </button>
+      
+           
+        
         </div>
       </div>
 
@@ -146,15 +153,95 @@ const goToPage = (pageNumber) => {
       </div>
     </main>
   </div>
+
+
+
+ 
+
 </template>
 
+
 <style scoped>
+ 
+
+.container {
+  display: flex;
+  justify-content: center; /* 水平居中对齐 */
+ 
+  /* align-items: center; */
+  height: 100vh; /* 使容器高度为视口高度 */
+  z-index: 9999;
+}
+
+.card {
+  width: 150px;
+  height: 250px;
+  margin: 0px;
+  background-color: #fff;
+
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  position: relative;
+  z-index: 9999;
+}
+
+
+.card:hover {
+    transform: translateY(-10px); 
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+}
+
+.card img {
+  width: 80px; 
+  height: 80px;
+  margin-top: 20px;
+}
+
+.card p {
+  font-size: 18px;
+  color: #333;
+  margin-top: 10px;
+}
+
+
+
+.card:hover .icon {
+    animation: shake 0.5s; /* 应用晃动动画 */
+}
+
+/* 图标晃动效果 */
+@keyframes shake {
+    0% { transform: rotate(0deg); }
+    25% { transform: rotate(10deg); }
+    50% { transform: rotate(0deg); }
+    75% { transform: rotate(-10deg); }
+    100% { transform: rotate(0deg); }
+}
+
+.green {  background-image: url('@/assets/categories/b1.png');    background-size: cover; }
+.blue { background-image: url('@/assets/categories/b4.png');    background-size: cover; }
+.beige { background-image: url('@/assets/categories/b7.png');    background-size: cover; }
+.purple { background-image: url('@/assets/categories/b9.png');    background-size: cover; }
+.red { background-image: url('@/assets/categories/b10.png');    background-size: cover; }
+
+
+.page1 {
+  background-color: #f0f0f0;
+  background-image: url('@/assets/categories/背景图.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  height: 100vh;
+}
+
+
 
 
 html, body {
   height: 100%;
   margin: 0;
   overflow: hidden;
+ 
 }
 
 .header {
@@ -165,154 +252,63 @@ html, body {
   background-color: #a8a8a8;
 }
 
-.search-bar {
-  display: flex;
-  align-items: center;
-}
 
-.search-bar input {
-  padding: 5px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-}
 
-.search-bar button {
-  padding: 5px 10px;
-  margin-left: 5px;
-  background-color: #fff;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
 
-.user-actions {
-  display: flex;
-  align-items: center;
-}
 
-.user-actions div {
-  margin-left: 10px;
-  cursor: pointer;
-  color: white;
-}
 
-.dropdown-menu {
-  position: absolute;
-  top: 60px; /* Adjust according to your header height */
-  right: 10px; /* Adjust according to your layout */
-  background-color: white;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.dropdown-menu ul {
-  list-style: none;
-  padding: 10px;
-  margin: 0;
-}
-
-.dropdown-menu li {
-  padding: 5px 10px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.dropdown-menu li button {
-  background-color: transparent;
-  border: none;
-  cursor: pointer;
-}
 
 .merchandise-container {
   display: flex;
   height: 100vh;
+  background-image: url('@/assets/categories/背景图.jpg');
 }
 
 .sidebar {
   flex: 0 0 200px;
-  background-color: #f8f8f8;
+  background-color: #003366; /* 深蓝色背景 */
+  color: #ffffff; /* 白色文本 */
   padding: 20px;
-  box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+  box-shadow: 2px 0 10px rgba(0,0,0,0.2); /* 更明显的阴影 */
+  display: flex;
+  flex-direction: column;
 }
 
 .sidebar h2 {
   font-size: 24px;
-  margin-bottom: 10px;
+  margin-bottom: 20px;
+  color: #e0e0e0; /* 较浅的颜色，提升对比度 */
 }
 
 .sidebar ul {
   list-style: none;
   padding: 0;
-}
-
-.sidebar .category-block {
-  padding: 10px;
-  margin-bottom: 10px;
-  background-color: #fff;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.sidebar .category-block.active {
-  background-color: #c8e1ff;
-}
-
-.sidebar .category-block:hover {
-  background-color: #eaeaea;
-}
-
-.favorites-section {
-  margin-top: 20px;
-}
-
-.favorites-button {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  padding: 10px;
-  background-color: #fff;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.favorites-button:hover {
-  background-color: #eaeaea;
-}
-
-.favorites-dropdown {
-  margin-top: 10px;
-  padding: 10px;
-  background-color: #fff;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  max-height: 200px;
-  overflow-y: auto;
-}
-
-.favorites-dropdown ul {
-  list-style: none;
-  padding: 0;
   margin: 0;
 }
 
-.favorites-dropdown li {
-  padding: 5px 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.sidebar .category-block {
+  padding: 12px;
+  margin-bottom: 12px;
+  background-color: #004080; /* 稍浅的深蓝色背景 */
+  border-radius: 8px; /* 更大的圆角 */
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.3s; /* 增加平滑的过渡效果 */
+  color: #ffffff; /* 白色文本 */
 }
 
-.favorites-dropdown li button {
-  background-color: transparent;
-  border: none;
-  cursor: pointer;
+.sidebar .category-block.active {
+  background-color: #00509e; /* 更亮的蓝色用于高亮显示 */
 }
+
+.sidebar .category-block:hover {
+  background-color: #003d66; /* 悬停时的背景颜色 */
+  transform: scale(1.02); /* 添加缩放效果 */
+}
+
+
+
+
+
 
 .main-content {
   flex: 1;
@@ -388,4 +384,19 @@ html, body {
 .pagination button:hover:not(:disabled) {
   background-color: #f0f0f0;
 }
+
+.animate__animated.animate__slideInUp{
+--animate-duration: 1.2s;
+animation-delay: 0.5s;
+}
+.animate__animated.animate__slideInDown{
+--animate-duration: 1.2s;
+animation-delay: 0.5s;
+}
+
+.swiper {
+width: 100%;
+height: 100%;
+}
+
 </style>

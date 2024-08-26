@@ -257,8 +257,12 @@ const router = createRouter({
       path:'/3',
       name:'3',
       component: () => import('../views/templates/3.vue')
+    },
+    {
+      path:'/load',
+      name:'load',
+      component: () => import('../views/templates/load.vue')
     }
-
   ]
 })
 export default router
