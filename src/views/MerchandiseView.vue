@@ -2,11 +2,8 @@
 import Navbar from '../components/Navbar.vue';
 import { ref, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { Swiper, SwiperSlide } from 'swiper/vue';
-import 'swiper/css';
-
-import 'animate.css';
 import { METHODS } from 'http';
+import axiosInstance from '../components/axios';
 
 const categories = [
   { id: 1, name: '服装' },
@@ -133,7 +130,7 @@ const typeChange = (id) =>{
     </aside>
     
     <main class="main-content">
-      <!-- <h1>{{ selectedCategoryName }}</h1> -->
+     
       <div class="product-display">
         <div v-for="product in filteredProducts" :key="product.id" class="product-item">
           <img :src="product.image" :alt="product.name" class="product-image" />
