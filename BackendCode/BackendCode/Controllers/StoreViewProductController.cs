@@ -396,6 +396,7 @@ namespace StoreViewProductController.Controllers
         {
             try
             {
+                // 查找要删除的图片
                 var image = await _dbContext.PRODUCT_IMAGES
                     .FirstOrDefaultAsync(p => p.PRODUCT_ID == productId && p.IMAGE_ID == imageId);
 
@@ -404,8 +405,19 @@ namespace StoreViewProductController.Controllers
                     return NotFound("Image not found for the given product ID and image ID.");
                 }
 
+                // 删除图片
                 _dbContext.PRODUCT_IMAGES.Remove(image);
                 await _dbContext.SaveChangesAsync();
+
+                // 检查该 productId 是否还有其他图片
+                var hasMoreImages = await _dbContext.PRODUCT_IMAGES
+                    .AnyAsync(p => p.PRODUCT_ID == productId);
+
+                if (!hasMoreImages)
+                {
+                    // 如果没有剩余图片，返回401状态码
+                    return Unauthorized("Image deleted successfully. No more images left for this product.");
+                }
 
                 return Ok("Image deleted successfully.");
             }
@@ -414,6 +426,8 @@ namespace StoreViewProductController.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+
+
 
         [HttpPost("addProductImage/{productId}")]
         [Authorize]
@@ -455,7 +469,113 @@ namespace StoreViewProductController.Controllers
             }
         }
 
+        //详情图
+        [HttpGet("getDetailImages/{productId}")]
+        [Authorize]
+        public async Task<IActionResult> GetDetailImages(string productId)
+        {
+            try
+            {
+                var images = await _dbContext.PRODUCT_DETAILS
+                    .Where(p => p.PRODUCT_ID == productId)
+                    .Select(p => new ImageModel
+                    {
+                        ImageId = p.IMAGE_ID
+                    })
+                    .ToListAsync();
 
+                if (images == null || !images.Any())
+                {
+                    return NotFound("No images found for the given product ID.");
+                }
+
+                return Ok(images);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+
+        [HttpDelete("deleteDetailImage/{productId}/{imageId}")]
+        [Authorize]
+        public async Task<IActionResult> DeleteDetailImage(string productId, string imageId)
+        {
+            try
+            {
+                // 查找要删除的图片
+                var image = await _dbContext.PRODUCT_DETAILS
+                    .FirstOrDefaultAsync(p => p.PRODUCT_ID == productId && p.IMAGE_ID == imageId);
+
+                if (image == null)
+                {
+                    return NotFound("Image not found for the given product ID and image ID.");
+                }
+
+                // 删除图片
+                _dbContext.PRODUCT_DETAILS.Remove(image);
+                await _dbContext.SaveChangesAsync();
+
+                // 检查该 productId 是否还有其他图片
+                var hasMoreImages = await _dbContext.PRODUCT_DETAILS
+                    .AnyAsync(p => p.PRODUCT_ID == productId);
+
+                if (!hasMoreImages)
+                {
+                    // 如果没有剩余图片，返回401状态码
+                    return Unauthorized("Image deleted successfully. No more images left for this product.");
+                }
+
+                return Ok("Image deleted successfully.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+
+
+        [HttpPost("addDetailImage/{productId}")]
+        [Authorize]
+        public async Task<IActionResult> AddDetailImage(string productId, [FromForm] List<IFormFile> images)
+        {
+            try
+            {
+                if (images == null || !images.Any())
+                {
+                    return BadRequest("No images uploaded.");
+                }
+
+                foreach (var image in images)
+                {
+                    using (var ms = new MemoryStream())
+                    {
+                        string imageId = YitIdHelper.NextId().ToString(); // 生成唯一的 IMAGE_ID
+                        await image.CopyToAsync(ms); // 将图片拷贝到内存流中
+                        var imageData = ms.ToArray(); // 转换为字节数组
+
+                        // 新增到 PRODUCT_DETAIL 表
+                        var productImage = new PRODUCT_DETAIL
+                        {
+                            PRODUCT_ID = productId,
+                            IMAGE_ID = imageId,
+                            IMAGE = imageData
+                        };
+                        _dbContext.PRODUCT_DETAILS.Add(productImage);
+                    }
+                }
+
+                await _dbContext.SaveChangesAsync(); // 保存更改到数据库中
+
+                return Ok("Images added and details updated successfully.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
         [HttpGet("getProductDescription")]
         [Authorize]
         public async Task<IActionResult> GetProductDescription(string imageId)
