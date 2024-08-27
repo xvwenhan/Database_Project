@@ -4,7 +4,7 @@
     <div class="navbar-top">
       <div class="navbar-brand">
         <img src="@/assets/logo.svg" alt="Logo" class="logo" />
-        <span style="font-size: 17px;">旧时王谢堂前燕，飞入寻常百姓家</span>
+        <span style="font-size: 17px;">瑕宝阁</span>
       </div>
       <div class="navbar-right">
         <div class="date-weather">

@@ -899,6 +899,8 @@ transform: scale(0.95); /* 点击时缩小效果 */
 }
 .preview {
   margin-left: 40px;
+  background-color: #a61b29;
+  border-radius: 15px;
 }
 .preview img {
   border-radius: 15px;
