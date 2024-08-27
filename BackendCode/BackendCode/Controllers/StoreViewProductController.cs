@@ -361,6 +361,7 @@ namespace StoreViewProductController.Controllers
             }
         }
 
+        //首页图
         [HttpGet("getProductImages/{productId}")]
         [Authorize]
         public async Task<IActionResult> GetProductImages(string productId)
@@ -369,10 +370,9 @@ namespace StoreViewProductController.Controllers
             {
                 var images = await _dbContext.PRODUCT_IMAGES
                     .Where(p => p.PRODUCT_ID == productId)
-                    .Select(p => new
+                    .Select(p => new ImageModel
                     {
-                        ImageId = p.IMAGE_ID,
-                        Image = p.IMAGE
+                        ImageId = p.IMAGE_ID
                     })
                     .ToListAsync();
 
@@ -388,6 +388,7 @@ namespace StoreViewProductController.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+
 
         [HttpDelete("deleteProductImage/{productId}/{imageId}")]
         [Authorize]
@@ -441,16 +442,6 @@ namespace StoreViewProductController.Controllers
                             IMAGE = imageData
                         };
                         _dbContext.PRODUCT_IMAGES.Add(productImage);
-
-                        // 同时新增到 PRODUCT_DETAILS 表
-                        var productDetail = new PRODUCT_DETAIL
-                        {
-                            IMAGE_ID = imageId,
-                            PRODUCT_ID = productId,
-                            IMAGE = imageData,
-                            DESCRIPTION = null // 默认描述为空
-                        };
-                        _dbContext.PRODUCT_DETAILS.Add(productDetail);
                     }
                 }
 
