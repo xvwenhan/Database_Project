@@ -2,7 +2,7 @@
 import { ref} from 'vue';
 import { ElMenu} from 'element-plus';
 import 'element-plus/dist/index.css';
-import Navbar from '../components/Navbar.vue';
+import Navbar from '../../components/Navbar.vue';
 
 const activeIndex = ref('1');
 const option=ref(1);
