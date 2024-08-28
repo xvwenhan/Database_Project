@@ -538,8 +538,8 @@ namespace StoreViewProductController.Controllers
 
 
         [HttpPost("addDetailImage/{productId}")]
-        [Authorize]
-        public async Task<IActionResult> AddDetailImage(string productId, [FromForm] List<IFormFile> images)
+        //[Authorize]
+        public async Task<IActionResult> AddDetailImage(string productId, string Description, [FromForm] List<IFormFile> images)
         {
             try
             {
@@ -561,7 +561,8 @@ namespace StoreViewProductController.Controllers
                         {
                             PRODUCT_ID = productId,
                             IMAGE_ID = imageId,
-                            IMAGE = imageData
+                            IMAGE = imageData,
+                            DESCRIPTION= Description
                         };
                         _dbContext.PRODUCT_DETAILS.Add(productImage);
                     }
