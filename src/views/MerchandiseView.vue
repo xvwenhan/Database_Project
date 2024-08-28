@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import Navbar from '../components/Navbar.vue';
-import { ref, computed } from 'vue';
+import { ref, computed,onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { METHODS } from 'http';
+//import { METHODS } from 'http';
 import axiosInstance from '../components/axios';
+import { log } from 'console';
 
 const categories = [
   { id: 1, name: '服装' },
@@ -15,25 +16,55 @@ const categories = [
 
 
 
+const subCategoryNames = [
+  { id: 1, parent:"服装",name: '汉族传统服饰' },
+  { id: 2, parent:"服装", name: '少数民族服饰' },
+  { id: 3, parent:"服装",name: '地方特色服饰' },
+  { id: 4, parent:"首饰",name: '银饰' },
+  { id: 5, parent:"首饰", name: '玉饰' },
+  { id: 6, parent:"首饰", name: '宝石首饰' },
+  { id: 7, parent:"首饰", name: '民族特使首饰' },
+  { id: 8, parent:"家具", name: '床榻类' },
+  { id: 9, parent:"家具", name: '桌案类' },
+  { id: 10, parent:"家具", name: '椅凳类' },
+  { id: 11, parent:"家具", name: '柜架类' },
+  { id: 12, parent:"家具", name: '屏风类' },
+  { id: 13, parent:"工艺品", name: '陶瓷' },
+  { id: 14, parent:"工艺品", name: '漆器' },
+  { id: 15, parent:"工艺品", name: '刺绣' },
+  { id: 16, parent:"工艺品", name: '景泰蓝' },
+  { id: 17, parent:"小物件", name: '文房四宝' },
+  { id: 18, parent:"小物件", name: '剪纸艺术' },
+  { id: 19, parent:"小物件", name: '竹编' },
+];
 
 
-const products = ref([
-  { id: 1, name: '景泰蓝花瓶', category: 4, price: 199, image: '/src/assets/example1.png' },
-  { id: 2, name: '景德镇双耳陶瓷花瓶', category: 4, price: 59, image: '/src/assets/example1.png' },
-  { id: 3, name: '云锦披肩', category: 1, price: 99, image: '/src/assets/example1.png' },
-  { id: 4, name: '刺绣手帕', category: 1, price: 20, image: '/src/assets/example1.png' },
-  { id: 5, name: '银手镯', category: 2, price: 150, image: '/src/assets/example1.png' },
-  { id: 6, name: '木雕摆件', category: 3, price: 300, image: '/src/assets/example1.png' },
-  { id: 7, name: '竹编篮子', category: 5, price: 50, image: '/src/assets/example1.png' },
-  { id: 8, name: '陶瓷茶具', category: 4, price: 80, image: '/src/assets/example1.png' },
-  { id: 9, name: '剪纸艺术', category: 5, price: 30, image: '/src/assets/example1.png' },
-  { id: 10, name: '草编帽子', category: 1, price: 40, image: '/src/assets/example1.png' },
-  { id: 11, name: '铜镜', category: 2, price: 200, image: '/src/assets/example1.png' },
-  { id: 12, name: '漆器盘子', category: 3, price: 180, image: '/src/assets/example1.png' },
-  { id: 13, name: '琉璃摆件', category: 4, price: 220, image: '/src/assets/example1.png' },
-  { id: 14, name: '陶瓷杯', category: 5, price: 70, image: '/src/assets/example1.png' },
-  { id: 15, name: '木雕书签', category: 3, price: 25, image: '/src/assets/example1.png' },
-]);
+const currentType = ref('服装')
+
+const subCategoryNamesCopy = null;
+//这里是分类描述
+var image = "";
+var description = "";
+
+// const products = ref([
+//   { id: 1, name: '景泰蓝花瓶', category: 4, price: 199, image: '/src/assets/example1.png' },
+//   { id: 2, name: '景德镇双耳陶瓷花瓶', category: 4, price: 59, image: '/src/assets/example1.png' },
+//   { id: 3, name: '云锦披肩', category: 1, price: 99, image: '/src/assets/example1.png' },
+//   { id: 4, name: '刺绣手帕', category: 1, price: 20, image: '/src/assets/example1.png' },
+//   { id: 5, name: '银手镯', category: 2, price: 150, image: '/src/assets/example1.png' },
+//   { id: 6, name: '木雕摆件', category: 3, price: 300, image: '/src/assets/example1.png' },
+//   { id: 7, name: '竹编篮子', category: 5, price: 50, image: '/src/assets/example1.png' },
+//   { id: 8, name: '陶瓷茶具', category: 4, price: 80, image: '/src/assets/example1.png' },
+//   { id: 9, name: '剪纸艺术', category: 5, price: 30, image: '/src/assets/example1.png' },
+//   { id: 10, name: '草编帽子', category: 1, price: 40, image: '/src/assets/example1.png' },
+//   { id: 11, name: '铜镜', category: 2, price: 200, image: '/src/assets/example1.png' },
+//   { id: 12, name: '漆器盘子', category: 3, price: 180, image: '/src/assets/example1.png' },
+//   { id: 13, name: '琉璃摆件', category: 4, price: 220, image: '/src/assets/example1.png' },
+//   { id: 14, name: '陶瓷杯', category: 5, price: 70, image: '/src/assets/example1.png' },
+//   { id: 15, name: '木雕书签', category: 3, price: 25, image: '/src/assets/example1.png' },
+// ]);
+const products = ref([])
+const defaultImage = '/src/assets/example1.png'
 
 const cart = ref([]);
 const favorites = ref([]);
@@ -47,6 +78,10 @@ const selectedCategoryName = computed(() => {
   const category = categories.find(c => c.id.toString() === selectedCategory.value);
   return category ? category.name : '未知分类';
 });
+
+const filterSubCategoryNames = computed(()=>{
+    return subCategoryNames.filter(subCategory => subCategory.parent === currentType.value);
+})
 
 const itemsPerPage = 9; // 每页显示的商品数量
 const currentPage = ref(1); // 当前页码
@@ -64,17 +99,98 @@ const totalPages = computed(() => {
 });
 
 
+
 const goToPage = (pageNumber) => {
   if (pageNumber >= 1 && pageNumber <= totalPages.value) {
     currentPage.value = pageNumber;
   }
 };
 
-const typeChange = (id) =>{
+
+const typeChange = (id,name) =>{
+  currentType.value = name
+  getCategory(name);
+  getCommodity(name)
   router.push(`/merchandise/${id.toString()}`);
   //使界面下滑 xx px
   window.scrollBy(0,750);
+};
+
+
+const categoryDate = ref({categorY_PIC:'',categorY_DESCRIPTION:''})
+//请求分类商品的介绍
+const getCategory = async (category) => {
+  try {
+    const response = await axiosInstance.get('/Classification/GetCategoryByName', {
+      params: {
+        categoryName: category,
+      },
+    });
+    categoryDate.value = response.data
+    // image = response.data.categorY_PIC;
+    // description = response.data.categorY_DESCRIPTION;
+    console.log(description);
+  } catch (error) {
+    console.error('请求错误：', error);
+    return [];
+  }
+};
+
+
+
+//获取对应分类下的商品信息
+const getCommodity = async (category) =>{
+  try {
+    const response = await axiosInstance.get('/Classification/getProductsByTag', {
+      params: {
+        tag: category,
+      },
+    });
+    products.value = response.data
+    // image = response.data.categorY_PIC;
+    // description = response.data.categorY_DESCRIPTION;
+    console.log(description);
+  } catch (error) {
+    console.error('请求错误：', error);
+    return [];
+  }
+      // axiosInstance.post('/Post/get_all_posts', {
+      //   params: {
+      //   categoryName: "服装",
+      // },
+      // }).then(response => {
+      //   const data = response.data;
+      //   if (data && Array.isArray(data.posts)) {
+      //     // 解构帖子数组
+      //     posts.value = data.posts.map(post => ({
+      //       id: post.postId || '',
+      //       title: post.postTitle || '',
+      //       author: post.authorName || '匿名',
+      //       time: convertToReadableTime(post.releaseTime) || '',
+      //       like:post.numberOfLikes || 0,
+      //       comment:post.numberOfComments || 0,
+      //       image: post.coverImageId.imageUrl,
+      //     }));
+          
+      //     // 设置总帖子数量
+      //     totalPostNums.value = data.totalPostNums || 0;
+      //     message.value="成功";
+      //     console.log(posts.value);
+      //   } else {
+      //     console.error('Invalid data format.');
+      //   }
+      // }).catch(error => {
+      //   console.error('请求错误：', error);
+      //   return [];
+      // });
 }
+onMounted(()=>{
+  getCategory(currentType.value);
+  getCommodity(currentType.value)
+  console.log(1);
+  
+})
+
 </script>
 
 <template>
@@ -83,25 +199,25 @@ const typeChange = (id) =>{
   <Navbar />
   
           <div class="container">
-  <div class="card green" style="top: 200px;" @click="typeChange(1)">
+  <div class="card green" style="top: 200px;" @click="typeChange(1,'首饰')">
   
     <img src="/src/assets/mmy/工艺品.png" alt="首饰">
     <p>首饰</p>
     
   </div>
-  <div class="card blue" style="top: 250px;"@click="typeChange(2)">
+  <div class="card blue" style="top: 250px;"@click="typeChange(1,'家具')">
     <img src="/src/assets/mmy/家具.png" alt="家具">
     <p>家具</p>
   </div>
-  <div class="card beige" style="top: 150px;"@click="typeChange(3)">
+  <div class="card beige" style="top: 150px;"@click="typeChange(1,'服装')">
     <img src="/src/assets/mmy/服装.png" alt="服装">
     <p>服装</p>
   </div>
-  <div class="card purple" style="top: 230px;"@click="typeChange(4)">
+  <div class="card purple" style="top: 230px;"@click="typeChange(1,'工艺品')">
     <img src="/src/assets/mmy/首饰.png" alt="工艺品">
     <p>工艺品</p>
   </div>
-  <div class="card red" style="top: 180px;"  @click="typeChange(5)">
+  <div class="card red" style="top: 180px;"  @click="typeChange(1,'小物件')">
     <img src="/src/assets/mmy/小物件.png" alt="小物件">
     <p>小物件</p>
   </div>
@@ -113,9 +229,9 @@ const typeChange = (id) =>{
 
   <div class="merchandise-container">
     
-    <aside class="sidebar" v-show="false">
+    <aside class="sidebar" >
      
-      <ul>
+      <ul v-show="false">
         <li v-for="category in categories" :key="category.id"
             :class="{ 'category-block': true, 'active': selectedCategory === category.id.toString() }"
             @click="() => router.push(`/merchandise/${category.id.toString()}`)">
@@ -123,19 +239,26 @@ const typeChange = (id) =>{
         </li>
       </ul>
   
-   
-      
-
-    
+      <ul>
+        <li v-for="subCategoryName in filterSubCategoryNames" :key="subCategoryName.id">
+          {{ subCategoryName.name }}
+        </li>
+      </ul>
     </aside>
     
     <main class="main-content">
-     
+     <!-- 对商品分类描述界面 -->
+     <div class="image-with-description">
+    <img :src="'data:image/jpeg;base64,'+categoryDate.categorY_PIC" alt="">
+    <p>{{categoryDate.categorY_DESCRIPTION}}</p>
+    </div>
+
+
       <div class="product-display">
-        <div v-for="product in filteredProducts" :key="product.id" class="product-item">
-          <img :src="product.image" :alt="product.name" class="product-image" />
-          <h2>{{ product.name }}</h2>
-          <p>价格: ¥{{ product.price }}</p>
+        <div v-for="product in products" :key="product.id" class="product-item">
+          <img :src="product.images && product.images.length>0 ?product.images[0].imageUrl: defaultImage" :alt="product.name" class="product-image" />
+          <h2>{{ product.productName }}</h2>
+          <p>价格: ¥{{ product.productPrice }}</p>
       
            
         
@@ -145,8 +268,8 @@ const typeChange = (id) =>{
       <!-- 分页按钮 -->
       <div class="pagination">
         <button @click="goToPage(currentPage - 1)" :disabled="currentPage === 1">上一页</button>
-        <span>第 {{ currentPage }} 页 / 共 {{ totalPages }} 页</span>
-        <button @click="goToPage(currentPage + 1)" :disabled="currentPage === totalPages">下一页</button>
+        <span>第 {{ currentPage }} 页 / 共 {{ products.length }} 页</span>
+        <button @click="goToPage(currentPage + 1)" :disabled="currentPage === products.length">下一页</button>
       </div>
     </main>
   </div>
@@ -394,6 +517,23 @@ animation-delay: 0.5s;
 .swiper {
 width: 100%;
 height: 100%;
+}
+
+.image-with-description {
+display: flex;
+align-items: center;
+position: relative;
+z-index: 1;
+background-color: whitesmoke; /* 设置背景颜色为完全透明的黑色 */
+padding: 10px;
+margin-right: 80px; /* 设置右边距 */
+margin-bottom: 20px; /* 设置下边距 */
+    } 
+
+.image-with-description img {
+width: 200px;
+height: auto;
+margin-right: 20px;   
 }
 
 </style>
