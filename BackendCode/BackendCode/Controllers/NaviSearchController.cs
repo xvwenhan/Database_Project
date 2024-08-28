@@ -101,8 +101,11 @@ namespace NaviSearchController.Controllers
                         StoreScore = s.STORE_SCORE,
                         StorePhoto = _dbContext.ACCOUNTS
                             .Where(p => p.ACCOUNT_ID == s.ACCOUNT_ID)
-                            .Select(p => p.PHOTO)
-                            .FirstOrDefault(), // 这里不再是异步调用
+                            .Select(p => new ImageModel
+                            {
+                                ImageId = p.ACCOUNT_ID // 假设 `p.PHOTO` 存储的是图片的 ID
+                            })
+                            .FirstOrDefault() ?? new ImageModel { ImageId = "0000000000" }, // 若没有图片则返回默认图片的ID
 
                         HomeProducts = _dbContext.PRODUCTS
                             .Where(p => p.ACCOUNT_ID == s.ACCOUNT_ID && !p.SALE_OR_NOT)

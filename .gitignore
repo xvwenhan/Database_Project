@@ -49,3 +49,6 @@ BackendCode/.vs/BackendCode/FileContentIndex/57cb53a5-3e79-407b-93e2-c65175c3561
 .config
 PublishProfiles
 bin
+/dist
+/node_modules
+/.idea
