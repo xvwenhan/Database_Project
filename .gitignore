@@ -52,3 +52,4 @@ bin
 /dist
 /node_modules
 /.idea
+.vite/deps_temp_dc07feee/package.json
