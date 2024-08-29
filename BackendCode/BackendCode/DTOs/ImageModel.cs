@@ -8,7 +8,7 @@
         {
             get
             {
-                return $"https://localhost:7262/api/images/{ImageId}";
+                return $"https://47.97.5.21:5173/api/images/{ImageId}";
             }
         }
     }
