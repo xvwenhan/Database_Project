@@ -1,10 +1,29 @@
 <template>
-  <!-- <Navbar class="narbar"/> -->
-  <div v-show="isLoading" class="loading">
-    <div class="loading-text">加载中...</div>
-  </div>
+
+  <Loading v-show="isLoading" />
+
   <div v-show="!isLoading" class="PDcontainer">
-    <Navbar class="narbar"/>
+    <div class="header1" v-show="role==='买家'">
+      <Navbar  />
+    </div>
+    <div class="header2" v-show="role==='商家'">
+      <el-button 
+              @click="enterSellerHome"
+              style="display: flex;
+              align-items: center;
+              justify-content: center;
+              font-size: 21px;
+              border-radius: 5px;
+              border: 2px solid #FFFFFF;
+              background-color:#a61b29;
+              color:#FFFFFF;
+              cursor: pointer;
+              width: auto;"
+            >
+            返回首页
+        </el-button>
+
+    </div>
     <div class="storeContent">
         <img :src="product.storeAvatar" class="Avatar" />
         <div class="storeName">&nbsp{{ product.storeName }}</div>
@@ -57,7 +76,7 @@
             <img  
             src="@/assets/mmy/store-active.svg"
             class="icon"/>
-            进店逛逛 
+            进入店铺 
         </el-button>
       </div>
     <div class="productContent">
@@ -246,6 +265,7 @@
   
 <script setup >
     import Navbar from '../components/Navbar.vue';
+    import Loading from '../views/templates/4.vue';
     import { ref,onMounted,reactive} from 'vue';
     import 'element-plus/dist/index.css';
     import { ElButton ,ElMessage} from 'element-plus';
@@ -255,8 +275,9 @@
     //页面是否正在加载
     const isLoading=ref(true);
     //从浏览器中获取数据
-    // const productId = 'p581618339418117';
     const productId = localStorage.getItem('productIdOfDetail');
+    // const userId="S00000025";
+    // const role="商家";
     const userId =localStorage.getItem('userId');
     const role=localStorage.getItem('role');
     // 使用 useRoute 来访问路由参数
@@ -337,10 +358,12 @@
         } catch (error) {
         }
     }
-    
     const enterStore=()=>{
       localStorage.setItem('storeIdOfDetail',product.value.storeId);
       router.push('/shopdetail');
+    }
+    const enterSellerHome=()=>{
+      router.push('/businesshomepage');
     }
     const starProduct = async() => {
       if(product.value.isProductStared===false){
@@ -476,25 +499,24 @@
       }
     }
     console.log(message.value);
-};
-
+    };
     const handleButtonClick = () => {
       localStorage.setItem('storeIdOfDetail',product.value.storeId);
       router.push('/shopdetail');
     };
-    const handleProductClick = (productId) => {
-      console.log('正在被点击');
-      console.log(`productId is ${productId}`);
-      localStorage.setItem('productIdOfDetail',productId);
-      // router.replace('/productdetail').catch(() => {});
-      location.reload();
-    };
-    const enterPay=()=>{
-      const productStr = JSON.stringify(product.value);//序列化对象
-      router.push({path:'/pay',query:{product: productStr,
-                                      isPaid:'false'
-      }});
-    }
+  const handleProductClick = (productId) => {
+    console.log('正在被点击');
+    console.log(`productId is ${productId}`);
+    localStorage.setItem('productIdOfDetail',productId);
+    // router.replace('/productdetail').catch(() => {});
+    location.reload();
+  };
+  const enterPay=()=>{
+    const productStr = JSON.stringify(product.value);//序列化对象
+    router.push({path:'/pay',query:{product: productStr,
+                                    isPaid:'false'
+    }});
+  }
 
 </script>
 
@@ -503,6 +525,15 @@ div {
   user-select: none;
   outline: none; 
   cursor: default; 
+}
+.header1{
+  width:100%;
+}
+.header2{
+  width:100%;
+  background-color: #a61b29;
+  position: relative;
+  padding:5px 0px 5px 10px;
 }
 .el-button:active{
 box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); /* 点击时的阴影效果 */
@@ -899,6 +930,8 @@ transform: scale(0.95); /* 点击时缩小效果 */
 }
 .preview {
   margin-left: 40px;
+  background-color: #a61b29;
+  border-radius: 15px;
 }
 .preview img {
   border-radius: 15px;
@@ -932,5 +965,6 @@ transform: scale(0.95); /* 点击时缩小效果 */
   top:80px;
   color:rgba(0,0,0,0.3);
 }
+
 </style> 
   

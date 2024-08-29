@@ -18,7 +18,10 @@
                 </div>
             </div>
         </aside>
-        <div class="display">
+
+        <Loading v-show="isLoading" />
+
+        <div v-show="!isLoading" class="display">
             <div v-if="selectedCategory==1" >
               <div v-if="paginatedProducts.length!==0">
                 <div class="display-items1">
@@ -95,11 +98,13 @@
 import { ref, reactive, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import Navbar from '../components/Navbar.vue';
+import Loading from '../views/templates/4.vue';
 import 'element-plus/dist/index.css';
 import axiosInstance from '../components/axios';
 
 const router = useRouter();
 const userId =localStorage.getItem('userId');
+const isLoading = ref(true);
 
 const categories = ref([
     { id: 1, name: '收藏商品' },
@@ -132,6 +137,7 @@ const fetchProducts = async () => {
       Products.push(product);
     });
     message01.value = '已获取收藏商品数据';
+    isLoading.value=false;
 
   } catch (error) {
     if (error.response) {
@@ -174,6 +180,7 @@ const handleProductClick = (productId) => {
 const Stores = reactive([]);
 const message02 = ref('');
 const fetchStores = async () => {
+  isLoading.value=true;
   try {
     const response = await axiosInstance.post('/Favourite/GetFavoriteStores', {
       "userId": userId
@@ -181,6 +188,7 @@ const fetchStores = async () => {
     Stores.splice(0, Stores.length, ...response.data);
     message02.value = '已获取收藏店铺数据';
     console.log('收藏店铺数据：'+Stores.values);
+    isLoading.value=false;
   } catch (error) {
     if (error.response) {
       message02.value = error.response.data;

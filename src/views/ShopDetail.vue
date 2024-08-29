@@ -1,6 +1,30 @@
 <template>
-  <Navbar />
-    <div class="main-container">
+
+  <div >
+    <div class="header1" v-show="role==='买家'">
+      <Navbar  />
+    </div>
+    <div class="header2" v-show="role==='商家'">
+      <el-button 
+              @click="enterSellerHome"
+              style="display: flex;
+              align-items: center;
+              justify-content: center;
+              font-size: 21px;
+              border-radius: 5px;
+              border: 2px solid #FFFFFF;
+              background-color:#a61b29;
+              color:#FFFFFF;
+              cursor: pointer;
+              width: auto;"
+            >
+            返回首页
+        </el-button>
+    </div>
+
+    <Loading v-show="isLoading" />
+    
+    <div v-show="!isLoading" class="main-container">
       <div class="main-content">
         <div class="shop-title">
           <div style="display: flex; gap: 10px">
@@ -19,6 +43,7 @@
           </div>
           <div class="favoriteButton">
             <el-button 
+              v-show="role==='买家'"
               :class="isFavorite ? 'favorite-active' : 'favorite-inactive'" 
               @click="clickFavorite" 
             >
@@ -120,12 +145,14 @@
         </div>
       </div>
     </div>
+  </div>
 </template>
   
 <script setup>
 import { reactive, ref, onMounted  } from 'vue';
 import { useRouter } from 'vue-router';
 import Navbar from '../components/Navbar.vue';
+import Loading from '../views/templates/4.vue';
 import { ElButton, ElMessage, ElInput } from 'element-plus';
 import 'element-plus/dist/index.css';
 import axiosInstance from '../components/axios';
@@ -133,6 +160,8 @@ import axiosInstance from '../components/axios';
 const router = useRouter();
 const currentView = ref('products');
 const userId =localStorage.getItem('userId');
+const role=localStorage.getItem('role');
+// const role="商家";
 const storeId = localStorage.getItem('storeIdOfDetail');
 
 const shopinfo = reactive({avatar:"",storeId:"",storeName:"",storeScore:0,Address:""});
@@ -143,6 +172,22 @@ const categories = ref([
 ]);
 const products = reactive([]);
 const remarks = reactive([]);
+
+const isLoading = ref(true);
+let loadedCount = ref(0);  // 用于跟踪完成的请求数
+const totalFetches = 5;  // 总共需要完成的请求数量
+
+const checkLoadingStatus = () => {
+  loadedCount.value += 1;
+  if (loadedCount.value === totalFetches) {
+    isLoading.value = false;  // 所有请求完成后，设置 isLoading 为 false
+    loadedCount.value=0;
+  }
+};
+
+const enterSellerHome=()=>{
+  router.push('/businesshomepage');
+}
   
 const searchQuery = ref('');
 const selectedCategory = ref(1);
@@ -177,6 +222,7 @@ const fetchTags = async () => {
     tags.value = response.data;
     message.value = '已获取自定义分类';
     addCategory(); 
+    checkLoadingStatus(); //检查加载状态
   } catch (error) {
     if (error.response) {
       message.value = error.response.data;
@@ -218,6 +264,7 @@ const fetchStoreInfo = async () => {
     shopinfo.Address = response.data.address;
     shopinfo.avatar = response.data.picture;
     message1.value = '已获取店铺信息';
+    checkLoadingStatus(); //检查加载状态
   } catch (error) {
     if (error.response) {
       message1.value = error.response.data;
@@ -239,6 +286,7 @@ const fetchIsBookmarked = async () => {
     });
     isFavorite.value = response.data;
     message2.value = '已获取收藏信息';
+    checkLoadingStatus(); //检查加载状态
   } catch (error) {
     if (error.response) {
       message2.value = error.response.data;
@@ -256,7 +304,7 @@ const fetchAllProducts = async () => {
     const response = await axiosInstance.get('/StoreViewProduct/GetProductsByStoreIdAndViewType', {
       params: {
         storeId: shopinfo.storeId,
-        ViewType: 1
+        ViewType: 3
       }
     });
     if (products.length > 0) {
@@ -267,6 +315,7 @@ const fetchAllProducts = async () => {
       products.push(product);
     });
     message3.value = '已获取全部商品信息';
+    checkLoadingStatus(); //检查加载状态
   } catch (error) {
     if (error.response) {
       message3.value = error.response.data;
@@ -346,8 +395,10 @@ const fetchProductsByTag = async (tag) => {
       products.splice(0, products.length);
     }
     response.data.forEach(product => {
-      product.productPic = `data:image/png;base64,${product.productPic}`;
-      products.push(product);
+      if(product.saleOrNot==false){
+        product.productPic = `data:image/png;base64,${product.productPic}`;
+        products.push(product);
+      }
     });
     message6.value = '已获取'+tag+'分类商品信息';
   } catch (error) {
@@ -374,8 +425,10 @@ const fetchProductsBySearch = async (word) => {
       products.splice(0, products.length);
     }
     response.data.forEach(product => {
-      product.productPic = `data:image/png;base64,${product.productPic}`;
-      products.push(product);
+      if(product.saleOrNot==false){
+        product.productPic = `data:image/png;base64,${product.productPic}`;
+        products.push(product);
+      }
     });
     message7.value = '已获取搜索商品信息';
   } catch (error) {
@@ -406,6 +459,7 @@ const fetchRemarks = async () => {
     });
     message8.value = '已获取评论信息';
     console.log(remarks);
+    checkLoadingStatus(); //检查加载状态
   } catch (error) {
     if (error.response) {
       message8.value = error.response.data;
@@ -427,6 +481,13 @@ onMounted(() => {
 </script>
 
 <style scoped>
+
+.header2{
+  width:100%;
+  background-color: #a61b29;
+  position: relative;
+  padding:5px 0px 5px 10px;
+}
 
 .main-container{
   align-items: center;
