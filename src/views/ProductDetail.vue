@@ -22,7 +22,6 @@
             >
             返回首页
         </el-button>
-
     </div>
     <div class="storeContent">
         <img :src="product.storeAvatar" class="Avatar" />
