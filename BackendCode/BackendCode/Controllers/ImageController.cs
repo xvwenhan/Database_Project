@@ -14,14 +14,21 @@ namespace BackendCode.Controllers
             _context = context;
         }
 
-        [HttpGet("{imageId}")]
-        public IActionResult GetImage(string imageId)
+        [HttpGet("post/{imageId}")]
+        public IActionResult GetPostImage(string imageId)
         {
             var image = _context.POST_IMAGES.FirstOrDefault(i => i.IMAGE_ID == imageId);
             if (image != null)
             {
                 return File(image.IMAGE, "image/jpeg"); //根据图片类型调整MIME类型
             }
+
+            return NotFound();
+        }
+
+        [HttpGet("product/{imageId}")]
+        public IActionResult GetProductImage(string imageId)
+        {
 
             var image2 = _context.PRODUCT_IMAGES.FirstOrDefault(i => i.IMAGE_ID == imageId);
             if (image2 != null)
@@ -34,14 +41,35 @@ namespace BackendCode.Controllers
             {
                 return File(image3.IMAGE, "image/jpeg"); //根据图片类型调整MIME类型
             }
+            return NotFound();
+        }
 
-            var image4 = _context.STORES.FirstOrDefault(pd => pd.ACCOUNT_ID == imageId);
-            if (image4 != null)
+        //这个地方没用图片id?????奇怪
+        [HttpGet("store/{storeId}")]
+        public IActionResult GetStoreImage(string storeId)
+        {
+            var image = _context.STORES.FirstOrDefault(pd => pd.ACCOUNT_ID == storeId);
+            if (image != null)
             {
-                return File(image4.PHOTO, "image/jpeg"); //根据图片类型调整MIME类型
+                return File(image.PHOTO, "image/jpeg"); //根据图片类型调整MIME类型
             }
 
             return NotFound();
         }
+
+        [HttpGet("market/{imageId}")]
+        public IActionResult GetMarketImage(string imageId)
+        {
+            var image = _context.MARKETS.FirstOrDefault(pd => pd.IMAGE_ID == imageId);
+            if (image != null)
+            {
+                return File(image.IMAGE_ID, "image/jpeg"); //根据图片类型调整MIME类型
+            }
+
+            return NotFound();
+        }
+
+
+
     }
 }

@@ -8,5 +8,6 @@
         public DateTime? END_TIME { get; set; }
         public string? DETAIL { get; set; }
         public byte[]? POSTERIMG { get; set; }
+        public string IMAGE_ID { get; set; }
     }
 }
