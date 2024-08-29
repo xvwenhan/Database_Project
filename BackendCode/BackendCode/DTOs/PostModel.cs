@@ -37,7 +37,7 @@ namespace BackendCode.DTOs.PostModel
         public DateTime? ReleaseTime { get; set; }
         public int? NumberOfLikes { get; set; }
         public int? NumberOfComments { get; set; }
-        public ImageModel Image { get; set; }
+        public PostImageModel Image { get; set; }
     }
 
     public class SearchPostsDto
@@ -56,7 +56,7 @@ namespace BackendCode.DTOs.PostModel
         public DateTime? ReleaseTime { get; set; }
         public int? NumberOfLikes { get; set; }
         public int? NumberOfComments { get; set; }
-        public List<ImageModel>? Images { get; set; }
+        public List<PostImageModel>? Images { get; set; }
         public List<CommentDetailModel> Comments { get; set; }
     }
 

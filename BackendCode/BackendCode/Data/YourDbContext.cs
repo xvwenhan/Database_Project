@@ -443,6 +443,10 @@ namespace BackendCode.Data
                 entity.Property(e => e.POSTERIMG)
                     .HasColumnType("BLOB")
                     .IsRequired();
+                entity.Property(e => e.IMAGE_ID)
+                      .HasMaxLength(100)
+                      .HasColumnType("VARCHAR2(100)")
+                      .IsRequired();
             });
 
             modelBuilder.Entity<MARKET_PRODUCT>(entity =>

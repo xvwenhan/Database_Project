@@ -24,8 +24,11 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.ExpireTimeSpan = TimeSpan.FromMinutes(60); //设置Cookie过期时间
 
         options.Cookie.HttpOnly = true;
-        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-        options.Cookie.SameSite = SameSiteMode.None; //允许跨站Cookie
+        //options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.None;
+        //options.Cookie.SameSite = SameSiteMode.None; //允许跨站Cookie
+        options.Cookie.SameSite = SameSiteMode.Lax; // 或者 SameSiteMode.Strict
+
     });
 
 //跨域请求
@@ -61,7 +64,7 @@ if (app.Environment.IsDevelopment())
     app.UseCors("AllowSpecificOrigin");// 使用CORS策略
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 app.UseAuthentication(); // 添加认证中间件
 app.UseAuthorization();// 添加授权中间件
 
