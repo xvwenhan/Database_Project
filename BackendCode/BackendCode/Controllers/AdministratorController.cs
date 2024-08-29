@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using BackendCode.Data;
 using BackendCode.DTOs.Administrator;
 using Yitter.IdGenerator;
-
+using BackendCode.DTOs;
 
 namespace Administrator.Controllers
 {
@@ -113,6 +113,7 @@ namespace Administrator.Controllers
 
             string uidb = YitIdHelper.NextId().ToString();
             uidb = "M" + uidb;
+            string pic_id = YitIdHelper.NextId().ToString();
 
             _dbContext.MARKETS.Add(new BackendCode.Models.MARKET()
             {
@@ -122,6 +123,7 @@ namespace Administrator.Controllers
                 END_TIME=model.endTime,
                 DETAIL=model.detail,
                 POSTERIMG=imageData,
+                IMAGE_ID= pic_id
             });
             _dbContext.SaveChanges();
 
@@ -189,7 +191,8 @@ namespace Administrator.Controllers
                 startTime=p.START_TIME,
                 endTime=p.END_TIME,
                 detail=p.DETAIL,
-                posterImg= Convert.ToBase64String(p.POSTERIMG),
+                //posterImg= Convert.ToBase64String(p.POSTERIMG),
+                image=new MarketImageModel { ImageId=p.IMAGE_ID,}
 
             }).ToList();
             // 返回商品信息

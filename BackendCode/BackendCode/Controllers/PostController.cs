@@ -497,8 +497,8 @@ namespace BackendCode.Controllers
                     ReleaseTime=p.RELEASE_TIME,
                     CoverImageId = _context.POST_IMAGES
                 .Where(pi => pi.POST_ID == p.POST_ID)
-                .Select(pi => new ImageModel { ImageId=pi.IMAGE_ID })
-                .FirstOrDefault() ?? new ImageModel { ImageId = "0000000000" } // 若没有图片则返回默认图片的ID
+                .Select(pi => new PostImageModel { ImageId=pi.IMAGE_ID })
+                .FirstOrDefault() ?? new PostImageModel { ImageId = "0000000000" } // 若没有图片则返回默认图片的ID
                 })
                 .ToListAsync();
 
@@ -533,8 +533,8 @@ namespace BackendCode.Controllers
                       ReleaseTime = p.RELEASE_TIME,
                       CoverImageId = _context.POST_IMAGES
                 .Where(pi => pi.POST_ID == p.POST_ID)
-                .Select(pi =>new ImageModel {ImageId =pi.IMAGE_ID })
-                .FirstOrDefault() ?? new ImageModel { ImageId = "0000000000" }// 若没有图片则返回默认图片的ID
+                .Select(pi =>new PostImageModel {ImageId =pi.IMAGE_ID })
+                .FirstOrDefault() ?? new PostImageModel { ImageId = "0000000000" }// 若没有图片则返回默认图片的ID
                   })
                 .ToListAsync();
 
@@ -600,8 +600,8 @@ namespace BackendCode.Controllers
                     p.AuthorName,
                     CoverImageId = _context.POST_IMAGES
                 .Where(pi => pi.POST_ID == p.PostId)
-                .Select(pi => new ImageModel { ImageId = pi.IMAGE_ID })
-       .FirstOrDefault() ?? new ImageModel { ImageId = "0000000000" } // 若没有图片则返回默认图片的ID
+                .Select(pi => new PostImageModel { ImageId = pi.IMAGE_ID })
+       .FirstOrDefault() ?? new PostImageModel { ImageId = "0000000000" } // 若没有图片则返回默认图片的ID
                 })
                 .ToListAsync();
 
@@ -643,7 +643,7 @@ namespace BackendCode.Controllers
 
             var imagesQuery = from pi in _context.POST_IMAGES
                               where pi.POST_ID == id
-                              select new ImageModel
+                              select new PostImageModel
                               {
                                   ImageId = pi.IMAGE_ID,
                                   //Image = pi.IMAGE 
@@ -752,7 +752,7 @@ namespace BackendCode.Controllers
 
             var imagesQuery = from pi in _context.POST_IMAGES
                               where pi.POST_ID == id
-                              select new ImageModel
+                              select new PostImageModel
                               {
                                   ImageId = pi.IMAGE_ID,
                                   //Image = pi.IMAGE
@@ -858,8 +858,8 @@ namespace BackendCode.Controllers
                             AuthorName = buyer.USER_NAME,
                             Image = _context.POST_IMAGES
                 .Where(pi => pi.POST_ID == post.POST_ID)
-                .Select(pi =>new ImageModel {ImageId= pi.IMAGE_ID })
-                .FirstOrDefault() ?? new ImageModel { ImageId = "0000000000" } // 若没有图片则返回默认图片的ID
+                .Select(pi =>new PostImageModel {ImageId= pi.IMAGE_ID })
+                .FirstOrDefault() ?? new PostImageModel { ImageId = "0000000000" } // 若没有图片则返回默认图片的ID
                         };
 
             if (model.SortBy.ToLower() == "time")
