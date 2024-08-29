@@ -15,7 +15,7 @@
     
     <div class="right-panel">
       <div class="market-header">
-        <img :src="'data:image/png;base64,' + marketPoster" alt="市场海报" class="market-poster" />
+        <img :src="marketPoster" alt="市场海报" class="market-poster" />
         <p class="market-detail">
           <!-- {{ marketDetail }} -->
           天青釉是汉族传统制瓷工艺中的珍品，瓷器釉色清明，也叫雨过天青，是一种幽淡隽永的高温兰色釉，我国古代陶书描写的青如天，明如镜，正是这种釉色特点的形容。

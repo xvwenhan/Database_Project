@@ -22,7 +22,7 @@ const fetchStores = async (keyword: string, type: string) => {
 
     if (response.data && response.data.length > 0) {
       products.value = response.data;
-      products.value = Array(100).fill(response.data).flat(); // 将数据重复100次并平展成一个数组
+      //products.value = Array(100).fill(response.data).flat(); // 将数据重复100次并平展成一个数组
       errorMessage.value = ''; // 清除错误信息
     } else {
       products.value = [];
@@ -103,6 +103,7 @@ onMounted(() => {
 
 .product-item {
   width: calc(25% - 20px); /* 每行显示四个商品，减去间隙 */
+  height:300px;
   padding: 20px;
   border: 1px solid #e7e7e7;
   border-radius: 10px;

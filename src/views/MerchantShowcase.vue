@@ -17,7 +17,7 @@
       <div v-for="store in stores" :key="store.storeId" class="store-container">
         <div class="store-content">
           <div class="store-header">
-            <img :src="'data:image/png;base64,' + store.storePhoto.result" alt="Store Avatar" class="store-avatar" @click="goToStoreDetail(store.storeId)"/>
+            <img :src="store.storePhoto.imageUrl" alt="Store Avatar" class="store-avatar" @click="goToStoreDetail(store.storeId)"/>
             <div class="store-info">
               <h2 class="store-name" @click="goToStoreDetail(store.storeId)">{{ store.storeName }}</h2>
               <p class="store-rating">评分: {{ (store.storeScore ) }}</p>
