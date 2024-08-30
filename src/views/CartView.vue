@@ -60,9 +60,8 @@
                       <div class="store-content">
                         <div class="store-header">
                           <div class="store-info">
-                            <!-- 该部分图片展示逻辑待修改 -->
-                            <!-- <img :src="'data:image/png;base64,' + store.storePic" alt="Store Image" class="store-image" /> -->
-                            <img :src="store.storePic" alt="Store Image" class="store-image" />
+                            <img :src="'data:image/png;base64,' + store.storePic" alt="Store Image" class="store-image" />
+                            <!-- <img :src="store.storePic" alt="Store Image" class="store-image" /> -->
                             <h2 class="store-name">{{ store.storeName }}</h2>
                             <p class="store-rating">评分: {{ store.storeScore }}</p>
                           </div>
@@ -321,8 +320,8 @@ onMounted(() => {
 }
 
 .product-image {
-  width: 100%;
   height: 150px;
+  max-width: 100%;
   object-fit: cover;
   border-radius: 5px;
   margin-bottom: 10px;
