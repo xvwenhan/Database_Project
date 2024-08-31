@@ -219,8 +219,10 @@
                     </div> 
                 </div>
             </div>
-
-            <div v-if="activeSection === 'comments'" class="shop-remarks">
+            <div class="remarks-loading" v-show="activeSection === 'comments'&&isRemarksLoading===true">
+              <Loading/>
+            </div>
+            <div v-if="activeSection === 'comments'&&isRemarksLoading!==true" class="shop-remarks">
               <div v-show="isRemarksNull===true" class="remarksNull">该店铺暂无评论</div>
               <div v-show="isRemarksNull===false" class="remarks-content">
                 <div 
@@ -273,6 +275,7 @@
     
     //页面是否正在加载
     const isLoading=ref(true);
+    const isRemarksLoading=ref(true);
     //从浏览器中获取数据
     const productId = localStorage.getItem('productIdOfDetail');
     // const userId="S00000025";
@@ -459,7 +462,8 @@
         });
         console.log(`remarks is ${JSON.stringify(remarks, null, 2)}`)
         message.value = '已获取评论信息';
-        console.log(remarks);
+        isRemarksLoading.value=false;
+        // console.log(remarks);
       } catch (error) {
         if (error.response) {
           message.value = error.response.data;
@@ -964,6 +968,8 @@ transform: scale(0.95); /* 点击时缩小效果 */
   top:80px;
   color:rgba(0,0,0,0.3);
 }
-
+.remarks-loading{
+  padding-top:50px;
+}
 </style> 
   

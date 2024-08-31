@@ -29,16 +29,22 @@
       <div class="ad">
           <img
           v-show="currentAdIndex === 0"
-          src="@/assets/mmy/ad3.png"
-          />
-          <img
-          v-show="currentAdIndex === 1"
-          src="@/assets/mmy/ad2.png"
-          />
-          <img
-          v-show="currentAdIndex === 2"
           src="@/assets/mmy/ad1.png"
           />
+          <div class="ad2" v-show="currentAdIndex === 1">
+            <img
+            src="@/assets/mmy/ad2.png"
+            />
+            <div class="ad2_text" >
+              <div class="column1">文房雅韵</div>
+              <div class="column2">墨香千年</div>
+            </div>
+         </div>
+         <div class="ad3" v-show="currentAdIndex === 2">
+          <img
+          src="@/assets/mmy/ad3.jpg"
+          />
+         </div>
       <div class="knotArea" @mouseenter="stopTimer" @mouseleave="startTimer">
       <img
           v-show="currentAdIndex !== 0"
@@ -221,7 +227,7 @@ import 'swiper/css';
 import { Mousewheel } from 'swiper/modules';
 import Navbar from '../components/Navbar.vue';
 // import HomeCategory from './HomeCategory.vue';
-import { ref, onMounted, onBeforeUnmount ,reactive} from 'vue';
+import { ref, onMounted, onBeforeUnmount ,computed} from 'vue';
 import 'animate.css';
 import { useRouter } from 'vue-router';
 
@@ -258,6 +264,7 @@ onMounted(() => {
 onBeforeUnmount(() => {
   console.log('Swiper cleaned up');
 });
+
 
 function onSlideChange(swiper) {
   activeSlideIndex.value = swiper.activeIndex;
@@ -362,7 +369,7 @@ align-items: center;
 position: relative; /* 添加这个以便子元素可以使用绝对定位 */
 }
 
-.ad {
+.ad,.ad2,.ad3 {
 display: flex;
 justify-content: center;
 align-items: center;
@@ -372,13 +379,46 @@ overflow: hidden;
 position: relative; /* 确保 .knotArea 绝对定位基于 .ad */
 }
 
-.ad img {
+.ad img,.ad2 img ,.ad3 img{
 width: 100%;
 height: auto;
 object-fit: cover; /* 保证图片自适应 */
 z-index: 1;
 }
 
+.ad2{
+  background-image: url("../assets/mmy/texture2.png");
+}
+.ad3{
+  background-color:#243569;
+}
+@font-face {
+  font-family: 'SJxingshu';
+  src: url('../assets/fonts/SJxingshu.ttf') format('truetype');
+}
+.ad2_text{
+  display: flex;
+  flex-direction: row;
+  z-index: 3;
+
+  color:white;
+  position: fixed;
+  top: 200px;
+  left: 180px;
+  /* gap:10px; */
+
+  font-size: 70px;
+  font-family: 'SJxingshu', serif;
+}
+
+.column1, .column2 {
+    writing-mode: vertical-rl; /* 将文字垂直排列 */
+}
+.column1 {
+}
+.column2 {
+  padding-top:150px;
+}
 .arrow-button1,
 .arrow-button2,
 .knot1,

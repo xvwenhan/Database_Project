@@ -253,10 +253,10 @@ onMounted(async () => {
   }else {
     product.value = {}; // 确保对象是初始化的
   }
-  console.log(`product is ${JSON.stringify(product.value)}`);
-  console.log(`productId is ${productId}`);
-  console.log(`userId is ${userId}`);
-  console.log(`creditPrice is ${JSON.stringify(creditPrice, null, 2)}`);
+  // console.log(`product is ${JSON.stringify(product.value)}`);
+  // console.log(`productId is ${productId}`);
+  // console.log(`userId is ${userId}`);
+  // console.log(`creditPrice is ${JSON.stringify(creditPrice, null, 2)}`);
   if(isPaid==false){
     product.value.finalPrice=product.value.discountPrice;
   }
