@@ -140,18 +140,40 @@
 
 
 <!-- 显示选择的瑕疵图片 -->
-<div v-if="selectedDefectImages.length" style="display: flex; flex-wrap: wrap;">
+<!-- <div v-if="selectedDefectImages.length" style="display: flex; flex-wrap: wrap;">
   <div v-for="(image, index) in selectedDefectImages" :key="index" style="position: relative; margin-right: 10px;">
     <img :src="image.url" alt="选择的瑕疵图片" style="margin-top:10px;width: 150px; height: 150px; object-fit: cover;border-radius: 8px;" />
     <span class="close" style="position: absolute; margin-top:10px; top: 0; right: 5px; color: #82111f;" @click="removeSelectedDefectImage(index)">&times;</span>
   </div>
-</div>
+</div> -->
 
 
 <!-- 上传瑕疵图片 -->
-<el-form-item label="">
+<!-- <el-form-item label="">
   <input type="file" @change="handleDefectFile" multiple />
-</el-form-item>
+</el-form-item> -->
+<!-- <el-form-item label="">
+  <input type="file" @change="handleDefectFile" multiple />
+  <div v-for="(image, index) in selectedDefectImages" :key="index" class="defect-image-item">
+    <img :src="image.url" alt="Defect Image" style="width: 100px; height: 100px;"/>
+    <input type="text" v-model="image.description" placeholder="输入图片描述" />
+    <el-button @click="removeSelectedDefectImage(index)">删除</el-button>
+  </div>
+</el-form-item> -->
+
+<!-- 显示选择的瑕疵图片和描述输入框 -->
+<!-- <div v-if="selectedDefectImages.length" style="display: flex; flex-wrap: wrap;">
+  <div v-for="(image, index) in selectedDefectImages" :key="index" style="position: relative; margin-right: 10px;">
+    <img :src="image.url" alt="选择的瑕疵图片" style="margin-top:10px;width: 150px; height: 150px; object-fit: cover;border-radius: 8px;" />
+    <input type="text" v-model="image.description" placeholder="输入图片描述" style="width: 150px; margin-top: 5px;" />
+    <span class="close" style="position: absolute; top: 0; right: 5px; color: #82111f; cursor: pointer;" @click="removeSelectedDefectImage(index)">&times;</span>
+  </div>
+</div> -->
+
+<!-- 上传瑕疵图片 -->
+<!-- <el-form-item label="">
+  <input type="file" @change="handleDefectFile" multiple />
+</el-form-item> -->
 
           <div style="display: flex;justify-content: center;margin-top: 30px">
             <el-button type="primary" @click="onsubmit()">保存</el-button>
@@ -780,6 +802,7 @@ const submitDefectUpload = async () => {
     
     selectedDefectImages.value.forEach(image => {
       formData.append('images', image.file);
+      formData.append('Description', image.description); // 新增描述字段
     });
     const uploadUrl = `/StoreViewProduct/addDetailImage/${preProduct.value.id}`;
     try {
@@ -1075,12 +1098,13 @@ const addImageWithText = () => {
       // 图片和描述
       newProduct.value.imagesWithText.forEach((item, index) => {
         const detailPicBlob = dataURLToBlob(item.image);
-        formData.append(`PicDes[${index}].DetailPic`, detailPicBlob, `detail-image${index}.jpg`);
-        formData.append(`PicDes[${index}].Description`, item.text);
+        formData.append(`PicDes[${index}].detailPic`, detailPicBlob, `detail-image${index}.jpg`);
+        formData.append(`PicDes[${index}].description`, item.text);
       });
 
 
       const storeId = localStorage.getItem('userId');// 替换为实际的storeId
+      console.log(storeId);
       if (!storeId) {
         ElMessage({ message: '未找到有效的 storeId', type: 'error' });
         return;
