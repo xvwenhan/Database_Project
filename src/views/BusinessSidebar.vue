@@ -64,7 +64,7 @@
     <div class="Topbar">
         <span class="Website">
             <img src="@/assets/logo.png" alt="Website" id="WebsiteIcon">
-            <span>旧时王谢堂前燕，飞入寻常百姓家</span>
+            <span>瑕宝阁</span>
         </span>
         <ul>
             <!-- <li @click="$emit('changeView', 'BusinessHomePage')">

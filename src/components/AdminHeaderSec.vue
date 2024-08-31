@@ -3,7 +3,7 @@
   <header class="header">
     <div class="logo">
       <img src="@/assets_dxy/logo.png" alt="Logo" class="icon"/>
-      <span style="font-size: 17px;">微瑕非遗</span>
+      <span style="font-size: 17px;">瑕宝阁</span>
     </div>
     <div class="user-info">
       <img src="@/assets_dxy/person_icon.svg" alt="Icon" class="icon">

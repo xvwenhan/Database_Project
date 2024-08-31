@@ -84,7 +84,7 @@
               </el-input>
               <el-button @click="filterProducts(null,'Button')">搜索</el-button>
             </div>
-            <div class="product">
+            <div class="product" v-if="products.length!==0">
               <div class="display-items">
                 <div 
                   v-for="product in products" 
@@ -105,6 +105,12 @@
                   </div>
                 </div>
               </div>
+            </div>
+            <div v-else>
+              <div style="height:30px"></div>
+              <span style="font-family: Arial, sans-serif; font-size: 16px; display: block; margin-bottom: 13px;">
+                本店暂无商品
+              </span>
             </div>
           </div>
         </div>
