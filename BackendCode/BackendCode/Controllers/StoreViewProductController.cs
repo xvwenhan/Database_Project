@@ -538,45 +538,53 @@ namespace StoreViewProductController.Controllers
 
 
         [HttpPost("addDetailImage/{productId}")]
-        //[Authorize]
-        public async Task<IActionResult> AddDetailImage(string productId, string Description, [FromForm] List<IFormFile> images)
+        [Authorize]
+        public async Task<IActionResult> AddDetailImage(string productId, [FromForm] List<IFormFile> images, [FromForm] List<string> descriptions)
         {
             try
             {
+                // 检查是否有上传图片
                 if (images == null || !images.Any())
                 {
                     return BadRequest("No images uploaded.");
                 }
 
-                foreach (var image in images)
+                // 检查图片数量和描述数量是否一致
+                if (descriptions == null || descriptions.Count != images.Count)
+                {
+                    return BadRequest("The number of descriptions does not match the number of images.");
+                }
+
+                for (int i = 0; i < images.Count; i++)
                 {
                     using (var ms = new MemoryStream())
                     {
                         string imageId = YitIdHelper.NextId().ToString(); // 生成唯一的 IMAGE_ID
-                        await image.CopyToAsync(ms); // 将图片拷贝到内存流中
+                        await images[i].CopyToAsync(ms); // 将图片拷贝到内存流中
                         var imageData = ms.ToArray(); // 转换为字节数组
 
                         // 新增到 PRODUCT_DETAIL 表
-                        var productImage = new PRODUCT_DETAIL
+                        var productDetail = new PRODUCT_DETAIL
                         {
                             PRODUCT_ID = productId,
                             IMAGE_ID = imageId,
                             IMAGE = imageData,
-                            DESCRIPTION= Description
+                            DESCRIPTION = descriptions[i] // 与图片对应的描述
                         };
-                        _dbContext.PRODUCT_DETAILS.Add(productImage);
+                        _dbContext.PRODUCT_DETAILS.Add(productDetail);
                     }
                 }
 
                 await _dbContext.SaveChangesAsync(); // 保存更改到数据库中
 
-                return Ok("Images added and details updated successfully.");
+                return Ok("Images and corresponding descriptions added successfully.");
             }
             catch (Exception ex)
             {
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+
         [HttpGet("getProductDescription")]
         [Authorize]
         public async Task<IActionResult> GetProductDescription(string imageId)
