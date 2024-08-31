@@ -10,7 +10,7 @@
       <div class="carousel-slide" :style="slideStyle">
         <div v-for="(market, index) in markets" :key="index" class="carousel-item">
           <div class="image-container">
-            <img :src="'data:image/png;base64,' + market.posterImg" class="carousel-image" @click="goToMerchantShowcase(market.marketId,market.theme,market.posterImg,market.detail)" />
+            <img :src="market.image.imageUrl" class="carousel-image" @click="goToMerchantShowcase(market.marketId,market.theme,market.image.imageUrl,market.detail)" />
             <div class="overlay">
               <span class="end-time">至{{ formatDate(market.endTime) }}</span>
             </div>
@@ -42,6 +42,7 @@ const fetchMarkets = async () => {
   try {
     const response = await axiosInstance.get('/Administrator/GetAllMarket');
     markets.value = response.data;
+    console.log("市集数据",markets.value);
   } catch (error) {
     console.error('获取市集数据时出错:', error);
   }
@@ -92,7 +93,8 @@ const formatDate = (dateString) => {
 <style scoped>
 /* 市集页面背景颜色和整体布局 */
 .market-page {
-  background-color: #bdaead;
+  /* background-color: #bdaead; */
+  background-image: url('@/assets/wy/background.jpg'); background-size: cover; background-position: center; height: 100%; overflow-x: hidden;
   padding: 20px;
   text-align: center;
   height: 100%;

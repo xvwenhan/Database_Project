@@ -18,7 +18,10 @@
                 </div>
             </div>
         </aside>
-        <div class="display">
+
+        <Loading v-show="isLoading" />
+
+        <div v-show="!isLoading" class="display">
             <div v-if="selectedCategory==1" >
               <div v-if="paginatedProducts.length!==0">
                 <div class="display-items1">
@@ -57,9 +60,8 @@
                       <div class="store-content">
                         <div class="store-header">
                           <div class="store-info">
-                            <!-- 该部分图片展示逻辑待修改 -->
-                            <!-- <img :src="'data:image/png;base64,' + store.storePic" alt="Store Image" class="store-image" /> -->
-                            <img :src="store.storePic" alt="Store Image" class="store-image" />
+                            <img :src="'data:image/png;base64,' + store.storePic" alt="Store Image" class="store-image" />
+                            <!-- <img :src="store.storePic" alt="Store Image" class="store-image" /> -->
                             <h2 class="store-name">{{ store.storeName }}</h2>
                             <p class="store-rating">评分: {{ store.storeScore }}</p>
                           </div>
@@ -95,11 +97,13 @@
 import { ref, reactive, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import Navbar from '../components/Navbar.vue';
+import Loading from '../views/templates/4.vue';
 import 'element-plus/dist/index.css';
 import axiosInstance from '../components/axios';
 
 const router = useRouter();
 const userId =localStorage.getItem('userId');
+const isLoading = ref(true);
 
 const categories = ref([
     { id: 1, name: '收藏商品' },
@@ -132,6 +136,7 @@ const fetchProducts = async () => {
       Products.push(product);
     });
     message01.value = '已获取收藏商品数据';
+    isLoading.value=false;
 
   } catch (error) {
     if (error.response) {
@@ -174,6 +179,7 @@ const handleProductClick = (productId) => {
 const Stores = reactive([]);
 const message02 = ref('');
 const fetchStores = async () => {
+  isLoading.value=true;
   try {
     const response = await axiosInstance.post('/Favourite/GetFavoriteStores', {
       "userId": userId
@@ -181,6 +187,7 @@ const fetchStores = async () => {
     Stores.splice(0, Stores.length, ...response.data);
     message02.value = '已获取收藏店铺数据';
     console.log('收藏店铺数据：'+Stores.values);
+    isLoading.value=false;
   } catch (error) {
     if (error.response) {
       message02.value = error.response.data;
@@ -313,8 +320,8 @@ onMounted(() => {
 }
 
 .product-image {
-  width: 100%;
   height: 150px;
+  max-width: 100%;
   object-fit: cover;
   border-radius: 5px;
   margin-bottom: 10px;

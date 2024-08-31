@@ -4,7 +4,7 @@
     <div class="loading-spinner"></div>
     <p>搜索中，请稍候...</p>
   </div> -->
-  <div style="background-color: #f7f4ed;height: 100%;overflow-x: hidden;">
+  <div style="background-image: url('@/assets/wy/background.jpg'); background-size: cover; background-position: center; height: 100%; overflow-x: hidden;">
     <!-- <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div> -->
     <div v-if="errorMessage" class="error-message-container">
       <div class="error-container">
@@ -17,7 +17,7 @@
       <div v-for="store in stores" :key="store.storeId" class="store-container">
         <div class="store-content">
           <div class="store-header">
-            <img :src="'data:image/png;base64,' + store.storePhoto.result" alt="Store Avatar" class="store-avatar" @click="goToStoreDetail(store.storeId)"/>
+            <img :src="store.storePhoto.imageUrl" alt="Store Avatar" class="store-avatar" @click="goToStoreDetail(store.storeId)"/>
             <div class="store-info">
               <h2 class="store-name" @click="goToStoreDetail(store.storeId)">{{ store.storeName }}</h2>
               <p class="store-rating">评分: {{ (store.storeScore ) }}</p>
@@ -98,6 +98,7 @@ onMounted(() => {
   gap: 20px;
   padding: 20px;
   align-items: center; /* 居中对齐 */
+  background-image: url('@/assets/wy/background.jpg'); background-size: cover; background-position: center; height: 100%; overflow-x: hidden;
 }
 
 .store-container {

@@ -1,9 +1,10 @@
 <!-- 论坛的查看具体帖子页面 -->
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue';
-import {  ElButton, ElInput } from 'element-plus';
+import {  ElButton, ElInput, ElCarousel, ElCarouselItem, ElImage,ElRow,ElCol,ElMessage, } from 'element-plus';
 import 'element-plus/dist/index.css';
 import router from '@/router';
+import 'animate.css';
 import axiosInstance from '../components/axios';
 
 // 假设这些数据是从服务器获取的
@@ -13,9 +14,10 @@ const postIdString = localStorage.getItem('postId');
 const way = localStorage.getItem('way');
 const postId=ref('');
 const subId=ref('');
+const reason=ref('');
+const reason_else=ref('');
 const makeCommentId=ref('');
 const isLoading=ref(true);
-const postLiked=ref(false);
 console.log('postIdString:', postIdString);
 console.log('way:', way);
 let allSubComments = [];
@@ -35,6 +37,7 @@ interface Comment {
   content: string;
   isSubMakeComment: boolean,
   subCollapsed: boolean,
+  dialogVisible_sub:boolean
 }
 const post = ref<{
   title: string,
@@ -88,7 +91,7 @@ function fetchPost (){
         const images = postData.images || [];
         post.value =reactive( {
           title: postData.postTitle || '',
-          author: postData.authorName || '',
+          author: postData.authorName || '匿名',
           content: postData.postContent || '',
           time:  convertToReadableTime(postData.releaseTime) || '',
           liked:data.liked||false,
@@ -100,11 +103,12 @@ function fetchPost (){
           reason_else: '', // 初始化为''
           comments: postData.comments.map(comment => ({
             id: comment.commentId || '',
-            author: comment.authorName || '',
+            author: comment.authorName || '匿名',
             time: convertToReadableTime(comment.commentTime) || '',
             content: comment.commentContent || '',
             isSubMakeComment: false,
             subCollapsed: true,
+            dialogVisible_sub:false,
           })),
           images: images.map(image => image.imageUrl) // 提取每个图片的 URL
         });
@@ -137,7 +141,7 @@ function fetchComment () {
           sub: data.data.map(comment => ({
             fatherId: comment.commentedCommentId,
             id:comment.commentId,
-            author: comment.authorName || '',
+            author: comment.authorName || '匿名',
             time: comment.commentTime || '',
             content: comment.commentContent || '',
           })),
@@ -197,6 +201,10 @@ function submitReply (){
       formData.append('commentContext', inputComment.value);
       axiosInstance.post('/Post/add_comment_to_post', formData, {
       }).then(response => {
+        ElMessage({
+        message: '评论成功',
+        type: 'success',
+        });
         console.log("评论成功");
       }).catch(error => {
         console.error(error);
@@ -219,6 +227,10 @@ function submitSubReply(){
       formData.append('commentContext', inputComment.value);
       axiosInstance.post('/Post/add_comment_to_comment', formData, {
       }).then(response => {
+        ElMessage({
+        message: '评论成功',
+        type: 'success',
+        });
         console.log("评论成功");
       }).catch(error => {
         console.error(error);
@@ -243,13 +255,55 @@ function resetForm() {
 function submitReason(){
   const formData = new FormData();
       formData.append('postId',postId.value );
+      if (post.value.reason=="其他") {
+        if(post.value.reason_else!='')
+        formData.append('reportReason', post.value.reason_else);
+        else{
+          ElMessage({
+        message: '不能为空',
+        type: 'error',
+        });
+        return;
+        }
+      } else if(post.value.reason!='') {
+        formData.append('reportReason', post.value.reason);
+      }
+      else{
+        ElMessage({
+        message: '不能为空',
+        type: 'error',
+        });
+        return;
+      }
+      axiosInstance.post('/Post/report_post', formData, {
+      }).then(response => {
+        ElMessage({
+        message: '举报成功',
+        type: 'success',
+        });
+        resetForm(); 
+        dialogVisible.value=false;
+        console.log(response.data);
+
+      }).catch(error => {
+        console.error(error);
+      });
+}
+function submitReplyReason(id){
+  const formData = new FormData();
+      formData.append('postId',id );
       if (post.value.reason) {
         formData.append('reportReason', post.value.reason);
       } else if (post.value.reason_else) {
         formData.append('reportReason', post.value.reason_else);
       }
-      axiosInstance.post('/Post/report_post', formData, {
+      axiosInstance.post('/Post/report_comment', formData, {
       }).then(response => {
+        ElMessage({
+        message: '举报成功',
+        type: 'success',
+        });
+
         console.log(response.data);
       }).catch(error => {
         console.error(error);
@@ -270,6 +324,10 @@ function like(){
       axiosInstance.post('/Post/like_post', formData, {
       }).then(response => {
         console.log(response.data);
+        ElMessage({
+        message: '点赞成功',
+        type: 'success',
+        });
       }).catch(error => {
         console.error(error);
       });
@@ -281,6 +339,10 @@ function like(){
       axiosInstance.post('/Post/unlike_post', formData, {
       }).then(response => {
         console.log(response.data);
+        ElMessage({
+        message: '取消点赞',
+        type: 'success',
+        });
       }).catch(error => {
         console.error(error);
       });
@@ -288,16 +350,16 @@ function like(){
   }
 }
 
-const changeButtonColor = (button, isHovered) => {
-  if (isHovered) {
-    if(button.id==1)
-    button.backgroundColor = '#87c2a5'; // 设置鼠标悬停时的背景颜色
-    else if(button.id==2)
-    button.backgroundColor = '#5169e6'; 
-  } else {
-    button.backgroundColor = 'transparent'; // 恢复背景颜色为透明
-  }
-};
+// const changeButtonColor = (button, isHovered) => {
+//   if (isHovered) {
+//     if(button.id==1)
+//     button.backgroundColor = '#87c2a5'; // 设置鼠标悬停时的背景颜色
+//     else if(button.id==2)
+//     button.backgroundColor = '#5169e6'; 
+//   } else {
+//     button.backgroundColor = 'transparent'; // 恢复背景颜色为透明
+//   }
+// };
 const buttonClick = (button) => {
   if(button.id==3&&way=='forum'){
     router.push('/forum'); // 跳转回 /forum 页面
@@ -322,29 +384,67 @@ function hasSubComments(fatherId) {
     return allSubComments.some(comment => comment.fatherId === fatherId);
 };
 function highlightPost(event) {
-      event.currentTarget.style.backgroundColor = 'lightblue';
+  // event.currentTarget.style.backgroundColor = ' #bdaead ';;
 };
 function resetPost(event) {
       event.currentTarget.style.backgroundColor = 'initial';
 }
+const handleChange = (currentIndex) => {
+      console.log("Current carousel item index:", currentIndex);
+    };
 </script>
 
 <template>
-    <el-header>{{ post.title }}
+  <div class="big-container">
+    <div class="header">
+      <button :style="{ backgroundImage: `url(${button[2].background})`, 
+      backgroundColor: button[2].backgroundColor }" @click="buttonClick(button[2])" class="back_button" ></button>
+      <p>帖子详情</p>
+    </div>
+    <!-- <el-header>{{ post.title }}
       <button :style="{ backgroundImage: `url(${button[2].background})`, 
         backgroundColor: button[2].backgroundColor }" @click="buttonClick(button[2])" class="back_button" 
         @mouseover="changeButtonColor(button[2], true)" @mouseout="changeButtonColor(button[2], false)"></button>
-    </el-header>
+    </el-header> -->
     <el-main>
-    <div class="data">
-      <button :style="{ backgroundImage: `url(${button[0].background})`, 
-        backgroundColor: button[0].backgroundColor }" class="like_button"></button>{{ post.likeCount }}
+    <div class="post-container" v-if="post.images.length > 0">
+    <el-row :gutter="110">
+      <el-col :span="12">
+        <div v-if="post.images.length > 0">
+        <el-carousel @change="handleChange">
+          <el-carousel-item v-for="image in post.images" :key="image">
+            <el-image 
+              style="width: 100%; height: auto"
+              :src="image"
+              alt="示例图片"
+              fit="cover"></el-image>
+          </el-carousel-item>
+        </el-carousel>
+        </div>
+      </el-col>
+      <el-col :span="12">
+        <div class="post-content">
+          <div class="fixed-text-area">
+          <p class="post-title">{{post.title}}</p>
+          <p>{{post.content}}</p>
+        </div>
+          <div class="post-details">
+            <div class="author">
+            <span>{{ post.time }}</span>
+            <div class="post-actions">
+            <button v-if="post.liked==false" :style="{ backgroundImage: `url(${button[0].background})`, 
+        backgroundColor: button[0].backgroundColor }" class="like_button" @click="like()"></button>
+        <button v-if="post.liked" :style="{ backgroundImage: `url(${button[3].background})`, 
+        backgroundColor: button[3].backgroundColor }" class="like_button" @click="like()"></button>{{ post.likeCount }}
         <button :style="{ backgroundImage: `url(${button[1].background})`, 
-        backgroundColor: button[1].backgroundColor }" class="like_button"></button>{{ post.commentCount }}
-      <div class="report_button">
-      <el-button type="text" @click="dialogVisible = true">举报</el-button>
-    </div>
-<el-dialog
+        backgroundColor: button[1].backgroundColor }" class="like_button" @click="reply()"></button>{{ post.commentCount }}
+          </div>
+        </div>
+            <div class="author">
+            <span>作者:{{ post.author }}</span>
+             <span>
+            <el-button type="text" @click="dialogVisible = true" class="buttons">举报</el-button></span></div>
+            <el-dialog
 :draggable="true"
   v-model="dialogVisible" title="举报详情" width="460px" @close="resetForm">
   <el-select v-model="post.reason" placeholder="请选择原因">
@@ -361,31 +461,63 @@ function resetPost(event) {
     <el-button type="primary" @click="submitReason()">确 定</el-button>
     </div>
 </el-dialog>
-
-    </div>
-    <div class="main_content">
-    <p>{{ post.content }}</p>
-    <div v-if="post.images.length > 0">
-      <ul class="image-list">
-    <li v-for="(image, index) in post.images" :key="index">
-      <img :src="image" class="show_image">
-    </li>
-  </ul>
 </div>
-    </div>
-    <el-container>
-      <div class="hh">
-        <button v-if="post.liked==false" :style="{ backgroundImage: `url(${button[0].background})`, 
+        </div>
+      </el-col>
+    </el-row>
+  </div>
+
+
+
+  <div class="post-container" v-else>
+    <el-row :gutter="10">
+      <el-col :span="24">
+        <div class="post-content">
+          <div class="fixed-text-area">
+          <p class="post-title">{{post.title}}</p>
+          <p>{{post.content}}</p>
+        </div>
+          <div class="post-details">
+            <div class="author">
+            <span>{{ post.time }}</span>
+            <div class="post-actions">
+            <button v-if="post.liked==false" :style="{ backgroundImage: `url(${button[0].background})`, 
         backgroundColor: button[0].backgroundColor }" class="like_button" @click="like()"></button>
         <button v-if="post.liked" :style="{ backgroundImage: `url(${button[3].background})`, 
-        backgroundColor: button[3].backgroundColor }" class="like_button" @click="like()"></button>
-        <!-- <button :style="{  backgroundImage: `url(${currentBackground()})`,
-      backgroundColor: currentBackgroundColor() }" class="like_button" @click="like()"></button> -->
-         <button :style="{ backgroundImage: `url(${button[1].background})`, 
-        backgroundColor: button[1].backgroundColor }" class="like_button" @click="reply()"></button>
+        backgroundColor: button[3].backgroundColor }" class="like_button" @click="like()"></button>{{ post.likeCount }}
+        <button :style="{ backgroundImage: `url(${button[1].background})`, 
+        backgroundColor: button[1].backgroundColor }" class="like_button" @click="reply()"></button>{{ post.commentCount }}
+          </div>
         </div>
-    </el-container>
-    <el-container>
+            <div class="author">
+            <span>作者:{{ post.author }}</span>
+             <span>
+            <el-button type="text" @click="dialogVisible = true" class="buttons">举报</el-button></span></div>
+            <el-dialog
+:draggable="true"
+  v-model="dialogVisible" title="举报详情" width="460px" @close="resetForm">
+  <el-select v-model="post.reason" placeholder="请选择原因">
+        <el-option label="违反法律法规" value="1"></el-option>
+        <el-option label="不实信息" value="2"></el-option>
+        <el-option label="侵犯个人权益" value="3"></el-option>
+        <el-option label="扰乱社区环境" value="4"></el-option>
+        <el-option label="其他" value="5"></el-option>
+      </el-select>
+      <div style="margin-top: 10px;"></div>
+      <el-input v-if="post.reason === '5' "v-model="post.reason_else" placeholder="请输入原因"></el-input>
+  <el-divider></el-divider>
+  <div slot="footer" class="dialog-footer">
+    <el-button type="primary" @click="submitReason()">确 定</el-button>
+    </div>
+</el-dialog>
+</div>
+        </div>
+      </el-col>
+    </el-row>
+  </div>
+
+
+    <el-container class="post-content">
       <div v-if="post.isMakeComment" class="make_comment">
         <el-input
         class="input_comment"
@@ -397,14 +529,47 @@ function resetPost(event) {
           <el-button type="primary" plain @click="submitReply()">确认</el-button>
           <el-button type="danger" plain @click="cancel()">取消</el-button>
       </div>
+      <!-- <button @click="toggleReplies(post)" class="show_reply">显示/隐藏回复</button> -->
+      <el-button type="text" v-if="post.collapsed==false" @click="toggleReplies(post)" class="show_reply">隐藏回复</el-button>
+<el-button type="text" v-if="post.collapsed==true" @click="toggleReplies(post)" class="show_reply">展开回复</el-button>
     </el-container>
     <el-container>
       <div v-if="!post.collapsed">
     <!-- <el-menu> -->
     <div v-for="(reply, index) in  post.comments" :key="index" class="comments">
       <div  @mouseover="highlightPost" @mouseout="resetPost">
-      <div class="user-line">用户：{{ reply.author }}</div>
+      <div class="user-line">评论用户：{{ reply.author }}</div>
       <div class="replyContent">{{ reply.content}}</div>
+      <div class="sub">
+      <div class="user-line">{{ reply.time}}</div>
+<!-- <div class="sub"> -->
+  <el-button type="text" @click="replySub(reply.id)" class="buttons">回复</el-button>
+<!-- <button :style="{ backgroundImage: `url(${button[1].background})`, 
+        backgroundColor: button[1].backgroundColor }" class="sub_reply_button" @click="replySub(reply.id)"></button> -->
+<el-button type="text" @click="reply.dialogVisible_sub = true" class="buttons">举报</el-button>
+<el-dialog
+:draggable="true"
+  v-model="reply.dialogVisible_sub" title="举报详情" width="460px" @close="resetForm">
+  <el-select v-model="post.reason" placeholder="请选择原因">
+        <el-option label="违反法律法规" value="1"></el-option>
+        <el-option label="不实信息" value="2"></el-option>
+        <el-option label="侵犯个人权益" value="3"></el-option>
+        <el-option label="扰乱社区环境" value="4"></el-option>
+        <el-option label="其他" value="5"></el-option>
+      </el-select>
+      <div style="margin-top: 10px;"></div>
+      <el-input v-if="post.reason === '5' "v-model="post.reason_else" placeholder="请输入原因"></el-input>
+  <el-divider></el-divider>
+  <div slot="footer" class="dialog-footer">
+    <el-button type="primary" @click="submitReplyReason(reply.id)">确 定</el-button>
+    </div>
+</el-dialog>
+<div v-if="hasSubComments(reply.id)">
+<el-button type="text" v-if="hasSubComments(reply.id)&&reply.subCollapsed==false" @click="toggleSubComments(reply.id)" class="buttons">隐藏回复</el-button>
+<el-button type="text" v-if="hasSubComments(reply.id)&&reply.subCollapsed==true" @click="toggleSubComments(reply.id)" class="buttons">展开回复</el-button>
+<!-- </div> -->
+</div>
+</div>
       </div>
       <el-container>
       <div v-if="!reply.subCollapsed">
@@ -412,23 +577,13 @@ function resetPost(event) {
       <div v-for="(subComment, subIndex) in getSubComments(reply.id)" :key="subIndex" class="subComments">
       <div  @mouseover="highlightPost" @mouseout="resetPost">
       <div class="user-line">用户：{{ subComment.author }}</div>
-      <div>{{ subComment.content}}</div>
+      <div class="replyContent">{{ subComment.content}}</div>
+      <div class="user-line">{{ subComment.time }}</div>
       </div>
       </div>
   <!-- </el-menu> -->
     </div>
 </el-container>
-<div class="sub">
-<button :style="{ backgroundImage: `url(${button[1].background})`, 
-        backgroundColor: button[1].backgroundColor }" class="sub_reply_button" @click="replySub(reply.id)"></button>
-<div v-if="hasSubComments(reply.id)">
-<button v-if="reply.subCollapsed==false" :style="{ backgroundImage: `url(${button[4].background})`, 
-        backgroundColor: button[4].backgroundColor }" class="sub_reply_button" @click="toggleSubComments(reply.id)"></button>
-<button v-if="reply.subCollapsed==true" :style="{ backgroundImage: `url(${button[5].background})`, 
-        backgroundColor: button[5].backgroundColor }" class="sub_reply_button" @click="toggleSubComments(reply.id)"></button>
-<!-- <button v-if="hasSubComments(reply.id)" @click="toggleSubComments(reply.id)" class="show_sub_reply">显示/隐藏回复</button> -->
-</div>
-</div>
 <el-container>
       <div v-if="reply.isSubMakeComment" class="make_comment">
         <el-input
@@ -446,18 +601,43 @@ function resetPost(event) {
   <!-- </el-menu> -->
 </div>
 </el-container>
-      <button @click="toggleReplies(post)" class="show_reply">显示/隐藏回复</button>
 </el-main>
+  </div>
 </template>
 
 <style scoped>
-.el-header {
+.buttons{
+  margin-left: 2vh;
+  color: #82111f ;
+}
+.buttons:hover {
+  color: #d42517; /* 可选：根据需要更改文字颜色 */
+}
+/* .el-header {
     background-color: #B3C0D1;
     color: #333;
     text-align: center;
     line-height: 60px;
     margin-left: 14vh;
   width:150vh;
+} */
+.big-container {
+  margin: 20px auto;
+  width: 125vh;
+  border: 1px solid #ddd;
+  padding: 0px;
+  border-radius: 10px; /* 圆角边框 */
+  background: #fff;
+}
+.header {
+  background-color: #82111f;
+  color: #fff;
+  padding: 10px;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  display: flex;
+  align-items: center;
+  font-size: larger;
 }
 .data{
   display: flex;
@@ -500,18 +680,10 @@ function resetPost(event) {
 }
 .report_button .el-button {
   background-color: #ffffff;
-  color: #456df1;
+  color: #a61b29  ;
   padding: 8px 10px;
   border-radius: 4px;
   border:none;
-}
-.main_content{
-  border: none; /* 设置边框样式 */
-  padding: 10px; /* 可选：设置内边距 */
-  margin-bottom: 10px;
-  background-color: #c6d2fa;
-  margin-left: 12vh;
-  width:150vh;
 }
 .hh{
   display: flex;
@@ -523,63 +695,39 @@ function resetPost(event) {
   justify-content: flex-start;
   margin-left: 12vh;
   background-color: #ffffff;
-  color: #96affe;
+  color: #82111f ;
   border:none;
 }
+.show_reply:hover {
+  color: #d42517; /* 可选：根据需要更改文字颜色 */
+}
 .input_comment{
-  width: 120vh;       /* 设置输入框宽度 */
+  width: 80vh;       /* 设置输入框宽度 */
 }
 .input_sub_comment{
-  width: 120vh;
+  width: 80vh;
   margin-left:-12vh;
 }
 .comments{
   margin-left: 12vh;
-  width:150vh;
+  width:100vh;
   text-align: left;
   margin-bottom: 1vh;
   margin-top: 1vh;
 }
+.subComments{
+  margin-left: 12vh;
+  width:88vh;
+}
 .make_comment{
   display: flex;
   justify-content: flex-start;
-  
-  align-items: flex-end;
-}
-.make_comment .el-button {
-        flex: 0 0 auto; /* 防止按钮拉伸 */
-        font-size: 12px; /* 按钮字体大小 */
-        padding: 5px 10px; /* 按钮内边距 */
-    }
-
-.back_button {
-  float: left;
-  width: 5vh;
-  height:5vh;
-  background-repeat: no-repeat;
-  background-size: cover;
-  transition: background-color 0.3s ease; /* 添加过渡效果 */
-  background-size: 100% 100%; /* 调整背景图像的尺寸 */
-  border: none;
-}
-
-.input_comment{
-  width: 120vh;       /* 设置输入框宽度 */
-}
-.comments{
-  margin-left: 12vh;
-  width:150vh;
-}
-.subComments{
-  margin-left: 5vh;
-  width:145vh;
-}
-.make_comment{
   display: flex;
   justify-content: flex-start;
   margin-left:12vh;
-  
+  align-items: flex-end;
 }
+
 .back_button {
   float: left;
   width: 5vh;
@@ -590,38 +738,63 @@ function resetPost(event) {
   background-size: 100% 100%; /* 调整背景图像的尺寸 */
   border: none;
 }
-.show_image{
-  max-width: 35vh;
-  max-height: 35vh;
-}
-.image-list {
-  display: flex;
-  flex-direction: row;
-    list-style-type: none;
-    padding: 0; /* Remove default padding */
-  }
-.fade-enter-active, .fade-leave-active {
-  transition: opacity 0.5s;
-}
-.fade-enter, .fade-leave-to {
-  opacity: 0;
-}
-.show_sub_reply{
-  display: flex;
-  justify-content: flex-start;
-  
-  background-color: #ffffff;
-  color: #96affe;
-  border:none;
-}
+
 .sub{
   display: flex;
   flex-direction: row;
 }
 .user-line {
-  font-size: 12px; /* 调整字体大小 */
+  font-size: 14px; /* 调整字体大小 */
+  margin-top: 0.5vh;
 }
 .replyContent{
   font-size: 18px; /* 调整字体大小 */
+  margin-left: 2vh;
 }
+
+/* --------------------------------------------------------------------- */
+.post-container {
+  margin-left: 12vh;
+  width:100vh;
+  border: none;
+  padding: 20px;
+  background: #fff;
+}
+.post-content {
+  display: flex;
+  flex-direction: column;
+}
+.post-title {
+  display: flex;
+  flex-direction: column;
+  font-size:3vh ;
+}
+.author{
+  display: flex;
+  flex-direction: column;
+}
+.fixed-text-area { /* 固定大小的显示区域 */
+  max-height: 200px; /* 设置最大高度 */
+  min-height: 200px;
+  overflow-y: auto; /* 内容溢出时自动滚动 */
+  border-bottom: 1px solid #ddd; /* 底部灰色横线 */
+  padding-bottom: 10px; /* 文字内容和横线之间的间距 */
+}
+.post-details {
+  display: flex;
+  justify-content: space-between;
+  margin: 10px 0;
+}
+.post-actions {
+  display: flex;
+  align-items: center;
+}
+.post-actions span {
+  margin-left: 10px;
+}
+.report-link {
+  cursor: pointer;
+  color: #f56c6c;
+}
+    
 </style>

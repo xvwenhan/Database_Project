@@ -22,7 +22,7 @@ const fetchStores = async (keyword: string, type: string) => {
 
     if (response.data && response.data.length > 0) {
       products.value = response.data;
-      products.value = Array(100).fill(response.data).flat(); // 将数据重复100次并平展成一个数组
+      //products.value = Array(100).fill(response.data).flat(); // 将数据重复100次并平展成一个数组
       errorMessage.value = ''; // 清除错误信息
     } else {
       products.value = [];
@@ -60,7 +60,7 @@ onMounted(() => {
     <p>搜索中，请稍候...</p>
   </div> -->
   <div 
-  style="background-color: #f7f4ed;height: 100%;overflow-x: hidden;"
+  style="background-image: url('@/assets/wy/background.jpg'); background-size: cover; background-position: center; height: 100%; overflow-x: hidden;"
   >
     <!-- <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div> -->
     <!-- 错误信息和图片 -->
@@ -97,11 +97,13 @@ onMounted(() => {
   padding-top: 20px;
   padding-left: 100px;
   padding-right: 100px;
+  background-image: url('@/assets/wy/background.jpg'); background-size: cover; background-position: center; height: 100%; overflow-x: hidden;
   
 }
 
 .product-item {
   width: calc(25% - 20px); /* 每行显示四个商品，减去间隙 */
+  height:300px;
   padding: 20px;
   border: 1px solid #e7e7e7;
   border-radius: 10px;

@@ -85,6 +85,7 @@
 
       <swiper-slide>
       <div class="page2">
+        
           <transition 
           v-show="activeSlideIndex === 1"
           appear
@@ -97,65 +98,97 @@
           class="animate__animated animate__slideInUp">
           <img src="@/assets/mmy/fan_down.png" class="fan_down">
           </transition>
+
+
+
       </div>
       </swiper-slide>
 
       <swiper-slide>
       <div  class="page3">
-        <!-- 动画效果尝试失败 -->
-      <!-- <div class="sidebar">
-        <div class="one-choice1" @click="navigateTo('/merchandise/1')">
-        <transition
-          v-if="activeSlideIndex === 2"
-          appear
-          :name="'bounceInDown'"
-          :style="{ animationDelay: `0.3s` }">
-            <img class="IconPage3" src="@/assets/mmy/工艺品.png">
-        </transition>
-        <p>商品</p>
-      </div>
-      <div class="one-choice2" @click="navigateTo('/bazaar')">
-          <transition
-            v-if="activeSlideIndex === 2"
-            appear
-            :name="'bounceInDown'"
-            :style="{ animationDelay: `0.6s` }">
-              <img class="IconPage3" src="@/assets/mmy/家具.png">
-          </transition>
-          <p>市集</p>
-      </div>
-      <div class="one-choice1" @click="navigateTo('/forum')">
-          <transition
-            v-if="activeSlideIndex === 2"
-            appear
-            :name="'bounceInDown'"
-            :style="{ animationDelay: `0.9s` }">
-              <img class="IconPage3" src="@/assets/mmy/服装.png">
-          </transition>
-          <p>论坛</p>
-      </div>
-      <div class="one-choice2" @click="navigateTo('/cart')">
-          <transition
-            v-if="activeSlideIndex === 2"
-            appear
-            :name="'animate__bounceInDownanimate__animated animate__bounce'"
-            :style="{ animationDelay: `1.2s` }">
-              <img class="IconPage3" src="@/assets/mmy/首饰.png">
-          </transition>
-          <p>收藏夹</p>
-      </div>
-      <div class="one-choice1" @click="navigateTo('/ordercentre')">
-          <transition
-            v-if="activeSlideIndex === 2"
-            appear
-            :name="'bounceInDown'"
-            :style="{ animationDelay: `1.5s` }">
-              <img class="IconPage3" src="@/assets/mmy/小物件.png">
-          </transition>
-          <p>订单中心</p>
-      </div>
-        </div> -->
+        <!-- -------------笨方法长盛不衰------------- -->
         <div class="sidebar">
+          <div class="one-choice1" @click="navigateTo('/merchandise/1')">
+            <img class="IconPage3" src="@/assets/mmy/工艺品.png">
+            <p>商品</p>
+          </div>
+
+          <div class="one-choice2" @click="navigateTo('/bazaar')">
+            <img class="IconPage3" src="@/assets/mmy/家具.png">
+            <p>市集</p>
+          </div>
+
+          <div class="one-choice1" @click="navigateTo('/forum')">
+            <img class="IconPage3" src="@/assets/mmy/服装.png">
+            <p>论坛</p>
+          </div>
+
+          <div class="one-choice2" @click="navigateTo('/cart')">
+            <img class="IconPage3" src="@/assets/mmy/首饰.png">
+            <p>收藏夹</p>
+          </div>
+
+          <div class="one-choice1" @click="navigateTo('/ordercentre')">
+            <img class="IconPage3" src="@/assets/mmy/小物件.png">
+            <p>订单中心</p>
+          </div>
+        </div>
+
+        <!-- ----------动画效果尝试失败---------- -->
+        <!-- <div class="sidebar">
+          <div class="one-choice1" @click="navigateTo('/merchandise/1')">
+          <transition
+            v-if="activeSlideIndex === 2"
+            appear
+            :name="'bounceInDown'"
+            :style="{ animationDelay: `0.3s` }">
+              <img class="IconPage3" src="@/assets/mmy/工艺品.png">
+          </transition>
+          <p>商品</p>
+        </div>
+        <div class="one-choice2" @click="navigateTo('/bazaar')">
+            <transition
+              v-if="activeSlideIndex === 2"
+              appear
+              :name="'bounceInDown'"
+              :style="{ animationDelay: `0.6s` }">
+                <img class="IconPage3" src="@/assets/mmy/家具.png">
+            </transition>
+            <p>市集</p>
+        </div>
+        <div class="one-choice1" @click="navigateTo('/forum')">
+            <transition
+              v-if="activeSlideIndex === 2"
+              appear
+              :name="'bounceInDown'"
+              :style="{ animationDelay: `0.9s` }">
+                <img class="IconPage3" src="@/assets/mmy/服装.png">
+            </transition>
+            <p>论坛</p>
+        </div>
+        <div class="one-choice2" @click="navigateTo('/cart')">
+            <transition
+              v-if="activeSlideIndex === 2"
+              appear
+              :name="'animate__bounceInDownanimate__animated animate__bounce'"
+              :style="{ animationDelay: `1.2s` }">
+                <img class="IconPage3" src="@/assets/mmy/首饰.png">
+            </transition>
+            <p>收藏夹</p>
+        </div>
+        <div class="one-choice1" @click="navigateTo('/ordercentre')">
+            <transition
+              v-if="activeSlideIndex === 2"
+              appear
+              :name="'bounceInDown'"
+              :style="{ animationDelay: `1.5s` }">
+                <img class="IconPage3" src="@/assets/mmy/小物件.png">
+            </transition>
+            <p>订单中心</p>
+        </div>
+        </div> -->
+        <!-- -----------服务器无法识别该绝对路径，无法显示图标----------- -->
+        <!-- <div class="sidebar">
           <div 
             v-for="(item, index) in menuItems" 
             :key="index"
@@ -165,7 +198,7 @@
             <img class="IconPage3" :src="item.icon">
             <p>{{ item.text }}</p>
           </div>
-      </div>
+      </div> -->
 
       <div class="foot">
           <p>指导教师：袁时金、穆斌</p>
@@ -193,13 +226,13 @@ import 'animate.css';
 import { useRouter } from 'vue-router';
 
 const currentAdIndex = ref(0);
-const menuItems = reactive([
-  { text: "商品", link: "/merchandise/1", icon: "/src/assets/mmy/工艺品.png" },
-  { text: "市集", link: "/bazaar", icon: "/src/assets/mmy/家具.png" },
-  { text: "论坛", link: "/forum", icon: "/src/assets/mmy/服装.png" },
-  { text: "收藏夹", link: "/cart", icon: "/src/assets/mmy/首饰.png" },
-  { text: "订单中心", link: "/ordercentre", icon: "/src/assets/mmy/小物件.png" }
-]);
+// const menuItems = reactive([
+//   { text: "商品", link: "/merchandise/1", icon: "/src/assets/mmy/工艺品.png" },
+//   { text: "市集", link: "/bazaar", icon: "/src/assets/mmy/家具.png" },
+//   { text: "论坛", link: "/forum", icon: "/src/assets/mmy/服装.png" },
+//   { text: "收藏夹", link: "/cart", icon: "/src/assets/mmy/首饰.png" },
+//   { text: "订单中心", link: "/ordercentre", icon: "/src/assets/mmy/小物件.png" }
+// ]);
 const numAds = 3;
 const activeSlideIndex=ref(0);
 let adTimer = null;  // 用于存储计时器 ID，这样写是为了知道数据类型
@@ -240,9 +273,23 @@ function navigateTo(link) {
   router.push(link);
 }
 
+document.querySelectorAll('.icon').forEach(icon => {
+            icon.addEventListener('click', () => {
+                icon.classList.add('shake');
+                // Remove the class after animation ends
+                setTimeout(() => {
+                    icon.classList.remove('shake');
+                }, 500); // Match the duration of the animation
+            });
+        });
 </script>
   
 <style scoped>
+
+
+
+
+
 div {
   user-select: none;
   outline: none; 

@@ -1,6 +1,6 @@
 <!-- 论坛的发布帖子页面 -->
 <template>
-  <div class="container">
+  <!-- <div class="container">
     <el-header>
       <button :style="{ backgroundImage: `url(${buttons[1].background})`, 
       backgroundColor: buttons[1].backgroundColor }" @click="buttonClick(buttons[1])" class="back_button" 
@@ -14,7 +14,7 @@ v-model="inputTitle"
 maxlength="10"
 show-word-limit
 ></el-input>
-<div class="spacer"></div> <!-- 添加一个间隔元素 -->
+<div class="spacer"></div> 
   <el-input
 type="textarea"
 :autosize="{ minRows: 10, maxRows: 24}"
@@ -33,6 +33,46 @@ class="input_content">
         <img :src="getFileUrl(file)" class="image-preview">
       </div>
     </div>
+  </div> -->
+  <div class="post-container">
+    <div class="header">
+      <button :style="{ backgroundImage: `url(${buttons[1].background})`, 
+      backgroundColor: buttons[1].backgroundColor }" @click="buttonClick(buttons[1])" class="back_button" ></button>
+      <p>发布新帖</p>
+    </div>
+    <div class="content">
+      <el-input
+type="text"
+placeholder="请输入标题(不能为空)"
+v-model="inputTitle"
+maxlength="10"
+show-word-limit
+></el-input>
+<div class="spacer"></div> 
+  <el-input
+type="textarea"
+:autosize="{ minRows: 10, maxRows: 24}"
+placeholder="请输入正文(不能为空)"
+v-model="inputContent"
+class="input_content">
+</el-input>
+</div>
+<div>
+  <div class="upload-container">
+    <div class="upload-button-container">
+      <label>上传图片</label>
+      <input type="file" @change="handleFileUpload" multiple>
+    </div>
+  </div>
+  <div class="image-container">
+    <div v-for="(file, index) in files" :key="index">
+      <img :src="getFileUrl(file)" class="image-preview">
+    </div>
+  </div>
+</div>
+<div class="publish-button-container">
+      <el-button type="danger" @click="confirm()">发布</el-button>
+    </div>
   </div>
 </template>
 
@@ -40,11 +80,10 @@ class="input_content">
 
 <script setup lang="ts">
 import { ref, reactive} from 'vue';
-import { ElInput} from 'element-plus';
+import { ElInput,ElMessage } from 'element-plus';
 import 'element-plus/dist/index.css';
 import router from '@/router';
 import axiosInstance from '../components/axios';
-
 
 const inputTitle = ref('');
 const inputContent = ref('');
@@ -69,9 +108,6 @@ const getFileUrl = (file) => {
   return URL.createObjectURL(file);
 };
 
-const uploadImages = () => {
-  console.log('上传图片:', files.value);
-};
 const changeButtonColor = (button, isHovered) => {
   if (isHovered) {
     if(button.id==1)
@@ -90,6 +126,13 @@ const buttonClick = (button) => {
 };
 
 const confirm = async () => {
+  if (!inputTitle.value) {
+    ElMessage({
+      message: '发布失败: 标题不能为空',
+      type: 'error',
+    });
+    return;
+  }
   const formData = new FormData();
       formData.append('PostTitle', inputTitle.value);
       formData.append('PostContent', inputContent.value);
@@ -105,7 +148,10 @@ const confirm = async () => {
         }
       }).then(response => {
         console.log(response.data);
-       
+        ElMessage({
+        message: '发布成功',
+        type: 'success',
+        });
         router.push('/forum'); 
       }).catch(error => {
         console.error(error);
@@ -113,15 +159,33 @@ const confirm = async () => {
       console.log('上传图片:', files.value);
     
 };
-
 </script>
 
 
 <style scoped>
-
-.container{
-  margin-right: 25vh;
-  margin-left: 25vh;
+.post-container {
+  margin: 20px auto;
+  width: 125vh;
+  border: 1px solid #ddd;
+  padding: 0px;
+  border-radius: 10px; /* 圆角边框 */
+  background: #fff;
+}
+.header {
+  background-color: #82111f;
+  color: #fff;
+  padding: 10px;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  display: flex;
+  align-items: center;
+  font-size: larger;
+}
+.content{
+  width:90vh;
+  margin-top: 5vh;
+  margin-left: 16vh;
+  
 }
 .upload_button {
   width: 5vh;
@@ -136,7 +200,7 @@ const confirm = async () => {
   background-size: 100% 100%; /* 调整背景图像的尺寸 */
 }
 .spacer {
-  height: 10px; /* 设置间隔的高度 */
+  height: 15px; /* 设置间隔的高度 */
 }
 .upload{
   margin-right: auto;
@@ -162,4 +226,33 @@ const confirm = async () => {
   max-width: 200px;
   margin-top: 10px;
 }
+.image-container {
+    display: flex;
+    flex-wrap: wrap; /* Allow images to wrap to the next line if there are many */
+    gap: 10px; /* Add some space between images */
+    margin-left: 16vh;
+  }
+.upload-container {
+    display: flex;
+    align-items: center;
+    margin-top: 5vh;
+    margin-left: 16vh;
+  }
+  .upload-button-container {
+    display: flex;
+    align-items: center;
+  }
+  .upload-button-container input[type="file"] {
+    margin-left: 8px; /* Optional: Adjust the spacing between label and input */
+  }
+  .image-container {
+    margin-top: 20px;
+  }
+  .publish-button-container {
+    display: flex;
+    justify-content: flex-end; /* Aligned to the right */
+    margin-top: 20px;
+    margin-right: 18vh;
+    margin-bottom: 5vh;
+  }
 </style>

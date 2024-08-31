@@ -1,7 +1,5 @@
 <template>
-    <div v-show="isLoading" class="loading">
-      <div class="loading-text">加载中...</div>
-  </div>
+  <Loading v-show="isLoading" />
 
   <div v-show="!isLoading" class="Pcontainer">
       <div ></div>
@@ -18,7 +16,7 @@
           <div class="line" v-show="isPaid===true">———————</div>
           <div class="procedure3" v-show="isPaid===true">
               <img src="@/assets/mmy/number3.svg" class="number"/>
-              <div class="text-active">3.产看订单信息</div>
+              <div class="text-active">3.查看订单信息</div>
           </div>
       </div>
       <div class="address">
@@ -135,8 +133,9 @@
                   <el-radio label="no">否</el-radio>
                   </el-radio-group>
               </div>
+              <div class="text-price-active-small" >当前积分{{ customer.credits }},可抵扣{{ creditPrice }}元</div>
           </div>
-          <div class="text-price-active-small">当前积分{{ customer.credits }},可抵扣{{ creditPrice }}元</div>
+          <div class="text-price" v-show="creditPrice===0">积分抵扣：当前积分{{ customer.credits }},可抵扣{{ creditPrice }}元</div>
           <div class="text-price-active">价格合计：{{ product.finalPrice }}元</div>
           <div class="pay">
           <el-button
@@ -193,6 +192,8 @@ import { ElDialog, ElButton ,ElMessage} from 'element-plus';
 import { regionData, codeToText } from 'element-china-area-data';
 import axiosInstance from '../components/axios';
 import { useRouter } from 'vue-router';
+import Loading from '../views/templates/4.vue';
+
 //接收路由参数
 import { useRoute } from 'vue-router';
 //页面加载
