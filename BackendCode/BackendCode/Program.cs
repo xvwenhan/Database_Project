@@ -64,7 +64,7 @@ if (app.Environment.IsDevelopment())
     app.UseCors("AllowSpecificOrigin");// 使用CORS策略
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 app.UseAuthentication(); // 添加认证中间件
 app.UseAuthorization();// 添加授权中间件
 

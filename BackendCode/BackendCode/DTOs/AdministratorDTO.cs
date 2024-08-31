@@ -18,7 +18,7 @@ namespace BackendCode.DTOs.Administrator
         public DateTime? startTime { get; set; }
         public DateTime? endTime { get; set; }
         public string? detail { get; set; }
-        public string? posterImg { get; set; }
+        public MarketImageModel? image { get; set; }//修改
     }
 
     public class ShowReportDTO
