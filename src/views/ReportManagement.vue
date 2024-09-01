@@ -44,6 +44,9 @@
                   <p>帖子发布时间: {{ selectedDetail.postTime }}</p>
                   <p>帖子标题: {{ selectedDetail.postTitle }}</p>
                   <p>帖子内容: {{ selectedDetail.postContent }}</p>
+                  <div v-if="selectedDetail.postImages" v-for="image in selectedDetail.postImages" :key="image.imageId">
+                    <img :src="image.imageUrl" alt="Post Image" style="width: 70%; object-fit: cover;"/>
+                  </div>
                 </div>
                 <div v-else>
                   <p>举报者账号: {{ selectedDetail.buyerAccountId }}</p>

@@ -320,7 +320,7 @@ onMounted(() => {
 }
 
 .product-image {
-  height: 150px;
+  max-height: 110px;
   max-width: 100%;
   object-fit: cover;
   border-radius: 5px;

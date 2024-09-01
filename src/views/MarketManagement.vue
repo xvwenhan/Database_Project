@@ -79,7 +79,8 @@
                   <p>开始时间: {{ selectedDetail.startTime }}</p>
                   <p>结束时间: {{ selectedDetail.endTime }}</p>
                   <p>详细信息: {{ selectedDetail.detail }}</p>
-                  <img :src="selectedDetail.imageSrc" alt="Market Poster" v-if="selectedDetail.imageSrc" style="width: 90%; object-fit: cover;" />
+                  <!-- <img :src="selectedDetail.imageSrc" alt="Market Poster" v-if="selectedDetail.imageSrc" style="width: 90%; object-fit: cover;" /> -->
+                  <img :src="selectedDetail.image.imageUrl" :alt="市集图片" v-if="selectedDetail.image" style="width: 90%; object-fit: cover;" />
                 </div>
               </el-dialog>
 
@@ -134,7 +135,7 @@ const fetchRecords = async () => {
     const response = await axiosInstance.get('/Administrator/GetAllMarket');
     records.splice(0, records.length, ...response.data);
     message01.value = '已获取市集数据';
-    console.log(records.values);
+    console.log(records);
   } catch (error) {
     loadingInstance.close();
     if (error.response) {
@@ -185,7 +186,7 @@ const search = (id) => {
   const market = records.find(market => market.marketId === id);
   if (market) {
     Object.assign(selectedDetail, market);
-    selectedDetail.imageSrc = `data:image/png;base64,${selectedDetail.posterImg}`;
+    // selectedDetail.imageSrc = `data:image/png;base64,${selectedDetail.posterImg}`;
     dialogVisible.value = true;
   }
 };
