@@ -1,4 +1,4 @@
-﻿namespace BackendCode.DTOs
+namespace BackendCode.DTOs
 {
     public class ImageModel
     {
@@ -38,6 +38,19 @@
             {
                 //return $"https://localhost:7262/api/images/market/{ImageId}";
                 return $"http://47.97.5.21:5173/api/images/market/{ImageId}";
+            }
+        }
+    }
+
+    public class AuthImageModel
+    {
+        public string? ImageId { get; set; }
+        // 添加一个只读属性来生成图片的URL
+        public string ImageUrl
+        {
+            get
+            {
+                return $"http://47.97.5.21:5173/api/images/authentication/{ImageId}";
             }
         }
     }
