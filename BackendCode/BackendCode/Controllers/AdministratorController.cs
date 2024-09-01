@@ -4,6 +4,8 @@ using BackendCode.Data;
 using BackendCode.DTOs.Administrator;
 using Yitter.IdGenerator;
 using BackendCode.DTOs;
+using BackendCode.Models;
+using Alipay.AopSdk.Core.Domain;
 
 namespace Administrator.Controllers
 {
@@ -106,14 +108,14 @@ namespace Administrator.Controllers
             int _marketId = random.Next(1, 10000000);
             string uidb = _marketId.ToString();
             uidb = "M" + uidb;*/
-            var ms = new MemoryStream();
-            var image = model.posterImg[0];
-            await image.CopyToAsync(ms);
-            var imageData = ms.ToArray();
 
             string uidb = YitIdHelper.NextId().ToString();
             uidb = "M" + uidb;
             string pic_id = YitIdHelper.NextId().ToString();
+
+            var ms = new MemoryStream();
+            await model.posterImg.CopyToAsync(ms);
+            var imageData = ms.ToArray();
 
             _dbContext.MARKETS.Add(new BackendCode.Models.MARKET()
             {
@@ -343,6 +345,27 @@ namespace Administrator.Controllers
                 reporttoc.AUDIT_RESULTS = model.auditResult;
                 reporttoc.AUDIT_TIME = currentDateTime;
                 reporttoc.ADMINISTRATOR_ACCOUNT_ID = model.adminId;
+
+                var complain_post = await _dbContext.COMPLAIN_POSTS
+              .FirstOrDefaultAsync(a => a.REPORT_ID == model.reportId);
+                if(complain_post == null)
+                {
+                    var complain_comment = await _dbContext.COMPLAIN_COMMENTS
+             .FirstOrDefaultAsync(a => a.REPORT_ID == model.reportId);
+                    if(complain_comment == null){ return NotFound(new { Message = "要删除的内容不存在！" }); }
+                    else
+                    {
+                        var comment = await _dbContext.COMMENT_POSTS
+             .FirstOrDefaultAsync(a => a.COMMENT_ID == complain_comment.COMMENT_ID);
+                        _dbContext.COMMENT_POSTS.Remove(comment);
+                    }
+                }
+                else
+                {
+                    var post = await _dbContext.POSTS
+                    .FirstOrDefaultAsync(a => a.POST_ID == complain_post.POST_ID);
+                    _dbContext.POSTS.Remove(post);
+                }
             }
             else
             {

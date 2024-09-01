@@ -122,20 +122,6 @@ namespace BackendCode.Controllers
             {
                 return Forbid();
             }
-            //已经换成级联删除ON DELETE CASCADE;
-            /*            // 删除相关图片
-                        var images = _context.POST_IMAGES.Where(img => img.POST_ID == postId);
-                        _context.POST_IMAGES.RemoveRange(images);*/
-            /*
-                        // 删除帖子下的所有评论
-                        var comments = _context.COMMENT_POSTS.Where(c => c.POST_ID == postId);
-                        _context.COMMENT_POSTS.RemoveRange(comments);
-
-                        // 删除帖子下的所有点赞记录
-                        var likes = _context.LIKE_POSTS.Where(l => l.POST_ID == postId);
-                        _context.LIKE_POSTS.RemoveRange(likes);*/
-
-            // 删除帖子
             _context.POSTS.Remove(post);
 
             await _context.SaveChangesAsync();

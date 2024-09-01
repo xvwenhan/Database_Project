@@ -66,7 +66,8 @@ namespace BackendCode.DTOs.Administrator
         public DateTime startTime { get; set; }
         public DateTime endTime { get; set; }
         public string? detail { get; set; }
-        public List<IFormFile>? posterImg { get; set; }
+        // public List<IFormFile>? posterImg { get; set; }
+        public IFormFile? posterImg { get; set; }
         public string? adminId { get; set; }
     }
     public class DMModel

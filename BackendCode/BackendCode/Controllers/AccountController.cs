@@ -232,7 +232,7 @@ namespace Account.Controllers
             // 设置邮件内容
             Random r = new Random();
             var _verificationCode = r.Next(1000, 10000).ToString();
-            message.Body = "您好，您正在注册非遗平台账号，您的验证码为 " + _verificationCode;
+            message.Body = "您好，您正在非遗平台瑕宝阁注册账号，您的验证码为 " + _verificationCode;
 
             // 设置邮件发送服务器,服务器根据你使用的邮箱而不同,可以到相应的邮箱管理后台查看
             //SmtpClient client = new SmtpClient("smtp.outlook.com", 587);
@@ -571,33 +571,131 @@ namespace Account.Controllers
                 return StatusCode(500, "Failed to add wallets: " + ex.Message);
             }
         }
-/*
-        //临时使用
-        [HttpPut("update-gender")]
-        public async Task<IActionResult> UpdateGenderToFemale()
+
+
+        /*管理员注册（内部用）：*/
+        [HttpPost("administrator_register")]
+        public IActionResult AdministratorRegister([FromBody] RegisterModel model)
         {
-            try
+            if (!ModelState.IsValid)
             {
-                // 获取所有 BUYER 表中的记录
-                var buyers = await _context.BUYERS.ToListAsync();
+                return BadRequest(ModelState);// 如果模型验证失败，返回错误信息
+            }
+            //方便测试加入这个//////记得删
+            var userExists = _context.ACCOUNTS.Any(u => u.EMAIL == model.Email);
+            if (userExists)
+            {
+                return BadRequest(new { message = "邮箱已经存在，不能重复注册！" });
+            }
 
-                // 更新每个 BUYER 的 GENDER 字段为 "Female"
-                foreach (var buyer in buyers)
+            string newId = idGenerator.GetNextId();
+
+            string uidb = newId;
+
+            if (model.Role == "买家")
+            {
+                uidb = "U" + uidb;
+                _context.BUYERS.Add(new BackendCode.Models.BUYER()
                 {
-                    buyer.GENDER = "女";
-                }
+                    ACCOUNT_ID = uidb,
+                    EMAIL = model.Email,
+                    PASSWORD = PasswordHelper.HashPassword(model.Password),
+                    TOTAL_CREDITS = 0
 
-                // 保存更改
-                await _context.SaveChangesAsync();
-
-                return Ok("已经修改！");
+                });
+                _context.WALLETS.Add(new WALLET()
+                {
+                    ACCOUNT_ID = uidb,
+                    BALANCE = 0
+                });
+                _context.SaveChanges();
             }
-            catch (Exception ex)
+            else if (model.Role == "商家")
             {
-                // 处理异常并返回错误信息
-                return StatusCode(500, $"修改失败！: {ex.Message}");
+                uidb = "S" + uidb;
+                _context.STORES.Add(new BackendCode.Models.STORE()
+                {
+                    ACCOUNT_ID = uidb,
+                    EMAIL = model.Email,
+                    PASSWORD = PasswordHelper.HashPassword(model.Password),
+                    STORE_SCORE = 0,
+                });
+                _context.WALLETS.Add(new WALLET()
+                {
+                    ACCOUNT_ID = uidb,
+                    BALANCE = 0
+                });
+                _context.SaveChanges();
             }
-        }*/
+            else if (model.Role == "管理员")
+            {
+                uidb = "A" + uidb;
+                _context.ADMINISTRATORS.Add(new BackendCode.Models.ADMINISTRATOR()
+                {
+                    ACCOUNT_ID = uidb,
+                    EMAIL = model.Email,
+                    PASSWORD = PasswordHelper.HashPassword(model.Password),
+                    PERMISSION_LEVEL = 1,
+                });
+                _context.SaveChanges();
+            }
+            else
+            {
+                return BadRequest(new { message = "Role字段错误！只能为“买家”或“商家”或“管理员”" });
+            }
+
+            return Ok(new { message = "注册成功！", accountId = uidb });
+        }
+
+
+        //管理员修改密码（内部用）:
+        [HttpPost("administrator_password_reset")]
+        public IActionResult AdministratorPasswordReset([FromBody] LoginModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);// 如果模型验证失败，返回错误信息
+            }
+            var user = _context.ADMINISTRATORS.FirstOrDefault(u => u.ACCOUNT_ID == model.Username || u.EMAIL == model.Username);
+            if (user != null)
+            {
+                if (VerifyPassword(model.Password, user.PASSWORD))
+                    return BadRequest(new { message = "新密码不能与旧密码相同！" });
+
+                user.PASSWORD = PasswordHelper.HashPassword(model.Password);
+
+                _context.SaveChanges();
+                return Ok(new { message = "密码重置成功！" });
+            }
+            return NotFound(new { message = "该管理员账号不存在！" });
+        }
+        /*
+                //临时使用
+                [HttpPut("update-gender")]
+                public async Task<IActionResult> UpdateGenderToFemale()
+                {
+                    try
+                    {
+                        // 获取所有 BUYER 表中的记录
+                        var buyers = await _context.BUYERS.ToListAsync();
+
+                        // 更新每个 BUYER 的 GENDER 字段为 "Female"
+                        foreach (var buyer in buyers)
+                        {
+                            buyer.GENDER = "女";
+                        }
+
+                        // 保存更改
+                        await _context.SaveChangesAsync();
+
+                        return Ok("已经修改！");
+                    }
+                    catch (Exception ex)
+                    {
+                        // 处理异常并返回错误信息
+                        return StatusCode(500, $"修改失败！: {ex.Message}");
+                    }
+                }*/
 
 
         /*    var buyers = await _context.BUYERS.ToListAsync();
