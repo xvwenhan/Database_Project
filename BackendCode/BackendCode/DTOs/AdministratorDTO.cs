@@ -7,7 +7,7 @@ namespace BackendCode.DTOs.Administrator
         public string? StoreId { get; set; }
         public string? Authentication { get; set; }
         public string? Status { get; set; }
-        public string? Photo { get; set; }
+        public AuthImageModel? Photo { get; set; }
 
     }
 
@@ -31,7 +31,7 @@ namespace BackendCode.DTOs.Administrator
         public string? postContent { get; set; }//帖子内容
         public string? postTitle { get; set; }//帖子标题
         public string? auditResults { get; set; }//审核结果
-        public List<string>? postImages { get; set; }//帖子图片
+        public List<PostImageModel>? postImages { get; set; }//帖子图片
     }
 
     public class ShowCommentRepoDTO

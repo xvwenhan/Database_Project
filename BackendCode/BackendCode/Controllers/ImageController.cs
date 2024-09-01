@@ -69,6 +69,18 @@ namespace BackendCode.Controllers
             return NotFound();
         }
 
+        [HttpGet("authentication/{imageId}")]
+        public IActionResult GetAuthImage(string imageId)
+        {
+            var image = _context.SUBMIT_AUTHENTICATIONS.FirstOrDefault(pd => pd.STORE_ACCOUNT_ID == imageId);
+            if (image != null)
+            {
+                return File(image.STORE_ACCOUNT_ID, "image/jpeg"); //根据图片类型调整MIME类型
+            }
+
+            return NotFound();
+        }
+
 
 
     }

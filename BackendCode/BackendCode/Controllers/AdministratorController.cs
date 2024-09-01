@@ -36,10 +36,14 @@ namespace Administrator.Controllers
 
             var allAuthenticationDtos = authentications.Select(p => new ShowAuthenticationDTO
             {
-                StoreId =p.STORE_ACCOUNT_ID,
-                Authentication =p.AUTHENTICATION,
-                Status=p.STATUS,
-                Photo = p.PHOTO != null ? Convert.ToBase64String(p.PHOTO) : null,
+                StoreId = p.STORE_ACCOUNT_ID,
+                Authentication = p.AUTHENTICATION,
+                Status = p.STATUS,
+                //Photo = p.PHOTO != null ? Convert.ToBase64String(p.PHOTO) : null,
+                Photo = new AuthImageModel
+                {
+                    ImageId = p.STORE_ACCOUNT_ID
+                },
 
             }).ToList();
             // 返回商品信息
@@ -274,13 +278,18 @@ namespace Administrator.Controllers
                                 reportId = report.REPORT_ID,
                                 buyerAccountId = complainPost.BUYER_ACCOUNT_ID,
                                 reportingTime = report.REPORT_TIME,
-                                postTime=post.RELEASE_TIME,
+                                postTime = post.RELEASE_TIME,
                                 reportingReason = report.REPORT_REASON,
                                 postContent = post.POST_CONTENT,
                                 postTitle = post.POST_TITLE,
                                 auditResults = report.AUDIT_RESULTS,
-                                postImages = postImagesGroup.Select(pi => Convert.ToBase64String(pi.IMAGE)) .ToList(),
-            };
+                                //postImages = postImagesGroup.Select(pi => Convert.ToBase64String(pi.IMAGE)) .ToList(),
+                                postImages = postImagesGroup.Select(img => new PostImageModel
+                                {
+                                    ImageId = img.IMAGE_ID
+                                })
+                                 .ToList(),
+                            };
                 var res = await query.ToListAsync();
                 return Ok(res);
             }

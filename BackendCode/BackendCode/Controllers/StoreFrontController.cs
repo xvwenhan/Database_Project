@@ -10,6 +10,7 @@ using System.IO;
 using Microsoft.AspNetCore.Http;
 using BackendCode.DTOs.Store;
 using BackendCode.Models;
+using BackendCode.DTOs;
 using Alipay.AopSdk.Core.Domain;
 
 namespace StoreFrontController.Controllers
@@ -256,7 +257,11 @@ namespace StoreFrontController.Controllers
                 return Ok(new
                 {
                     Authentication = auth.AUTHENTICATION,
-                    photo = auth.PHOTO
+                    //photo = auth.PHOTO
+                    Photo = new AuthImageModel
+                    {
+                        ImageId = auth.STORE_ACCOUNT_ID
+                    },
                 });
 
             }
