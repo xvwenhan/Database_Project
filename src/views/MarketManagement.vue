@@ -22,7 +22,7 @@
                 </el-col>
                 <el-col :span="7"> 
                   <el-form-item label="选择类型">
-                    <el-select v-model="formData.selectedOptions" placeholder="将向以下类型商家发送邀请" style="width: 300px;" @change="handleOptionChange">
+                    <el-select v-model="formData.selectedOptions" placeholder="将向以下类型商家发送邀请" style="width: 300px;" >
                       <el-option-group
                         v-for="group in categories"
                         :key="group.largeCategoryName"
@@ -193,14 +193,6 @@ onMounted(() => {
   fetchCategories();
 })
 
-const options = ref([
-  { value: 'option1', label: '服装' },
-  { value: 'option2', label: '首饰' },
-  { value: 'option3', label: '家具' },
-  { value: 'option4', label: '工艺品' },
-  { value: 'option5', label: '小物件' }
-]);
-
 // 页面大小及当前页数
 const pageSize = ref(4);
 const currentPage = ref(1);
@@ -245,9 +237,9 @@ const handleFileUpload = (event) => {
   formData.img = file;
 };
 
-const handleOptionChange = (values) => {
-  formData.selectedOptions = values;
-};
+// const handleOptionChange = (values) => {
+//   formData.selectedOptions = values;
+// };
 
 const message02 = ref('');
 const addMarket = async () => {
@@ -259,6 +251,8 @@ const addMarket = async () => {
   putData.append('detail', formData.detail);
   putData.append('posterImg', formData.img);
   putData.append('adminId', userId);
+
+  console.log('邀请商家分类id'+formData.selectedOptions);
 
   try {
     const response = await axiosInstance.put('/Administrator/AddMarket', putData, {
