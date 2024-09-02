@@ -185,7 +185,11 @@ const totalFetches = 5;  // 总共需要完成的请求数量
 
 const checkLoadingStatus = () => {
   loadedCount.value += 1;
-  if (loadedCount.value === totalFetches) {
+  if (role=='买家'&&loadedCount.value === totalFetches) {
+    isLoading.value = false;  // 所有请求完成后，设置 isLoading 为 false
+    loadedCount.value=0;
+  }
+  else if(role!='买家'&&loadedCount.value === totalFetches-1){
     isLoading.value = false;  // 所有请求完成后，设置 isLoading 为 false
     loadedCount.value=0;
   }
@@ -402,7 +406,7 @@ const fetchProductsByTag = async (tag) => {
     }
     response.data.forEach(product => {
       if(product.saleOrNot==false){
-        product.productPic = `data:image/png;base64,${product.productPic}`;
+        //product.productPic = `data:image/png;base64,${product.productPic}`;
         products.push(product);
       }
     });
@@ -432,7 +436,7 @@ const fetchProductsBySearch = async (word) => {
     }
     response.data.forEach(product => {
       if(product.saleOrNot==false){
-        product.productPic = `data:image/png;base64,${product.productPic}`;
+        //product.productPic = `data:image/png;base64,${product.productPic}`;
         products.push(product);
       }
     });
@@ -478,7 +482,9 @@ const fetchRemarks = async () => {
 
 onMounted(() => {
   fetchStoreInfo();
-  fetchIsBookmarked();
+  if(role=='买家'){
+    fetchIsBookmarked();
+  }
   fetchTags();
   fetchAllProducts();
   fetchRemarks();
