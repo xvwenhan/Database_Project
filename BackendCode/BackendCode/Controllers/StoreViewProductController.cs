@@ -300,6 +300,7 @@ namespace StoreViewProductController.Controllers
                     PRODUCT_PRICE = newProduct.ProductPrice,
                     SALE_OR_NOT = false, // 默认值
                     TAG = newProduct.Tag,
+                    SUB_TAG = newProduct.SubTag,//新增加
                     DESCRIBTION = newProduct.Description,
                     ACCOUNT_ID = storeId,
                     STORE_TAG = newProduct.StoreTag,

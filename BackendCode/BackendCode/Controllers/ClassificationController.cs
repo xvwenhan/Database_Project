@@ -28,6 +28,7 @@ namespace ClassificationController.Controllers
             _dbContext = dbContext;
             _logger = logger;
         }
+        //获取大分类图文详情
         [HttpGet("GetCategoryByName")]
         public async Task<IActionResult> GetCategoryByName(string categoryName)
         {
@@ -60,17 +61,116 @@ namespace ClassificationController.Controllers
                 return StatusCode(500, "Internal server error.");
             }
         }
-        [HttpGet("getProductsByTag")]
+
+        //新接口！获取有哪些大类（以及大类下的小类）
+        [HttpGet("GetAllCategories")]
+        public async Task<IActionResult> GetAllCategoriesWithSubcategories()
+        {
+
+            // 查询所有大分类
+            var largeCategories = await _dbContext.CATEGORYS.ToListAsync();
+
+            // 为每个大分类查询其子分类
+            var result = largeCategories.Select(lc => new
+            {
+                LargeCategoryName = lc.CATEGORY_NAME,
+                SubCategories = _dbContext.SUB_CATEGORYS
+                    .Where(sc => sc.CATEGORY_NAME == lc.CATEGORY_NAME)
+                    .Select(sc => new CategoryDTO{ SubCategoryName=sc.SUBCATEGORY_NAME ,SubCategoryId=sc.SUBCATEGORY_ID})
+                    .ToList()
+            }).ToList();
+            if (!result.Any())
+            { return NotFound(new { Message = "当前不存在任何分类！" }); }
+
+                return Ok(new { Message = "获取大类名称及对应小类成功！", Categories = result });
+        }
+
+        //新接口！获取有哪些大类（相当于上个接口的轻量版）
+        [HttpGet("GetBigCategories")]
+        public async Task<IActionResult> GetBigCategoriesWithSubcategories()
+        {
+            // 查询所有大分类（没有ParentID的分类）
+            var result = await _dbContext.CATEGORYS
+                .Select(c => new { CategoryName = c.CATEGORY_NAME })
+                .ToListAsync();
+            if (!result.Any())
+            { return NotFound(new { Message = "当前不存在任何分类！" }); }
+            return Ok(new {Message="获取大类名称成功！",Categories= result });
+        }
+
+        //新接口！获取大类下有什么小类
+        [HttpGet("GetSubCategoryByName")]
+        public async Task<IActionResult> GetSubCategoryByName(string categoryName)
+        {
+            if (string.IsNullOrEmpty(categoryName))
+            {
+                return BadRequest("Category name is required.");
+            }
+
+            try
+            {
+                var category = await _dbContext.CATEGORYS
+                   .Where(c => c.CATEGORY_NAME == categoryName)
+                   .FirstOrDefaultAsync();
+                if (category == null) { return NotFound(new { Message = "大分类名称填写错误！" }); }
+                var subcategories = await _dbContext.SUB_CATEGORYS
+                    .Where(c => c.CATEGORY_NAME == categoryName)
+                    .Select(sc => new CategoryDTO{ SubCategoryId=sc.SUBCATEGORY_ID,SubCategoryName= sc.SUBCATEGORY_NAME })
+                    .ToListAsync();
+                if (!subcategories.Any())
+                { return NotFound(new { Message = "当前不存在任何子分类！" }); }
+                return Ok(new { Message=$"成功找到{categoryName}下的子分类！",Subcategories= subcategories });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting category by name.");
+                return StatusCode(500, "Internal server error.");
+            }
+        }
+
+        //重大修改 ：通过小类id获取商品
+        [HttpGet("getProductsBySubTagId")]
         //[Authorize]
-        public async Task<IActionResult> GetProductsByTag(string tag)
+        public async Task<IActionResult> GetProductsBySubTagId(string subTagId)
         {
             try
             {
-                // 如果tag是具体的数值
-                if (int.TryParse(tag, out int tagNumber) && tagNumber >= 1 && tagNumber <= 19)
+                var subcategory = await _dbContext.SUB_CATEGORYS
+                            .Where(c => c.SUBCATEGORY_ID == subTagId)
+                            .FirstOrDefaultAsync();
+                if (subcategory == null)
+                    return NotFound(new { Message=$"子分类ID{subTagId}不存在！"});
+                if (subcategory.SUBCATEGORY_NAME == "全部")
                 {
                     var products = await _dbContext.PRODUCTS
-                        .Where(p => p.TAG == tag)
+                        .Where(p => p.TAG == subcategory.CATEGORY_NAME)
+                        .Select(p => new
+                        {
+                            ProductId = p.PRODUCT_ID,
+                            ProductName = p.PRODUCT_NAME,
+                            ProductPrice = p.PRODUCT_PRICE,
+                            SubCategoryName = _dbContext.SUB_CATEGORYS
+                                .Where(sc => sc.SUBCATEGORY_ID == p.TAG)
+                                .Select(sc => sc.SUBCATEGORY_NAME)
+                                .FirstOrDefault(),
+                            Images = _dbContext.PRODUCT_IMAGES
+                                .Where(pi => pi.PRODUCT_ID == p.PRODUCT_ID)
+                                .Select(pi => new ImageModel { ImageId = pi.IMAGE_ID })
+                                .ToList()
+                        })
+                        .ToListAsync();
+
+                    if (products == null || !products.Any())
+                    {
+                        return NotFound("No products found for the given tag.");
+                    }
+
+                    return Ok(products);
+                }
+                else
+                {
+                    var products = await _dbContext.PRODUCTS
+                        .Where(p => p.SUB_TAG == subTagId)
                         .Select(p => new
                         {
                             ProductId = p.PRODUCT_ID,
@@ -95,43 +195,6 @@ namespace ClassificationController.Controllers
                     return Ok(products);
                 }
 
-                // 如果tag是分类名（如 "服装"、"首饰"、"工艺品"、"家具"、"小物件"）
-                var validCategories = new[] { "服装", "首饰", "工艺品", "家具", "小物件" };
-                if (validCategories.Contains(tag))
-                {
-                    var subCategoryIds = await _dbContext.SUB_CATEGORYS
-                        .Where(sc => sc.CATEGORY_NAME == tag)
-                        .Select(sc => sc.SUBCATEGORY_ID)
-                        .ToListAsync();
-
-                    var products = await _dbContext.PRODUCTS
-                        .Where(p => subCategoryIds.Contains(p.TAG))
-                        .Select(p => new
-                        {
-                            ProductId = p.PRODUCT_ID,
-                            ProductName = p.PRODUCT_NAME,
-                            ProductPrice = p.PRODUCT_PRICE,
-                            SubCategoryName = _dbContext.SUB_CATEGORYS
-                                .Where(sc => sc.SUBCATEGORY_ID == p.TAG)
-                                .Select(sc => sc.SUBCATEGORY_NAME)
-                                .FirstOrDefault(),
-                            Images = _dbContext.PRODUCT_IMAGES
-                                .Where(pi => pi.PRODUCT_ID == p.PRODUCT_ID)
-                                .Select(pi => new ImageModel { ImageId = pi.IMAGE_ID })
-                                .ToList()
-                        })
-                        .ToListAsync();
-
-                    if (products == null || !products.Any())
-                    {
-                        return NotFound("No products found for the given category.");
-                    }
-
-                    return Ok(products);
-                }
-
-                // 如果tag不符合预期的取值范围
-                return BadRequest("Invalid tag value. Please provide a valid tag.");
             }
             catch (Exception ex)
             {

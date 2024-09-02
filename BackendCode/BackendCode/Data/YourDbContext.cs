@@ -507,6 +507,10 @@ namespace BackendCode.Data
                     .HasMaxLength(50)
                     .IsRequired();
 
+                entity.Property(e => e.SUB_TAG)
+                    .HasMaxLength(50)
+                    .IsRequired();
+
                 entity.Property(e => e.STORE_TAG)
                     .HasMaxLength(50);
 
@@ -523,10 +527,10 @@ namespace BackendCode.Data
                     .HasForeignKey(s => s.ACCOUNT_ID)
                     .HasConstraintName("PRODUCT_FK");
 
-                entity.HasOne(e => e.SUB_CATEGORY)
+/*                entity.HasOne(e => e.SUB_CATEGORY)
                     .WithMany()
                     .HasForeignKey(e => e.TAG)
-                    .HasConstraintName("PRODUCT_SUBCATEGORY_FK");
+                    .HasConstraintName("PRODUCT_SUBCATEGORY_FK");*/
 
                 //实验：
                 entity.HasMany(b => b.PRODUCT_IMAGES)
@@ -873,6 +877,16 @@ namespace BackendCode.Data
                 entity.Property(e => e.CATEGORY_DESCRIPTION)
                       .HasMaxLength(500)
                       .HasColumnType("VARCHAR2(500)");
+
+                entity.HasMany(b => b.SUB_CATEGORYS)
+                     .WithOne(p => p.CATEGORY)
+                     .HasForeignKey(p => p.CATEGORY_NAME)
+                     .HasConstraintName("SUB_CATEGORY_FK");
+
+                entity.HasMany(b => b.PRODUCTS)
+                     .WithOne(p => p.CATEGORY)
+                     .HasForeignKey(p => p.TAG)
+                     .HasConstraintName("PRODUCT_BIG_CATEGORY_FK");
             });
 
             modelBuilder.Entity<SUB_CATEGORY>(entity =>
@@ -896,10 +910,15 @@ namespace BackendCode.Data
                       .HasColumnType("VARCHAR2(50)")
                       .IsRequired();
 
-                entity.HasOne(e => e.CATEGORY)
+/*                entity.HasOne(e => e.CATEGORY)
                       .WithMany()
                       .HasForeignKey(e => e.CATEGORY_NAME)
-                      .HasConstraintName("SUB_CATEGORY_FK");
+                      .HasConstraintName("SUB_CATEGORY_FK");*/
+
+                entity.HasMany(b => b.PRODUCTS)
+                      .WithOne(p => p.SUB_CATEGORY)
+                      .HasForeignKey(p => p.SUB_TAG)
+                      .HasConstraintName("PRODUCT_SUBCATEGORY_FK"); 
             });
 
             modelBuilder.Entity<PRODUCT_IMAGE>(entity =>

@@ -44,7 +44,8 @@
     {
         public string? ProductName { get; set; }
         public decimal ProductPrice { get; set; }
-        public string? Tag { get; set; }
+        public string Tag { get; set; }
+        public string SubTag { get; set; }//新增加！！！
         public string? Description { get; set; }
         public string? StoreTag { get; set; }
         public List<IFormFile>? ProductImages { get; set; }
