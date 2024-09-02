@@ -64,7 +64,7 @@ namespace BackendCode.Controllers
             var image = _context.MARKETS.FirstOrDefault(pd => pd.IMAGE_ID == imageId);
             if (image != null)
             {
-                return File(image.IMAGE_ID, "image/jpeg"); //根据图片类型调整MIME类型
+                return File(image.POSTERIMG, "image/jpeg"); //根据图片类型调整MIME类型
             }
 
             return NotFound();
@@ -76,7 +76,31 @@ namespace BackendCode.Controllers
             var image = _context.SUBMIT_AUTHENTICATIONS.FirstOrDefault(pd => pd.STORE_ACCOUNT_ID == imageId);
             if (image != null)
             {
-                return File(image.STORE_ACCOUNT_ID, "image/jpeg"); //根据图片类型调整MIME类型
+                return File(image.PHOTO, "image/jpeg"); //根据图片类型调整MIME类型
+            }
+
+            return NotFound();
+        }
+
+        [HttpGet("buyerinfo/{imageId}")]
+        public IActionResult GetBuyerInfoImage(string imageId)
+        {
+            var image = _context.BUYERS.FirstOrDefault(pd => pd.ACCOUNT_ID == imageId);
+            if (image != null)
+            {
+                return File(image.PHOTO, "image/jpeg"); //根据图片类型调整MIME类型
+            }
+
+            return NotFound();
+        }
+
+        [HttpGet("storeinfo/{imageId}")]
+        public IActionResult GetStoreInfoImage(string imageId)
+        {
+            var image = _context.STORES.FirstOrDefault(pd => pd.ACCOUNT_ID == imageId);
+            if (image != null)
+            {
+                return File(image.PHOTO, "image/jpeg"); //根据图片类型调整MIME类型
             }
 
             return NotFound();

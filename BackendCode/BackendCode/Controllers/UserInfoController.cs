@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using BackendCode.DTOs.UserInfo;
 using Microsoft.EntityFrameworkCore;
+using BackendCode.DTOs;
 
 namespace UserInfo.Controllers
 {
@@ -59,9 +60,9 @@ namespace UserInfo.Controllers
                     return NotFound("不存在该用户");
                 }
 
-                var response = new PhotoAndDescribtionDTO
+                var response = new PhotoAndDescribtionDTO1
                 {
-                    Photo = infos.PHOTO != null ? Convert.ToBase64String(infos.PHOTO) : null,
+                    Photo = new BuyerInfoImageModel { ImageId = model.Id },
                     Describtion = infos.DESCRIBTION,
                 };
                 return Ok(response);
@@ -76,9 +77,9 @@ namespace UserInfo.Controllers
                     return NotFound("不存在该用户");
                 }
 
-                var response = new PhotoAndDescribtionDTO
+                var response = new PhotoAndDescribtionDTO2
                 {
-                    Photo = infos.PHOTO != null ? Convert.ToBase64String(infos.PHOTO) : null,
+                    Photo = new StoreInfoImageModel { ImageId = model.Id },
                     Describtion = infos.DESCRIBTION,
                 };
                 return Ok(response);
@@ -117,8 +118,10 @@ namespace UserInfo.Controllers
 
                 if (model.Photo != null)
                 {
-                    byte[] photoBytes = Convert.FromBase64String(model.Photo);
-                    temp.PHOTO = photoBytes;
+                    var ms = new MemoryStream();
+                    await model.Photo.CopyToAsync(ms);
+                    var imageData = ms.ToArray();
+                    temp.PHOTO = imageData;
                     res += "头像已被成功更改 ";
                 }
             }
@@ -141,8 +144,10 @@ namespace UserInfo.Controllers
 
                 if (model.Photo != null)
                 {
-                    byte[] photoBytes = Convert.FromBase64String(model.Photo);
-                    temp.PHOTO = photoBytes;
+                    var ms = new MemoryStream();
+                    await model.Photo.CopyToAsync(ms);
+                    var imageData = ms.ToArray();
+                    temp.PHOTO = imageData;
                     res += "头像已被成功更改 ";
                 }
             }
