@@ -63,7 +63,7 @@
 
     <div class="Topbar">
         <span class="Website">
-            <img src="@/assets/logo.png" alt="Website" id="WebsiteIcon">
+            <img src="@/assets/logo1.png" alt="Website" id="WebsiteIcon">
             <span>瑕宝阁</span>
         </span>
         <ul>
