@@ -82,6 +82,30 @@ namespace BackendCode.Controllers
             return NotFound();
         }
 
+        [HttpGet("buyerinfo/{imageId}")]
+        public IActionResult GetBuyerInfoImage(string imageId)
+        {
+            var image = _context.BUYERS.FirstOrDefault(pd => pd.ACCOUNT_ID == imageId);
+            if (image != null)
+            {
+                return File(image.PHOTO, "image/jpeg"); //根据图片类型调整MIME类型
+            }
+
+            return NotFound();
+        }
+
+        [HttpGet("storeinfo/{imageId}")]
+        public IActionResult GetStoreInfoImage(string imageId)
+        {
+            var image = _context.STORES.FirstOrDefault(pd => pd.ACCOUNT_ID == imageId);
+            if (image != null)
+            {
+                return File(image.PHOTO, "image/jpeg"); //根据图片类型调整MIME类型
+            }
+
+            return NotFound();
+        }
+
 
 
     }

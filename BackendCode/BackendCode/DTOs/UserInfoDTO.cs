@@ -42,13 +42,18 @@
     public class SPADModel
     {
         public string? Id { get; set; }
-        public string? Photo { get; set; }
+        public IFormFile? Photo { get; set; }
         public string? Describtion { get; set; }
     }
 
-    public class PhotoAndDescribtionDTO
+    public class PhotoAndDescribtionDTO1
     {
-        public string? Photo { get; set; }
+        public BuyerInfoImageModel? Photo { get; set; }
+        public string? Describtion { get; set; }
+    }
+    public class PhotoAndDescribtionDTO2
+    {
+        public StoreInfoImageModel? Photo { get; set; }
         public string? Describtion { get; set; }
     }
 }
