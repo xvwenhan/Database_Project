@@ -84,9 +84,9 @@ const selectedCategoryName = computed(() => {
   return category ? category.name : '未知分类';
 });
 
-const filterSubCategoryNames = computed(()=>{
-    return subCategoryNames.filter(subCategory => subCategory.parent === currentType.value);
-})
+// const filterSubCategoryNames = computed(()=>{
+//     return subCategoryNames.filter(subCategory => subCategory.parent === currentType.value);
+// })
 
 
 
@@ -220,7 +220,7 @@ function onSlideChange(swiper:any) {
       
   <div class="merchandise-container">
     
-    <aside class="sidebar" >
+    <!-- <aside class="sidebar" > -->
      
       <ul v-show="false">
         <li v-for="category in categories" :key="category.id"
@@ -231,12 +231,12 @@ function onSlideChange(swiper:any) {
       </ul>
   
       <ul>
-        <li>全部商品</li>
+        <!-- <li>全部商品</li> -->
         <li v-for="subCategoryName in filterSubCategoryNames" :key="subCategoryName.id">
           {{ subCategoryName.name }}
         </li>
       </ul>
-    </aside>
+    <!-- </aside> -->
     
     <main class="main-content">
      <!-- 对商品分类描述界面 -->
