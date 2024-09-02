@@ -1,11 +1,16 @@
 <script setup lang="ts">
+
+import { Swiper, SwiperSlide } from 'swiper/vue';
+import { Navigation, Pagination } from 'swiper/modules';
+import 'swiper/css';
+import { Mousewheel } from 'swiper/modules';
 import Navbar from '../components/Navbar.vue';
 import { ref, computed,onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 //import { METHODS } from 'http';
 import axiosInstance from '../components/axios';
 import { log } from 'console';
-
+const mySwiper=ref(null)
 const categories = [
   { id: 1, name: '服装' },
   { id: 2, name: '首饰' },
@@ -14,6 +19,14 @@ const categories = [
   { id: 5, name: '小物件' },
 ];
 
+const swiperOptions = {
+  slidesPerView: 1,
+  spaceBetween: 10,
+  pagination: {
+    el: '.swiper-pagination',
+    clickable: true,
+  },
+};
 
 
 const subCategoryNames = [
@@ -66,9 +79,7 @@ var description = "";
 const products = ref([])
 const defaultImage = '/src/assets/example1.png'
 
-const cart = ref([]);
-const favorites = ref([]);
-const showFavoritesDropdown = ref(false);
+
 
 const route = useRoute();
 const router = useRouter();
@@ -108,12 +119,13 @@ const goToPage = (pageNumber) => {
 
 
 const typeChange = (id,name) =>{
+  console.log(swiperInstance,'swiperInstance')
+  swiperInstance.slideTo(1)
   currentType.value = name
   getCategory(name);
   getCommodity(name)
-  router.push(`/merchandise/${id.toString()}`);
-  //使界面下滑 xx px
-  window.scrollBy(0,750);
+  
+  
 };
 
 
@@ -127,8 +139,6 @@ const getCategory = async (category) => {
       },
     });
     categoryDate.value = response.data
-    // image = response.data.categorY_PIC;
-    // description = response.data.categorY_DESCRIPTION;
     console.log(description);
   } catch (error) {
     console.error('请求错误：', error);
@@ -147,53 +157,54 @@ const getCommodity = async (category) =>{
       },
     });
     products.value = response.data
-    // image = response.data.categorY_PIC;
-    // description = response.data.categorY_DESCRIPTION;
     console.log(description);
   } catch (error) {
     console.error('请求错误：', error);
     return [];
   }
-      // axiosInstance.post('/Post/get_all_posts', {
-      //   params: {
-      //   categoryName: "服装",
-      // },
-      // }).then(response => {
-      //   const data = response.data;
-      //   if (data && Array.isArray(data.posts)) {
-      //     // 解构帖子数组
-      //     posts.value = data.posts.map(post => ({
-      //       id: post.postId || '',
-      //       title: post.postTitle || '',
-      //       author: post.authorName || '匿名',
-      //       time: convertToReadableTime(post.releaseTime) || '',
-      //       like:post.numberOfLikes || 0,
-      //       comment:post.numberOfComments || 0,
-      //       image: post.coverImageId.imageUrl,
-      //     }));
-          
-      //     // 设置总帖子数量
-      //     totalPostNums.value = data.totalPostNums || 0;
-      //     message.value="成功";
-      //     console.log(posts.value);
-      //   } else {
-      //     console.error('Invalid data format.');
-      //   }
-      // }).catch(error => {
-      //   console.error('请求错误：', error);
-      //   return [];
-      // });
 }
+
+//获取当前分类商品的数量
+const getProductCount = () =>{
+ return products.value.length;
+};
+
+const goToProductDetail = (productId: string) => {
+  // console.log('Selected Store ID:', productId);
+  localStorage.setItem('productIdOfDetail', productId);  // 存储 productId
+  console.log('跳转至 /productdetail');
+  router.push('/productdetail');  // 跳转到商品详情页
+};
+let swiperInstance = null
+const onSwiper = (swiper) => {
+    swiperInstance = swiper
+  }
 onMounted(()=>{
   getCategory(currentType.value);
   getCommodity(currentType.value)
   console.log(1);
   
 })
-
+const activeSlideIndex=ref(0);
+function onSlideChange(swiper:any) {
+  activeSlideIndex.value = swiper.activeIndex;
+  console.log(`activeSlideIndex.value is ${activeSlideIndex.value}`);
+}
 </script>
 
 <template>
+  <swiper
+      :direction="'vertical'"
+      :slidesPerView="1"
+      :mousewheel="true"
+      :speed="1000"
+      class="mySwiper"
+      ref="mySwiper"
+      @slideChange="onSlideChange"
+      :options="swiperOptions"
+      @swiper="onSwiper" 
+      :modules="[Mousewheel,Navigation, Pagination]"
+  >
     <swiper-slide>
       <div class="page1">
   <Navbar />
@@ -202,7 +213,7 @@ onMounted(()=>{
   <div class="card green" style="top: 200px;" @click="typeChange(1,'首饰')">
   
     <img src="/src/assets/mmy/工艺品.png" alt="首饰">
-    <p>首饰</p>
+    <p class="vertical-text">首饰</p>
     
   </div>
   <div class="card blue" style="top: 250px;"@click="typeChange(1,'家具')">
@@ -226,7 +237,8 @@ onMounted(()=>{
       </div>
       </swiper-slide>
 
-
+    <swiper-slide>
+      
   <div class="merchandise-container">
     
     <aside class="sidebar" >
@@ -240,6 +252,7 @@ onMounted(()=>{
       </ul>
   
       <ul>
+        <li>全部商品</li>
         <li v-for="subCategoryName in filterSubCategoryNames" :key="subCategoryName.id">
           {{ subCategoryName.name }}
         </li>
@@ -251,39 +264,45 @@ onMounted(()=>{
      <div class="image-with-description">
     <img :src="'data:image/jpeg;base64,'+categoryDate.categorY_PIC" alt="">
     <p>{{categoryDate.categorY_DESCRIPTION}}</p>
-    </div>
-
+    
+  </div>
 
       <div class="product-display">
-        <div v-for="product in products" :key="product.id" class="product-item">
+        <div v-for="product in products" :key="product.id" class="product-item" @click="goToProductDetail(product.productId)">
           <img :src="product.images && product.images.length>0 ?product.images[0].imageUrl: defaultImage" :alt="product.name" class="product-image" />
           <h2>{{ product.productName }}</h2>
           <p>价格: ¥{{ product.productPrice }}</p>
-      
-           
-        
+         
+          
         </div>
       </div>
 
-      <!-- 分页按钮 -->
-      <div class="pagination">
-        <button @click="goToPage(currentPage - 1)" :disabled="currentPage === 1">上一页</button>
-        <span>第 {{ currentPage }} 页 / 共 {{ products.length }} 页</span>
-        <button @click="goToPage(currentPage + 1)" :disabled="currentPage === products.length">下一页</button>
+      
+      <div class="pagination" style="background-color: white;"> 
+        <span> 共 {{ getProductCount() }} 件</span>
       </div>
     </main>
   </div>
+</swiper-slide>
 
 
-
- 
+</swiper>
 
 </template>
 
 
 <style scoped>
  
-
+ .end-of-list {
+  width: 100%;  /* 确保容器占满整个宽度 */
+  text-align: center;
+  margin: 20px 0;
+  font-size: 24px;
+  color: #a61b29;
+  display: flex;
+  justify-content: center; /* 水平居中 */
+  align-items: center; /* 垂直居中 */
+}
 .container {
   display: flex;
   justify-content: center; /* 水平居中对齐 */
@@ -298,7 +317,7 @@ onMounted(()=>{
   height: 250px;
   margin: 0px;
   background-color: #fff;
-
+  display: grid;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   text-align: center;
   position: relative;
@@ -320,7 +339,10 @@ onMounted(()=>{
 .card p {
   font-size: 18px;
   color: #333;
-  margin-top: 10px;
+
+  writing-mode: vertical-rl; /* 竖排文字，从右到左 */
+  text-align: center;
+  line-height: 1.5;
 }
 
 
@@ -380,7 +402,7 @@ html, body {
 
 .merchandise-container {
   display: flex;
-  height: 100vh;
+  height: auto;
   background-image: url('@/assets/categories/背景图.jpg');
 }
 
@@ -406,24 +428,8 @@ html, body {
   margin: 0;
 }
 
-.sidebar .category-block {
-  padding: 12px;
-  margin-bottom: 12px;
-  background-color: #004080; /* 稍浅的深蓝色背景 */
-  border-radius: 8px; /* 更大的圆角 */
-  cursor: pointer;
-  transition: background-color 0.3s, transform 0.3s; /* 增加平滑的过渡效果 */
-  color: #ffffff; /* 白色文本 */
-}
 
-.sidebar .category-block.active {
-  background-color: #00509e; /* 更亮的蓝色用于高亮显示 */
-}
 
-.sidebar .category-block:hover {
-  background-color: #003d66; /* 悬停时的背景颜色 */
-  transform: scale(1.02); /* 添加缩放效果 */
-}
 
 
 
@@ -433,7 +439,7 @@ html, body {
 .main-content {
   flex: 1;
   padding: 20px;
-  overflow-y: auto;
+  /* overflow-y: auto; */
 }
 
 .main-content h1 {
@@ -520,20 +526,36 @@ height: 100%;
 }
 
 .image-with-description {
-display: flex;
-align-items: center;
-position: relative;
-z-index: 1;
-background-color: whitesmoke; /* 设置背景颜色为完全透明的黑色 */
-padding: 10px;
-margin-right: 80px; /* 设置右边距 */
-margin-bottom: 20px; /* 设置下边距 */
-    } 
+  display: flex;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+  background-color: white; 
+  padding: 20px;
+  margin-right: 80px;
+  margin-bottom: 20px;
+  border-radius: 15px; /* 增加圆角 */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 添加轻微阴影 */
+  transition: transform 0.3s ease, box-shadow 0.3s ease; /* 添加交互效果 */
+}
+
+
+
 
 .image-with-description img {
-width: 200px;
-height: auto;
-margin-right: 20px;   
+  width: 200px;
+  height: auto;
+  margin-right: 20px;
+  border-radius: 10px; /* 为图片添加圆角 */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 为图片添加轻微阴影 */
 }
+
+.image-with-description .description {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+  font-size: 16px; 
+  color: #333; 
+  line-height: 1.5; 
+}
+
 
 </style>
