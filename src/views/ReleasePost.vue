@@ -57,7 +57,7 @@ v-model="inputContent"
 class="input_content">
 </el-input>
 </div>
-<div>
+<!-- <div>
   <div class="upload-container">
     <div class="upload-button-container">
       <label>上传图片</label>
@@ -65,11 +65,31 @@ class="input_content">
     </div>
   </div>
   <div class="image-container">
-    <div v-for="(file, index) in files" :key="index">
+    <div v-for="(file, index) in files" :key="index" class="image-wrapper">
       <img :src="getFileUrl(file)" class="image-preview">
+      <span class="delete-button" @click="removeImage(index)">×</span>
     </div>
   </div>
-</div>
+</div> -->
+<div class="image-upload-container">
+    <div class="image-upload-grid">
+      <div v-for="(file, index) in files" :key="index" class="image-preview">
+        <img :src="getImageURL(file)" class="image-thumb">
+        <span class="delete-button" @click="removeImage(index)">×</span>
+      </div>
+      <div class="upload-button-container" @click="triggerFileInput">
+        <div class="center-content">
+          <span class="plus-icon">+</span>
+        </div>
+      </div>
+    </div>
+    <input
+      type="file"
+      ref="fileInput"
+      @change="handleFileUpload"
+      multiple
+      class="hidden-file-input" />
+  </div>
 <div class="publish-button-container">
       <el-button type="danger" @click="confirm()">发布</el-button>
     </div>
@@ -80,14 +100,14 @@ class="input_content">
 
 <script setup lang="ts">
 import { ref, reactive} from 'vue';
-import { ElInput,ElMessage } from 'element-plus';
+import { ElInput,ElMessage,ElButton } from 'element-plus';
 import 'element-plus/dist/index.css';
 import router from '@/router';
 import axiosInstance from '../components/axios';
 
 const inputTitle = ref('');
 const inputContent = ref('');
-
+const hover=ref(false);
 const buttons = reactive([
   { id: 1, text: 'Button 1', background: 'src/assets/czw/picture+.svg', backgroundColor: 'transparent' },
   { id: 2, text: 'Button 2', background: 'src/assets/czw/back.svg', backgroundColor: 'transparent' },
@@ -96,6 +116,12 @@ const buttons = reactive([
 
 
 const files = ref([]);
+const fileInput = ref(null);
+const triggerFileInput = () => {
+      if (fileInput.value) {
+        fileInput.value.click();
+      }
+    };
 
 const handleFileUpload = (event) => {
   const selectedFiles = event.target.files;
@@ -103,28 +129,29 @@ const handleFileUpload = (event) => {
     files.value.push(selectedFiles[i]);
   }
 };
-
-const getFileUrl = (file) => {
+const removeImage = (index) => {
+  files.value.splice(index, 1);
+};
+const getImageURL = (file) => {
   return URL.createObjectURL(file);
 };
 
-const changeButtonColor = (button, isHovered) => {
-  if (isHovered) {
-    if(button.id==1)
-    button.backgroundColor = '#87c2a5'; // 设置鼠标悬停时的背景颜色
-    else if(button.id==2||button.id==3)
-    button.backgroundColor = '#5169e6'; 
-  } else {
-    button.backgroundColor = 'transparent'; // 恢复背景颜色为透明
-  }
-};
+// const changeButtonColor = (button, isHovered) => {
+//   if (isHovered) {
+//     if(button.id==1)
+//     button.backgroundColor = '#87c2a5'; // 设置鼠标悬停时的背景颜色
+//     else if(button.id==2||button.id==3)
+//     button.backgroundColor = '#5169e6'; 
+//   } else {
+//     button.backgroundColor = 'transparent'; // 恢复背景颜色为透明
+//   }
+// };
 
 const buttonClick = (button) => {
   if(button.id==2){
     router.push('/forum'); // 跳转回 /forum 页面
   }
 };
-
 const confirm = async () => {
   if (!inputTitle.value) {
     ElMessage({
@@ -163,6 +190,71 @@ const confirm = async () => {
 
 
 <style scoped>
+.image-upload-container {
+  padding: 20px;
+  margin-left: 14vh;
+}
+
+.image-upload-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.image-preview {
+  width: 150px;
+  height: 150px;
+  border: 1px solid #e0e0e0;
+  border-radius: 5px;
+  overflow: hidden;
+  position: relative;
+}
+
+.image-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.upload-button-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 150px;
+  height: 150px;
+  border: 1px dashed #c0c0c0;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.upload-icon {
+  font-size: 36px;
+  color: #c0c0c0;
+}
+
+.hidden-file-input {
+  display: none;
+}
+.image-wrapper {
+  position: relative; /* 确保父容器是相对定位 */
+  margin: 5px;
+}
+
+.delete-button {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: rgba(0, 0, 0, 0.5); /* 半透明背景以便更好显示 */
+  color: white;
+  border: none;
+  border-radius: 50%; /* 圆形按钮 */
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
 .post-container {
   margin: 20px auto;
   width: 125vh;
@@ -224,7 +316,7 @@ const confirm = async () => {
 }
 .image-preview {
   max-width: 200px;
-  margin-top: 10px;
+  /* margin-top: 10px; */
 }
 .image-container {
     display: flex;
@@ -255,4 +347,17 @@ const confirm = async () => {
     margin-right: 18vh;
     margin-bottom: 5vh;
   }
+  .center-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+}
+
+.plus-icon {
+  font-size: 24px;
+  color: #A9A9A9;
+}
+
 </style>

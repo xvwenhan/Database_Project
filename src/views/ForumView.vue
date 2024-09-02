@@ -3,6 +3,7 @@
 import Navbar from '../components/Navbar.vue';
 import { ref, computed } from 'vue';
 import { ElPagination, ElInput} from 'element-plus';
+import ElementPlus from 'element-plus';
 import 'element-plus/dist/index.css';
 import router from '@/router';
 import axiosInstance from '../components/axios';

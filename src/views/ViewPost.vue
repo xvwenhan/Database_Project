@@ -401,23 +401,19 @@ const handleChange = (currentIndex) => {
       backgroundColor: button[2].backgroundColor }" @click="buttonClick(button[2])" class="back_button" ></button>
       <p>帖子详情</p>
     </div>
-    <!-- <el-header>{{ post.title }}
-      <button :style="{ backgroundImage: `url(${button[2].background})`, 
-        backgroundColor: button[2].backgroundColor }" @click="buttonClick(button[2])" class="back_button" 
-        @mouseover="changeButtonColor(button[2], true)" @mouseout="changeButtonColor(button[2], false)"></button>
-    </el-header> -->
     <el-main>
     <div class="post-container" v-if="post.images.length > 0">
-    <el-row :gutter="110">
+    <el-row :gutter="130">
       <el-col :span="12">
         <div v-if="post.images.length > 0">
-        <el-carousel @change="handleChange">
+        <el-carousel @change="handleChange"> 
           <el-carousel-item v-for="image in post.images" :key="image">
+            <div class="image-container">
             <el-image 
-              style="width: 100%; height: auto"
+              style="width: 100%; height: 100%; object-fit: cover; "
               :src="image"
               alt="示例图片"
-              fit="cover"></el-image>
+              fit="cover"></el-image></div>
           </el-carousel-item>
         </el-carousel>
         </div>
@@ -606,6 +602,22 @@ const handleChange = (currentIndex) => {
 </template>
 
 <style scoped>
+.image-container {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+}
+
+.image-container img {
+    width: 100%;
+    height: 100%;
+    transition: transform 0.3s ease;
+}
+
+.image-container:hover img {
+    transform: scale(1.2);  /* Adjust the scale value as needed */
+}
 .buttons{
   margin-left: 2vh;
   color: #82111f ;
@@ -623,7 +635,7 @@ const handleChange = (currentIndex) => {
 } */
 .big-container {
   margin: 20px auto;
-  width: 125vh;
+  width: 165vh;
   border: 1px solid #ddd;
   padding: 0px;
   border-radius: 10px; /* 圆角边框 */
@@ -755,7 +767,7 @@ const handleChange = (currentIndex) => {
 /* --------------------------------------------------------------------- */
 .post-container {
   margin-left: 12vh;
-  width:100vh;
+  width:138vh;
   border: none;
   padding: 20px;
   background: #fff;
@@ -774,8 +786,8 @@ const handleChange = (currentIndex) => {
   flex-direction: column;
 }
 .fixed-text-area { /* 固定大小的显示区域 */
-  max-height: 200px; /* 设置最大高度 */
-  min-height: 200px;
+  max-height: 300px; /* 设置最大高度 */
+  min-height: 300px;
   overflow-y: auto; /* 内容溢出时自动滚动 */
   border-bottom: 1px solid #ddd; /* 底部灰色横线 */
   padding-bottom: 10px; /* 文字内容和横线之间的间距 */
