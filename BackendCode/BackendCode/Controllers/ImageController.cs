@@ -64,7 +64,7 @@ namespace BackendCode.Controllers
             var image = _context.MARKETS.FirstOrDefault(pd => pd.IMAGE_ID == imageId);
             if (image != null)
             {
-                return File(image.IMAGE_ID, "image/jpeg"); //根据图片类型调整MIME类型
+                return File(image.POSTERIMG, "image/jpeg"); //根据图片类型调整MIME类型
             }
 
             return NotFound();
