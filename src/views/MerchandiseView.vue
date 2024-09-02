@@ -10,7 +10,9 @@ import { useRoute, useRouter } from 'vue-router';
 //import { METHODS } from 'http';
 import axiosInstance from '../components/axios';
 import { log } from 'console';
+
 const mySwiper=ref(null)
+
 const categories = [
   { id: 1, name: '服装' },
   { id: 2, name: '首饰' },
@@ -19,14 +21,7 @@ const categories = [
   { id: 5, name: '小物件' },
 ];
 
-const swiperOptions = {
-  slidesPerView: 1,
-  spaceBetween: 10,
-  pagination: {
-    el: '.swiper-pagination',
-    clickable: true,
-  },
-};
+
 
 
 const subCategoryNames = [
@@ -80,7 +75,6 @@ const products = ref([])
 const defaultImage = '/src/assets/example1.png'
 
 
-
 const route = useRoute();
 const router = useRouter();
 const selectedCategory = computed(() => route.params.category as string);
@@ -94,28 +88,6 @@ const filterSubCategoryNames = computed(()=>{
     return subCategoryNames.filter(subCategory => subCategory.parent === currentType.value);
 })
 
-const itemsPerPage = 9; // 每页显示的商品数量
-const currentPage = ref(1); // 当前页码
-
-const filteredProducts = computed(() => {
-  const filtered = products.value.filter(product => product.category.toString() === selectedCategory.value);
-  const start = (currentPage.value - 1) * itemsPerPage;
-  const end = start + itemsPerPage;
-  return filtered.slice(start, end);
-});
-
-const totalPages = computed(() => {
-  const totalItems = products.value.filter(product => product.category.toString() === selectedCategory.value).length;
-  return Math.ceil(totalItems / itemsPerPage);
-});
-
-
-
-const goToPage = (pageNumber) => {
-  if (pageNumber >= 1 && pageNumber <= totalPages.value) {
-    currentPage.value = pageNumber;
-  }
-};
 
 
 const typeChange = (id,name) =>{
@@ -132,7 +104,9 @@ const typeChange = (id,name) =>{
 const categoryDate = ref({categorY_PIC:'',categorY_DESCRIPTION:''})
 //请求分类商品的介绍
 const getCategory = async (category) => {
-  try {
+    
+    try {
+  
     const response = await axiosInstance.get('/Classification/GetCategoryByName', {
       params: {
         categoryName: category,
@@ -150,7 +124,9 @@ const getCategory = async (category) => {
 
 //获取对应分类下的商品信息
 const getCommodity = async (category) =>{
+ 
   try {
+    
     const response = await axiosInstance.get('/Classification/getProductsByTag', {
       params: {
         tag: category,
@@ -175,6 +151,8 @@ const goToProductDetail = (productId: string) => {
   console.log('跳转至 /productdetail');
   router.push('/productdetail');  // 跳转到商品详情页
 };
+
+
 let swiperInstance = null
 const onSwiper = (swiper) => {
     swiperInstance = swiper
@@ -193,7 +171,8 @@ function onSlideChange(swiper:any) {
 </script>
 
 <template>
-  <swiper
+  
+  <swiper 
       :direction="'vertical'"
       :slidesPerView="1"
       :mousewheel="true"
@@ -209,7 +188,7 @@ function onSlideChange(swiper:any) {
       <div class="page1">
   <Navbar />
   
-          <div class="container">
+          <div class="container"> 
   <div class="card green" style="top: 200px;" @click="typeChange(1,'首饰')">
   
     <img src="/src/assets/mmy/工艺品.png" alt="首饰">
@@ -266,7 +245,6 @@ function onSlideChange(swiper:any) {
     <p>{{categoryDate.categorY_DESCRIPTION}}</p>
     
   </div>
-
       <div class="product-display">
         <div v-for="product in products" :key="product.id" class="product-item" @click="goToProductDetail(product.productId)">
           <img :src="product.images && product.images.length>0 ?product.images[0].imageUrl: defaultImage" :alt="product.name" class="product-image" />
@@ -277,10 +255,9 @@ function onSlideChange(swiper:any) {
         </div>
       </div>
 
-      
-      <div class="pagination" style="background-color: white;"> 
+      <!-- <div class="pagination"> 
         <span> 共 {{ getProductCount() }} 件</span>
-      </div>
+      </div> -->
     </main>
   </div>
 </swiper-slide>
@@ -402,7 +379,7 @@ html, body {
 
 .merchandise-container {
   display: flex;
-  height: auto;
+  height: 100%;
   background-image: url('@/assets/categories/背景图.jpg');
 }
 
@@ -486,30 +463,26 @@ html, body {
 }
 
 .pagination {
-  margin-top: 20px;
+  /* margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px; */
+  margin-top: 20px; 
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 10px;
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  background-color: white;
+  transform: translateX(-50%);
 }
 
-.pagination button {
-  padding: 5px 10px;
-  background-color: #fff;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
 
-.pagination button:disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
-}
 
-.pagination button:hover:not(:disabled) {
-  background-color: #f0f0f0;
-}
+
 
 .animate__animated.animate__slideInUp{
 --animate-duration: 1.2s;
