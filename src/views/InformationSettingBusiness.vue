@@ -148,17 +148,11 @@ export default {
         handleFile(event) {
             const file = event.target.files[0];
             if (file) {
-                const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-                if (validTypes.includes(file.type)) {
                 const reader = new FileReader();
                 reader.onload = (e) => {
-                    this.userimades.ima = e.target.result;
-                    console.log('Loaded image:', this.userimades.ima); // 输出图片数据
+                    this.userimades.ima = e.target.result; // 这里将文件读取的结果直接设置为 URL
                 };
-                reader.readAsDataURL(file);
-                } else {
-                this.$message.error('请上传正确格式的图片 (.jpg 或 .png)');
-                }
+                reader.readAsDataURL(file); // 这里使用 Data URL 格式读取文件
             }
         },
         //获取头像简介
@@ -172,7 +166,7 @@ export default {
                 const { describtion, photo } = response.data;
                 console.log('1:',this.userimades.ima);
                 console.log('2:',this.userimades.descri);
-                this.userimades.ima = `data:image/jpeg;base64,${photo}`;
+                this.userimades.ima = photo;
                 this.userimades.descri = describtion;
 
                 console.log('获取到的头像和文字描述:', this.userimades);
@@ -189,12 +183,11 @@ export default {
                 return;
                 }
 
-                // 从图片数据中去除 Base64 前缀
-                const Photo = this.userimades.ima.split(',')[1]; 
+               
+                const Photo = this.userimades.ima;
                 const Describtion = this.userimades.descri;
                 const Id = localStorage.getItem('userId'); 
-                // const Id = 'U00000018'; 
-
+              
                 if (!Photo || !Describtion) {
                 this.$message.error('请提供图片和简介');
                 return;
