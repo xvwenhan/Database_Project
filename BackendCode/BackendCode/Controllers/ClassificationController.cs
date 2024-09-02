@@ -202,6 +202,17 @@ namespace ClassificationController.Controllers
             }
         }
 
+        //新接口！获取小类的名称（相当于上个接口的轻量版）
+        [HttpGet("GetSubCategoryName")]
+        public async Task<IActionResult> GetSubCategoriesName(string subTagId)
+        {
+            var result = await _dbContext.SUB_CATEGORYS
+                .Where(c=>c.SUBCATEGORY_ID== subTagId)
+                .Select(c => new { CategoryName = c.SUBCATEGORY_NAME })
+                .FirstOrDefaultAsync();
+
+            return Ok(new { Message = "获取小类名称成功！", SubCategoryName = result });
+        }
 
     }
 }

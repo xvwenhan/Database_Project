@@ -64,6 +64,7 @@ namespace StoreViewProductController.Controllers
                     ProductPrice = p.PRODUCT_PRICE,
                     SaleOrNot = p.SALE_OR_NOT,
                     Tag = p.TAG,
+                    SubTag = p.SUB_TAG,//新增！
                     Description = p.DESCRIBTION,
                     StoreTag = p.STORE_TAG,
                    ProductPics = _dbContext.PRODUCT_IMAGES
@@ -111,6 +112,7 @@ namespace StoreViewProductController.Controllers
                 ProductPrice = p.PRODUCT_PRICE,
                 SaleOrNot = p.SALE_OR_NOT,
                 Tag = p.TAG,
+                SubTag = p.SUB_TAG,//新增！
                 Description = p.DESCRIBTION,
                 StoreTag = p.STORE_TAG,
                 ProductPics = _dbContext.PRODUCT_IMAGES
@@ -154,6 +156,7 @@ namespace StoreViewProductController.Controllers
                     ProductPrice = p.PRODUCT_PRICE,
                     SaleOrNot = p.SALE_OR_NOT,
                     Tag = p.TAG,
+                    SubTag = p.SUB_TAG,//新增！
                     Description = p.DESCRIBTION,
                     StoreTag = p.STORE_TAG,
                     ProductPics = _dbContext.PRODUCT_IMAGES
@@ -189,6 +192,7 @@ namespace StoreViewProductController.Controllers
             //if (updatedProduct.ProductPrice.HasValue) 
                 product.PRODUCT_PRICE = updatedProduct.ProductPrice;
             if (!string.IsNullOrEmpty(updatedProduct.Tag)) product.TAG = updatedProduct.Tag;
+            if (!string.IsNullOrEmpty(updatedProduct.SubTagId)) product.SUB_TAG = updatedProduct.SubTagId;//新增加
             if (!string.IsNullOrEmpty(updatedProduct.Description)) product.DESCRIBTION = updatedProduct.Description;
 
 
