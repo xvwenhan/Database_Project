@@ -22,14 +22,29 @@
                 </el-col>
                 <el-col :span="7"> 
                   <el-form-item label="选择类型">
-                    <el-select v-model="formData.selectedOptions" multiple placeholder="将向以下类型商家发送邀请" style="width: 300px;" @change="handleOptionChange">
+                    <el-select v-model="formData.selectedOptions" placeholder="将向以下类型商家发送邀请" style="width: 300px;" @change="handleOptionChange">
+                      <el-option-group
+                        v-for="group in categories"
+                        :key="group.largeCategoryName"
+                        :label="group.largeCategoryName"
+                      >
+                        <el-option
+                          v-for="item in group.subCategories"
+                          :key="item.subCategoryId"
+                          :label="item.subCategoryName"
+                          :value="item.subCategoryId"
+                        />
+                      </el-option-group>
+                    </el-select>
+
+                    <!-- <el-select v-model="formData.selectedOptions" multiple placeholder="将向以下类型商家发送邀请" style="width: 300px;" @change="handleOptionChange">
                       <el-option
                         v-for="item in options"
                         :key="item.value"
                         :label="item.label"
                         :value="item.value">
                       </el-option>
-                    </el-select>
+                    </el-select> -->
                   </el-form-item>
                 </el-col>
               </el-row>
@@ -118,7 +133,7 @@ import AdminSidebarMenu from '../components/AdminSidebarMenu.vue'
 import AdminHeaderSec from '../components/AdminHeaderSec.vue'
 import { reactive, ref, computed, onMounted  } from 'vue';
 import { ElTable, ElTableColumn, ElPagination, ElButton, ElDialog, ElForm, ElFormItem, ElInput, ElRow, ElCol, ElSelect, ElOption, ElMessage } from 'element-plus';
-import { ElLoading } from 'element-plus';
+import { ElLoading, ElOptionGroup } from 'element-plus';
 import 'element-plus/dist/index.css';
 import axiosInstance from '../components/axios';
 
@@ -126,6 +141,7 @@ const userId =localStorage.getItem('userId');
 const role=localStorage.getItem('role');
 
 const records = reactive([]);
+const categories = reactive([]);
 const message01 = ref('');
 
 const fetchRecords = async () => {
@@ -154,8 +170,27 @@ const fetchRecords = async () => {
   loadingInstance.close();
   console.log(message01.value);
 };
+
+const fetchCategories = async () => {
+  try {
+    const response = await axiosInstance.get('/Classification/GetAllCategories');
+    categories.splice(0, categories.length, ...response.data.categories);
+    message01.value = '已获取系统分类数据';
+    console.log(categories);
+  } catch (error) {
+    if (error.response) {
+      message01.value = error.response.data;
+    } else {
+      message01.value = '获取分类数据失败';
+    }
+    ElMessage.error('获取分类数据失败，请稍后再试');
+  }
+  console.log(message01.value);
+};
+
 onMounted(() => {
   fetchRecords();
+  fetchCategories();
 })
 
 const options = ref([
@@ -201,7 +236,7 @@ const formData = reactive({
   start: '',
   end: '',
   detail: '',
-  selectedOptions:[],
+  selectedOptions:'',
   img:''
 });
 
@@ -211,17 +246,14 @@ const handleFileUpload = (event) => {
 };
 
 const handleOptionChange = (values) => {
-  formData.selectedOptions = values.map(value => {
-    const option = options.value.find(option => option.value === value);
-    return option ? option.label : '';
-  });
+  formData.selectedOptions = values;
 };
 
 const message02 = ref('');
 const addMarket = async () => {
   const putData = new FormData();
   putData.append('theme', formData.topic);
-  putData.append('option', formData.selectedOptions.join(','));
+  putData.append('option', formData.selectedOptions);
   putData.append('startTime', formData.start);
   putData.append('endTime', formData.end);
   putData.append('detail', formData.detail);
