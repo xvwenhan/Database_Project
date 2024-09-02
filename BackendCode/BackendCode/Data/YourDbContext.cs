@@ -37,7 +37,7 @@ namespace BackendCode.Data
         public virtual DbSet<CATEGORY> CATEGORYS { get; set; }
         public virtual DbSet<PRODUCT_IMAGE> PRODUCT_IMAGES { get; set; }
         public virtual DbSet<PRODUCT_DETAIL> PRODUCT_DETAILS { get; set; }
-        
+        public virtual DbSet<STORE_BUSINESS_DIRECTION> STORE_BUSINESS_DIRECTIONS { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             /* 配置TPT表继承策略 */
@@ -169,6 +169,10 @@ namespace BackendCode.Data
                       .WithOne()
                       .HasForeignKey<STORE>(e => e.ACCOUNT_ID)
                       .HasConstraintName("A_A_FK1");
+
+                entity.HasMany(b => b.STORE_BUSINESS_DIRECTIONS)
+                    .WithOne(p => p.STORE)
+                     .HasForeignKey(p => p.STORE_ID);//新增加
             });
 
             modelBuilder.Entity<BUYER_PRODUCT_BOOKMARK>(entity =>
@@ -965,6 +969,25 @@ namespace BackendCode.Data
                 entity.Property(e => e.DESCRIPTION)
                       .HasMaxLength(500)
                       .HasColumnType("VARCHAR2(500)");
+            });
+
+            modelBuilder.Entity<STORE_BUSINESS_DIRECTION>(entity =>
+            {
+                entity.HasKey(e => new { e.STORE_ID,e.BUSINESS_TAG});
+
+                entity.ToTable("STORE_BUSINESS_DIRECTION");
+
+                entity.Property(e => e.STORE_ID)
+                    .HasMaxLength(100)
+                    .HasColumnType("VARCHAR2(100)")
+                    .IsRequired();
+                entity.Property(e => e.BUSINESS_TAG)
+                    .HasMaxLength(50)
+                    .HasColumnType("VARCHAR2(50)")
+                    .IsRequired();
+                entity.Property(e => e.BUSINESS_TAG)
+                    .HasColumnType("NUMBER(10)");
+
             });
         }
     }

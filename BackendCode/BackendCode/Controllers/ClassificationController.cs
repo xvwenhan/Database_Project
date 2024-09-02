@@ -210,6 +210,8 @@ namespace ClassificationController.Controllers
                 .Where(c=>c.SUBCATEGORY_ID== subTagId)
                 .Select(c => new { CategoryName = c.SUBCATEGORY_NAME })
                 .FirstOrDefaultAsync();
+            if(result == null)
+                return NotFound(new { Message = "未找到此ID对应的子分类！请检查！", SubCategoryName = result });
 
             return Ok(new { Message = "获取小类名称成功！", SubCategoryName = result });
         }

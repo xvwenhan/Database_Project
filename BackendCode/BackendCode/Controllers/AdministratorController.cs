@@ -141,26 +141,45 @@ namespace Administrator.Controllers
             _dbContext.SaveChanges();
 
 
-            //查找有哪些符合条件的商家
-            var storeIds = _dbContext.PRODUCTS
-                               .Where(p => p.TAG == model.option)
-                               .Select(p => p.ACCOUNT_ID)
-                               .Distinct()  // 如果需要唯一的商店 ID，可以加上 Distinct()
-                               .ToList();
+            /*            //查找有哪些符合条件的商家
+                        var storeIds = _dbContext.PRODUCTS
+                                           .Where(p => p.TAG == model.option)
+                                           .Select(p => p.ACCOUNT_ID)
+                                           .Distinct()  // 如果需要唯一的商店 ID，可以加上 Distinct()
+                                           .ToList();
 
+                        foreach (var storeId in storeIds)
+                        {
+                            _dbContext.MARKET_STORES.Add(new BackendCode.Models.MARKET_STORE()
+                            {
+                                MARKET_ID = uidb,
+                                STORE_ACCOUNT_ID = storeId,
+                                IN_OR_NOT=false,
+                            }) ;
+                        }*/
+            //考虑邀请接口单独拆开？考虑传入字符串直接匹配商家经营方向？
+            //现在接口传入的是小类ID
+            var result = await _dbContext.SUB_CATEGORYS
+                .Where(c => c.SUBCATEGORY_ID == model.option)
+                .FirstOrDefaultAsync();
+            string searchString = result.CATEGORY_NAME+ result.SUBCATEGORY_NAME;
+            //新版找商家：
+            var storeIds = await _dbContext.STORE_BUSINESS_DIRECTIONS
+                         .Where(st => st.BUSINESS_TAG.Contains(searchString))
+                         .Select(st => st.STORE_ID)
+                         .Distinct()
+                         .ToListAsync();
             foreach (var storeId in storeIds)
             {
                 _dbContext.MARKET_STORES.Add(new BackendCode.Models.MARKET_STORE()
                 {
                     MARKET_ID = uidb,
                     STORE_ACCOUNT_ID = storeId,
-                    IN_OR_NOT=false,
-                }) ;
-                _dbContext.SaveChanges();
+                    IN_OR_NOT = false,
+                });
             }
 
 
-            // 保存更改
             try
             {
                 await _dbContext.SaveChangesAsync();

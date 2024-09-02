@@ -191,8 +191,58 @@ namespace StoreViewProductController.Controllers
             if (!string.IsNullOrEmpty(updatedProduct.ProductName)) product.PRODUCT_NAME = updatedProduct.ProductName;
             //if (updatedProduct.ProductPrice.HasValue) 
                 product.PRODUCT_PRICE = updatedProduct.ProductPrice;
-            if (!string.IsNullOrEmpty(updatedProduct.Tag)) product.TAG = updatedProduct.Tag;
-            if (!string.IsNullOrEmpty(updatedProduct.SubTagId)) product.SUB_TAG = updatedProduct.SubTagId;//新增加
+            if (!string.IsNullOrEmpty(updatedProduct.Tag)&& !string.IsNullOrEmpty(updatedProduct.SubTagId))
+            {
+                //更改商家的运营方向：
+                var result = await _dbContext.SUB_CATEGORYS
+               .Where(c => c.SUBCATEGORY_ID == product.SUB_TAG)
+               .Select(c => c.SUBCATEGORY_NAME)
+               .FirstOrDefaultAsync();
+                if (result == null) { return NotFound(new { Message = "子分类不存在！" }); }
+                // 检查该商家的TAG是否已经存在
+                var existingTag = await _dbContext.STORE_BUSINESS_DIRECTIONS
+                    .FirstOrDefaultAsync(st => st.STORE_ID == storeId && st.BUSINESS_TAG == product.TAG + result);
+                if (existingTag == null)
+                {
+                    ;
+                }
+                else
+                {
+                    existingTag.LINKE_COUNT--;
+                    if (existingTag.LINKE_COUNT <= 0)
+                    {
+                        _dbContext.STORE_BUSINESS_DIRECTIONS.Remove(existingTag);
+                    }
+                }
+                product.TAG = updatedProduct.Tag;
+                product.SUB_TAG = updatedProduct.SubTagId;//新增加
+                //增加新的TAG
+                var newResult = await _dbContext.SUB_CATEGORYS
+              .Where(c => c.SUBCATEGORY_ID == product.SUB_TAG)
+              .Select(c => c.SUBCATEGORY_NAME)
+              .FirstOrDefaultAsync();
+                if (result == null) { return NotFound(new { Message = "子分类不存在！" }); }
+                // 检查该商家的TAG是否已经存在
+                var newTag = await _dbContext.STORE_BUSINESS_DIRECTIONS
+                    .FirstOrDefaultAsync(st => st.STORE_ID == storeId && st.BUSINESS_TAG == product.TAG + result);
+                if (existingTag == null)
+                {
+                    // 如果TAG不存在，添加新记录到STORE_TAG表
+                    var newStoreTag = new STORE_BUSINESS_DIRECTION
+                    {
+                        STORE_ID = storeId,
+                        BUSINESS_TAG = product.TAG + result
+                    };
+
+                    _dbContext.STORE_BUSINESS_DIRECTIONS.Add(newStoreTag);
+                }
+                else
+                {
+                    existingTag.LINKE_COUNT++;
+                }
+            }
+              
+
             if (!string.IsNullOrEmpty(updatedProduct.Description)) product.DESCRIBTION = updatedProduct.Description;
 
 
@@ -263,6 +313,27 @@ namespace StoreViewProductController.Controllers
                             _dbContext.ORDERS.Remove(order);
                         }
 
+                        //更改商家的运营方向：
+                        var result = await _dbContext.SUB_CATEGORYS
+                       .Where(c => c.SUBCATEGORY_ID == product.SUB_TAG)
+                       .Select(c => c.SUBCATEGORY_NAME)
+                       .FirstOrDefaultAsync();
+                        if (result == null) { return NotFound(new { Message = "子分类不存在！" }); }
+                        // 检查该商家的TAG是否已经存在
+                        var existingTag = await _dbContext.STORE_BUSINESS_DIRECTIONS
+                            .FirstOrDefaultAsync(st => st.STORE_ID == storeId && st.BUSINESS_TAG == product.TAG + result);
+                        if (existingTag == null)
+                        {
+                            ;
+                        }
+                        else
+                        {
+                            existingTag.LINKE_COUNT--;
+                            if (existingTag.LINKE_COUNT <= 0)
+                            {
+                                _dbContext.STORE_BUSINESS_DIRECTIONS.Remove(existingTag);
+                            }
+                        }
                         // 删除 PRODUCTS 表中的记录
                         _dbContext.PRODUCTS.Remove(product);
                     }
@@ -356,6 +427,32 @@ namespace StoreViewProductController.Controllers
                         }
                     }
                 }
+
+                //记录商家的运营方向：
+                var result = await _dbContext.SUB_CATEGORYS
+               .Where(c => c.SUBCATEGORY_ID == newProduct.SubTag)
+               .Select(c => c.SUBCATEGORY_NAME )
+               .FirstOrDefaultAsync();
+                if ( result == null) { return NotFound(new {Message="子分类不存在！"}); }
+                // 检查该商家的TAG是否已经存在
+                var existingTag = await _dbContext.STORE_BUSINESS_DIRECTIONS
+                    .FirstOrDefaultAsync(st => st.STORE_ID == storeId && st.BUSINESS_TAG == newProduct.Tag+ result);
+                if (existingTag == null)
+                {
+                    // 如果TAG不存在，添加新记录到STORE_TAG表
+                    var newStoreTag = new STORE_BUSINESS_DIRECTION
+                    {
+                        STORE_ID = storeId,
+                        BUSINESS_TAG = newProduct.Tag + result
+                    };
+
+                    _dbContext.STORE_BUSINESS_DIRECTIONS.Add(newStoreTag);
+                }
+                else
+                {
+                    existingTag.LINKE_COUNT++;
+                }
+
                 await _dbContext.SaveChangesAsync();
                 return Ok("Product added successfully.");
 
@@ -431,7 +528,6 @@ namespace StoreViewProductController.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
-
 
 
         [HttpPost("addProductImage/{productId}")]
