@@ -2,7 +2,7 @@
 <template>
     <header class="header">
       <div class="logo">
-        <img src="@/assets_dxy/logo.png" alt="Logo" class="icon"/>
+        <img src="@/assets/logo1.png" alt="Logo" class="icon"/>
         <span style="font-size: 17px;color: black;">瑕宝阁</span>
       </div>
       <div class="user-info">

@@ -1,6 +1,10 @@
 <!-- 管理员页面的商家认证 -->
 <template>
-  <div class="container1">
+  <div v-show="role!=='管理员'">
+    <p style="margin-top: 100px; font-weight: bold; font-size: 16px;">请登录管理员账号！！</p>
+    <router-link :to="{ name: 'LoginAndRegister' }">点击此处跳转登录界面...</router-link>
+  </div>
+  <div class="container1" v-show="role==='管理员'">
     <AdminSidebarMenu />
     <div class="main-content">
       <AdminHeaderSec />
@@ -64,6 +68,7 @@ import axiosInstance from '../components/axios';
 
 const userId =localStorage.getItem('userId');
 // const userId ='1';
+const role=localStorage.getItem('role');
 
 const records = reactive([]);
 const message = ref('');
