@@ -236,7 +236,7 @@ namespace Account.Controllers
 
             // 设置邮件发送服务器,服务器根据你使用的邮箱而不同,可以到相应的邮箱管理后台查看
             //SmtpClient client = new SmtpClient("smtp.outlook.com", 587);
-            SmtpClient client = new SmtpClient("smtp.qq.com", 25);
+            SmtpClient client = new SmtpClient("smtp.qq.com", 465);
             // 设置发送人的邮箱账号和授权码
             client.Credentials = new NetworkCredential("1473030672@qq.com", "pxdzrvnwxffdbafa");
             //client.Credentials = new NetworkCredential("1239716933@qq.com", "tgfcpyibnajfhiac");
