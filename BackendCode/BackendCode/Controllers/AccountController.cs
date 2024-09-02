@@ -215,6 +215,7 @@ namespace Account.Controllers
         [HttpGet("send_verification_code/{email}")]
         public IActionResult SendVerificationCode(string email)
         {
+
             Console.WriteLine("进入这个函数");
             if (string.IsNullOrEmpty(email))
             {
