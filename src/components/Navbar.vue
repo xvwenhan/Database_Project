@@ -3,7 +3,7 @@
     <div class="line top-line"></div>
     <div class="navbar-top">
       <div class="navbar-brand">
-        <img src="@/assets/logo.svg" alt="Logo" class="logo" />
+        <img src="@/assets/logo1.png" alt="Logo" class="logo" />
         <span style="font-size: 17px;">瑕宝阁</span>
       </div>
       <div class="navbar-right">

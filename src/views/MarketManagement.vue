@@ -1,6 +1,10 @@
 <!-- 管理员页面的市集管理 -->
 <template>
-  <div class="container">
+  <div v-show="role!=='管理员'">
+    <p style="margin-top: 100px; font-weight: bold; font-size: 16px;">请登录管理员账号！！</p>
+    <router-link :to="{ name: 'LoginAndRegister' }">点击此处跳转登录界面...</router-link>
+  </div>
+  <div class="container" v-show="role==='管理员'">
     <AdminSidebarMenu />
     <div class="main-content">
       <AdminHeaderSec />
@@ -79,7 +83,8 @@
                   <p>开始时间: {{ selectedDetail.startTime }}</p>
                   <p>结束时间: {{ selectedDetail.endTime }}</p>
                   <p>详细信息: {{ selectedDetail.detail }}</p>
-                  <img :src="selectedDetail.imageSrc" alt="Market Poster" v-if="selectedDetail.imageSrc" style="width: 90%; object-fit: cover;" />
+                  <!-- <img :src="selectedDetail.imageSrc" alt="Market Poster" v-if="selectedDetail.imageSrc" style="width: 90%; object-fit: cover;" /> -->
+                  <img :src="selectedDetail.image.imageUrl" :alt="市集图片" v-if="selectedDetail.image" style="width: 90%; object-fit: cover;" />
                 </div>
               </el-dialog>
 
@@ -118,6 +123,7 @@ import 'element-plus/dist/index.css';
 import axiosInstance from '../components/axios';
 
 const userId =localStorage.getItem('userId');
+const role=localStorage.getItem('role');
 
 const records = reactive([]);
 const message01 = ref('');
@@ -134,7 +140,7 @@ const fetchRecords = async () => {
     const response = await axiosInstance.get('/Administrator/GetAllMarket');
     records.splice(0, records.length, ...response.data);
     message01.value = '已获取市集数据';
-    console.log(records.values);
+    console.log(records);
   } catch (error) {
     loadingInstance.close();
     if (error.response) {
@@ -185,7 +191,7 @@ const search = (id) => {
   const market = records.find(market => market.marketId === id);
   if (market) {
     Object.assign(selectedDetail, market);
-    selectedDetail.imageSrc = `data:image/png;base64,${selectedDetail.posterImg}`;
+    // selectedDetail.imageSrc = `data:image/png;base64,${selectedDetail.posterImg}`;
     dialogVisible.value = true;
   }
 };

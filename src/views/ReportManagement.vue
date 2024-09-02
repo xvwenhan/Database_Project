@@ -1,6 +1,10 @@
 <!-- 管理员页面的举报管理 -->
 <template>
-  <div class="container">
+  <div v-show="role!=='管理员'">
+    <p style="margin-top: 100px; font-weight: bold; font-size: 16px;">请登录管理员账号！！</p>
+    <router-link :to="{ name: 'LoginAndRegister' }">点击此处跳转登录界面...</router-link>
+  </div>
+  <div class="container" v-show="role==='管理员'">
     <AdminSidebarMenu />
     <div class="main-content">
       <AdminHeaderSec />
@@ -44,6 +48,9 @@
                   <p>帖子发布时间: {{ selectedDetail.postTime }}</p>
                   <p>帖子标题: {{ selectedDetail.postTitle }}</p>
                   <p>帖子内容: {{ selectedDetail.postContent }}</p>
+                  <div v-if="selectedDetail.postImages" v-for="image in selectedDetail.postImages" :key="image.imageId">
+                    <img :src="image.imageUrl" alt="Post Image" style="width: 70%; object-fit: cover;"/>
+                  </div>
                 </div>
                 <div v-else>
                   <p>举报者账号: {{ selectedDetail.buyerAccountId }}</p>
@@ -89,6 +96,7 @@ import 'element-plus/dist/index.css';
 import axiosInstance from '../components/axios';
 
 const userId =localStorage.getItem('userId');
+const role=localStorage.getItem('role');
 
 const records = reactive([]);
 const message01 = ref('');

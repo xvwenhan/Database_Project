@@ -1,6 +1,10 @@
 <!-- 管理员页面的商家认证 -->
 <template>
-  <div class="container1">
+  <div v-show="role!=='管理员'">
+    <p style="margin-top: 100px; font-weight: bold; font-size: 16px;">请登录管理员账号！！</p>
+    <router-link :to="{ name: 'LoginAndRegister' }">点击此处跳转登录界面...</router-link>
+  </div>
+  <div class="container1" v-show="role==='管理员'">
     <AdminSidebarMenu />
     <div class="main-content">
       <AdminHeaderSec />
@@ -26,7 +30,8 @@
                 <p>商家账号: {{ selectedDetail.storeId }}</p>
                 <p>审核状态: {{ selectedDetail.status }}</p>
                 <p>申请详情: {{ selectedDetail.authentication }}</p>
-                <img :src="selectedDetail.photo" alt="authentication" v-if="selectedDetail.photo" style="width: 90%; object-fit: cover;" />
+                <!-- <img :src="selectedDetail.photo" alt="authentication" v-if="selectedDetail.photo" style="width: 90%; object-fit: cover;" /> -->
+                <img :src="selectedDetail.photo.imageUrl" :alt="`申请图片 ${selectedDetail.photo.imageId}`" class="detail-image" v-if="selectedDetail.photo" style="width: 90%; object-fit: cover;" />
               </div>
             </el-dialog>
 
@@ -62,6 +67,8 @@ import 'element-plus/dist/index.css';
 import axiosInstance from '../components/axios';
 
 const userId =localStorage.getItem('userId');
+// const userId ='1';
+const role=localStorage.getItem('role');
 
 const records = reactive([]);
 const message = ref('');
@@ -74,13 +81,13 @@ const fetchRecords = async () => {
   });
 
   try {
-    // const response = await axiosInstance.get('/Administrator/GetAllAuthentication');
     const response = await axiosInstance.post('/Administrator/GetAllAuthentication', {
       "adminId": userId
     });
 
     records.splice(0, records.length, ...response.data);
     message.value = '已获取申请数据';
+    console.log(records);
   } catch (error) {
     if (error.response) {
       message.value = error.response.data;
@@ -149,7 +156,7 @@ const search = (id) => {
   const store = records.find(store => store.storeId === id);
   if (store) {
     Object.assign(selectedDetail, store);
-    selectedDetail.photo = `data:image/png;base64,${selectedDetail.photo}`;
+    // selectedDetail.photo = `data:image/png;base64,${selectedDetail.photo}`;
     dialogVisible.value = true;
   }
 };
