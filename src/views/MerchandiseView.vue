@@ -62,25 +62,49 @@
             {{ subCategory.subCategoryName }}
           </div>
         </aside>
-        <div class="display-container"
-        >
+        <div class="display-container">
           <div class="container-block"
           v-show="AllCategories.length > 0&&AllCategories[currentSumCategory].subCategories[selectedCategory].subCategoryName==='全部'"
           >
-          <img src="@/assets/mmy/blue_background.jpg">
-          <div class="inner-block">
-            <div class="slider-top-right">
-              <div class="picture-and-text">
-                  <div class="category_text" >{{ AllCategories.length > 0 ? AllCategories[currentSumCategory].largeCategoryName : '' }}</div>
-                  <img class="picture" src="@/assets/mmy/product.png">
-                  <div class="text">
-                    <p>{{ text }}</p>
-                  </div>
+            <img src="@/assets/mmy/blue_background.jpg">
+            <div class="inner-block">
+              <div class="slider-top-right">
+                <div class="picture-and-text">
+                    <div class="category_text" >{{ AllCategories.length > 0 ? AllCategories[currentSumCategory].largeCategoryName : '' }}</div>
+                    <img class="picture" src="@/assets/mmy/product.png">
+                    <div class="text">
+                      <p>{{ text }}</p>
+                    </div>
+                </div>
               </div>
             </div>
+          </div> 
+          <div class="product-container">
+            <div v-if="paginatedProducts.length!==0">
+              <div class="display-items">
+                  <div 
+                    v-for="product in paginatedProducts" 
+                    :key="product.productId" 
+                    class="product-item"
+                    @click="handleProductClick(product.productId)"
+                  >
+                    <img :src="product.images.length>0 ? product.images[0].imageUrl : ''" :alt="product.productId" class="product-image" />
+                    <h2>{{ product.productName }}</h2>
+                    <p>价格: ¥{{ product.productPrice }}</p>
+                  </div>
+              </div>
+              <div class="pagination">
+                  <button @click="productPageChange(currentPage - 1)" :disabled="currentPage === 1">上一页</button>
+                  <span>第 {{ currentPage }} 页 / 共 {{ productsPages }} 页</span>
+                  <button @click="productPageChange(currentPage + 1)" :disabled="currentPage === productsPages">下一页</button>
+              </div>
+            </div>
+            <div v-else>
+              <span style="font-family: Arial, sans-serif; font-size: 20px; display: block; margin-bottom: 13px; color: white;">
+              该分类暂无商品
+              </span>
+            </div>
           </div>
-        </div> 
-
         </div>
       </div>
     </swiper-slide>
@@ -104,8 +128,10 @@ import Loading from '../views/templates/4.vue';
 import Container from '../views/templates/2.vue'
 const text=ref('瓷器，也做“磁器” 。是由瓷石、高岭土、石英石、莫来石等烧制而成，外表施有玻璃质釉或彩绘的物器。瓷器的成形要通过在窑内经过高温（约1280℃～1400℃）烧制，瓷器表面的釉色会因为温度的不同从而发生各种化学变化，是中华文明展示的瑰宝。中国是瓷器的故乡，瓷器是古代劳动人民的一个重要的创造。谢肇淛在《五杂俎》记载：“今俗语窑器谓之磁器者，盖磁州窑最多，故相延名之，如银称米提，墨称腴糜之类也。”当时出现的以“磁器”代窑器是由磁州窑产量最多所致。这是迄今发现最早使用瓷器称谓的史料。');
 
+// const nowSubCategoryId=ref('05000')
+
 //swiper滑动实现
-const currentSumCategory=ref()
+const currentSumCategory=ref(0);
 const mySwiper=ref(null);
 let swiperInstance = null;
 const onSwiper = (swiper) => {
@@ -123,9 +149,14 @@ const typeChange = (id,name) =>{
   console.log(swiperInstance,'swiperInstance');
   currentSumCategory.value=id;
   swiperInstance.slideTo(1);
+  selectedCategory.value=0;
+  console.log(`AllCategories[currentSumCategory.value].subCategories[selectedCategory.value].subCategoryId is ${AllCategories[currentSumCategory.value].subCategories[selectedCategory.value].subCategoryId}`);
+  getProducts(AllCategories[currentSumCategory.value].subCategories[selectedCategory.value].subCategoryId);
+  //wqy
   currentType.value = name;
-  getCategory(name);
-  getCommodity(name);
+  //getCategory(name);
+  //getCommodity(name);
+  
 };
 
 
@@ -151,11 +182,13 @@ const getCategories = async () => {
     }
     console.log(message.value);
     };
+
 const filter = (subCategory,index) => {
   selectedCategory.value=index;
-  getProducts('05000');
+  // nowSubCategoryId.value=subCategory.subCategoryId;
   console.log(` ${subCategory.subCategoryId} 被点击`);
   console.log(`selectedCategory is ${selectedCategory.value}`);
+  // getProducts(nowSubCategoryId);
 }
 
 //关于商品
@@ -188,6 +221,7 @@ const getProducts = async (Id) => {
 
 onMounted(()=>{
   getCategories();
+  // getProducts(nowSubCategoryId);
   // getProducts();
   // getCategory(currentType.value);
   // getCommodity(currentType.value);
@@ -235,8 +269,6 @@ var description = "";
 const products = ref([])
 const defaultImage = '/src/assets/example1.png'
 
-
-const route = useRoute();
 const router = useRouter();
 // const selectedCategory = computed(() => route.params.category);
 
@@ -305,6 +337,32 @@ const goToProductDetail = (productId) => {
 };
 
 
+/////////////////////////////////
+const pageSize = ref(4);
+const currentPage = ref(1);
+
+const totalProducts = computed(() => displayProducts.length);
+const productsPages = computed(() => Math.ceil(totalProducts.value / pageSize.value));
+
+// 处理并分页后的商品数据
+const paginatedProducts = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value;
+  const end = start + pageSize.value;
+  //console.log(`fenge is ${JSON.stringify(displayProducts.slice(start, end), null, 2)}`);
+  return displayProducts.slice(start, end);
+});
+
+// 切换分页页面
+const productPageChange = (page) => {
+    if (page >= 1 && page <= productsPages.value) {
+        currentPage.value = page;
+    }
+};
+
+const handleProductClick = (productId) => {
+    localStorage.setItem('productIdOfDetail',productId);
+    router.push('/productdetail');
+};
 
 </script>
 
@@ -445,7 +503,7 @@ height: 100%;
   margin-bottom: 20px;
 }
 
-.product-display {
+/* .product-display {
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
@@ -481,6 +539,54 @@ height: 100%;
 .product-item p {
   font-size: 16px;
   margin: 0 0 10px;
+} */
+
+.display-items{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  min-height: 480px;
+}
+
+.product-item {
+  flex: 0 0 23%;
+  background-color: #fff;
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
+  height: 250px;
+}
+
+.product-image {
+  max-height: 110px;
+  max-width: 100%;
+  object-fit: cover;
+  border-radius: 5px;
+  margin-bottom: 10px;
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+.product-item h2 {
+  font-size: 18px;
+  margin: 0 0 5px;
+}
+
+.product-item p {
+  font-size: 16px;
+  margin: 0 0 5px;
+}
+
+.pagination{
+  margin-top: 20px; 
+  margin-bottom: 20px; 
+}
+
+.display-items2{
+  flex-wrap: wrap;
+  gap: 20px;
+  min-height: 480px;
 }
 
 .pagination {
@@ -533,9 +639,6 @@ height: 100%;
   transition: transform 0.3s ease, box-shadow 0.3s ease; /* 添加交互效果 */
 }
 
-
-
-
 .image-with-description img {
   width: 200px;
   height: auto;
@@ -571,15 +674,18 @@ height: 100%;
   transition: background-color 0.2s;
 }
 .category.selected {
-  background-color: #a61b29;
+  background-color: #3D5164;
   font-weight: bold;
   color:#ffffff;
 }
 .display-container{
   box-sizing: border-box;
-  margin-top: 16px;
-  margin-left: 16px;
-  padding: 24px 0 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* margin-top: 16px; */
+  /* margin-left: 16px; */
+  padding: 12px 0 0;
   width: 100%;
   min-height: 70vh;
   background-color: #333;
@@ -590,8 +696,8 @@ height: 100%;
   border-radius: 15px;
 	color: #fff;
 	display: inline-block;
-	margin: 2rem auto;
-	width: 1100px;
+	margin: 10px;
+	width: 85%;
   height:40%;
 	position: relative;	
 	&::before {
@@ -620,6 +726,18 @@ height: 100%;
 		display: block;
 		max-width: 100%;
 	}
+}
+
+.product-container{
+  overflow: hidden;
+  border-radius: 15px;
+	background-color: #fff;
+	display: inline-block;
+	margin: 10px;
+	width: 85%;
+  flex: 1;
+	position: relative;	
+  padding: 15px 15px;
 }
 
 .slider-top-right:before,

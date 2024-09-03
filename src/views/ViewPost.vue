@@ -33,6 +33,7 @@ if (postIdString) {
 }
 interface Comment {
   id: string;
+  pic:string;
   author: string;
   time: string;
   content: string;
@@ -70,8 +71,9 @@ const post = ref<{
   images: [],
 });
 interface subComment {
-  fatherId:string,
+  fatherId:string;
   id: string;
+  pic:string;
   author: string;
   time: string;
   content: string;
@@ -104,6 +106,7 @@ function fetchPost (){
           reason_else: '', // 初始化为''
           comments: postData.comments.map(comment => ({
             id: comment.commentId || '',
+            pic:comment.authorPhoto.imageUrl,
             author: comment.authorName || '匿名',
             time: convertToReadableTime(comment.commentTime) || '',
             content: comment.commentContent || '',
@@ -142,6 +145,7 @@ function fetchComment () {
           sub: data.data.map(comment => ({
             fatherId: comment.commentedCommentId,
             id:comment.commentId,
+            pic:comment.authorPhoto.imageUrl,
             author: comment.authorName || '匿名',
             time: comment.commentTime || '',
             content: comment.commentContent || '',
@@ -207,6 +211,7 @@ function submitReply (){
         type: 'success',
         });
         console.log("评论成功");
+        location.reload();
       }).catch(error => {
         console.error(error);
       });
@@ -233,6 +238,7 @@ function submitSubReply(){
         type: 'success',
         });
         console.log("评论成功");
+        location.reload();
       }).catch(error => {
         console.error(error);
       });
@@ -329,6 +335,7 @@ function like(){
         message: '点赞成功',
         type: 'success',
         });
+        location.reload();
       }).catch(error => {
         console.error(error);
       });
@@ -344,6 +351,7 @@ function like(){
         message: '取消点赞',
         type: 'success',
         });
+        location.reload();
       }).catch(error => {
         console.error(error);
       });
@@ -536,7 +544,11 @@ const handleChange = (currentIndex) => {
     <!-- <el-menu> -->
     <div v-for="(reply, index) in  post.comments" :key="index" class="comments">
       <div  @mouseover="highlightPost" @mouseout="resetPost">
-      <div class="user-line">评论用户：{{ reply.author }}</div>
+        <!-- 用户头像 -->
+      <div class="avatar-container">
+        <img :src="reply.pic" alt="user avatar" class="avatar">
+        <div>
+      <div class="name-line">用户：{{ reply.author }}</div></div></div>
       <div class="replyContent">{{ reply.content}}</div>
       <div class="sub">
       <div class="user-line">{{ reply.time}}</div>
@@ -574,7 +586,11 @@ const handleChange = (currentIndex) => {
     <!-- <el-menu> -->
       <div v-for="(subComment, subIndex) in getSubComments(reply.id)" :key="subIndex" class="subComments">
       <div  @mouseover="highlightPost" @mouseout="resetPost">
-      <div class="user-line">用户：{{ subComment.author }}</div>
+          <!-- 用户头像 -->
+      <div class="avatar-container">
+        <img :src="reply.pic" alt="user avatar" class="avatar">
+        <div>
+      <div class="name-line">用户：{{ subComment.author }}</div></div></div>
       <div class="replyContent">{{ subComment.content}}</div>
       <div class="user-line">{{ subComment.time }}</div>
       </div>
@@ -604,6 +620,18 @@ const handleChange = (currentIndex) => {
 </template>
 
 <style scoped>
+.avatar-container {
+  margin-right: 1rem; /* 调整头像与内容之间的间距 */
+  display: flex;
+  flex-direction: row;
+}
+
+.avatar {
+  width: 50px; /* 调整头像的大小 */
+  height: 50px; /* 调整头像的大小 */
+  border-radius: 50%; /* 使图像呈圆形 */
+  object-fit: cover; /* 确保图像在容器内完整显示 */
+}
 .image-container {
     position: relative;
     overflow: hidden;
@@ -760,10 +788,19 @@ const handleChange = (currentIndex) => {
 .user-line {
   font-size: 14px; /* 调整字体大小 */
   margin-top: 0.5vh;
+  color:#8a8888;
+}
+.name-line {
+  font-size: 14px; /* 调整字体大小 */
+  margin-top: 0.5vh;
+  margin-left: 2vh;
+  color:#f55454;
+
 }
 .replyContent{
   font-size: 18px; /* 调整字体大小 */
-  margin-left: 2vh;
+  margin-left: 8vh;
+  margin-top: -2vh;
 }
 
 /* --------------------------------------------------------------------- */
