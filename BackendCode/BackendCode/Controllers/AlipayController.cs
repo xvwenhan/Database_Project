@@ -59,7 +59,7 @@ namespace BackendCode.Controllers
             // 设置同步回调地址
             request.SetReturnUrl($"http://{Request.Host}/Pay/Callback");
             // 设置异步通知接收地址
-            request.SetNotifyUrl("");
+            //request.SetNotifyUrl("");
             // 将业务model载入到request
             request.SetBizModel(model);
 

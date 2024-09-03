@@ -7,7 +7,7 @@
         public DateTime? StartTime { get; set; }
         public DateTime? EndTime { get; set; }
         public string? Detail { get; set; }
-        public List<ImageModel>? PosterImg { get; set; }
+        public List<MarketImageModel>? PosterImg { get; set; }
         public bool IsStoreParticipating { get; set; }
     }
 
