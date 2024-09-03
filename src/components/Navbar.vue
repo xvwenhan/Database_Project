@@ -1,6 +1,6 @@
 <template>
   <nav class="navbar">
-    <div class="line top-line"></div>
+    <!-- <div class="line top-line"></div> -->
     <div class="navbar-top">
       <div class="navbar-brand">
         <img src="@/assets/logo1.png" alt="Logo" class="logo" />
@@ -16,7 +16,7 @@
         <!-- <img src="@/assets/wy/profilephoto.jpg" alt="Profile Photo" class="profile-photo" @click="openModal"/> -->
       </div>
     </div>
-    <!-- <div class="line"></div> -->
+    <div class="line"></div>
     <div class="navbar-bottom">
       <ul class="navbar-menu">
         <li class="navbar-item" v-for="item in menuItems" :key="item.text"  @click="handleMenuClick(item.link)">
@@ -240,7 +240,7 @@ html, body {
   width: 100%; /* 设置宽度为100% */
   margin: 0; /* 移除外边距 */
   padding-left: 300px; /* 导航栏文字 */
-  background-color: #a61b29; /* 设置背景颜色为苋菜红 */
+  background-color: white; /* 设置背景颜色为苋菜红 */
   display: flex;
   justify-content: flex-start;
   align-items: center;
@@ -289,7 +289,7 @@ html, body {
   margin-left: 20px;
   list-style: none;
   display: flex;
-  /* gap: 50px; */
+  gap: 70px;
   margin: 0;
   padding: 0;
 }
@@ -300,38 +300,36 @@ html, body {
 
 .navbar-item .nav-link {
   text-decoration: none;
-  color: white; /* 字体颜色白色 */
+  color: black; /* 字体颜色白色 */
   font-size: 22px;
-  padding: 20px 40px;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  padding: 17px 8px;
+  /* transition: background-color 0.3s ease, color 0.3s ease; */
   display: block;
   line-height: 20px; 
 }
 
+
 .navbar-item .nav-link.active,
 .navbar-item .nav-link:hover {
-  background-color: #f7f4ed; /* 鼠标悬停或点击时背景颜色 */
-  color: #a61b29; /* 悬停或点击时字体颜色 */
-
-  z-index: 1; /* 提高 z-index 以覆盖其他元素 */
+  background-color: white; /* 鼠标悬停或点击时背景颜色 */
+  border-bottom: 4px solid #a61b29;
 }
-
 
 .navbar-search {
   display: flex;
   align-items: center;
-  padding-left: 30px; /* 增加左边距，使搜索框向右移动 */
+  padding-left: 80px; /* 增加左边距，使搜索框向右移动 */
 }
 
 .search-container {
   display: flex;
   align-items: center;
-  background-color: #a61b29;
-  border: 1px solid #F9F0DA;
+  /* background-color: #a61b29; */
+  border: 1.5px solid #a61b29;
   padding-left: 5px;
   /* padding-right: -2px; */
   height: 38px;
-  width: 250px;
+  width: 240px;
   position: relative; /* 为了使按钮绝对定位 */
 }
 
@@ -340,7 +338,7 @@ html, body {
   background-color: transparent;
   border: none;
   padding: 0 4px;
-  color: white;
+  color: #a61b29;
   outline: none;
 }
 
@@ -349,12 +347,12 @@ html, body {
   border: none;
   outline: none;
   padding-left: 10px;
-  color: white;
+  color: #a61b29;
   background-color: transparent;
   flex-grow: 1;
 }
 .search-input::placeholder {
-  color: white; /* 设置placeholder的字体颜色为白色 */
+  color: #a61b29; /* 设置placeholder的字体颜色为白色 */
   opacity: 1; /* 确保颜色不透明 */
 }
 .search-type option {

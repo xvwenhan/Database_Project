@@ -1,4 +1,5 @@
 <template>
+  
   <!-- 这里是商品管理界面的内容区域 -->
   <div class="CommodityShow">
     <!-- 搜索和筛选按钮 --> 
@@ -78,17 +79,17 @@
           <el-form-item label="系统分类" prop="categorySys">
               <el-select v-model="preProduct.categorySys">
                 <el-option-group
-        v-for="group in options"
-        :key="group.label"
-        :label="group.label"
-      >
-        <el-option
-          v-for="item in group.children"
-          :key="item.value"
-          :label="item.label"
-          :value="item.value"
-        ></el-option>
-      </el-option-group>
+                        v-for="group in categories"
+                        :key="group.largeCategoryName"
+                        :label="group.largeCategoryName"
+                      >
+                        <el-option
+                          v-for="item in group.subCategories"
+                          :key="item.subCategoryId"
+                          :label="item.subCategoryName"
+                          :value="item.subCategoryId"
+                        />
+                      </el-option-group>
               </el-select>
             </el-form-item>
             <el-form-item label="商家分类" prop="categoryInit">
@@ -201,17 +202,17 @@
         <el-form-item label="系统分类" prop="categorySys">
           <el-select v-model="newProduct.categorySys">
             <el-option-group
-        v-for="group in options"
-        :key="group.label"
-        :label="group.label"
-      >
-        <el-option
-          v-for="item in group.children"
-          :key="item.value"
-          :label="item.label"
-          :value="item.value"
-        ></el-option>
-      </el-option-group>
+                        v-for="group in categories"
+                        :key="group.largeCategoryName"
+                        :label="group.largeCategoryName"
+                      >
+                        <el-option
+                          v-for="item in group.subCategories"
+                          :key="item.subCategoryId"
+                          :label="item.subCategoryName"
+                          :value="item.subCategoryId"
+                        />
+                      </el-option-group>
           </el-select>
         </el-form-item>
         <el-form-item label="商家分类" prop="categoryInit">
@@ -274,7 +275,7 @@
 </template>
 
 <script >
-import { ref, computed ,onMounted } from 'vue';
+import { ref, computed ,onMounted,reactive } from 'vue';
 import axiosInstance from '../components/axios';
 import { useRouter } from 'vue-router';
 
@@ -316,6 +317,8 @@ export default{
     const deletedImages= ref([]); 
     const selectedDefectImages = ref([]);
     const deletedDefectImages= ref([]);  
+    const categories = reactive([]);
+    const message01 = ref('');
   
     const fetchProducts = async () => {
   const storeId = localStorage.getItem('userId'); // 替换为实际的 storeId
@@ -450,9 +453,25 @@ const fetchProductByTag = async (storeTag) => {
       viewType.value = viewTypeValue;
       fetchProducts();
     };
-
+    const fetchCategories = async () => {
+  try {
+    const response = await axiosInstance.get('/Classification/GetAllCategories');
+    categories.splice(0, categories.length, ...response.data.categories);
+    message01.value = '已获取系统分类数据';
+    console.log(categories);
+  } catch (error) {
+    if (error.response) {
+      message01.value = error.response.data;
+    } else {
+      message01.value = '获取分类数据失败';
+    }
+    ElMessage.error('获取分类数据失败，请稍后再试');
+  }
+  console.log(message01.value);
+};
     onMounted(() => {
       fetchProducts();
+      fetchCategories();
     });
 
     const options = [
@@ -1291,7 +1310,9 @@ const deleteSelectedCommodities = async () => {
       submitDefectUpload,
       removeDefectImage,
       selectedDefectImages,
-      deletedDefectImages
+      deletedDefectImages,
+      categories,
+      message01
     };
   }
 }

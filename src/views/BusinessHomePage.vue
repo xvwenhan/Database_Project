@@ -183,22 +183,22 @@ export default {
 
 .BlockOne {
   display: flex;
-  padding-left: 100px;
-  padding-top: 60px;
+  padding-left: 7%;
+  padding-top: 3%;
 }
 
 .BlockTwo {
   display: flex;
-  width: 1500px;
-  padding-left: 115px;
-  padding-top: 40px;
+  width: 90%;
+  padding-left: 8%;
+  padding-top: 3%;
 }
 
 .BlockThree {
   color: black;
-  width:300px;
-  background-color: rgb(226, 233, 233);
-  margin-right: 100px;
+  width:22%;
+  /* background-color: rgb(226, 233, 233); */
+  margin-right: 5%;
   padding:15px;
 }
 
@@ -219,17 +219,17 @@ export default {
 }
 
 .box-card {
-  width: 90px;
-  height: 160px;
-  margin-top: 20px;
+  width: 35%;
+  height: 50%;
+  margin-top: 10%;
   background-color:  #dcc8ca  ;
   display: inline-block;
 }
 
 .box-card-two {
-  width: 90px;
-  height: 160px;
-  margin-left:30px;
+  width: 35%;
+  height:  50%;
+  margin-left:10%;
   background-color: #dcc8ca  ;
   display: inline-block;
 }

@@ -29,9 +29,9 @@
                 <div class="user-info">
                     <el-card class="custom-card-width">
                         <el-form :model="userimades"  ref="form" class="user-form">
-                            <el-form-item label="上传头像(.jpg)" prop="image">
+                            <el-form-item label="上传头像" prop="image">
                                 <img v-if="userimades.ima" :src="userimades.ima" alt="当前图片" style="width: 40px; height: 40px;border-radius: 50%;" />
-                                <input type="file" @change="handleFile" accept=".jpg" />
+                                <input type="file" @change="handleFile" accept="image/*" />
                             </el-form-item>
                             <el-form-item label="上传简介" prop="description">
                                 <el-input v-model="userimades.descri"></el-input>
@@ -148,10 +148,11 @@ export default {
         handleFile(event) {
     const file = event.target.files[0];
     if (file) {
-        // 使用 URL.createObjectURL 生成临时 URL
+        console.log('选中的文件:', file);
         this.userimades.ima = URL.createObjectURL(file);
-        // 将文件对象保存到 userimades 中以便上传
-        this.userimades.file = file; 
+        this.userimades.file = file;
+    } else {
+        console.log('文件选择失败或无效');
     }
 },
         //获取头像简介
@@ -182,21 +183,19 @@ export default {
             return;
         }
 
-        // 创建 FormData 对象
         const formData = new FormData();
-        const Photo = this.userimades.file; // 使用实际的文件对象
+        const Photo = this.userimades.file;
         const Describtion = this.userimades.descri;
         const Id = localStorage.getItem('userId');
 
-        if (!Photo || !Describtion) {
-            this.$message.error('请提供图片和简介');
-            return;
-        }
-
-        // 将数据添加到 FormData 对象中
         formData.append('Id', Id);
-        formData.append('Photo', Photo); // Photo 应该是 File 对象
+        formData.append('Photo', Photo); // 确保这是 File 对象
         formData.append('Describtion', Describtion);
+
+        // 打印 FormData 内容
+        for (const pair of formData.entries()) {
+            console.log(`${pair[0]}:`, pair[1]);
+        }
 
         const response = await axiosInstance.put('/UserInfo/SetPhotoAndDescribtion', formData);
 
