@@ -184,16 +184,8 @@
   </div>
   </div>   
 
-
-  <!-- 添加商品和批量删除按钮 -->
-  <div id="BottomButton">
-    <el-button size='small' type='primary' icon="Edit" @click="showAddDialog()">添加商品</el-button>
-    <el-button size='small' type='danger' icon="Delete" @click="confirmBatchDelete()">批量删除</el-button>
-  </div>
-
-  <!-- 添加商品对话框 -->
-   <!-- 添加商品对话框 -->
-   <div v-if="addDialogVisible" class="SettingPopUp">
+ <!-- 添加商品对话框 -->
+ <div v-if="addDialogVisible" class="SettingPopUp">
     <div class="SettingContent">
       <el-form :model="newProduct" :rules="rules" ref="form">
         <el-form-item label="商品名称" prop="name">
@@ -224,29 +216,62 @@
         <el-form-item label="商品描述" prop="description">
           <el-input v-model="newProduct.description"></el-input>
         </el-form-item>
-        <el-form-item label="商品图片" prop="image">
-          <div v-if="newProduct.images.length > 0" class="image-preview">
-            <div v-for="(image, index) in newProduct.images" :key="index" class="image-item">
-              <img :src="image" alt="图片" style="width: 100px; height: 100px; display:flex" />
-            </div>
-          </div>
-          <input type="file" multiple @change="(e) => onFileChange(e, 'newProduct')" />
-        </el-form-item>
-        <el-form-item label="瑕疵图文描述（图文一一对应）" prop="imagesWithText">
-          <div v-for="(item, index) in newProduct.imagesWithText" :key="index" class="image-text-item">
-            <img :src="item.image" alt="图片" style="width: 50px; height: 50px; margin-right: 5px" />
-            <p>{{ item.text }}</p>
-          </div>
-          <input type="file" @change="(e) => handleFileChange(e)" />
-          <el-input type="textarea" :rows="4" v-model="newImageText" placeholder="输入瑕疵文字描述"></el-input>
-          <el-button @click="addImageWithText">添加瑕疵图文描述</el-button>
-        </el-form-item>
+       <!-- 商品图片展示 -->
+       <el-form-item label="商品图片" prop="images">
+  <div v-if="newProduct.images.length > 0" class="image-preview">
+    <div v-for="(image, index) in newProduct.images" :key="index" class="image-item">
+      <img
+        :src="image.url"
+        alt="图片"
+        style="width: 100px; height: 100px; object-fit: cover; margin-right: 5px;"
+      />
+    </div>
+  </div>
+  <input type="file" multiple @change="onFileChange" accept="image/*" />
+</el-form-item>
+
+<!-- 瑕疵图文描述 -->
+<el-form-item label="瑕疵图文描述（图文一一对应）" prop="imagesWithText">
+  <div v-for="(item, index) in newProduct.imagesWithText" :key="index" class="image-text-item" style="display: flex; flex-direction: column; align-items: center; margin-bottom: 10px;">
+    <img
+      :src="item.image"
+      alt="瑕疵图片"
+      style="width: 50px; height: 50px; object-fit: cover; margin-bottom: 5px;"
+    />
+    <p>{{ item.text }}</p>
+  </div>
+</el-form-item>
+
+<el-form-item>
+  <div style="display: flex; align-items: center; margin-bottom: 10px;">
+    <input type="file" @change="handleFileChange" id="defect-image-input" accept="image/*" />
+    <el-input
+      type="textarea"
+      :rows="2"
+      v-model="newImageText"
+      placeholder="输入瑕疵文字描述"
+      style="margin-left: 10px; flex: 1;"
+    ></el-input>
+    <el-button type="primary" @click="addImageWithText" style="margin-left: 10px;">添加</el-button>
+  </div>
+</el-form-item>
       </el-form>
-      <el-button type="primary" @click="addNewProduct">添加</el-button>
-      <el-button type="primary" @click="() => addDialogVisible = false">取消</el-button>
+      <div style="margin-top: 20px; display: flex; justify-content: flex-end;">
+        <el-button type="primary" @click="addNewProduct">添加</el-button>
+        <el-button type="default" @click="() => addDialogVisible = false" style="margin-left: 10px;">取消</el-button>
+      </div>
     </div>
   </div>
 
+
+  <!-- 添加商品和批量删除按钮 -->
+  <div id="BottomButton">
+    <el-button size='small' type='primary' icon="Edit" @click="showAddDialog()">添加商品</el-button>
+    <el-button size='small' type='danger' icon="Delete" @click="confirmBatchDelete()">批量删除</el-button>
+  </div>
+
+  
+  
 
   <!-- 确认批量删除对话框 -->
   <div v-if="confirmDialogVisible" class="SettingPopUp">
@@ -330,6 +355,7 @@ export default{
   });
 
   console.log('Backend Response:', response.data);
+
 
   if (Array.isArray(response.data)) {
     const processedProducts = response.data.map(product => {
@@ -581,19 +607,8 @@ const getCategoryLabel = (value) => {
   ]
     };
 
-    const onFileChange = (event, target) => {
-  const files = event.target.files;
-  if (files && target === 'newProduct') {
-    Array.from(files).forEach(file => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const imageUrl = e.target.result; // 直接使用 URL
-        newProduct.value.images.push(imageUrl); // 将图片 URL 添加到 images 数组中
-      };
-      reader.readAsDataURL(file);
-    });
-  }
-};
+
+
    
     // 编辑
     const removeSelectedImage = (index) => {
@@ -1043,8 +1058,13 @@ const submitDefectUpload = async () => {
       imagesWithText: []
     });
     const newImage = ref('');
+// 定义用于瑕疵图文描述的变量
 const newImageText = ref('');
-const newImageURL = ref('');
+const newImageFile = ref(null);
+
+// 定义用于预览的URL
+const previewImageURL = ref('');
+const previewDefectImageURL = ref('');
     const showAddDialog = () => {
       newProduct.value = {
         name: '',
@@ -1055,36 +1075,58 @@ const newImageURL = ref('');
         images: [], // 存储多个商品图片
         imagesWithText: []
       };
-      addDialogVisible.value = true;
+      previewImageURL.value = '';
+  previewDefectImageURL.value = '';
+  addDialogVisible.value = true;
     };
-    const handleFileChange = (event) => {
+    const onFileChange = (event) => {
+  const files = event.target.files;
+  if (files.length > 0) {
+    const fileArray = Array.from(files);
+    const promises = fileArray.map(file => {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          resolve({ file: file, url: reader.result });
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    });
+
+    Promise.all(promises).then(results => {
+      newProduct.value.images = results;
+    }).catch(error => {
+      console.error('读取文件失败:', error);
+    });
+  } else {
+    console.log('没有选择文件');
+  }
+};
+const handleFileChange = (event) => {
   const file = event.target.files[0];
   if (file) {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      newImageURL.value = e.target.result; // 更新 newImageURL 的值
-    };
-    reader.readAsDataURL(file);
+    newImageFile.value = file;
   }
 };
-const dataURLToBlob = (dataURL) => {
-  const [header, data] = dataURL.split(',');
-  const mime = header.match(/:(.*?);/)[1];
-  const binary = atob(data);
-  const array = [];
-  for (let i = 0; i < binary.length; i++) {
-    array.push(binary.charCodeAt(i));
-  }
-  return new Blob([new Uint8Array(array)], { type: mime });
-};
+// 添加瑕疵图文描述
 const addImageWithText = () => {
-  if (newImageURL.value && newImageText.value) {
-    newProduct.value.imagesWithText.push({ image: newImageURL.value, text: newImageText.value });
-    newImageURL.value = ''; // 清空 newImageURL
-    newImageText.value = ''; // 清空 newImageText
+  if (newImageFile.value && newImageText.value.trim() !== '') {
+    const imageUrl = window.URL.createObjectURL(newImageFile.value);
+    newProduct.value.imagesWithText.push({ image: imageUrl, text: newImageText.value.trim() });
+    newImageFile.value = null; // 清空图片文件
+    newImageText.value = ''; // 清空文字描述
+    previewDefectImageURL.value = ''; // 清空预览
+    // 清空文件输入框的值（可选）
+    const fileInput = document.getElementById('defect-image-input');
+    if (fileInput) {
+      fileInput.value = '';
+    }
+  } else {
+    ElMessage.warning('请先选择瑕疵图片并输入描述');
   }
 };
-
+// 添加新商品
 const addNewProduct = async () => {
   const formData = new FormData();
   formData.append('ProductName', newProduct.value.name || '');
@@ -1093,14 +1135,14 @@ const addNewProduct = async () => {
   formData.append('Description', newProduct.value.description || '');
   formData.append('Tag', newProduct.value.categorySys || '');
 
-  // 上传多个图片 URL
-  newProduct.value.images.forEach((imageUrl, index) => {
-    formData.append(`ProductImages[${index}]`, imageUrl);
+  // 上传商品图片文件
+  newProduct.value.images.forEach((file, index) => {
+    formData.append(`ProductImages[${index}]`, file);
   });
 
-  // 图片和描述
+  // 上传瑕疵图片和描述
   newProduct.value.imagesWithText.forEach((item, index) => {
-    formData.append(`PicDes[${index}].detailPic`, item.image);
+    formData.append(`PicDes[${index}].detailPic`, item.image); // 确保 item.image 是文件对象
     formData.append(`PicDes[${index}].description`, item.text);
   });
 
@@ -1111,7 +1153,7 @@ const addNewProduct = async () => {
   }
 
   try {
-    const response = await axiosInstance.post(`/StoreViewProduct/addProduct?storeId=${storeId}`, formData, {
+    const response = await axiosInstance.post(`/StoreViewProduct/addProduct`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
       params: { storeId: storeId }
     });
@@ -1125,9 +1167,11 @@ const addNewProduct = async () => {
         categoryInit: '',
         price: null,
         description: '',
-        images: [], // 清空图片 URL
+        images: [],
         imagesWithText: []
       };
+      previewImageURL.value = '';
+      previewDefectImageURL.value = '';
       addDialogVisible.value = false;
     } else {
       ElMessage.error('添加商品失败');
