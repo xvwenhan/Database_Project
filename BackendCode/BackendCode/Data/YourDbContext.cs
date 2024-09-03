@@ -985,7 +985,7 @@ namespace BackendCode.Data
                     .HasMaxLength(50)
                     .HasColumnType("VARCHAR2(50)")
                     .IsRequired();
-                entity.Property(e => e.BUSINESS_TAG)
+                entity.Property(e => e.LINK_COUNT)
                     .HasColumnType("NUMBER(10)");
 
             });

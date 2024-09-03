@@ -208,8 +208,8 @@ namespace StoreViewProductController.Controllers
                 }
                 else
                 {
-                    existingTag.LINKE_COUNT--;
-                    if (existingTag.LINKE_COUNT <= 0)
+                    existingTag.LINK_COUNT--;
+                    if (existingTag.LINK_COUNT <= 0)
                     {
                         _dbContext.STORE_BUSINESS_DIRECTIONS.Remove(existingTag);
                     }
@@ -231,14 +231,15 @@ namespace StoreViewProductController.Controllers
                     var newStoreTag = new STORE_BUSINESS_DIRECTION
                     {
                         STORE_ID = storeId,
-                        BUSINESS_TAG = product.TAG + result
+                        BUSINESS_TAG = product.TAG + result,
+                        LINK_COUNT = 1,
                     };
 
                     _dbContext.STORE_BUSINESS_DIRECTIONS.Add(newStoreTag);
                 }
                 else
                 {
-                    existingTag.LINKE_COUNT++;
+                    existingTag.LINK_COUNT++;
                 }
             }
               
@@ -328,8 +329,8 @@ namespace StoreViewProductController.Controllers
                         }
                         else
                         {
-                            existingTag.LINKE_COUNT--;
-                            if (existingTag.LINKE_COUNT <= 0)
+                            existingTag.LINK_COUNT--;
+                            if (existingTag.LINK_COUNT <= 0)
                             {
                                 _dbContext.STORE_BUSINESS_DIRECTIONS.Remove(existingTag);
                             }
@@ -443,14 +444,15 @@ namespace StoreViewProductController.Controllers
                     var newStoreTag = new STORE_BUSINESS_DIRECTION
                     {
                         STORE_ID = storeId,
-                        BUSINESS_TAG = newProduct.Tag + result
+                        BUSINESS_TAG = newProduct.Tag + result,
+                        LINK_COUNT = 1,
                     };
 
                     _dbContext.STORE_BUSINESS_DIRECTIONS.Add(newStoreTag);
                 }
                 else
                 {
-                    existingTag.LINKE_COUNT++;
+                    existingTag.LINK_COUNT++;
                 }
 
                 await _dbContext.SaveChangesAsync();
