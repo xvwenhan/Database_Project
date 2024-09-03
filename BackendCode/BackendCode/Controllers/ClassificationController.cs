@@ -76,6 +76,7 @@ namespace ClassificationController.Controllers
                 LargeCategoryName = lc.CATEGORY_NAME,
                 SubCategories = _dbContext.SUB_CATEGORYS
                     .Where(sc => sc.CATEGORY_NAME == lc.CATEGORY_NAME)
+                    .OrderBy(sc => sc.SUBCATEGORY_ID) // 按ID排序
                     .Select(sc => new CategoryDTO{ SubCategoryName=sc.SUBCATEGORY_NAME ,SubCategoryId=sc.SUBCATEGORY_ID})
                     .ToList()
             }).ToList();
@@ -115,6 +116,7 @@ namespace ClassificationController.Controllers
                 if (category == null) { return NotFound(new { Message = "大分类名称填写错误！" }); }
                 var subcategories = await _dbContext.SUB_CATEGORYS
                     .Where(c => c.CATEGORY_NAME == categoryName)
+                    .OrderBy(sc => sc.SUBCATEGORY_ID) // 按ID排序
                     .Select(sc => new CategoryDTO{ SubCategoryId=sc.SUBCATEGORY_ID,SubCategoryName= sc.SUBCATEGORY_NAME })
                     .ToListAsync();
                 if (!subcategories.Any())
