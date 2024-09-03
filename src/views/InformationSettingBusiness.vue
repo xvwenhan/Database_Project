@@ -146,15 +146,14 @@ export default {
             }
         },
         handleFile(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    this.userimades.ima = e.target.result; // 这里将文件读取的结果直接设置为 URL
-                };
-                reader.readAsDataURL(file); // 这里使用 Data URL 格式读取文件
-            }
-        },
+    const file = event.target.files[0];
+    if (file) {
+        // 使用 URL.createObjectURL 生成临时 URL
+        this.userimades.ima = URL.createObjectURL(file);
+        // 将文件对象保存到 userimades 中以便上传
+        this.userimades.file = file; 
+    }
+},
         //获取头像简介
         async fetchImageAndText(id) {
             try {
@@ -166,7 +165,7 @@ export default {
                 const { describtion, photo } = response.data;
                 console.log('1:',this.userimades.ima);
                 console.log('2:',this.userimades.descri);
-                this.userimades.ima = photo;
+                this.userimades.ima = photo.imageUrl;
                 this.userimades.descri = describtion;
 
                 console.log('获取到的头像和文字描述:', this.userimades);
@@ -177,38 +176,40 @@ export default {
         },
         //上传头像简介
         async handleUpload() {
-            try {
-                if (!this.userimades.ima) {
-                this.$message.error('请提供图片');
-                return;
-                }
+    try {
+        if (!this.userimades.file) {
+            this.$message.error('请提供图片');
+            return;
+        }
 
-               
-                const Photo = this.userimades.ima;
-                const Describtion = this.userimades.descri;
-                const Id = localStorage.getItem('userId'); 
-              
-                if (!Photo || !Describtion) {
-                this.$message.error('请提供图片和简介');
-                return;
-                }
+        // 创建 FormData 对象
+        const formData = new FormData();
+        const Photo = this.userimades.file; // 使用实际的文件对象
+        const Describtion = this.userimades.descri;
+        const Id = localStorage.getItem('userId');
 
-                const response = await axiosInstance.put('/UserInfo/SetPhotoAndDescribtion', {
-                Id,
-                Photo,
-                Describtion,
-                });
+        if (!Photo || !Describtion) {
+            this.$message.error('请提供图片和简介');
+            return;
+        }
 
-                if (response.status === 200) {
-                this.$message.success('上传成功，请刷新网页以查看最新状态');
-                } else {
-                this.$message.error(`上传失败: ${response.data.message}`);
-                }
-            } catch (error) {
-                console.error('请求失败:头像简介上传', error.response ? error.response.data : error.message);
-                this.$message.error('请求失败，请稍后再试');
-            }
-        },
+        // 将数据添加到 FormData 对象中
+        formData.append('Id', Id);
+        formData.append('Photo', Photo); // Photo 应该是 File 对象
+        formData.append('Describtion', Describtion);
+
+        const response = await axiosInstance.put('/UserInfo/SetPhotoAndDescribtion', formData);
+
+        if (response.status === 200) {
+            this.$message.success('上传成功，请刷新网页以查看最新状态');
+        } else {
+            this.$message.error(`上传失败: ${response.data.message}`);
+        }
+    } catch (error) {
+        console.error('请求失败: 头像简介上传', error.response ? error.response.data : error.message);
+        this.$message.error('请求失败，请稍后再试');
+    }
+},
         //上传认证资料
         async handleCertificationUpload() {
             try {
