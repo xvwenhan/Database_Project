@@ -76,6 +76,8 @@
         <el-radio label="买家">买家</el-radio>
         <el-radio label="商家">商家</el-radio>
       </el-radio-group>
+      <!-- 用来调整位置的空白部分 -->
+      <div v-show="isChangePsw">&nbsp;</div>
       <el-input 
         v-model="registerEmail" 
         placeholder="请输入邮箱" 
