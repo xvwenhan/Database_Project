@@ -1,4 +1,6 @@
-﻿namespace BackendCode.DTOs.CommentModel
+﻿using BackendCode.DTOs.UserInfo;
+
+namespace BackendCode.DTOs.CommentModel
 {
     public class CommentModel
     {
@@ -26,6 +28,7 @@
         public string CommentId { get; set; }
         public string AuthorId { get; set; }
         public string? AuthorName { get; set; }
+        public BuyerInfoImageModel AuthorPhoto { get; set; }
         public DateTime CommentTime { get; set; }
         public string? CommentContent { get; set; }
         public List<SubCommentDetailModel> SubComments { get; set; }  //子评论列表
@@ -36,6 +39,7 @@
         public string CommentId { get; set; }
         public string AuthorId { get; set; }
         public string? AuthorName { get; set; }
+        public BuyerInfoImageModel AuthorPhoto { get; set; }
         public string CommentedCommentId { get; set; }
         public DateTime CommentTime { get; set; }
         public string? CommentContent { get; set; }
@@ -46,6 +50,7 @@
         public string CommentId { get; set; }
         public string AuthorId { get; set; }
         public string? AuthorName { get; set; }
+        public BuyerInfoImageModel AuthorPhoto { get; set; }
 
         public DateTime CommentTime { get; set; }
         public string PostId { get; set; }
@@ -54,9 +59,11 @@
     }
     public class ReceiveSubcommentModel
     {
+        public string PostId { get; set; }
         public string CommentId { get; set; }
         public string AuthorId { get; set; }
         public string? AuthorName { get; set; }
+        public BuyerInfoImageModel AuthorPhoto { get; set; }
         public string CommentContent { get; set; }
         public DateTime CommentTime { get; set; }
         public string CommentedCommentId { get; set; }

@@ -54,7 +54,7 @@ namespace StoreViewMarket.Controllers
                         Detail = market.DETAIL,
                         PosterImg= _dbContext.MARKETS
                          .Where(img => img.MARKET_ID == market.MARKET_ID)
-                         .Select(img => new ImageModel { ImageId = img.IMAGE_ID })
+                         .Select(img => new MarketImageModel { ImageId = img.IMAGE_ID })
                          .ToList(),
                         IsStoreParticipating = marketStore
                     };
@@ -165,7 +165,7 @@ namespace StoreViewMarket.Controllers
                         Detail = m.DETAIL,
                         PosterImg = _dbContext.MARKETS
                          .Where(img => img.MARKET_ID == m.MARKET_ID)
-                         .Select(img => new ImageModel { ImageId = img.IMAGE_ID })
+                         .Select(img => new MarketImageModel { ImageId = img.IMAGE_ID })
                          .ToList(),
                         IsStoreParticipating = marketStore.IN_OR_NOT
                     };

@@ -51,6 +51,7 @@ namespace BackendCode.DTOs.PostModel
         public string PostId { get; set; }
         public string AuthorId { get; set; }
         public string AuthorName { get; set; }
+        public BuyerInfoImageModel AuthorPhoto { get; set; }
         public string PostTitle { get; set; }
         public string PostContent { get; set; }
         public DateTime? ReleaseTime { get; set; }

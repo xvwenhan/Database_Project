@@ -227,12 +227,15 @@ namespace BackendCode.Controllers
                 .Where(pd => pd.PRODUCT_ID == productId)
                 .Select(pd => new ImageAndTextDetailDTO
                 {
-                    Url = $"https://47.97.5.21:5173/api/images/{pd.IMAGE_ID}",
+                    Url = $"https://47.97.5.21:5173/api/images/product/{pd.IMAGE_ID}",
                     Description = pd.DESCRIPTION
                 })
                 .ToListAsync();
 
-            if(isStore)
+            /* 查询商家头像 */
+            var storeAvatar = new StoreInfoImageModel { ImageId = store.ACCOUNT_ID };
+
+            if (isStore)
             {
                 isProductStared = false;
                 isStoreStared = false; 
@@ -252,7 +255,7 @@ namespace BackendCode.Controllers
                 Score = store.STORE_SCORE, //店铺评分
                 IsProductStared = isProductStared, //商品是否被收藏
                 IsStoreStared = isStoreStared, //店铺是否被收藏
-                StoreAvatar = $"https://47.97.5.21:5173/api/images/{store.ACCOUNT_ID}", //商家头像
+                StoreAvatar = storeAvatar, //商家头像
                 ImageAndText = imageAndTextDetails //图片和文字对应的字典数组
             };
 
