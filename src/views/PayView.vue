@@ -108,7 +108,7 @@
               <div class="text2" @click="enterStore">{{ product.storeName }}&#8201;&#8201;></div>
           </div>
           <div class="productArea">
-              <img :src="product.picture" class="productImage" alt="图片加载失败">
+              <img :src="product.pictures?product.pictures[0].imageUrl:''" class="productImage" alt="图片加载失败">
               <div class="orderDetail">
                   <div class="text-p">{{ product.name }}</div>
                   <div class="text-p2">￥{{ product.price }}</div>
@@ -284,6 +284,7 @@ onMounted(async () => {
   const productStr = route.query.product;
   if (productStr) {
     product.value = JSON.parse(productStr);
+    console.log(`product.value is ${JSON.stringify(product.value, null, 2)}`)
   }else {
     product.value = {}; // 确保对象是初始化的
   }
@@ -367,6 +368,32 @@ const checkPay=()=>{
     }
 }
 const aliPay=async()=>{
+
+  const formData1 = new FormData();
+    formData1.append('orderId',order.value.id);
+    formData1.append('order_address',customer.value.address);
+    formData1.append('username',customer.value.name);
+    formData1.append('actual_pay', product.value.finalPrice);//使用积分后的价格
+    formData1.append('total_pay',product.value.discountPrice);//打折后的价格
+    try {
+    const response = await axiosInstance.put('Payment/ConfirmOrders', formData1, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    } catch (error) {
+        if (error.response) {
+        // 请求已发出，服务器返回了状态码
+            console.error('响应错误状态码:', error.response.status);
+            console.error('响应错误数据:', error.response.data);
+            console.error('响应错误头:', error.response.headers);
+        } else if (error.request) {
+            // 请求已发出，但没有响应
+            console.error('请求错误:', error.request);
+        } else {
+            // 其他错误
+            console.error('错误信息:', error.message);
+        }
+  }
+
   const path = routerPath ? routerPath : '/home'; 
   if(path==='/ordercentre'){
     returnUrl.value='http://47.97.5.21:17990/ordercentre';
@@ -375,27 +402,30 @@ const aliPay=async()=>{
   }
   console.log(`orderID is ${order.value.id}`);
   console.log(`actualPay is ${product.value.finalPrice}`);
-  console.log(`returnUrl is ${returnUrl.value}`);
+  console.log(`returnUrl is ${returnUrl.value.toString()}`);
+  const formData = new FormData();
+  formData.append('orderID',order.value.id);
+  formData.append('actualPay',product.value.finalPrice.toString());
+  formData.append('returnUrl',returnUrl.value);
+
   try {
-        const response = await axiosInstance.post('/Alipay', {
-          "orderID": order.value.id,
-          "actualPay": product.value.finalPrice,
-          "returnUrl":returnUrl.value
-        });
-        console.log(response.data);
-        window.location.assign(response.data);
-      } catch (error) {
-        //检查是否重定向
-        if (error.response&&error.response.status===302) {
-          const location=error.response.headers.location;
-          //手动处理重定向
-          window.location.href=location;
-        } else {
-          console.error('error:',error.message);
-        }
-        // ElMessage.error(message.value);
-        }
-        message.value='';
+    const response = await axiosInstance.post('/Alipay',formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    console.log(response.data);
+    window.location.assign(response.data);
+  } catch (error) {
+    //检查是否重定向
+    if (error.response&&error.response.status===302) {
+      const location=error.response.headers.location;
+      //手动处理重定向
+      window.location.href=location;
+    } else {
+      console.error('error:',error.message);
+    }
+    // ElMessage.error(message.value);
+  }
+  message.value='';
   }
 
 //确认订单信息并完成支付
