@@ -11,6 +11,7 @@ import Loading from '../views/templates/4.vue';
 const userId =localStorage.getItem('userId');
 console.log('id',userId);
 const option=ref(1);
+const isNoData=ref(false);
 const currentRow_cancel=ref(null);
 const isLoading = ref(true);
 const currentRow_return=ref(null);
@@ -47,149 +48,6 @@ const filteredOrders = computed(() => {
       };
       return myOrders.value.filter(order => order.status === statusMapping[option.value]);
     });
-
-// const orders=ref([
-//        {
-//           id: 1,
-//           number:'11111',
-//           time:'2024-8-17',
-//           product:[{
-//           id:11,
-//           image: 'src/assets/czw/order1.png',
-//           productName: '星',
-//           price: 23,
-//           },
-//           {
-//             id:12,
-          
-//           image: 'src/assets/czw/order2.png',
-//           productName: '穹',
-         
-//           price: 23,
-//           }],
-//           orderStatus: '已发货',
-//           state:1,
-//           shopName: '匹诺康尼',
-//           price:46,
-//           star:null,
-//           starVisible:false,
-//           dialogVisible:false,
-//         },
-//         {
-//           id: 2,
-//           number:'22222',
-//           time:'2024-8-23',
-//           product:[{
-//           id:21,
-//           image: 'src/assets/czw/order3.png',
-//           productName: '三月七',
-         
-//           price: 30,
-//           }],
-//           orderStatus: '未发货',
-//           state:1,
-//           shopName: '星穹列车',
-//           price: 30,
-//           star:null,
-//           starVisible:false,
-//           dialogVisible:false,
-//         },
-//         {
-//           id: 3,
-//           number:'3333',
-//           time:'2024-9-30',
-//           product:[{
-//           id:31,
-//           image: 'src/assets/czw/order4.png',
-//           productName: '丹恒',
-         
-//           price: 10,
-        
-//           }],
-//           orderStatus: '待评价',
-//           state:1,
-//           shopName: '星核猎手',
-//           price: 10,
-//           star:null,
-//           starVisible:false,
-//           dialogVisible:false,
-//         },
-//         {
-//           id: 4,
-//           number:'22222',
-//           time:'2024-8-23',
-//           product:[{
-//           id:21,
-//           image: 'src/assets/czw/order3.png',
-//           productName: '三月七',
-          
-//           price: 30,
-          
-//           }],
-//           orderStatus: '交易成功',
-//           state:1,
-//           shopName: '星穹列车',
-//           price: 30,
-//           star:4,
-//           starVisible:false,
-//           dialogVisible:false,
-//         },
-//         {
-//           id: 5,
-//           number:'3333',
-//           time:'2024-9-30',
-//           product:[{
-//           id:31,
-//           image: 'src/assets/czw/order4.png',
-//           productName: '丹恒',
-         
-//           price: 10,
-//           }],
-//           orderStatus: '交易成功',
-//           state:1,
-//           shopName: '星核猎手',
-//           price: 10,
-//           star:null,
-//           starVisible:false,
-//           dialogVisible:false,
-//         },
-//         {
-//           id: 6,
-//           number:'22222',
-//           time:'2024-8-23',
-//           product:[{
-//           id:21,
-//           image: 'src/assets/czw/order3.png',
-//           productName: '三月七',
-//           price: 30,
-//           }],
-//           orderStatus: '待评价',
-//           state:1,
-//           shopName: '星穹列车',
-//           price: 30,
-//           star:null,
-//           starVisible:false,
-//           dialogVisible:false,
-//         },
-//         {
-//           id: 7,
-//           number:'3333',
-//           time:'2024-9-30',
-//           product:[{
-//           id:31,
-//           image: 'src/assets/czw/order4.png',
-//           productName: '丹恒',
-//           price: 10,
-//           }],
-//           orderStatus: '未发货',
-//           state:1,
-//           shopName: '星核猎手',
-//           price: 10,
-//           star:null,
-//           starVisible:false,
-//           dialogVisible:false,
-//         },
-// ]);
 const myOrders = ref<Order[]>([]);
   const getMyPost = async () => {
   axiosInstance.get('/Payment/GetAllOrders', {
@@ -200,10 +58,11 @@ const myOrders = ref<Order[]>([]);
     .then(response => {
         const data = response.data;
         console.log('Raw response data: ', response.data);
-        if(data==null){
+        if (data.length === 0) {
+          isNoData.value=true;
           isLoading.value=false;
         }
-        else if (data && Array.isArray(data)) {
+        if (data && Array.isArray(data)) {
           myOrders.value = data.map((order: any) => ({
             id: order.orderId || '',
             product: order.productName || '',
@@ -234,6 +93,10 @@ const myOrders = ref<Order[]>([]);
         }
     }).catch(error => {
         console.error(error);
+        if (error.response && error.response.status === 404) {
+          isNoData.value=true;
+          isLoading.value=false;
+        }
     });
 };
 getMyPost();
@@ -438,9 +301,9 @@ const menuChange = (index) => {
       <span v-if="option === 7" style="font-size: 2vh; color: #333;">已退货</span>
     </div>
   </el-header>
-  <Loading v-show="isLoading" />
-
-  <el-table v-show="!isLoading" :data="filteredOrders" style="width: 100%">
+  <Loading v-if="isLoading" />
+  <div v-else-if="isNoData">暂无订单</div>
+  <el-table  v-else :data="filteredOrders" style="width: 100%">
     <el-table-column label="商品信息">
     <template v-slot="scope">
       <div class="order-header">

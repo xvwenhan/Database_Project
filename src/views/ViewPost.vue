@@ -8,6 +8,14 @@ import 'animate.css';
 import axiosInstance from '../components/axios';
 import Loading from '../views/templates/4.vue';
 
+
+import likeB from '@/assets/czw/like.svg';
+import replyB from '@/assets/czw/reply.svg';
+import backB from '@/assets/czw/back.svg';
+import likedB from '@/assets/czw/liked.svg';
+import showReplyB from '@/assets/czw/show_reply.svg';
+import hideReplyB from '@/assets/czw/hide_reply.svg';
+
 // 假设这些数据是从服务器获取的
 const dialogVisible =ref(false);
 const inputComment = ref('');
@@ -318,12 +326,12 @@ function submitReplyReason(reply){
       });
 }
 const button = reactive([
-  { id: 1, text: 'like', background: '@/assets/czw/like.svg', backgroundColor: 'transparent' },
-  { id: 2, text: 'like', background: '@/assets/czw/reply.svg', backgroundColor: 'transparent' },
-  { id: 3, text: 'like', background: '@/assets/czw/back.svg', backgroundColor: 'transparent' },
-  { id: 4, text: 'liked', background: '@/assets/czw/liked.svg', backgroundColor: 'transparent' },
-  { id: 5, text: 'liked', background: '@/assets/czw/show_reply.svg', backgroundColor: 'transparent' },
-  { id: 6, text: 'liked', background: '@/assets/czw/hide_reply.svg', backgroundColor: 'transparent' },
+  { id: 1, text: 'like', background: likeB, backgroundColor: 'transparent' },
+  { id: 2, text: 'like', background: replyB, backgroundColor: 'transparent' },
+  { id: 3, text: 'like', background: backB, backgroundColor: 'transparent' },
+  { id: 4, text: 'liked', background: likedB, backgroundColor: 'transparent' },
+  { id: 5, text: 'liked', background: showReplyB, backgroundColor: 'transparent' },
+  { id: 6, text: 'liked', background: hideReplyB, backgroundColor: 'transparent' },
 ]);
 function like(){
   if(post.value.liked==false){
