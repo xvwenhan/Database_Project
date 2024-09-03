@@ -53,8 +53,14 @@ namespace BackendCode.Controllers
             {
                 return File(image.PHOTO, "image/jpeg"); //根据图片类型调整MIME类型
             }
+            else
+            {
+                var image2 = _context.ACCOUNTS.FirstOrDefault(pd => pd.ACCOUNT_ID == "U00000001");
+                if (image2 == null) { return NotFound("原始用户头像不存在") ; }
+                return File(image2.PHOTO, "image/jpeg"); //根据图片类型调整MIME类型
+            }
 
-            return NotFound();
+           // return NotFound();
         }
         
         [HttpGet("market/{imageId}")]

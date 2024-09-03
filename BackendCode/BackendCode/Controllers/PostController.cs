@@ -726,7 +726,7 @@ namespace BackendCode.Controllers
                                 UserName=b.USER_NAME,
                                 ReleaseTime=p.RELEASE_TIME,
                                 NumberOfComments = p.NUMBER_OF_COMMENTS,
-                                NumberOfLikes = p.NUMBER_OF_LIKES
+                                NumberOfLikes = p.NUMBER_OF_LIKES,
                             };
 
             var postDetail = await postQuery.FirstOrDefaultAsync();
@@ -753,6 +753,7 @@ namespace BackendCode.Controllers
                                     CommentId = cp.COMMENT_ID,
                                     AuthorId = b.ACCOUNT_ID,
                                     AuthorName = b.USER_NAME,
+                                    AuthorPhoto= new BuyerInfoImageModel { ImageId= b.ACCOUNT_ID },//新增加
                                     CommentContent = cp.EVALUATION_CONTENT,
                                     CommentTime = cp.EVALUATION_TIME
                                 };
@@ -767,6 +768,7 @@ namespace BackendCode.Controllers
                 PostContent = postDetail.PostContent,
                 AuthorId = postDetail.AccountId,
                 AuthorName = postDetail.UserName,
+                AuthorPhoto = new BuyerInfoImageModel { ImageId = postDetail.AccountId },//新增加
                 ReleaseTime = postDetail.ReleaseTime,
                 NumberOfComments = postDetail.NumberOfComments,
                 NumberOfLikes = postDetail.NumberOfLikes,
@@ -806,7 +808,8 @@ namespace BackendCode.Controllers
                                        CommentTime = cc.COMMENT_TIME,
                                        AuthorId = b.ACCOUNT_ID,
                                        AuthorName = b.USER_NAME,
-                                       CommentedCommentId = cc.COMMENTED_COMMENT_ID
+                                       CommentedCommentId = cc.COMMENTED_COMMENT_ID,
+                                       AuthorPhoto = new BuyerInfoImageModel { ImageId = b.ACCOUNT_ID }//新增加
                                    };
 
             var subComments = await subCommentsQuery.ToListAsync();
@@ -917,7 +920,8 @@ namespace BackendCode.Controllers
                                       PostId=cp.POST_ID,
                                       PostTitle=p.POST_TITLE,
                                       AuthorId=cp.BUYER_ACCOUNT_ID,
-                                      AuthorName=b.USER_NAME,
+                                      AuthorPhoto = new BuyerInfoImageModel { ImageId = cp.BUYER_ACCOUNT_ID },//新增加
+                                      AuthorName =b.USER_NAME,
                                       CommentContent= cp.EVALUATION_CONTENT,
                                       CommentTime=cp.EVALUATION_TIME,
                                       
@@ -951,6 +955,7 @@ namespace BackendCode.Controllers
                                       PostId = cp.POST_ID,
                                       PostTitle = p.POST_TITLE,
                                       AuthorId = cp.BUYER_ACCOUNT_ID,
+                                      AuthorPhoto = new BuyerInfoImageModel { ImageId = cp.BUYER_ACCOUNT_ID },//新增加
                                       AuthorName = b.USER_NAME,
                                       CommentContent = cp.EVALUATION_CONTENT,
                                       CommentTime = cp.EVALUATION_TIME,
@@ -986,6 +991,7 @@ namespace BackendCode.Controllers
                                       PostTitle = p.POST_TITLE,
                                       AuthorId = cp.BUYER_ACCOUNT_ID,
                                       AuthorName = b.USER_NAME,
+                                      AuthorPhoto = new BuyerInfoImageModel { ImageId = cp.BUYER_ACCOUNT_ID },//新增加
                                       CommentContent = cp.EVALUATION_CONTENT,
                                       CommentTime = cp.EVALUATION_TIME,
 
@@ -1019,9 +1025,10 @@ namespace BackendCode.Controllers
                                       CommentedCommentId = cc.COMMENTED_COMMENT_ID,
                                       AuthorId = cc.ACCOUNT_ID,
                                       AuthorName = b.USER_NAME,
+                                      AuthorPhoto = new BuyerInfoImageModel { ImageId = cc.ACCOUNT_ID },//新增加
                                       CommentContent = cc.COMMENT_CONTENT,
                                       CommentTime = cc.COMMENT_TIME,
-
+                                      PostId = p.POST_ID,//新增加
                                   }).ToListAsync();
 
             if (comments == null || !comments.Any())
@@ -1052,9 +1059,10 @@ namespace BackendCode.Controllers
                                       CommentedCommentId = cc.COMMENTED_COMMENT_ID,
                                       AuthorId = cc.ACCOUNT_ID,
                                       AuthorName = b.USER_NAME,
+                                      AuthorPhoto = new BuyerInfoImageModel { ImageId = cc.ACCOUNT_ID },//新增加
                                       CommentContent = cc.COMMENT_CONTENT,
                                       CommentTime = cc.COMMENT_TIME,
-
+                                      PostId = p.POST_ID,//新增加
                                   }).ToListAsync();
 
             if (comments == null || !comments.Any())
