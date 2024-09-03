@@ -70,6 +70,12 @@ namespace BackendCode.DTOs.Administrator
         public IFormFile? posterImg { get; set; }
         public string? adminId { get; set; }
     }
+
+    public class ISModel
+    {
+        public string MarketId { get; set; }
+        public string InviteTag { get; set; }
+    }
     public class DMModel
     {
         public string? marketId { get; set; }

@@ -100,6 +100,40 @@ namespace StoreViewMarket.Controllers
                 else
                 {
                     marketStore.IN_OR_NOT = request.InOrOut;
+                    if (request.InOrOut)
+                    {
+                        var products = await _dbContext.PRODUCTS
+                         .Where(st => st.ACCOUNT_ID==request.StoreId)
+                         .Select(st => st.PRODUCT_ID)
+                         .Distinct()
+                         .ToListAsync();
+
+                        foreach (var product in products)
+                        {
+                            _dbContext.MARKET_PRODUCTS.Add(new BackendCode.Models.MARKET_PRODUCT()
+                            {
+                                MARKET_ID = request.MarketId,
+                                PRODUCT_ID = product,
+                            });
+                        }
+                    }
+                    else
+                    {
+                        // 获取要删除的 PRODUCT_ID 列表
+                        var productIds = await _dbContext.PRODUCTS
+                            .Where(st => st.ACCOUNT_ID == request.StoreId)
+                            .Select(st => st.PRODUCT_ID)
+                            .Distinct()
+                            .ToListAsync();
+
+                        // 查询要删除的 MARKET_PRODUCTS 实体
+                        var marketProductsToRemove = _dbContext.MARKET_PRODUCTS
+                            .Where(mp => productIds.Contains(mp.PRODUCT_ID));
+
+                        // 从上下文中删除这些实体
+                        _dbContext.MARKET_PRODUCTS.RemoveRange(marketProductsToRemove);
+
+                    }
                 }
 
                 await _dbContext.SaveChangesAsync();
