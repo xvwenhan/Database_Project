@@ -26,9 +26,13 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.ExpireTimeSpan = TimeSpan.FromMinutes(60); //设置Cookie过期时间
 
         options.Cookie.HttpOnly = true;
-        //options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+
+        //////////注意注意注意注意：想用本地前端，用下面这两句。
+/*        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+        options.Cookie.SameSite = SameSiteMode.None; //允许跨站Cookie*/
+
+        /////////注意注意注意注意：想用服务器，用下面这两句
         options.Cookie.SecurePolicy = CookieSecurePolicy.None;
-        //options.Cookie.SameSite = SameSiteMode.None; //允许跨站Cookie
         options.Cookie.SameSite = SameSiteMode.Lax; // 或者 SameSiteMode.Strict
 
     });

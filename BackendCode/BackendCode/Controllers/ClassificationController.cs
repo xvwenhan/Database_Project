@@ -41,10 +41,10 @@ namespace ClassificationController.Controllers
             {
                 var category = await _dbContext.CATEGORYS
                     .Where(c => c.CATEGORY_NAME == categoryName)
-                    .Select(c => new
+                    .Select(c => new CategoryDetailDTO
                     {
-                        c.CATEGORY_PIC,
-                        c.CATEGORY_DESCRIPTION
+                        CategoryDescription=c.CATEGORY_DESCRIPTION,
+                        CategoryPhoto=new CategoryImageModel { ImageId= categoryName }
                     })
                     .FirstOrDefaultAsync();
 
