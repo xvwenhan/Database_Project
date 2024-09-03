@@ -51,7 +51,7 @@
         public decimal? Score { get; set; }
         public bool IsProductStared { get; set; }
         public bool IsStoreStared { get; set; }
-        public string? StoreAvatar { get;set; }
+        public StoreInfoImageModel? StoreAvatar { get;set; }
         public List<ImageAndTextDetailDTO>? ImageAndText { get; set; }
     }
 

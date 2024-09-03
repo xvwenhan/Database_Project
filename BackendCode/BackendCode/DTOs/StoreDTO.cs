@@ -7,7 +7,7 @@
         public DateTime? StartTime { get; set; }
         public DateTime? EndTime { get; set; }
         public string? Detail { get; set; }
-        public string? PosterImg { get; set; } // URL or Base64 string of the image
+        public List<MarketImageModel>? PosterImg { get; set; }
         public bool IsStoreParticipating { get; set; }
     }
 

@@ -2,6 +2,8 @@
 using BackendCode.Data;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Yitter.IdGenerator;
+using Alipay.AopSdk.AspnetCore;
+using System.Configuration;
 
 var Idoptions = new IdGeneratorOptions();
 YitIdHelper.SetIdGenerator(Idoptions);
@@ -44,7 +46,6 @@ builder.Services.AddCors(options =>
                    .AllowCredentials());
 });
 
-
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -52,6 +53,10 @@ builder.Services.AddDbContext<YourDbContext>(options => {
     string connectionString = builder.Configuration.GetConnectionString("OracleConnection"); ;
     options.UseOracle(connectionString);
 });
+
+// 添加支付宝服务
+builder.Services.AddAlipay(builder.Configuration.GetSection("Alipay"));
+
 builder.Services.AddControllers();
 
 var app = builder.Build();
