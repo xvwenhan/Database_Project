@@ -170,7 +170,6 @@
 
           </el-dialog>
       </div>
-
       </div>
       <div class="price" v-show="isPaid===true">
         <div class="storeArea">
@@ -183,6 +182,37 @@
           <div class="text-price-active">积分抵扣：&#8201;&#8201;{{ product.discountPrice-product.finalPrice }}元</div>
           <div class="text-price-active">价格合计：{{ product.finalPrice }}元</div>
       </div>
+      <el-dialog 
+              v-model="payChoiceVisible"
+              width="20%"
+              :style="{borderRadius:'15px'}"
+              >
+            <h2>请选择支付方式</h2>
+            <el-radio-group  v-model="payWay" 
+            style="display:flex;
+            flex-direction: column;
+            margin-left: 10px;
+            margin-bottom:0px">
+                <el-radio label="wallet">钱包</el-radio>
+                <el-radio label="alipay">支付宝</el-radio>
+            </el-radio-group>
+            <el-button 
+              @click="openPay"
+              style="
+              font-size: 16px;
+              border-radius: 5px;
+              border: 2px solid #a61b29;
+              background-color: #a61b29;
+              color:#FFF;
+              cursor: pointer;
+              width: auto;
+              height:32px;
+              margin-top:5px;
+              padding-left:20px;
+              padding-right:20px;
+              right:40px;" 
+          >确认支付</el-button>
+          </el-dialog>
   </div>
 </template>
 <!-- 去掉lang="ts"就不会标红了 -->
@@ -217,8 +247,9 @@ const order=ref({id:'',createTime:''});
 const customer=ref({name:'',
               address:'',
               credits:300});
-              const dialogVisible=ref(false);
+const dialogVisible=ref(false);
 const payVisible=ref(false);
+const payChoiceVisible=ref(false);
 const address1=ref('');
 const address2=ref('');
 const isUseCredits=ref('no');
@@ -232,9 +263,12 @@ const message=ref('');
 //支付后获得积分以及剩余积分
 const bonusCredits=ref(0);
 const finalCredits=ref(0);
+//支付方式
+const payWay=ref('wallet');
 //是否支付成功
 const isPaySuccess=ref(false);
 ////订单支付结束后（不管支付成功没成功）都跳转回原来的页面
+const returnUrl=ref('');
 const router=useRouter();
 const routerPath=localStorage.getItem('routerPath');
 watch(payVisible, (newValue, oldValue) => {
@@ -328,44 +362,82 @@ const checkPay=()=>{
     if(customer.value.name==="未知收货人"||customer.value.address==="未知地"){
       ElMessage.error("请补充收货信息");
     }else{
-      openPay();
+      payChoiceVisible.value=true;
+      // openPay();
     }
 }
+const aliPay=async()=>{
+  const path = routerPath ? routerPath : '/home'; 
+  if(path==='/ordercentre'){
+    returnUrl.value='http://47.97.5.21:17990/ordercentre';
+  }else{
+    returnUrl.value='http://47.97.5.21:17990/merchandise/1';
+  }
+  console.log(`orderID is ${order.value.id}`);
+  console.log(`actualPay is ${product.value.finalPrice}`);
+  console.log(`returnUrl is ${returnUrl.value}`);
+  try {
+        const response = await axiosInstance.post('/Alipay', {
+          "orderID": order.value.id,
+          "actualPay": product.value.finalPrice,
+          "returnUrl":returnUrl.value
+        });
+        console.log(response.data);
+        window.location.assign(response.data);
+      } catch (error) {
+        //检查是否重定向
+        if (error.response&&error.response.status===302) {
+          const location=error.response.headers.location;
+          //手动处理重定向
+          window.location.href=location;
+        } else {
+          console.error('error:',error.message);
+        }
+        // ElMessage.error(message.value);
+        }
+        message.value='';
+  }
+
 //确认订单信息并完成支付
 const openPay=async()=>{
-  const formData = new FormData();
-  formData.append('orderId',order.value.id);
-  formData.append('order_address',customer.value.address);
-  formData.append('username',customer.value.name);
-  formData.append('actual_pay', product.value.finalPrice);//使用积分后的价格
-  formData.append('total_pay',product.value.discountPrice);//打折后的价格
-  formData.forEach((value, key) => {
-      console.log(`${key}: ${value}`);
-  });
-  try {
-  const response = await axiosInstance.put('Payment/ConfirmOrders', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-  });
-  bonusCredits.value = response.data.bonusCredits;
-  finalCredits.value = response.data.credits;
-  isPaySuccess.value=true;
-  } catch (error) {
-      isPaySuccess.value=false;
-      if (error.response) {
-      // 请求已发出，服务器返回了状态码
-          console.error('响应错误状态码:', error.response.status);
-          console.error('响应错误数据:', error.response.data);
-          console.error('响应错误头:', error.response.headers);
-      } else if (error.request) {
-          // 请求已发出，但没有响应
-          console.error('请求错误:', error.request);
-      } else {
-          // 其他错误
-          console.error('错误信息:', error.message);
-      }
-      }
-  message.value='';
-  payVisible.value=true;
+  if(payWay.value==='wallet'){
+    const formData = new FormData();
+    formData.append('orderId',order.value.id);
+    formData.append('order_address',customer.value.address);
+    formData.append('username',customer.value.name);
+    formData.append('actual_pay', product.value.finalPrice);//使用积分后的价格
+    formData.append('total_pay',product.value.discountPrice);//打折后的价格
+    formData.forEach((value, key) => {
+        console.log(`${key}: ${value}`);
+    });
+    try {
+    const response = await axiosInstance.put('Payment/ConfirmOrders', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    bonusCredits.value = response.data.bonusCredits;
+    finalCredits.value = response.data.credits;
+    isPaySuccess.value=true;
+    } catch (error) {
+        isPaySuccess.value=false;
+        if (error.response) {
+        // 请求已发出，服务器返回了状态码
+            console.error('响应错误状态码:', error.response.status);
+            console.error('响应错误数据:', error.response.data);
+            console.error('响应错误头:', error.response.headers);
+        } else if (error.request) {
+            // 请求已发出，但没有响应
+            console.error('请求错误:', error.request);
+        } else {
+            // 其他错误
+            console.error('错误信息:', error.message);
+        }
+        }
+    message.value='';
+    payChoiceVisible.value=false;
+    payVisible.value=true;
+  }else{
+    aliPay();
+  }
 }
 
 </script>

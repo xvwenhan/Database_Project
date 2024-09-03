@@ -1,6 +1,6 @@
 <template>
   <Navbar />
-  <div class="market-page">
+  <div class="market-page" >
     <h2 class="market-title"><< 近期市集 >></h2>
     <button class="carousel-button left" @click="prevSlide">
       <img src="@/assets/wy/leftslide.png" alt="左翻按钮" class="icon"/>
@@ -17,7 +17,7 @@
           </div>
           <div class="market-info">
             <h3>{{ market.theme }}</h3>
-            <p>{{ market.detail }}</p>
+            <p style="font-family: 'Regular';">{{ market.detail }}</p>
           </div>
         </div>
       </div>
@@ -195,6 +195,6 @@ h2 {
 }
 
 .icon{
-  height: 70px;
+  height: 110px;
 }
 </style>

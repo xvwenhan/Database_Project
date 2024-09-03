@@ -296,7 +296,6 @@ document.querySelectorAll('.icon').forEach(icon => {
 @import url('https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap');
 
 
-
 div {
   user-select: none;
   outline: none; 
@@ -354,6 +353,9 @@ height: 100%;
 :deep(.navbar-item .nav-link.active),
 :deep(.navbar-item .nav-link:hover) {
   background-color: rgba(0, 0, 0, 0.3) !important; 
+  color: #FFFFFF !important; 
+}
+:deep(.navbar-item .nav-link){
   color: #FFFFFF !important; 
 }
 .mySwiper {

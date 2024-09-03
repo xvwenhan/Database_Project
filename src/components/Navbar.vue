@@ -1,13 +1,13 @@
 <template>
-  <nav class="navbar">
+  <nav class="navbar" style="font-family: 'Regular';">
     <!-- <div class="line top-line"></div> -->
     <div class="navbar-top">
       <div class="navbar-brand">
         <img src="@/assets/logo1.png" alt="Logo" class="logo" />
-        <span style="font-size: 20px;margin-left: 10px;">瑕宝阁</span>
+        <span style="font-size: 20px;margin-left: 10px;font-family: 'Regular';">瑕宝阁</span>
       </div>
       <div class="navbar-right">
-        <div class="date-weather">
+        <div class="date-weather" >
           <span style="font-size: 17px;">{{ lunarDate }}</span>
           <span style="font-size: 17px; margin-left: 10px;">{{ weather }}</span>
         </div>
