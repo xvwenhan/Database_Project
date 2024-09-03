@@ -149,8 +149,9 @@ export default {
     const file = event.target.files[0];
     if (file) {
         console.log('选中的文件:', file);
-        this.userimades.ima = URL.createObjectURL(file);
         this.userimades.file = file;
+        this.userimades.ima = URL.createObjectURL(file);
+        console.log('userfile',file,'userima',this.userimades.ima);
     } else {
         console.log('文件选择失败或无效');
     }
@@ -197,7 +198,11 @@ export default {
             console.log(`${pair[0]}:`, pair[1]);
         }
 
-        const response = await axiosInstance.put('/UserInfo/SetPhotoAndDescribtion', formData);
+        // const response = await axiosInstance.put('/UserInfo/SetPhotoAndDescribtion', formData);
+
+        const response = await axiosInstance.put('/UserInfo/SetPhotoAndDescribtion',formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
 
         if (response.status === 200) {
             this.$message.success('上传成功，请刷新网页以查看最新状态');

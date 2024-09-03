@@ -192,27 +192,27 @@
   </div>
 
   <!-- 添加商品对话框 -->
-  <div v-if="addDialogVisible" class="SettingPopUp">
+   <!-- 添加商品对话框 -->
+   <div v-if="addDialogVisible" class="SettingPopUp">
     <div class="SettingContent">
-      <!-- <span class="close" @click="addDialogVisible = false">&times;</span> -->
-      <el-form :model="newProduct" :rules="rules" ref="form"> 
+      <el-form :model="newProduct" :rules="rules" ref="form">
         <el-form-item label="商品名称" prop="name">
           <el-input v-model="newProduct.name"></el-input>
         </el-form-item>
         <el-form-item label="系统分类" prop="categorySys">
           <el-select v-model="newProduct.categorySys">
             <el-option-group
-                        v-for="group in categories"
-                        :key="group.largeCategoryName"
-                        :label="group.largeCategoryName"
-                      >
-                        <el-option
-                          v-for="item in group.subCategories"
-                          :key="item.subCategoryId"
-                          :label="item.subCategoryName"
-                          :value="item.subCategoryId"
-                        />
-                      </el-option-group>
+              v-for="group in categories"
+              :key="group.largeCategoryName"
+              :label="group.largeCategoryName"
+            >
+              <el-option
+                v-for="item in group.subCategories"
+                :key="item.subCategoryId"
+                :label="item.subCategoryName"
+                :value="item.subCategoryId"
+              />
+            </el-option-group>
           </el-select>
         </el-form-item>
         <el-form-item label="商家分类" prop="categoryInit">
@@ -226,26 +226,24 @@
         </el-form-item>
         <el-form-item label="商品图片" prop="image">
           <div v-if="newProduct.images.length > 0" class="image-preview">
-    <div v-for="(image, index) in newProduct.images" :key="index" class="image-item">
-      <img :src="image" alt="图片" style="width: 100px; height: 100px;display:flex" />
-    </div>
-  </div>
-  <input type="file" multiple @change="(e) => onFileChange(e, 'newProduct')">
+            <div v-for="(image, index) in newProduct.images" :key="index" class="image-item">
+              <img :src="image" alt="图片" style="width: 100px; height: 100px; display:flex" />
+            </div>
+          </div>
+          <input type="file" multiple @change="(e) => onFileChange(e, 'newProduct')" />
         </el-form-item>
-
         <el-form-item label="瑕疵图文描述（图文一一对应）" prop="imagesWithText">
-        <div v-for="(item, index) in newProduct.imagesWithText" :key="index" class="image-text-item">
-          <img :src="item.image" alt="图片" style="width: 50px; height: 50px; margin-right: 5px" />
-          <p>{{ item.text }}</p>
-        </div>
-        <input type="file" @change="handleFileChange($event, 'newImage')">
-        <el-input   type="textarea"  :rows="4"  v-model="newImageText" placeholder="输入瑕疵文字描述"></el-input>
-       
-        <el-button   @click="addImageWithText(newImage, newImageText)">添加瑕疵图文描述</el-button>
-      </el-form-item>
+          <div v-for="(item, index) in newProduct.imagesWithText" :key="index" class="image-text-item">
+            <img :src="item.image" alt="图片" style="width: 50px; height: 50px; margin-right: 5px" />
+            <p>{{ item.text }}</p>
+          </div>
+          <input type="file" @change="(e) => handleFileChange(e)" />
+          <el-input type="textarea" :rows="4" v-model="newImageText" placeholder="输入瑕疵文字描述"></el-input>
+          <el-button @click="addImageWithText">添加瑕疵图文描述</el-button>
+        </el-form-item>
       </el-form>
       <el-button type="primary" @click="addNewProduct">添加</el-button>
-      <el-button type="primary" @click="addDialogVisible = false">取消</el-button>
+      <el-button type="primary" @click="() => addDialogVisible = false">取消</el-button>
     </div>
   </div>
 
@@ -589,14 +587,11 @@ const getCategoryLabel = (value) => {
     Array.from(files).forEach(file => {
       const reader = new FileReader();
       reader.onload = (e) => {
-        const base64Image = `data:image/jpeg;base64,${e.target.result.split(',')[1]}`;
-        newProduct.value.images.push(base64Image); // 将 Base64 数据添加到 images 数组中
+        const imageUrl = e.target.result; // 直接使用 URL
+        newProduct.value.images.push(imageUrl); // 将图片 URL 添加到 images 数组中
       };
       reader.readAsDataURL(file);
     });
-  }
-  else if(target === 'preProduct'){
-    preProduct.value.image = base64Image;
   }
 };
    
@@ -1049,6 +1044,7 @@ const submitDefectUpload = async () => {
     });
     const newImage = ref('');
 const newImageText = ref('');
+const newImageURL = ref('');
     const showAddDialog = () => {
       newProduct.value = {
         name: '',
@@ -1066,8 +1062,7 @@ const newImageText = ref('');
   if (file) {
     const reader = new FileReader();
     reader.onload = (e) => {
-      const base64Image = `data:image/jpeg;base64,${e.target.result.split(',')[1]}`;// 获取完整的 Base64 字符串
-      newImage.value = base64Image; // 更新 newImage 的值
+      newImageURL.value = e.target.result; // 更新 newImageURL 的值
     };
     reader.readAsDataURL(file);
   }
@@ -1083,103 +1078,64 @@ const dataURLToBlob = (dataURL) => {
   return new Blob([new Uint8Array(array)], { type: mime });
 };
 const addImageWithText = () => {
-  console.log('newImage:', newImage.value);
-  console.log('newImageText:', newImageText.value);
-  console.log('imagesWithText:', newProduct.value.imagesWithText);
-  if (newImage.value && newImageText.value) {
-    if (!Array.isArray(newProduct.value.imagesWithText)) {
-      newProduct.value.imagesWithText = [];
-    }
-    newProduct.value.imagesWithText.push({ image: newImage.value, text: newImageText.value });
-    newImage.value = ''; // 清空 newImage
+  if (newImageURL.value && newImageText.value) {
+    newProduct.value.imagesWithText.push({ image: newImageURL.value, text: newImageText.value });
+    newImageURL.value = ''; // 清空 newImageURL
     newImageText.value = ''; // 清空 newImageText
   }
 };
-    const addNewProduct = async () => {
-  form.value.validate(async (valid) => {
-    if (valid) {
-      // 确保 productPic 是有效的 Base64 字符串或处理空情况
-      const productPic = newProduct.value.image ? newProduct.value.image.split(',')[1] : '';
-     
-      const formData = new FormData();
-      formData.append('ProductName', newProduct.value.name || '');
-      formData.append('ProductPrice', newProduct.value.price || '');
-      formData.append('StoreTag', newProduct.value.categoryInit || '');
-      formData.append('Description', newProduct.value.description || '');
-      formData.append('Tag', newProduct.value.categorySys || '');
 
-      // 主图
-      // if (newProduct.value.image) {
-      //   const productPicBlob = dataURLToBlob(newProduct.value.image);
-      //   formData.append('ProductImages', productPicBlob, 'product-image.jpg');
-      // }
-      // 上传多个图片
-      newProduct.value.images.forEach((image, index) => {
-        const imageBlob = dataURLToBlob(image);
-        formData.append(`ProductImages[${index}]`, imageBlob, `product-image${index}.jpg`);
-      });
+const addNewProduct = async () => {
+  const formData = new FormData();
+  formData.append('ProductName', newProduct.value.name || '');
+  formData.append('ProductPrice', newProduct.value.price || '');
+  formData.append('StoreTag', newProduct.value.categoryInit || '');
+  formData.append('Description', newProduct.value.description || '');
+  formData.append('Tag', newProduct.value.categorySys || '');
 
-      // 图片和描述
-      newProduct.value.imagesWithText.forEach((item, index) => {
-        const detailPicBlob = dataURLToBlob(item.image);
-        formData.append(`PicDes[${index}].detailPic`, detailPicBlob, `detail-image${index}.jpg`);
-        formData.append(`PicDes[${index}].description`, item.text);
-      });
-
-
-      const storeId = localStorage.getItem('userId');// 替换为实际的storeId
-      console.log(storeId);
-      if (!storeId) {
-        ElMessage({ message: '未找到有效的 storeId', type: 'error' });
-        return;
-      }
-      console.log('请求 URL:', `/StoreViewProduct/addProduct?storeId=${storeId}`);
-      // console.log(newProductData);
-      console.log(newProduct.value.categorySys);
-
-      try {
-        const response = await axiosInstance.post(`/StoreViewProduct/addProduct?storeId=${storeId}`, formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-          params: { storeId: storeId }
-        });
-
-        if (response.status === 200) {
-          fetchProducts();
-          ElMessage({
-            message: '商品已添加',
-            type: 'success'
-          });
-          Object.assign(newProduct.value, {
-            name: '',
-            categorySys: '',
-            categoryInit: '',
-            price: null,
-            isOnSale: null,
-            description: '',
-            images: [], // 存储多个商品图片
-            imagesWithText:[]
-          });
-          addDialogVisible.value = false;
-        } else {
-          ElMessage({
-            message: '添加商品失败',
-            type: 'error'
-          });
-        }
-      } catch (error) {
-        console.error('添加商品失败:', error.response ? error.response.data : error.message);
-        ElMessage({
-          message: '添加商品失败: ' + error.message,
-          type: 'error'
-        });
-      }
-    } else {
-      ElMessage({
-        message: '请填写完整',
-        type: 'warning'
-      });
-    }
+  // 上传多个图片 URL
+  newProduct.value.images.forEach((imageUrl, index) => {
+    formData.append(`ProductImages[${index}]`, imageUrl);
   });
+
+  // 图片和描述
+  newProduct.value.imagesWithText.forEach((item, index) => {
+    formData.append(`PicDes[${index}].detailPic`, item.image);
+    formData.append(`PicDes[${index}].description`, item.text);
+  });
+
+  const storeId = localStorage.getItem('userId');
+  if (!storeId) {
+    ElMessage.error('未找到有效的 storeId');
+    return;
+  }
+
+  try {
+    const response = await axiosInstance.post(`/StoreViewProduct/addProduct?storeId=${storeId}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+      params: { storeId: storeId }
+    });
+
+    if (response.status === 200) {
+      fetchProducts();
+      ElMessage.success('商品已添加');
+      newProduct.value = {
+        name: '',
+        categorySys: '',
+        categoryInit: '',
+        price: null,
+        description: '',
+        images: [], // 清空图片 URL
+        imagesWithText: []
+      };
+      addDialogVisible.value = false;
+    } else {
+      ElMessage.error('添加商品失败');
+    }
+  } catch (error) {
+    console.error('添加商品失败:', error.response ? error.response.data : error.message);
+    ElMessage.error('添加商品失败: ' + error.message);
+  }
 };
 
 //删除多个

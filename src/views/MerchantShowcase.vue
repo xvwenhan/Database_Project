@@ -73,7 +73,7 @@ const fetchStores = async (keyword: string, type: string) => {
 };
 // 定义跳转函数
 const goToStoreDetail = (storeId: string) => {
-  localStorage.setItem('storeIdofDetail', storeId);  // 存储 storeId
+  localStorage.setItem('storeIdOfDetail', storeId);  // 存储 storeId
   console.log("跳转至/shopdetail")
   router.push('/shopdetail');  // 跳转到店铺详情页
 };
