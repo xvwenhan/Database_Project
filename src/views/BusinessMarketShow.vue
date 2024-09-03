@@ -30,30 +30,30 @@
     </div>  
 
     <div v-if="dialogVisible" class="SettingPopUp">
-      <div v-if="currentMarket">
-        <div class="container-block">
-          <img src="@/assets/mmy/blue_background.jpg">
-          <div class="inner-block">
-            <div class="slider-top-right">
-              <div class="picture-and-text">
-                <transition class="animate__animated animate__fadeInDown">
-                  <img class="picture":src="currentMarket.posterImg" alt="MarketPoster">
-                </transition>
-                <transition class="animate__animated animate__fadeInUp">
-                  <div class="text">
-                    <span class="close" @click="dialogVisible = false">&times;</span>
-                    <br>
-                    <h2> {{ currentMarket.theme }}</h2>
-                    <p style="text-align: end;font-size: 8px;"> {{ currentMarket.startTime }}-{{ currentMarket.endTime }}</p>
-                    <p style="font-size: 16px;">{{ currentMarket.detail }}</p>
-                  </div>
-                </transition>
+  <div v-if="currentMarket">
+    <div class="container-block">
+      <img src="@/assets/mmy/blue_background.jpg">
+      <div class="inner-block">
+        <div class="slider-top-right">
+          <div class="picture-and-text">
+            <transition class="animate__animated animate__fadeInDown">
+              <img class="picture" :src="currentMarket.posterImg" alt="MarketPoster">
+            </transition>
+            <transition class="animate__animated animate__fadeInUp">
+              <div class="text">
+                <span class="close" @click="dialogVisible = false">&times;</span>
+                <br>
+                <h2> {{ currentMarket.theme }}</h2>
+                <p style="text-align: end;font-size: 8px;"> {{ currentMarket.startTime }}-{{ currentMarket.endTime }}</p>
+                <p style="font-size: 16px;">{{ currentMarket.detail }}</p>
               </div>
-            </div>
+            </transition>
           </div>
-        </div> 
+        </div>
       </div>
-    </div>  
+    </div> 
+  </div>
+</div>
 
     <div class="paginationContainer">
       <el-pagination
@@ -142,66 +142,27 @@ export default {
     };
 
     const fetchMarkets = async () => {
-      const storeId =localStorage.getItem('userId'); // 替换为实际的 storeId
+  const storeId = localStorage.getItem('userId'); // 替换为实际的 storeId
 
-      try {
-        const response = await axiosInstance.get('/StoreViewMarket/GetMarketsByStoreId', {
-          params: {
-            storeId: storeId,
-          },
-        });
-
-     
-    console.log('Backend Response:', response.data);
-            
-
-    if (Array.isArray(response.data)) {
-          const processedMarkets = response.data.map(market => {
-            console.log('Original Market Data:', market);
-
-            // 确保字段存在并转换正确
-            const startTime = market.startTime ? new Date(market.startTime).toLocaleString() : 'N/A';
-            const endTime = market.endTime ? new Date(market.endTime).toLocaleString() : 'N/A';
-            const posterImg = market.posterImg ? `data:image/png;base64,${market.posterImg}` : imageA;
-
-            return {
-              marketId: market.marketId || 'N/A',
-              theme: market.theme || 'Unknown',
-              startTime: startTime,
-              endTime: endTime,
-              detail: market.detail || 'No details available',
-              posterImg: posterImg,
-              isStoreParticipating: market.isStoreParticipating !== undefined ? market.isStoreParticipating : false,
-            };
-          });
-
-          console.log('Processed Markets:', processedMarkets);
-          markets.value = processedMarkets; // 确保 markets 是 Vue 的响应式对象
-        } else {
-          console.error('Unexpected response format:', response.data);
-        }
-          } catch (error) {
-            console.error('Error fetching markets:', error);
-          }
-        };
-
-
-        const fetchMarketByTheme = async (theme) => {
-  const storeId = localStorage.getItem('userId');// 替换为实际的 storeId
   try {
-    const response = await axiosInstance.get('/StoreViewMarket/searchMarket', {
+    const response = await axiosInstance.get('/StoreViewMarket/GetMarketsByStoreId', {
       params: {
         storeId: storeId,
-        theme: theme || '', // 允许 theme 参数为空
-      }
+      },
     });
 
+    console.log('Backend Response:', response.data);
+
     if (Array.isArray(response.data)) {
-      // 处理返回的市场数据
       const processedMarkets = response.data.map(market => {
+        console.log('Original Market Data:', market);
+
+        // 确保字段存在并转换正确
         const startTime = market.startTime ? new Date(market.startTime).toLocaleString() : 'N/A';
         const endTime = market.endTime ? new Date(market.endTime).toLocaleString() : 'N/A';
-        const posterImg = market.posterImg ? `data:image/png;base64,${market.posterImg}` : imageA;
+
+        // 获取 postimg 数组中的第一个图片 URL
+        const posterImg = market.posterImg && market.posterImg.length > 0 ? market.posterImg[0].imageUrl : imageA;
 
         return {
           marketId: market.marketId || 'N/A',
@@ -214,7 +175,46 @@ export default {
         };
       });
 
-      markets.value = processedMarkets; 
+      console.log('Processed Markets:', processedMarkets);
+      markets.value = processedMarkets; // 确保 markets 是 Vue 的响应式对象
+    } else {
+      console.error('Unexpected response format:', response.data);
+    }
+  } catch (error) {
+    console.error('Error fetching markets:', error);
+  }
+};
+
+const fetchMarketByTheme = async (theme) => {
+  const storeId = localStorage.getItem('userId'); // 替换为实际的 storeId
+  try {
+    const response = await axiosInstance.get('/StoreViewMarket/searchMarket', {
+      params: {
+        storeId: storeId,
+        theme: theme || '', // 允许 theme 参数为空
+      }
+    });
+
+    if (Array.isArray(response.data)) {
+      const processedMarkets = response.data.map(market => {
+        const startTime = market.startTime ? new Date(market.startTime).toLocaleString() : 'N/A';
+        const endTime = market.endTime ? new Date(market.endTime).toLocaleString() : 'N/A';
+
+        // 获取 postimg 数组中的第一个图片 URL
+        const posterImg = market.posterImg && market.posterImg.length > 0 ? market.posterImg[0].imageUrl : imageA;
+
+        return {
+          marketId: market.marketId || 'N/A',
+          theme: market.theme || 'Unknown',
+          startTime: startTime,
+          endTime: endTime,
+          detail: market.detail || 'No details available',
+          posterImg: posterImg,
+          isStoreParticipating: market.isStoreParticipating !== undefined ? market.isStoreParticipating : false,
+        };
+      });
+
+      markets.value = processedMarkets; // 确保 markets 是 Vue 的响应式对象
     } else {
       console.error('Unexpected response format:', response.data);
     }

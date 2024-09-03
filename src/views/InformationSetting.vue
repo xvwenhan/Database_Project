@@ -61,13 +61,13 @@
             <div class="form-container">
               <el-card  class="custom-card-width">
                 <el-form :model="userimades" :rules="rules" ref="form"  class="user-form">
-                        <el-form-item label="上传头像(.jpg)" prop="image">
-                            <img v-if="userimades.ima" :src="userimades.ima" alt="当前图片" style="width: 40px; height: 50px;border-radius: 50%;"  />
-                            <input type="file" @change="handleFileChange" accept=".jpg" />
-                        </el-form-item>
-                        <el-form-item label="上传简介" prop="description">
-                        <el-input v-model="userimades.descri"></el-input>
-                        </el-form-item>
+                    <el-form-item label="上传头像" prop="image">
+                                <img v-if="userimades.ima" :src="userimades.ima" alt="当前图片" style="width: 40px; height: 40px;border-radius: 50%;" />
+                                <input type="file" @change="handleFile" accept="image/*" />
+                            </el-form-item>
+                            <el-form-item label="上传简介" prop="description">
+                                <el-input v-model="userimades.descri"></el-input>
+                            </el-form-item>
                 </el-form>
                 <div class="form-footer">
                         <el-button type="primary" @click="handleUpload">上传</el-button>
@@ -190,6 +190,17 @@ export default {
             }
         },
         //上传头像简介
+        handleFile(event) {
+    const file = event.target.files[0];
+    if (file) {
+        console.log('选中的文件:', file);
+        this.userimades.file = file;
+        this.userimades.ima = URL.createObjectURL(file);
+        console.log('userfile',file,'userima',this.userimades.ima);
+    } else {
+        console.log('文件选择失败或无效');
+    }
+},
         handleFileChange(event) {
             const file = event.target.files[0];
             if (file) {
@@ -207,38 +218,43 @@ export default {
             }
         },
 
+        //上传头像简介
         async handleUpload() {
-            try {
-                if (!this.userimades.ima) {
-                    this.$message.error('请提供图片');
-                    return;
-                }
-                // 从图片数据中去除 Base64 前缀
-                const Photo = this.userimades.ima.split(',')[1]; 
-                const Describtion = this.userimades.descri;
-                const Id = localStorage.getItem('userId'); 
+    try {
+        if (!this.userimades.file) {
+            this.$message.error('请提供图片');
+            return;
+        }
 
-                if (!Photo || !Describtion) {
-                    this.$message.error('请提供图片和认证资料');
-                    return;
-                }
+        const formData = new FormData();
+        const Photo = this.userimades.file;
+        const Describtion = this.userimades.descri;
+        const Id = localStorage.getItem('userId');
 
-                const response = await axiosInstance.put('/UserInfo/SetPhotoAndDescribtion', {
-                Id,
-                Photo,
-                Describtion,
-                });
+        formData.append('Id', Id);
+        formData.append('Photo', Photo); // 确保这是 File 对象
+        formData.append('Describtion', Describtion);
 
-                if (response.status === 200) {
-                    this.$message.success('上传成功，请刷新网页以查看最新状态');
-                } else {
-                    this.$message.error(`上传失败: ${response.data.message}`);
-                }
-            } catch (error) {
-                console.error('请求失败:头像简介上传', error.response ? error.response.data : error.message);
-                this.$message.error('请求失败，请稍后再试');
-            }
-        },
+        // 打印 FormData 内容
+        for (const pair of formData.entries()) {
+            console.log(`${pair[0]}:`, pair[1]);
+        }
+
+        // const response = await axiosInstance.put('/UserInfo/SetPhotoAndDescribtion', formData);
+        const response = await axiosInstance.put('/UserInfo/SetPhotoAndDescribtion',formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+
+        if (response.status === 200) {
+            this.$message.success('上传成功，请刷新网页以查看最新状态');
+        } else {
+            this.$message.error(`上传失败: ${response.data.message}`);
+        }
+    } catch (error) {
+        console.error('请求失败: 头像简介上传', error.response ? error.response.data : error.message);
+        this.$message.error('请求失败，请稍后再试');
+    }
+},
 
         //获取图像简介
         async fetchImageAndText(id) {
@@ -251,7 +267,7 @@ export default {
                 const { describtion, photo } = response.data;
                 console.log('1:',this.userimades.ima);
                 console.log('2:',this.userimades.descri);
-                this.userimades.ima = `data:image/jpeg;base64,${photo}`;
+                this.userimades.ima = photo.imageUrl;
                 this.userimades.descri = describtion;
 
                 console.log('获取到的头像和文字描述:', this.userimades);
