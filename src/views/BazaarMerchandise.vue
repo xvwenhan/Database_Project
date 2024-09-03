@@ -17,8 +17,8 @@
       <div class="market-header">
         <img :src="marketPoster" alt="市场海报" class="market-poster" />
         <div class="market-info">
-          <h2 class="market-title">
-            <span class="market-back" @click="goBackToMarketList">市集</span>>>&nbsp;&nbsp; {{ marketTheme}}
+          <h2 class="market-title" style="font-family: 'Black';">
+            <span class="market-back" @click="goBackToMarketList"></span>{{ marketTheme}}
           </h2>
           <p class="market-detail">{{ marketDetail }}</p>
         </div>
@@ -165,13 +165,15 @@ onMounted(() => {
   background-color: #bdaead;
   /* align-items: center; */
   margin-bottom: 20px;
+  box-shadow: 4px 4px 20px rgba(0, 0, 0, 0.1);
 
 }
 
 .market-poster {
   /* width: 500px; */
   height: 300px;
-  padding: 15px;
+  /* padding-right: 20px; */
+  /* padding: 15px; */
   /* margin-right: 20px; */
   /* border-radius: 10px; */
 }
@@ -180,9 +182,11 @@ onMounted(() => {
   flex-direction: column; /* 使标题和描述垂直排列 */
   justify-content: flex-start;
   margin-top: 30px;
+  padding-left: 30px;
+  padding-right: 30px;
 }
 .market-detail {
-  font-size: 18px;
+  font-size: 20px;
   color: #555;
   margin-top: 20px;
 }
