@@ -278,6 +278,7 @@ const getCommodity = async (category) =>{
  
   try {
     
+    
     const response = await axiosInstance.get('/Classification/getProductsByTag', {
       params: {
         tag: category,
@@ -398,6 +399,7 @@ height: 100%;
 
 .merchandise-container {
   display: flex;
+  height: 100%;
   height: 100%;
   background-image: url('@/assets/categories/背景图.jpg');
 }

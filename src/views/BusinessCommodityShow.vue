@@ -162,18 +162,18 @@
 </el-form-item> -->
 
 <!-- 显示选择的瑕疵图片和描述输入框 -->
-<!-- <div v-if="selectedDefectImages.length" style="display: flex; flex-wrap: wrap;">
+<div v-if="selectedDefectImages.length" style="display: flex; flex-wrap: wrap;">
   <div v-for="(image, index) in selectedDefectImages" :key="index" style="position: relative; margin-right: 10px;">
     <img :src="image.url" alt="选择的瑕疵图片" style="margin-top:10px;width: 150px; height: 150px; object-fit: cover;border-radius: 8px;" />
     <input type="text" v-model="image.description" placeholder="输入图片描述" style="width: 150px; margin-top: 5px;" />
     <span class="close" style="position: absolute; top: 0; right: 5px; color: #82111f; cursor: pointer;" @click="removeSelectedDefectImage(index)">&times;</span>
   </div>
-</div> -->
+</div> 
 
 <!-- 上传瑕疵图片 -->
-<!-- <el-form-item label="">
+<el-form-item label="">
   <input type="file" @change="handleDefectFile" multiple />
-</el-form-item> -->
+</el-form-item>
 
           <div style="display: flex;justify-content: center;margin-top: 30px">
             <el-button type="primary" @click="onsubmit()">保存</el-button>
@@ -799,11 +799,16 @@ const submitUpload = async () => {
 const submitDefectUpload = async () => {
   if (selectedDefectImages.value.length > 0) {
     const formData = new FormData();
-    
+
+    // 添加文件到 FormData
     selectedDefectImages.value.forEach(image => {
       formData.append('images', image.file);
-      formData.append('Description', image.description); // 新增描述字段
     });
+
+    // 添加描述信息到 FormData
+    const descriptions = selectedDefectImages.value.map(image => image.description || '无');
+    formData.append('descriptions', JSON.stringify(descriptions)); // 将描述信息作为 JSON 字符串添加
+    
     const uploadUrl = `/StoreViewProduct/addDetailImage/${preProduct.value.id}`;
     try {
       const response = await axiosInstance.post(uploadUrl, formData, {

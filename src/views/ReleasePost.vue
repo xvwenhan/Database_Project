@@ -90,9 +90,18 @@ class="input_content">
       multiple
       class="hidden-file-input" />
   </div>
-<div class="publish-button-container">
+<!-- <div class="publish-button-container">
       <el-button type="danger" @click="confirm()">发布</el-button>
-    </div>
+    </div> -->
+    <div class="publish-button-container">
+  <el-button 
+    :type="isPublishing ? 'info' : 'danger'"
+    :disabled="isPublishing"
+    @click="confirm"
+  >
+    {{ isPublishing ? '发布中' : '发布' }}
+  </el-button>
+</div>
   </div>
 </template>
 
@@ -108,10 +117,12 @@ import axiosInstance from '../components/axios';
 const inputTitle = ref('');
 const inputContent = ref('');
 const hover=ref(false);
+const isPublishing=ref(false);
+
 const buttons = reactive([
-  { id: 1, text: 'Button 1', background: 'src/assets/czw/picture+.svg', backgroundColor: 'transparent' },
-  { id: 2, text: 'Button 2', background: 'src/assets/czw/back.svg', backgroundColor: 'transparent' },
-  { id: 3, text: 'Button 2', background: 'src/assets/czw/confirm.svg', backgroundColor: 'transparent' },
+  { id: 1, text: 'Button 1', background: '@/assets/czw/picture+.svg', backgroundColor: 'transparent' },
+  { id: 2, text: 'Button 2', background: '@/assets/czw/back.svg', backgroundColor: 'transparent' },
+  { id: 3, text: 'Button 2', background: '@/assets/czw/confirm.svg', backgroundColor: 'transparent' },
 ]);
 
 
@@ -160,6 +171,7 @@ const confirm = async () => {
     });
     return;
   }
+  isPublishing.value = true;
   const formData = new FormData();
       formData.append('PostTitle', inputTitle.value);
       formData.append('PostContent', inputContent.value);
@@ -179,6 +191,7 @@ const confirm = async () => {
         message: '发布成功',
         type: 'success',
         });
+        isPublishing.value = false;
         router.push('/forum'); 
       }).catch(error => {
         console.error(error);

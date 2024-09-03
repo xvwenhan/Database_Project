@@ -185,9 +185,9 @@ const sortBy = (newSort) => {
   <el-container style="height:100vh; border: 1px solid #eee" class="all">
     <el-aside width="18vh" style="background-color:  #82111f; ">
   <div class="big-title" style="display: flex; justify-content: center; align-items: center; width: 100%;">
-    <img class="image" src="/src/assets/czw/aside.svg" alt="Original Image"  />
+    <img class="image" src="@/assets/czw/aside.svg" alt="Original Image"  />
     <span>论坛</span>
-    <img class="flipped-image" src="/src/assets/czw/aside.svg" alt="Flipped Image" />
+    <img class="flipped-image" src="@/assets/czw/aside.svg" alt="Flipped Image" />
   </div>
   <div style="width: 100%;">
     <el-menu
