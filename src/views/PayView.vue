@@ -375,23 +375,27 @@ const aliPay=async()=>{
           "itemBody": '222'
           }
         });
-        const htmlContent = response.data;
+        console.log(response.data);
+        // const htmlContent = response.data;
 
-        // 创建一个临时的 HTML 文档，并注入到页面中
-        const blob = new Blob([htmlContent], { type: 'text/html' });
-        const url = URL.createObjectURL(blob);
+        // // 创建一个临时的 HTML 文档，并注入到页面中
+        // const blob = new Blob([htmlContent], { type: 'text/html' });
+        // const url = URL.createObjectURL(blob);
 
-        // 使用 `window.location.href` 进行跳转
-        window.location.href = url;
-        // message.value = response.data.message;
-        ElMessage.success(message.value);
+        // // 使用 `window.location.href` 进行跳转
+        // window.location.href = url;
+        // // message.value = response.data.message;
+        // ElMessage.success(message.value);
       } catch (error) {
-        if (error.response) {
-          message.value = error.response.data.message;
+        //检查是否重定向
+        if (error.response&&error.response.status===302) {
+          const location=error.response.headers.location;
+          //手动处理重定向
+          window.location.href=location;
         } else {
-          message.value = '失败';
+          console.error('error:',error.message);
         }
-        ElMessage.error(message.value);
+        // ElMessage.error(message.value);
         }
         message.value='';
   }
