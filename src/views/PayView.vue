@@ -268,6 +268,7 @@ const payWay=ref('wallet');
 //是否支付成功
 const isPaySuccess=ref(false);
 ////订单支付结束后（不管支付成功没成功）都跳转回原来的页面
+const returnUrl=ref('');
 const router=useRouter();
 const routerPath=localStorage.getItem('routerPath');
 watch(payVisible, (newValue, oldValue) => {
@@ -366,32 +367,33 @@ const checkPay=()=>{
     }
 }
 const aliPay=async()=>{
+  const path = routerPath ? routerPath : '/home'; 
+  if(path==='/ordercentre'){
+    returnUrl.value='http://47.97.5.21:17990/ordercentre';
+  }else{
+    returnUrl.value='http://47.97.5.21:17990/merchandise/1';
+  }
+  console.log(`orderID is ${order.value.id}`);
+  console.log(`actualPay is ${product.value.finalPrice}`);
+  console.log(`returnUrl is ${returnUrl.value}`);
   try {
-        const response = await axiosInstance.post('/Alipay', null,{
-          params:{
-          "tradeno": '111',
-          "subject": '111',
-          "totalAmout": '11',
-          "itemBody": '222'
-          }
+        const response = await axiosInstance.post('/Alipay', {
+          "orderID": order.value.id,
+          "actualPay": product.value.finalPrice,
+          "returnUrl":returnUrl.value
         });
-        const htmlContent = response.data;
-
-        // 创建一个临时的 HTML 文档，并注入到页面中
-        const blob = new Blob([htmlContent], { type: 'text/html' });
-        const url = URL.createObjectURL(blob);
-
-        // 使用 `window.location.href` 进行跳转
-        window.location.href = url;
-        // message.value = response.data.message;
-        ElMessage.success(message.value);
+        console.log(response.data);
+        window.location.assign(response.data);
       } catch (error) {
-        if (error.response) {
-          message.value = error.response.data.message;
+        //检查是否重定向
+        if (error.response&&error.response.status===302) {
+          const location=error.response.headers.location;
+          //手动处理重定向
+          window.location.href=location;
         } else {
-          message.value = '失败';
+          console.error('error:',error.message);
         }
-        ElMessage.error(message.value);
+        // ElMessage.error(message.value);
         }
         message.value='';
   }

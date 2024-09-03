@@ -8,6 +8,14 @@ import 'animate.css';
 import axiosInstance from '../components/axios';
 import Loading from '../views/templates/4.vue';
 
+
+import likeB from '@/assets/czw/like.svg';
+import replyB from '@/assets/czw/reply.svg';
+import backB from '@/assets/czw/back.svg';
+import likedB from '@/assets/czw/liked.svg';
+import showReplyB from '@/assets/czw/show_reply.svg';
+import hideReplyB from '@/assets/czw/hide_reply.svg';
+
 // 假设这些数据是从服务器获取的
 const dialogVisible =ref(false);
 const inputComment = ref('');
@@ -296,9 +304,9 @@ function submitReason(){
         console.error(error);
       });
 }
-function submitReplyReason(id){
+function submitReplyReason(reply){
   const formData = new FormData();
-      formData.append('commentId',id );
+      formData.append('commentId',reply.id );
       if (post.value.reason) {
         formData.append('reportReason', post.value.reason);
       } else if (post.value.reason_else) {
@@ -310,19 +318,20 @@ function submitReplyReason(id){
         message: '举报成功',
         type: 'success',
         });
-
-        console.log(response.data);
+        resetForm(); 
+        reply.dialogVisible_sub=false;
+        console.log(response.data,"评论举报");
       }).catch(error => {
         console.error(error);
       });
 }
 const button = reactive([
-  { id: 1, text: 'like', background: '@/assets/czw/like.svg', backgroundColor: 'transparent' },
-  { id: 2, text: 'like', background: '@/assets/czw/reply.svg', backgroundColor: 'transparent' },
-  { id: 3, text: 'like', background: '@/assets/czw/back.svg', backgroundColor: 'transparent' },
-  { id: 4, text: 'liked', background: '@/assets/czw/liked.svg', backgroundColor: 'transparent' },
-  { id: 5, text: 'liked', background: '@/assets/czw/show_reply.svg', backgroundColor: 'transparent' },
-  { id: 6, text: 'liked', background: '@/assets/czw/hide_reply.svg', backgroundColor: 'transparent' },
+  { id: 1, text: 'like', background: likeB, backgroundColor: 'transparent' },
+  { id: 2, text: 'like', background: replyB, backgroundColor: 'transparent' },
+  { id: 3, text: 'like', background: backB, backgroundColor: 'transparent' },
+  { id: 4, text: 'liked', background: likedB, backgroundColor: 'transparent' },
+  { id: 5, text: 'liked', background: showReplyB, backgroundColor: 'transparent' },
+  { id: 6, text: 'liked', background: hideReplyB, backgroundColor: 'transparent' },
 ]);
 function like(){
   if(post.value.liked==false){
@@ -369,11 +378,11 @@ function like(){
 //     button.backgroundColor = 'transparent'; // 恢复背景颜色为透明
 //   }
 // };
-const buttonClick = (button) => {
-  if(button.id==3&&way=='forum'){
+const buttonClick = (id) => {
+  if(id==3&&way=='forum'){
     router.push('/forum'); // 跳转回 /forum 页面
   }
-  if(button.id==3&&way=='message'){
+  if(id==3&&way=='message'){
     router.push('/messageview'); // 跳转回 /forum 页面
   }
 };
@@ -407,8 +416,9 @@ const handleChange = (currentIndex) => {
    <Loading v-show="isLoading" />
   <div v-show="!isLoading" class="big-container">
     <div class="header">
-      <button :style="{ backgroundImage: `url(${button[2].background})`, 
-      backgroundColor: button[2].backgroundColor }" @click="buttonClick(button[2])" class="back_button" ></button>
+      <!-- <button :style="{ backgroundImage: `url(${button[2].background})`, 
+      backgroundColor: button[2].backgroundColor }" @click="buttonClick(button[2])" class="back_button" ></button> -->
+      <img class="back_button" src="@/assets/czw/back.svg" alt="back" @click="buttonClick(3)"  />
       <p>帖子详情</p>
     </div>
     <el-main>
@@ -438,12 +448,15 @@ const handleChange = (currentIndex) => {
             <div class="author">
             <span>{{ post.time }}</span>
             <div class="post-actions">
-            <button v-if="post.liked==false" :style="{ backgroundImage: `url(${button[0].background})`, 
-        backgroundColor: button[0].backgroundColor }" class="like_button" @click="like()"></button>
-        <button v-if="post.liked" :style="{ backgroundImage: `url(${button[3].background})`, 
-        backgroundColor: button[3].backgroundColor }" class="like_button" @click="like()"></button>{{ post.likeCount }}
-        <button :style="{ backgroundImage: `url(${button[1].background})`, 
-        backgroundColor: button[1].backgroundColor }" class="like_button" @click="reply()"></button>{{ post.commentCount }}
+            <!-- <button v-if="post.liked==false" :style="{ backgroundImage: `url(${button[0].background})`, 
+        backgroundColor: button[0].backgroundColor }" class="like_button" @click="like()"></button> -->
+        <img v-if="post.liked==false" class="like_button" src="@/assets/czw/like.svg" alt="like post"  @click="like()"  />
+        <!-- <button v-if="post.liked" :style="{ backgroundImage: `url(${button[3].background})`, 
+        backgroundColor: button[3].backgroundColor }" class="like_button" @click="like()"></button>{{ post.likeCount }} -->
+        <img  v-if="post.liked" class="like_button" src="@/assets/czw/liked.svg" alt="liked post"  @click="like()"  />{{ post.likeCount }} 
+        <!-- <button :style="{ backgroundImage: `url(${button[1].background})`, 
+        backgroundColor: button[1].backgroundColor }" class="like_button" @click="reply()"></button>{{ post.commentCount }} -->
+        <img class="like_button" src="@/assets/czw/reply.svg" alt="liked post"  @click="reply()"  />{{ post.commentCount }}
           </div>
         </div>
             <div class="author">
@@ -487,12 +500,15 @@ const handleChange = (currentIndex) => {
             <div class="author">
             <span>{{ post.time }}</span>
             <div class="post-actions">
-            <button v-if="post.liked==false" :style="{ backgroundImage: `url(${button[0].background})`, 
-        backgroundColor: button[0].backgroundColor }" class="like_button" @click="like()"></button>
-        <button v-if="post.liked" :style="{ backgroundImage: `url(${button[3].background})`, 
-        backgroundColor: button[3].backgroundColor }" class="like_button" @click="like()"></button>{{ post.likeCount }}
-        <button :style="{ backgroundImage: `url(${button[1].background})`, 
-        backgroundColor: button[1].backgroundColor }" class="like_button" @click="reply()"></button>{{ post.commentCount }}
+            <!-- <button v-if="post.liked==false" :style="{ backgroundImage: `url(${button[0].background})`, 
+        backgroundColor: button[0].backgroundColor }" class="like_button" @click="like()"></button> -->
+        <img v-if="post.liked==false" class="like_button" src="@/assets/czw/like.svg" alt="like post"  @click="like()"  />
+        <!-- <button v-if="post.liked" :style="{ backgroundImage: `url(${button[3].background})`, 
+        backgroundColor: button[3].backgroundColor }" class="like_button" @click="like()"></button>{{ post.likeCount }} -->
+        <img  v-if="post.liked" class="like_button" src="@/assets/czw/liked.svg" alt="liked post"  @click="like()"  />{{ post.likeCount }} 
+        <!-- <button :style="{ backgroundImage: `url(${button[1].background})`, 
+        backgroundColor: button[1].backgroundColor }" class="like_button" @click="reply()"></button>{{ post.commentCount }} -->
+        <img class="like_button" src="@/assets/czw/reply.svg" alt="liked post"  @click="reply()"  />{{ post.commentCount }}
           </div>
         </div>
             <div class="author">
@@ -571,7 +587,7 @@ const handleChange = (currentIndex) => {
       <el-input v-if="post.reason === '5' "v-model="post.reason_else" placeholder="请输入原因"></el-input>
   <el-divider></el-divider>
   <div slot="footer" class="dialog-footer">
-    <el-button type="primary" @click="submitReplyReason(reply.id)">确 定</el-button>
+    <el-button type="primary" @click="submitReplyReason(reply)">确 定</el-button>
     </div>
 </el-dialog>
 <div v-if="hasSubComments(reply.id)">
