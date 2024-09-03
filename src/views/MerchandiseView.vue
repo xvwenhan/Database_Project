@@ -146,6 +146,9 @@ const goToTop = () =>{
   swiperInstance.slideTo(0);
 };
 const typeChange = (id,name) =>{
+  pageSize.value=4; //进入“全部”分类，每页4个商品
+  currentPage.value=1; //重置分页器当前页数
+
   console.log(swiperInstance,'swiperInstance');
   currentSumCategory.value=id;
   swiperInstance.slideTo(1);
@@ -184,10 +187,20 @@ const getCategories = async () => {
     };
 
 const filter = (subCategory,index) => {
+
   selectedCategory.value=index;
   // nowSubCategoryId.value=subCategory.subCategoryId;
   console.log(` ${subCategory.subCategoryId} 被点击`);
   console.log(`selectedCategory is ${selectedCategory.value}`);
+
+  currentPage.value=1; //重置分页器当前页数
+  if(selectedCategory.value==0){ //进入“全部”分类，每页4个商品
+    pageSize.value=4;
+  }
+  else{ //其余小分类，每页展示8个商品
+    pageSize.value=8;
+  }
+  getProducts(AllCategories[currentSumCategory.value].subCategories[selectedCategory.value].subCategoryId);
   // getProducts(nowSubCategoryId);
 }
 
@@ -229,34 +242,34 @@ onMounted(()=>{
 })
 
 
-const subCategoryNames = [
-  { id: 1, parent:"服装",name: '汉族传统服饰' },
-  { id: 2, parent:"服装", name: '少数民族服饰' },
-  { id: 3, parent:"服装",name: '地方特色服饰' },
-  { id: 4, parent:"首饰",name: '银饰' },
-  { id: 5, parent:"首饰", name: '玉饰' },
-  { id: 6, parent:"首饰", name: '宝石首饰' },
-  { id: 7, parent:"首饰", name: '民族特使首饰' },
-  { id: 8, parent:"家具", name: '床榻类' },
-  { id: 9, parent:"家具", name: '桌案类' },
-  { id: 10, parent:"家具", name: '椅凳类' },
-  { id: 11, parent:"家具", name: '柜架类' },
-  { id: 12, parent:"家具", name: '屏风类' },
-  { id: 13, parent:"工艺品", name: '陶瓷' },
-  { id: 14, parent:"工艺品", name: '漆器' },
-  { id: 15, parent:"工艺品", name: '刺绣' },
-  { id: 16, parent:"工艺品", name: '景泰蓝' },
-  { id: 17, parent:"小物件", name: '文房四宝' },
-  { id: 18, parent:"小物件", name: '剪纸艺术' },
-  { id: 19, parent:"小物件", name: '竹编' },
-];
+// const subCategoryNames = [
+//   { id: 1, parent:"服装",name: '汉族传统服饰' },
+//   { id: 2, parent:"服装", name: '少数民族服饰' },
+//   { id: 3, parent:"服装",name: '地方特色服饰' },
+//   { id: 4, parent:"首饰",name: '银饰' },
+//   { id: 5, parent:"首饰", name: '玉饰' },
+//   { id: 6, parent:"首饰", name: '宝石首饰' },
+//   { id: 7, parent:"首饰", name: '民族特使首饰' },
+//   { id: 8, parent:"家具", name: '床榻类' },
+//   { id: 9, parent:"家具", name: '桌案类' },
+//   { id: 10, parent:"家具", name: '椅凳类' },
+//   { id: 11, parent:"家具", name: '柜架类' },
+//   { id: 12, parent:"家具", name: '屏风类' },
+//   { id: 13, parent:"工艺品", name: '陶瓷' },
+//   { id: 14, parent:"工艺品", name: '漆器' },
+//   { id: 15, parent:"工艺品", name: '刺绣' },
+//   { id: 16, parent:"工艺品", name: '景泰蓝' },
+//   { id: 17, parent:"小物件", name: '文房四宝' },
+//   { id: 18, parent:"小物件", name: '剪纸艺术' },
+//   { id: 19, parent:"小物件", name: '竹编' },
+// ];
 
 
 const currentType = ref('服装')
 
-const subCategoryNamesCopy = null;
+// const subCategoryNamesCopy = null;
 //这里是分类描述
-var image = "";
+// var image = "";
 var description = "";
 // const products = ref([
 //   { id: 1, name: '景泰蓝花瓶', category: 4, price: 199, image: '/src/assets/example1.png' },
@@ -267,7 +280,7 @@ var description = "";
 //   { id: 6, name: '木雕摆件', category: 3, price: 300, image: '/src/assets/example1.png' },
 // ]);
 const products = ref([])
-const defaultImage = '/src/assets/example1.png'
+// const defaultImage = '/src/assets/example1.png'
 
 const router = useRouter();
 // const selectedCategory = computed(() => route.params.category);
@@ -285,56 +298,56 @@ const router = useRouter();
 
 
 
-const categoryDate = ref({categorY_PIC:'',categorY_DESCRIPTION:''})
+// const categoryDate = ref({categorY_PIC:'',categorY_DESCRIPTION:''})
 //请求分类商品的介绍
-const getCategory = async (category) => {
+// const getCategory = async (category) => {
     
-    try {
-    const response = await axiosInstance.get('/Classification/GetCategoryByName', {
-      params: {
-        categoryName: category,
-      },
-    });
-    categoryDate.value = response.data
-    console.log(description);
-  } catch (error) {
-    console.error('请求错误：', error);
-    return [];
-  }
-};
+//     try {
+//     const response = await axiosInstance.get('/Classification/GetCategoryByName', {
+//       params: {
+//         categoryName: category,
+//       },
+//     });
+//     categoryDate.value = response.data
+//     console.log(description);
+//   } catch (error) {
+//     console.error('请求错误：', error);
+//     return [];
+//   }
+// };
 
 
 
-//获取对应分类下的商品信息
-const getCommodity = async (category) =>{
+// //获取对应分类下的商品信息
+// const getCommodity = async (category) =>{
  
-  try {
+//   try {
     
     
-    const response = await axiosInstance.get('/Classification/getProductsByTag', {
-      params: {
-        tag: category,
-      },
-    });
-    products.value = response.data
-    console.log(description);
-  } catch (error) {
-    console.error('请求错误：', error);
-    return [];
-  }
-}
+//     const response = await axiosInstance.get('/Classification/getProductsByTag', {
+//       params: {
+//         tag: category,
+//       },
+//     });
+//     products.value = response.data
+//     console.log(description);
+//   } catch (error) {
+//     console.error('请求错误：', error);
+//     return [];
+//   }
+// }
 
 //获取当前分类商品的数量
-const getProductCount = () =>{
- return products.value.length;
-};
+// const getProductCount = () =>{
+//  return products.value.length;
+// };
 
-const goToProductDetail = (productId) => {
-  // console.log('Selected Store ID:', productId);
-  localStorage.setItem('productIdOfDetail', productId);  // 存储 productId
-  console.log('跳转至 /productdetail');
-  router.push('/productdetail');  // 跳转到商品详情页
-};
+// const goToProductDetail = (productId) => {
+//   // console.log('Selected Store ID:', productId);
+//   localStorage.setItem('productIdOfDetail', productId);  // 存储 productId
+//   console.log('跳转至 /productdetail');
+//   router.push('/productdetail');  // 跳转到商品详情页
+// };
 
 
 /////////////////////////////////
@@ -348,7 +361,7 @@ const productsPages = computed(() => Math.ceil(totalProducts.value / pageSize.va
 const paginatedProducts = computed(() => {
   const start = (currentPage.value - 1) * pageSize.value;
   const end = start + pageSize.value;
-  //console.log(`fenge is ${JSON.stringify(displayProducts.slice(start, end), null, 2)}`);
+  // console.log(`${JSON.stringify(displayProducts.slice(start, end), null, 2)}`);
   return displayProducts.slice(start, end);
 });
 
