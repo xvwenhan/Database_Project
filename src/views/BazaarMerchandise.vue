@@ -4,7 +4,7 @@
     <div class="left-panel">
       <h2 class="market-title">
         <span class="market-back" @click="goBackToMarketList">市集</span>
-        > {{ marketTheme }}
+        > {{ marketTheme.substring(0, 4) }}
       </h2>
       <div class="left-panel-bottom">
         <img src="@/assets/wy/market1.png" alt="市场图片1" class="market-image" style="position: absolute;top: 50px;"/>
@@ -135,7 +135,7 @@ onMounted(() => {
 }
 
 .market-middle-text {
-  font-size: 35px;
+  font-size: 29px;
   color: #333;
   writing-mode: vertical-rl;
   text-orientation: upright;
