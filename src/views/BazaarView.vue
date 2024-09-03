@@ -3,7 +3,7 @@
   <div class="market-page">
     <h2 class="market-title"><< 近期市集 >></h2>
     <button class="carousel-button left" @click="prevSlide">
-      <img src="@/assets/wy/leftslide.png" alt="左翻按钮" />
+      <img src="@/assets/wy/leftslide.png" alt="左翻按钮" class="icon"/>
     </button>
     <div class="carousel-container">
       
@@ -23,7 +23,7 @@
       </div>
     </div>
     <button class="carousel-button right" @click="nextSlide">
-      <img src="@/assets/wy/rightslide.png" alt="右翻按钮" />
+      <img src="@/assets/wy/rightslide.png" alt="右翻按钮" class="icon"/>
     </button>
   </div>
 </template>
@@ -192,5 +192,9 @@ h2 {
 
 .carousel-button.right {
   right: 25px;
+}
+
+.icon{
+  height: 70px;
 }
 </style>
