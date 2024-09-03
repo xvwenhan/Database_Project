@@ -55,6 +55,7 @@ namespace BackendCode.Controllers
             }
             else
             {
+
                 var image2 = _context.ACCOUNTS.FirstOrDefault(pd => pd.ACCOUNT_ID == "U00000001");
                 if (image2 == null) { return NotFound("原始用户头像不存在") ; }
                 return File(image2.PHOTO, "image/jpeg"); //根据图片类型调整MIME类型
@@ -96,8 +97,31 @@ namespace BackendCode.Controllers
             {
                 return File(image.PHOTO, "image/jpeg"); //根据图片类型调整MIME类型
             }
+            else
+            {
+                string id = "";
+                // 创建一个随机数生成器
+                Random random = new Random();
+                int randomNumber = random.Next(100);  // 生成一个0到99之间的随机数
+                // 根据随机数决定执行哪条分支
+                if (randomNumber < 30) //30%
+                {
+                    id = "001";
+                }
+                else if (randomNumber < 60) //30%
+                {
+                    id = "002";
+                }
+                else //40%
+                {
+                    id = "003";
+                }
+                var image2 = _context.POST_IMAGES.FirstOrDefault(pd => pd.IMAGE_ID == id);
+                if (image2 == null) { return NotFound("原始用户头像不存在"); }
+                return File(image2.IMAGE, "image/jpeg"); //根据图片类型调整MIME类型
+            }
 
-            return NotFound();
+            //return NotFound();
         }
 
         [HttpGet("storeinfo/{imageId}")]
@@ -108,8 +132,31 @@ namespace BackendCode.Controllers
             {
                 return File(image.PHOTO, "image/jpeg"); //根据图片类型调整MIME类型
             }
+            else
+            {
+                string id = "";
+                // 创建一个随机数生成器
+                Random random = new Random();
+                int randomNumber = random.Next(100);  // 生成一个0到99之间的随机数
+                // 根据随机数决定执行哪条分支
+                if (randomNumber < 30) //30%
+                {
+                    id = "001";
+                }
+                else if (randomNumber < 60) //30%
+                {
+                    id = "002";
+                }
+                else //40%
+                {
+                    id = "003";
+                }
+                var image2 = _context.POST_IMAGES.FirstOrDefault(pd => pd.IMAGE_ID == id);
+                if (image2 == null) { return NotFound("原始用户头像不存在"); }
+                return File(image2.IMAGE, "image/jpeg"); //根据图片类型调整MIME类型
+            }
 
-            return NotFound();
+            //return NotFound();
         }
 
 
