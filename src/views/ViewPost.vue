@@ -6,6 +6,7 @@ import 'element-plus/dist/index.css';
 import router from '@/router';
 import 'animate.css';
 import axiosInstance from '../components/axios';
+import Loading from '../views/templates/4.vue';
 
 // 假设这些数据是从服务器获取的
 const dialogVisible =ref(false);
@@ -310,12 +311,12 @@ function submitReplyReason(id){
       });
 }
 const button = reactive([
-  { id: 1, text: 'like', background: 'src/assets/czw/like.svg', backgroundColor: 'transparent' },
-  { id: 2, text: 'like', background: 'src/assets/czw/reply.svg', backgroundColor: 'transparent' },
-  { id: 3, text: 'like', background: 'src/assets/czw/back.svg', backgroundColor: 'transparent' },
-  { id: 4, text: 'liked', background: 'src/assets/czw/liked.svg', backgroundColor: 'transparent' },
-  { id: 5, text: 'liked', background: 'src/assets/czw/show_reply.svg', backgroundColor: 'transparent' },
-  { id: 6, text: 'liked', background: 'src/assets/czw/hide_reply.svg', backgroundColor: 'transparent' },
+  { id: 1, text: 'like', background: '@/assets/czw/like.svg', backgroundColor: 'transparent' },
+  { id: 2, text: 'like', background: '@/assets/czw/reply.svg', backgroundColor: 'transparent' },
+  { id: 3, text: 'like', background: '@/assets/czw/back.svg', backgroundColor: 'transparent' },
+  { id: 4, text: 'liked', background: '@/assets/czw/liked.svg', backgroundColor: 'transparent' },
+  { id: 5, text: 'liked', background: '@/assets/czw/show_reply.svg', backgroundColor: 'transparent' },
+  { id: 6, text: 'liked', background: '@/assets/czw/hide_reply.svg', backgroundColor: 'transparent' },
 ]);
 function like(){
   if(post.value.liked==false){
@@ -395,7 +396,8 @@ const handleChange = (currentIndex) => {
 </script>
 
 <template>
-  <div class="big-container">
+   <Loading v-show="isLoading" />
+  <div v-show="!isLoading" class="big-container">
     <div class="header">
       <button :style="{ backgroundImage: `url(${button[2].background})`, 
       backgroundColor: button[2].backgroundColor }" @click="buttonClick(button[2])" class="back_button" ></button>

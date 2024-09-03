@@ -118,10 +118,11 @@ const inputTitle = ref('');
 const inputContent = ref('');
 const hover=ref(false);
 const isPublishing=ref(false);
+
 const buttons = reactive([
-  { id: 1, text: 'Button 1', background: 'src/assets/czw/picture+.svg', backgroundColor: 'transparent' },
-  { id: 2, text: 'Button 2', background: 'src/assets/czw/back.svg', backgroundColor: 'transparent' },
-  { id: 3, text: 'Button 2', background: 'src/assets/czw/confirm.svg', backgroundColor: 'transparent' },
+  { id: 1, text: 'Button 1', background: '@/assets/czw/picture+.svg', backgroundColor: 'transparent' },
+  { id: 2, text: 'Button 2', background: '@/assets/czw/back.svg', backgroundColor: 'transparent' },
+  { id: 3, text: 'Button 2', background: '@/assets/czw/confirm.svg', backgroundColor: 'transparent' },
 ]);
 
 

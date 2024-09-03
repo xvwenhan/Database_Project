@@ -302,9 +302,9 @@ function deletePost(id,event)
    <el-container>
     <el-aside width="18vh" style="background-color:  #82111f; ">
   <div class="big-title" style="display: flex; justify-content: center; align-items: center; width: 100%;">
-    <img class="image" src="/src/assets/czw/aside.svg" alt="Original Image"  />
+    <img class="image" src="@/assets/czw/aside.svg" alt="Original Image"  />
     <span>消息</span>
-    <img class="flipped-image" src="/src/assets/czw/aside.svg" alt="Flipped Image" />
+    <img class="flipped-image" src="@/assets/czw/aside.svg" alt="Flipped Image" />
   </div>
   <div style="width: 100%;">
     <el-menu

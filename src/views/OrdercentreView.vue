@@ -6,10 +6,13 @@ import 'element-plus/dist/index.css';
 import Navbar from '../components/Navbar.vue';
 import axiosInstance from '../components/axios';
 import router from '@/router';
+import Loading from '../views/templates/4.vue';
+
 const userId =localStorage.getItem('userId');
 console.log('id',userId);
 const option=ref(1);
 const currentRow_cancel=ref(null);
+const isLoading = ref(true);
 const currentRow_return=ref(null);
 const currentRow_star=ref(null);
 interface Order {
@@ -197,7 +200,10 @@ const myOrders = ref<Order[]>([]);
     .then(response => {
         const data = response.data;
         console.log('Raw response data: ', response.data);
-        if (data && Array.isArray(data)) {
+        if(data==null){
+          isLoading.value=false;
+        }
+        else if (data && Array.isArray(data)) {
           myOrders.value = data.map((order: any) => ({
             id: order.orderId || '',
             product: order.productName || '',
@@ -220,6 +226,7 @@ const myOrders = ref<Order[]>([]);
             console.log(myOrders.value);
             myOrders.value.forEach(order => {
             isStarred(order);
+            isLoading.value=false;
           });
 
         } else {
@@ -394,9 +401,9 @@ const menuChange = (index) => {
     <el-container>
       <el-aside width="18vh" style="background-color:  #82111f; ">
   <div class="big-title" style="display: flex; justify-content: center; align-items: center; width: 100%;">
-    <img class="image" src="/src/assets/czw/aside.svg" alt="Original Image"  />
+    <img class="image" src="@/assets/czw/aside.svg" alt="Original Image"  />
     <span>订单</span>
-    <img class="flipped-image" src="/src/assets/czw/aside.svg" alt="Flipped Image" />
+    <img class="flipped-image" src="@/assets/czw/aside.svg" alt="Flipped Image" />
   </div>
   <div style="width: 100%;">
     <el-menu
@@ -431,7 +438,9 @@ const menuChange = (index) => {
       <span v-if="option === 7" style="font-size: 2vh; color: #333;">已退货</span>
     </div>
   </el-header>
-  <el-table :data="filteredOrders" style="width: 100%">
+  <Loading v-show="isLoading" />
+
+  <el-table v-show="!isLoading" :data="filteredOrders" style="width: 100%">
     <el-table-column label="商品信息">
     <template v-slot="scope">
       <div class="order-header">
