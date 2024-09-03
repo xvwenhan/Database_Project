@@ -129,7 +129,7 @@ onMounted(() => {
   margin-bottom: 20px;
   margin-left: -50px;
   margin-top: 20px;
-  cursor: pointer;
+  /* cursor: pointer; */
 }
 .market-back:hover {
   color: #a61b29;
