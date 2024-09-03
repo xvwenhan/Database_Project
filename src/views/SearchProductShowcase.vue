@@ -73,8 +73,8 @@ onMounted(() => {
     <div class="loading-spinner"></div>
     <p>搜索中，请稍候...</p>
   </div> -->
-  <div 
-  style="background-image: url('@/assets/wy/background.jpg'); background-size: cover; background-position: center; height: 100%; overflow-x: hidden;"
+  <div class="totalpage"
+  
   
   
   >
@@ -108,6 +108,15 @@ onMounted(() => {
 </template>
 
 <style scoped>
+.totalpage{
+  background-image: url('@/assets/wy/background.jpg'); 
+  background-size: cover; 
+  background-position: center; 
+  height: 100%; 
+  overflow-x: hidden;
+  font-family: 'Regular';
+
+}
 .product-display {
   display: flex;
   flex-wrap: wrap;
@@ -121,7 +130,7 @@ onMounted(() => {
 
 .product-item {
   width: calc(25% - 20px); /* 每行显示四个商品，减去间隙 */
-  height:300px;
+  height:310px;
   padding: 20px;
   border: 1px solid #e7e7e7;
   border-radius: 10px;
@@ -147,6 +156,7 @@ onMounted(() => {
 
 .product-info {
   text-align: center;
+  padding-bottom: 10px;
 }
 
 .product-name {
