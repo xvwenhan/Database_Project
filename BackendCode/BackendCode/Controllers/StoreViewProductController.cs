@@ -356,8 +356,12 @@ namespace StoreViewProductController.Controllers
         //post接口，新建商品
         [HttpPost("addProduct")]
         [Authorize]
-        public async Task<IActionResult> AddProduct(string storeId, [FromForm] Product1DTO newProduct)
+        public async Task<IActionResult> AddProduct([FromForm] Product1DTO newProduct)
         {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if(userId == null) { return NotFound("请先登录"); }
+            var userRole = User.FindFirst("UserRole")?.Value;
+            if (userRole != "商家") { return Unauthorized("必须为商家才能发布商品！"); }
             try
             {
                 // 生成唯一的 PRODUCT_ID
@@ -378,7 +382,7 @@ namespace StoreViewProductController.Controllers
                     TAG = newProduct.Tag,
                     SUB_TAG = newProduct.SubTag,//新增加
                     DESCRIBTION = newProduct.Description,
-                    ACCOUNT_ID = storeId,
+                    ACCOUNT_ID = userId,
                     STORE_TAG = newProduct.StoreTag,
                     
                 };
@@ -437,13 +441,13 @@ namespace StoreViewProductController.Controllers
                 if ( result == null) { return NotFound(new {Message="子分类不存在！"}); }
                 // 检查该商家的TAG是否已经存在
                 var existingTag = await _dbContext.STORE_BUSINESS_DIRECTIONS
-                    .FirstOrDefaultAsync(st => st.STORE_ID == storeId && st.BUSINESS_TAG == newProduct.Tag+ result);
+                    .FirstOrDefaultAsync(st => st.STORE_ID == userId && st.BUSINESS_TAG == newProduct.Tag+ result);
                 if (existingTag == null)
                 {
                     // 如果TAG不存在，添加新记录到STORE_TAG表
                     var newStoreTag = new STORE_BUSINESS_DIRECTION
                     {
-                        STORE_ID = storeId,
+                        STORE_ID = userId,
                         BUSINESS_TAG = newProduct.Tag + result,
                         LINK_COUNT = 1,
                     };
