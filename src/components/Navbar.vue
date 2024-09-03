@@ -16,7 +16,7 @@
         <!-- <img src="@/assets/wy/profilephoto.jpg" alt="Profile Photo" class="profile-photo" @click="openModal"/> -->
       </div>
     </div>
-    <div class="line"></div>
+    <!-- <div class="line"></div> -->
     <div class="navbar-bottom">
       <ul class="navbar-menu">
         <li class="navbar-item" v-for="item in menuItems" :key="item.text"  @click="handleMenuClick(item.link)">
@@ -37,7 +37,7 @@
       </div>
 
     </div>
-    <div class="line bottom-line"></div>
+    <!-- <div class="line bottom-line"></div> -->
     <!-- <UserModal ref="userModal" /> -->
   </nav>
 </template>
