@@ -298,7 +298,7 @@ function submitReason(){
 }
 function submitReplyReason(id){
   const formData = new FormData();
-      formData.append('postId',id );
+      formData.append('commentId',id );
       if (post.value.reason) {
         formData.append('reportReason', post.value.reason);
       } else if (post.value.reason_else) {

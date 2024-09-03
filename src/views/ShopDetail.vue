@@ -29,7 +29,7 @@
         <div class="shop-title">
           <div style="display: flex; gap: 10px">
             <div class="shop-avatar">
-              <img :src="'data:image/png;base64,' + shopinfo.avatar" alt="Shop Avatar" class="shop-avatar" />
+              <img :src="shopinfo.avatar" alt="Shop Avatar" class="shop-avatar" />
             </div>
             <div class="shop-info">
                 <div class="shop-name">
@@ -127,7 +127,7 @@
                 class="remarks">
                 <div class="remark-header">
                   <div class='remark-avatar'>
-                    <img :src="remark.buyerAvatar" :alt="buyerAvatar" class='remark-avatar'/>
+                    <img :src="remark.buyerAvatar.imageUrl" :alt="buyerAvatar" class='remark-avatar'/>
                   </div>
                   <div class="remark-buyerName" style="font-size: 16px; font-weight: bold; "> {{ remark.buyerName }} </div>
                 </div>
@@ -272,7 +272,7 @@ const fetchStoreInfo = async () => {
     shopinfo.storeName = response.data.name;
     shopinfo.storeScore = response.data.score;
     shopinfo.Address = response.data.address;
-    shopinfo.avatar = response.data.picture;
+    shopinfo.avatar = response.data.picture.imageUrl;
     message1.value = '已获取店铺信息';
     checkLoadingStatus(); //检查加载状态
   } catch (error) {
@@ -464,8 +464,10 @@ const fetchRemarks = async () => {
       remarks.splice(0, remarks.length);
     }
     response.data.forEach(remark => {
-      remark.buyerAvatar = `data:image/png;base64,${remark.buyerAvatar}`;
-      remarks.push(remark);
+      if(remark.orderRemark){
+        // remark.buyerAvatar = `data:image/png;base64,${remark.buyerAvatar}`;
+        remarks.push(remark);
+      }
     });
     message8.value = '已获取评论信息';
     console.log(remarks);
