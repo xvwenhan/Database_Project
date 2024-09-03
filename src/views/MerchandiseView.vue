@@ -100,7 +100,7 @@
               </div>
             </div>
             <div v-else>
-              <span style="font-family: Arial, sans-serif; font-size: 20px; display: block; margin-bottom: 13px; color: white;">
+              <span style="font-family: Arial, sans-serif; font-size: 20px; display: block; margin-bottom: 13px; color: black;">
               该分类暂无商品
               </span>
             </div>
