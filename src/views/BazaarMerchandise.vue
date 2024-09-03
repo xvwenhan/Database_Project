@@ -4,7 +4,7 @@
     <div class="left-panel">
       <h2 class="market-title">
         <span class="market-back" @click="goBackToMarketList">市集</span>
-        > {{ marketTheme }}
+        > {{ marketTheme.substring(0, 4) }}
       </h2>
       <div class="left-panel-bottom">
         <img src="@/assets/wy/market1.png" alt="市场图片1" class="market-image" style="position: absolute;top: 50px;"/>
@@ -17,8 +17,8 @@
       <div class="market-header">
         <img :src="marketPoster" alt="市场海报" class="market-poster" />
         <p class="market-detail">
-          <!-- {{ marketDetail }} -->
-          天青釉是汉族传统制瓷工艺中的珍品，瓷器釉色清明，也叫雨过天青，是一种幽淡隽永的高温兰色釉，我国古代陶书描写的青如天，明如镜，正是这种釉色特点的形容。
+          {{ marketDetail }}
+          <!-- 天青釉是汉族传统制瓷工艺中的珍品，瓷器釉色清明，也叫雨过天青，是一种幽淡隽永的高温兰色釉，我国古代陶书描写的青如天，明如镜，正是这种釉色特点的形容。 -->
 
         </p>
       </div>
@@ -135,7 +135,7 @@ onMounted(() => {
 }
 
 .market-middle-text {
-  font-size: 35px;
+  font-size: 29px;
   color: #333;
   writing-mode: vertical-rl;
   text-orientation: upright;

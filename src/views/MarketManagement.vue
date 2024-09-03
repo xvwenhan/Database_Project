@@ -22,14 +22,29 @@
                 </el-col>
                 <el-col :span="7"> 
                   <el-form-item label="选择类型">
-                    <el-select v-model="formData.selectedOptions" multiple placeholder="将向以下类型商家发送邀请" style="width: 300px;" @change="handleOptionChange">
+                    <el-select v-model="formData.selectedOptions" placeholder="将向以下类型商家发送邀请" style="width: 300px;" >
+                      <el-option-group
+                        v-for="group in categories"
+                        :key="group.largeCategoryName"
+                        :label="group.largeCategoryName"
+                      >
+                        <el-option
+                          v-for="item in group.subCategories"
+                          :key="item.subCategoryId"
+                          :label="item.subCategoryName"
+                          :value="item.subCategoryId"
+                        />
+                      </el-option-group>
+                    </el-select>
+
+                    <!-- <el-select v-model="formData.selectedOptions" multiple placeholder="将向以下类型商家发送邀请" style="width: 300px;" @change="handleOptionChange">
                       <el-option
                         v-for="item in options"
                         :key="item.value"
                         :label="item.label"
                         :value="item.value">
                       </el-option>
-                    </el-select>
+                    </el-select> -->
                   </el-form-item>
                 </el-col>
               </el-row>
@@ -118,7 +133,7 @@ import AdminSidebarMenu from '../components/AdminSidebarMenu.vue'
 import AdminHeaderSec from '../components/AdminHeaderSec.vue'
 import { reactive, ref, computed, onMounted  } from 'vue';
 import { ElTable, ElTableColumn, ElPagination, ElButton, ElDialog, ElForm, ElFormItem, ElInput, ElRow, ElCol, ElSelect, ElOption, ElMessage } from 'element-plus';
-import { ElLoading } from 'element-plus';
+import { ElLoading, ElOptionGroup } from 'element-plus';
 import 'element-plus/dist/index.css';
 import axiosInstance from '../components/axios';
 
@@ -126,6 +141,7 @@ const userId =localStorage.getItem('userId');
 const role=localStorage.getItem('role');
 
 const records = reactive([]);
+const categories = reactive([]);
 const message01 = ref('');
 
 const fetchRecords = async () => {
@@ -154,17 +170,28 @@ const fetchRecords = async () => {
   loadingInstance.close();
   console.log(message01.value);
 };
+
+const fetchCategories = async () => {
+  try {
+    const response = await axiosInstance.get('/Classification/GetAllCategories');
+    categories.splice(0, categories.length, ...response.data.categories);
+    message01.value = '已获取系统分类数据';
+    console.log(categories);
+  } catch (error) {
+    if (error.response) {
+      message01.value = error.response.data;
+    } else {
+      message01.value = '获取分类数据失败';
+    }
+    ElMessage.error('获取分类数据失败，请稍后再试');
+  }
+  console.log(message01.value);
+};
+
 onMounted(() => {
   fetchRecords();
+  fetchCategories();
 })
-
-const options = ref([
-  { value: 'option1', label: '服装' },
-  { value: 'option2', label: '首饰' },
-  { value: 'option3', label: '家具' },
-  { value: 'option4', label: '工艺品' },
-  { value: 'option5', label: '小物件' }
-]);
 
 // 页面大小及当前页数
 const pageSize = ref(4);
@@ -201,7 +228,7 @@ const formData = reactive({
   start: '',
   end: '',
   detail: '',
-  selectedOptions:[],
+  selectedOptions:'',
   img:''
 });
 
@@ -210,23 +237,22 @@ const handleFileUpload = (event) => {
   formData.img = file;
 };
 
-const handleOptionChange = (values) => {
-  formData.selectedOptions = values.map(value => {
-    const option = options.value.find(option => option.value === value);
-    return option ? option.label : '';
-  });
-};
+// const handleOptionChange = (values) => {
+//   formData.selectedOptions = values;
+// };
 
 const message02 = ref('');
 const addMarket = async () => {
   const putData = new FormData();
   putData.append('theme', formData.topic);
-  putData.append('option', formData.selectedOptions.join(','));
+  putData.append('option', formData.selectedOptions);
   putData.append('startTime', formData.start);
   putData.append('endTime', formData.end);
   putData.append('detail', formData.detail);
   putData.append('posterImg', formData.img);
   putData.append('adminId', userId);
+
+  console.log('邀请商家分类id'+formData.selectedOptions);
 
   try {
     const response = await axiosInstance.put('/Administrator/AddMarket', putData, {
