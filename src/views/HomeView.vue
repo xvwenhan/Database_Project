@@ -296,7 +296,6 @@ document.querySelectorAll('.icon').forEach(icon => {
 @import url('https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap');
 
 
-
 div {
   user-select: none;
   outline: none; 
