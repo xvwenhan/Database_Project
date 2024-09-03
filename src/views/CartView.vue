@@ -103,7 +103,7 @@ import axiosInstance from '../components/axios';
 
 const router = useRouter();
 const userId =localStorage.getItem('userId');
-const isLoading = ref(true);
+const isLoading = ref(false);
 
 const categories = ref([
     { id: 1, name: '收藏商品' },
