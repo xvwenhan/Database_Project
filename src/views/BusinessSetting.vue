@@ -215,40 +215,35 @@ export default {
   }
 },
 handleFile(event) {
-  const file = event.target.files[0];
-  if (file) {
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-    if (validTypes.includes(file.type)) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        this.userimades.ima = e.target.result;
-        console.log('Loaded image:', this.userimades.ima); // 输出图片数据
-      };
-      reader.readAsDataURL(file);
+    const file = event.target.files[0];
+    if (file) {
+        console.log('选中的文件:', file);
+        this.userimades.ima = URL.createObjectURL(file);
+        this.userimades.file = file;
     } else {
-      this.$message.error('请上传正确格式的图片 (.jpg 或 .png)');
+        console.log('文件选择失败或无效');
     }
-  }
 },
-async fetchImageAndText(id) {
-  try {
-    console.log(id,'!');
-    const response = await axiosInstance.post('/UserInfo/GetPhotoAndDescribtion', {
-      id
-    });
+ //获取头像简介
+ async fetchImageAndText(id) {
+            try {
+                console.log(id,'!');
+                const response = await axiosInstance.post('/UserInfo/GetPhotoAndDescribtion', {
+                id
+                });
 
-    const { describtion, photo } = response.data;
-    console.log('1:',this.userimades.ima);
-    console.log('2:',this.userimades.descri);
-    this.userimades.ima = `data:image/jpeg;base64,${photo}`;
-    this.userimades.descri = describtion;
+                const { describtion, photo } = response.data;
+                console.log('1:',this.userimades.ima);
+                console.log('2:',this.userimades.descri);
+                this.userimades.ima = photo.imageUrl;
+                this.userimades.descri = describtion;
 
-    console.log('获取到的头像和文字描述:', this.userimades);
-  } catch (error) {
-    console.error('获取头像和简介失败:', error);
-    this.$message.error('获取头像和简介描述失败，请稍后再试');
-  }
-},
+                console.log('获取到的头像和文字描述:', this.userimades);
+            } catch (error) {
+                console.error('获取头像和简介失败:', error);
+                this.$message.error('获取头像和简介描述失败，请稍后再试');
+            }
+        },
 
 async handleUpload() {
   try {

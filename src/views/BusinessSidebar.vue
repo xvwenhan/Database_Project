@@ -160,8 +160,8 @@
     closeModalT() {
       this.show = false;
     },
-     //获取头像简介
-     async fetchImageAndText(id) {
+      //获取头像简介
+      async fetchImageAndText(id) {
             try {
                 console.log(id,'!');
                 const response = await axiosInstance.post('/UserInfo/GetPhotoAndDescribtion', {
@@ -171,7 +171,7 @@
                 const { describtion, photo } = response.data;
                 console.log('1:',this.userimades.ima);
                 console.log('2:',this.userimades.descri);
-                this.userimades.ima = `data:image/jpeg;base64,${photo}`;
+                this.userimades.ima = photo.imageUrl;
                 this.userimades.descri = describtion;
 
                 console.log('获取到的头像和文字描述:', this.userimades);
