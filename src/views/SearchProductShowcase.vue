@@ -10,6 +10,11 @@ const products = ref([]);
 const loading = ref(true);  // 用于控制缓冲页面的显示
 const errorMessage = ref(''); // 错误信息
 
+//回车
+const keyword = ref(localStorage.getItem('keyword') || ''); // 绑定输入框的关键字
+const type = ref(localStorage.getItem('searchType') || '0'); // 搜索类型
+
+
 const fetchStores = async (keyword: string, type: string) => {
   try {
     const response = await axiosInstance.get('/NaviSearch/search', {
@@ -46,10 +51,19 @@ const goToProductDetail = (productId: string) => {
   router.push('/productdetail');  // 跳转到商品详情页
 };
 
+//回车搜索
+const handleKeydown = (event: KeyboardEvent) => {
+  if (event.key === 'Enter') {
+    fetchStores(keyword.value, type.value); // 按下回车键时执行搜索
+  }
+};
+
 onMounted(() => {
-  const keyword = localStorage.getItem('keyword') || '';
-  const type = localStorage.getItem('searchType') || '0';
-  fetchStores(keyword, type);
+  // const keyword = localStorage.getItem('keyword') || '';
+  // const type = localStorage.getItem('searchType') || '0';
+  // fetchStores(keyword, type);
+  fetchStores(keyword.value, type.value);
+ 
 });
 </script>
 
@@ -61,7 +75,11 @@ onMounted(() => {
   </div> -->
   <div 
   style="background-image: url('@/assets/wy/background.jpg'); background-size: cover; background-position: center; height: 100%; overflow-x: hidden;"
+  
+  
   >
+  
+  
     <!-- <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div> -->
     <!-- 错误信息和图片 -->
     <div v-if="errorMessage" class="error-message-container">

@@ -44,6 +44,7 @@
           margin-left: 10px;
           height:40px;
           margin-bottom: 15px"
+          @keyup.enter="login"
         ></el-input>
         <div>
           <label class="forget-password" @click="handleForgetPassword">忘记密码?</label>
