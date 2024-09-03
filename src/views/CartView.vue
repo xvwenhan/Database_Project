@@ -132,8 +132,10 @@ const fetchProducts = async () => {
     });
 
     response.data.forEach(product => {
-      //product.productPic = `data:image/png;base64,${product.productPic}`;
-      Products.push(product);
+      if(!product.saleOrNot){
+        //product.productPic = `data:image/png;base64,${product.productPic}`;
+        Products.push(product);
+      }
     });
     message01.value = '已获取收藏商品数据';
     isLoading.value=false;
@@ -321,7 +323,7 @@ onMounted(() => {
 
 .product-image {
   max-height: 110px;
-  max-width: 100%;
+  width: 90%;
   object-fit: cover;
   border-radius: 5px;
   margin-bottom: 10px;
@@ -390,6 +392,7 @@ onMounted(() => {
 .store-image{
   width: 120px;
   height: 120px;
+  border-radius: 120px;
 }
 
 .store-name {

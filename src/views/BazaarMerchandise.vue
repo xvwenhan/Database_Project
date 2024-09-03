@@ -1,7 +1,7 @@
 <template>
   <Navbar />
   <div class="market-page" style="font-family: 'Regular';">
-    <div class="left-panel">
+    <!-- <div class="left-panel">
       <h2 class="market-title">
         <span class="market-back" @click="goBackToMarketList">市集</span>
         > {{ marketTheme.substring(0, 4) }}
@@ -11,16 +11,18 @@
         <p class="market-middle-text" >市集·{{ marketTheme }}</p>
         <img src="@/assets/wy/market2.png" alt="市场图片2" class="market-image" style="position: absolute;bottom: 50px;"/>
       </div>
-    </div>
+    </div> -->
     
     <div class="right-panel">
       <div class="market-header">
         <img :src="marketPoster" alt="市场海报" class="market-poster" />
-        <p class="market-detail">
-          {{ marketDetail }}
-          <!-- 天青釉是汉族传统制瓷工艺中的珍品，瓷器釉色清明，也叫雨过天青，是一种幽淡隽永的高温兰色釉，我国古代陶书描写的青如天，明如镜，正是这种釉色特点的形容。 -->
-
-        </p>
+        <div class="market-info">
+          <h2 class="market-title">
+            <span class="market-back" @click="goBackToMarketList">市集</span>>>&nbsp;&nbsp; {{ marketTheme}}
+          </h2>
+          <p class="market-detail">{{ marketDetail }}</p>
+        </div>
+        
       </div>
       <div class="product-display">
         <div v-for="product in products" :key="product.id" class="product-item" @click="goToProductDetail(product.id)">
@@ -69,6 +71,7 @@ const fetchProducts = async (marketId) => {
       description: item.description,
       productPics: item.productPics
     }));
+    // products.value = Array(100).fill(products.value).flat(); // 将数据重复100次并平展成一个数组
   } catch (error) {
     console.error('Error fetching products:', error);
   }
@@ -92,8 +95,11 @@ onMounted(() => {
 .market-page {
   display: flex;
   /* background-color: #f7f4ed; */
-  background-image: url('@/assets/wy/background.jpg'); background-size: cover; background-position: center; height: 100%; overflow-x: hidden;
-  height: 100%;
+  background-image: url('@/assets/wy/background.jpg'); 
+  background-size: cover; 
+  background-position: center; 
+  height: 100%; 
+  /* overflow-x: hidden; */
   overflow: hidden;
 }
 
@@ -118,9 +124,10 @@ onMounted(() => {
 }
 
 .market-title {
-  font-size: 20px;
+  font-size: 25px;
   color: #333;
   margin-bottom: 20px;
+  margin-left: -50px;
   margin-top: 20px;
   cursor: pointer;
 }
@@ -144,16 +151,19 @@ onMounted(() => {
 }
 
 .right-panel {
-  width: 86%;
-  padding: 30px;
-  overflow-y: auto; /* 允许垂直滚动 */
+  flex-grow: 1; /* 确保右侧面板占据剩余空间 */
+  padding-top: 30px;
+  overflow-y: scroll; /* 允许垂直滚动 */
+  box-sizing: border-box; /* 包括内边距和边框在内的宽度 */
+  padding-left: 100px;  /* 添加左侧间距 */
+  padding-right: 100px; /* 添加右侧间距 */
 }
 
 
 .market-header {
   display: flex;
   background-color: #bdaead;
-  align-items: center;
+  /* align-items: center; */
   margin-bottom: 20px;
 
 }
@@ -165,10 +175,16 @@ onMounted(() => {
   /* margin-right: 20px; */
   /* border-radius: 10px; */
 }
-
+.market-info {
+  display: flex;
+  flex-direction: column; /* 使标题和描述垂直排列 */
+  justify-content: flex-start;
+  margin-top: 30px;
+}
 .market-detail {
   font-size: 18px;
   color: #555;
+  margin-top: 20px;
 }
 
 .product-display {
@@ -178,7 +194,7 @@ onMounted(() => {
 }
 
 .product-item {
-  width: calc(33.33% - 20px);
+  width: calc(25% - 20px);
   padding: 20px;
   border: 1px solid #e7e7e7;
   border-radius: 10px;

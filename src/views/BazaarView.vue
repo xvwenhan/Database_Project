@@ -195,6 +195,6 @@ h2 {
 }
 
 .icon{
-  height: 70px;
+  height: 110px;
 }
 </style>
