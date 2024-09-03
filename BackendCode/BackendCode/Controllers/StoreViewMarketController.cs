@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using BackendCode.DTOs.Store;
 using BackendCode.Models;
+using BackendCode.DTOs;
 
 namespace StoreViewMarket.Controllers
 {
@@ -51,7 +52,10 @@ namespace StoreViewMarket.Controllers
                         StartTime = market.START_TIME,
                         EndTime = market.END_TIME,
                         Detail = market.DETAIL,
-                        PosterImg = market.POSTERIMG != null ? Convert.ToBase64String(market.POSTERIMG) : null,
+                        PosterImg= _dbContext.MARKETS
+                         .Where(img => img.MARKET_ID == market.MARKET_ID)
+                         .Select(img => new ImageModel { ImageId = img.IMAGE_ID })
+                         .ToList(),
                         IsStoreParticipating = marketStore
                     };
 
@@ -155,7 +159,10 @@ namespace StoreViewMarket.Controllers
                         StartTime = m.START_TIME,
                         EndTime = m.END_TIME,
                         Detail = m.DETAIL,
-                        PosterImg = m.POSTERIMG != null ? Convert.ToBase64String(m.POSTERIMG) : null,
+                        PosterImg = _dbContext.MARKETS
+                         .Where(img => img.MARKET_ID == m.MARKET_ID)
+                         .Select(img => new ImageModel { ImageId = img.IMAGE_ID })
+                         .ToList(),
                         IsStoreParticipating = marketStore.IN_OR_NOT
                     };
                 }).ToList();
