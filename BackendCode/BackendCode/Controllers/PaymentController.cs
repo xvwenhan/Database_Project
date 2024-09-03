@@ -242,7 +242,7 @@ namespace BackendCode.Controllers
         }
 
         /********************************/
-        /* 买家确认订单信息并支付       */
+        /* 买家确认订单信息并支付(钱包) */
         /* 更新买家卖家钱包余额         */
         /* 完善订单信息 返回买家积分    */
         /********************************/
@@ -286,6 +286,63 @@ namespace BackendCode.Controllers
 
             //更新买家钱包余额：从买家钱包中扣除交易金额
             buyerWallet.BALANCE -= orderConfirmDTO.actual_pay;
+
+            //更新卖家钱包余额：将交易金额添加到卖家钱包
+            sellerWallet.BALANCE += orderConfirmDTO.actual_pay;
+
+            int a = (int)(orderConfirmDTO.total_pay - orderConfirmDTO.actual_pay);
+            buyer.TOTAL_CREDITS -= 100 * a; //更新买家计分
+
+            /* 完善订单信息 */
+            order.USERNAME = orderConfirmDTO.username; //收件人昵称
+            order.DELIVERY_ADDRESS = orderConfirmDTO.order_address; //收货地址
+            order.ACTUAL_PAY = orderConfirmDTO.actual_pay; //实付金额
+            order.TOTAL_PAY = orderConfirmDTO.total_pay; //订单金额
+            order.ORDER_STATUS = "已付款"; //订单状态
+            order.BONUS_CREDITS = (int)orderConfirmDTO.actual_pay; //订单积分
+
+            buyer.TOTAL_CREDITS += order.BONUS_CREDITS; //更新买家计分
+
+            await _dbContext.SaveChangesAsync(); //保存数据库上下文中的更改到数据库
+
+            var credits = new CreditsDTO
+            {
+                BonusCredits = order.BONUS_CREDITS, //获得积分
+                Credits = buyer.TOTAL_CREDITS //当前积分
+            };
+
+            return Ok(credits); //返回订单信息
+        }
+
+        /**********************************/
+        /* 买家确认订单信息并支付(支付宝) */
+        /* 更新买家卖家钱包余额           */
+        /* 完善订单信息 返回买家积分      */
+        /**********************************/
+        [HttpPut("ConfirmOrdersAlipay")]
+        public async Task<IActionResult> ConfirmOrdersAlipayAsync([FromForm] OrderConfirmDTO orderConfirmDTO)
+        {
+            /* 找到对应订单 */
+            var order = await _dbContext.ORDERS.FirstOrDefaultAsync(o => o.ORDER_ID == orderConfirmDTO.orderId);
+            //商品不存在
+            while (order == null)
+            {
+                return NotFound("未找到订单");
+            }
+
+            /* 获取买家信息 */
+            var buyer = await _dbContext.BUYERS.FirstOrDefaultAsync(w => w.ACCOUNT_ID == order.BUYER_ACCOUNT_ID);
+            if (buyer == null) //买家ID不存在
+            {
+                return NotFound("未找到买家信息");
+            }
+
+            /* 获取商家钱包信息 */
+            var sellerWallet = await _dbContext.WALLETS.FirstOrDefaultAsync(w => w.ACCOUNT_ID == order.STORE_ACCOUNT_ID);
+            if (sellerWallet == null) //如果商家钱包不存在
+            {
+                return NotFound("未找到商家钱包");
+            }
 
             //更新卖家钱包余额：将交易金额添加到卖家钱包
             sellerWallet.BALANCE += orderConfirmDTO.actual_pay;
