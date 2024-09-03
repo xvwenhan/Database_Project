@@ -356,6 +356,9 @@ height: 100%;
   background-color: rgba(0, 0, 0, 0.3) !important; 
   color: #FFFFFF !important; 
 }
+:deep(.navbar-item .nav-link){
+  color: #FFFFFF !important; 
+}
 .mySwiper {
 height: 100vh;  
 width: 100%;    
