@@ -378,11 +378,11 @@ function like(){
 //     button.backgroundColor = 'transparent'; // 恢复背景颜色为透明
 //   }
 // };
-const buttonClick = (button) => {
-  if(button.id==3&&way=='forum'){
+const buttonClick = (id) => {
+  if(id==3&&way=='forum'){
     router.push('/forum'); // 跳转回 /forum 页面
   }
-  if(button.id==3&&way=='message'){
+  if(id==3&&way=='message'){
     router.push('/messageview'); // 跳转回 /forum 页面
   }
 };
@@ -416,8 +416,9 @@ const handleChange = (currentIndex) => {
    <Loading v-show="isLoading" />
   <div v-show="!isLoading" class="big-container">
     <div class="header">
-      <button :style="{ backgroundImage: `url(${button[2].background})`, 
-      backgroundColor: button[2].backgroundColor }" @click="buttonClick(button[2])" class="back_button" ></button>
+      <!-- <button :style="{ backgroundImage: `url(${button[2].background})`, 
+      backgroundColor: button[2].backgroundColor }" @click="buttonClick(button[2])" class="back_button" ></button> -->
+      <img class="back_button" src="@/assets/czw/back.svg" alt="back" @click="buttonClick(3)"  />
       <p>帖子详情</p>
     </div>
     <el-main>
@@ -447,12 +448,15 @@ const handleChange = (currentIndex) => {
             <div class="author">
             <span>{{ post.time }}</span>
             <div class="post-actions">
-            <button v-if="post.liked==false" :style="{ backgroundImage: `url(${button[0].background})`, 
-        backgroundColor: button[0].backgroundColor }" class="like_button" @click="like()"></button>
-        <button v-if="post.liked" :style="{ backgroundImage: `url(${button[3].background})`, 
-        backgroundColor: button[3].backgroundColor }" class="like_button" @click="like()"></button>{{ post.likeCount }}
-        <button :style="{ backgroundImage: `url(${button[1].background})`, 
-        backgroundColor: button[1].backgroundColor }" class="like_button" @click="reply()"></button>{{ post.commentCount }}
+            <!-- <button v-if="post.liked==false" :style="{ backgroundImage: `url(${button[0].background})`, 
+        backgroundColor: button[0].backgroundColor }" class="like_button" @click="like()"></button> -->
+        <img v-if="post.liked==false" class="like_button" src="@/assets/czw/like.svg" alt="like post"  @click="like()"  />
+        <!-- <button v-if="post.liked" :style="{ backgroundImage: `url(${button[3].background})`, 
+        backgroundColor: button[3].backgroundColor }" class="like_button" @click="like()"></button>{{ post.likeCount }} -->
+        <img  v-if="post.liked" class="like_button" src="@/assets/czw/liked.svg" alt="liked post"  @click="like()"  />{{ post.likeCount }} 
+        <!-- <button :style="{ backgroundImage: `url(${button[1].background})`, 
+        backgroundColor: button[1].backgroundColor }" class="like_button" @click="reply()"></button>{{ post.commentCount }} -->
+        <img class="like_button" src="@/assets/czw/reply.svg" alt="liked post"  @click="reply()"  />{{ post.commentCount }}
           </div>
         </div>
             <div class="author">
@@ -496,12 +500,15 @@ const handleChange = (currentIndex) => {
             <div class="author">
             <span>{{ post.time }}</span>
             <div class="post-actions">
-            <button v-if="post.liked==false" :style="{ backgroundImage: `url(${button[0].background})`, 
-        backgroundColor: button[0].backgroundColor }" class="like_button" @click="like()"></button>
-        <button v-if="post.liked" :style="{ backgroundImage: `url(${button[3].background})`, 
-        backgroundColor: button[3].backgroundColor }" class="like_button" @click="like()"></button>{{ post.likeCount }}
-        <button :style="{ backgroundImage: `url(${button[1].background})`, 
-        backgroundColor: button[1].backgroundColor }" class="like_button" @click="reply()"></button>{{ post.commentCount }}
+            <!-- <button v-if="post.liked==false" :style="{ backgroundImage: `url(${button[0].background})`, 
+        backgroundColor: button[0].backgroundColor }" class="like_button" @click="like()"></button> -->
+        <img v-if="post.liked==false" class="like_button" src="@/assets/czw/like.svg" alt="like post"  @click="like()"  />
+        <!-- <button v-if="post.liked" :style="{ backgroundImage: `url(${button[3].background})`, 
+        backgroundColor: button[3].backgroundColor }" class="like_button" @click="like()"></button>{{ post.likeCount }} -->
+        <img  v-if="post.liked" class="like_button" src="@/assets/czw/liked.svg" alt="liked post"  @click="like()"  />{{ post.likeCount }} 
+        <!-- <button :style="{ backgroundImage: `url(${button[1].background})`, 
+        backgroundColor: button[1].backgroundColor }" class="like_button" @click="reply()"></button>{{ post.commentCount }} -->
+        <img class="like_button" src="@/assets/czw/reply.svg" alt="liked post"  @click="reply()"  />{{ post.commentCount }}
           </div>
         </div>
             <div class="author">
