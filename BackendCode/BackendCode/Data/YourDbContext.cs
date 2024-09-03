@@ -879,8 +879,8 @@ namespace BackendCode.Data
                       .HasColumnType("BLOB");
 
                 entity.Property(e => e.CATEGORY_DESCRIPTION)
-                      .HasMaxLength(500)
-                      .HasColumnType("VARCHAR2(500)");
+                      .HasMaxLength(600)
+                      .HasColumnType("VARCHAR2(600)");
 
                 entity.HasMany(b => b.SUB_CATEGORYS)
                      .WithOne(p => p.CATEGORY)
