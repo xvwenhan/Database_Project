@@ -95,7 +95,7 @@ namespace UserInfo.Controllers
 
         // 修改头像或简介
         [HttpPut("SetPhotoAndDescribtion")]
-        public async Task<IActionResult> SetPhotoAndDescribtion([FromBody] SPADModel model)
+        public async Task<IActionResult> SetPhotoAndDescribtion([FromForm] SPADModel model)
         {
             string type = model.Id.Substring(0, 1);
             string res = "";
@@ -107,7 +107,7 @@ namespace UserInfo.Controllers
 
                 if (temp == null)
                 {
-                    return NotFound("不存在该用户");
+                    return NotFound(new { Message = "不存在该用户" });
                 }
 
                 if (model.Describtion != null)
@@ -133,7 +133,7 @@ namespace UserInfo.Controllers
 
                 if (temp == null)
                 {
-                    return NotFound("不存在该用户");
+                    return NotFound(new { Message= "不存在该商家" });
                 }
 
                 if (model.Describtion != null)
