@@ -162,10 +162,10 @@ namespace ClassificationController.Controllers
                         })
                         .ToListAsync();
 
-                    if (products == null || !products.Any())
+/*                    if (products == null || !products.Any())
                     {
                         return NotFound("No products found for the given tag.");
-                    }
+                    }*/
 
                     return Ok(products);
                 }
@@ -189,10 +189,10 @@ namespace ClassificationController.Controllers
                         })
                         .ToListAsync();
 
-                    if (products == null || !products.Any())
+/*                    if (products == null || !products.Any())
                     {
                         return NotFound("No products found for the given tag.");
-                    }
+                    }*/
 
                     return Ok(products);
                 }
