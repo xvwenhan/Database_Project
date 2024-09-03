@@ -46,7 +46,7 @@ namespace BackendCode.Controllers
 
         //获取账号头像
         [HttpGet("account/{accountId}")]
-        public IActionResult GetIAccountmage(string accountId)
+        public IActionResult GetAccountImage(string accountId)
         {
             var image = _context.ACCOUNTS.FirstOrDefault(pd => pd.ACCOUNT_ID == accountId);
             if (image != null)
@@ -113,6 +113,16 @@ namespace BackendCode.Controllers
         }
 
 
-
+        //获取大分类照片
+        [HttpGet("category/{categoryName}")]
+        public IActionResult GetCategoryImage(string categoryName)
+        {
+            var image = _context.CATEGORYS.FirstOrDefault(pd => pd.CATEGORY_NAME == categoryName);
+            if (image != null)
+            {
+                return File(image.CATEGORY_PIC, "image/jpeg"); //根据图片类型调整MIME类型
+            }
+             return NotFound();
+        }
     }
 }
