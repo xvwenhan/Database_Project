@@ -4,7 +4,7 @@
     <div class="navbar-top">
       <div class="navbar-brand">
         <img src="@/assets/logo1.png" alt="Logo" class="logo" />
-        <span style="font-size: 17px;">瑕宝阁</span>
+        <span style="font-size: 20px;margin-left: 10px;">瑕宝阁</span>
       </div>
       <div class="navbar-right">
         <div class="date-weather">
@@ -251,7 +251,7 @@ html, body {
 .navbar-brand {
   display: flex;
   align-items: center;
-  margin-left: 100px;
+  margin-left: 150px;
 }
 
 .logo {
@@ -262,12 +262,13 @@ html, body {
 .navbar-right {
   display: flex;
   align-items: center;
-  margin-right: 50px;
+  margin-right: 100px;
 }
 
 .date-weather {
   display: flex;
   align-items: center;
+  margin-right: 20px;
 }
 
 .profile-photo {
