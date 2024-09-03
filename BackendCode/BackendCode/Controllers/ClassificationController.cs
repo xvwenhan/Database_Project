@@ -13,6 +13,7 @@ using BackendCode.Models;
 using Alipay.AopSdk.Core.Domain;
 using BackendCode.DTOs;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Hosting;
 
 namespace ClassificationController.Controllers
 {
@@ -218,5 +219,33 @@ namespace ClassificationController.Controllers
             return Ok(new { Message = "获取小类名称成功！", SubCategoryName = result });
         }
 
+
+        //自用接口：上传大类的图片
+        [HttpPost("SetCategoryPic")]
+        public async Task<IActionResult> SetCatrgoryPic(UploadCategoryPic model)
+        {
+            try
+            {
+                var category = await _dbContext.CATEGORYS
+                    .Where(c => c.CATEGORY_NAME == model.CategoryName)
+                    .FirstOrDefaultAsync();
+
+                if (category == null)
+                {
+                    return NotFound("Category not found.");
+                }
+                var ms = new MemoryStream();
+                await model.CategoryPhoto.CopyToAsync(ms);
+                var imageData = ms.ToArray();
+                category.CATEGORY_PIC = imageData;  
+                await _dbContext.SaveChangesAsync();
+                return Ok(new {Message="上传分类图片成功！"});
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting category by name.");
+                return StatusCode(500, "Internal server error.");
+            }
+        }
     }
 }
