@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 using QRCoder;
 using Alipay.AopSdk.Core.Domain;
 using Alipay.AopSdk.Core.Request;
+//using BackendCode.PCPayment;
 
 namespace BackendCode.Controllers
 {
