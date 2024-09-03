@@ -70,4 +70,11 @@
         public string ProductId { get; set; }
         public decimal Price { get; set; }
     }
+
+    public class AlipayDTO
+    { 
+        public string orderID { get; set; }
+        public string actualPay { get; set; }
+        public string returnUrl { get; set; }
+    }
 }

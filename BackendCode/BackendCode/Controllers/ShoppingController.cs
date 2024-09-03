@@ -208,7 +208,7 @@ namespace BackendCode.Controllers
             var marketProduct = await _dbContext.MARKET_PRODUCTS.FirstOrDefaultAsync(mp => mp.PRODUCT_ID == productId);
 
             /* 计算折扣价格 */
-            decimal discountPrice = marketProduct != null ? marketProduct.DISCOUNT_PRICE : product.PRODUCT_PRICE;
+            decimal discountPrice = marketProduct != null ? (product.PRODUCT_PRICE * marketProduct.DISCOUNT_PRICE) : product.PRODUCT_PRICE;
 
             /* 查询用户是否收藏该商品 */
             var isProductStared = await _dbContext.BUYER_PRODUCT_BOOKMARKS

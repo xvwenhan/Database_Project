@@ -17,7 +17,8 @@ using System.Threading.Tasks;
 using QRCoder;
 using Alipay.AopSdk.Core.Domain;
 using Alipay.AopSdk.Core.Request;
-//using BackendCode.PCPayment;
+using BackendCode.DTOs.Payment;
+using Microsoft.EntityFrameworkCore;
 
 namespace BackendCode.Controllers
 {
@@ -34,46 +35,35 @@ namespace BackendCode.Controllers
             _alipayService = alipayService;
         }
 
-        #region 发起支付
-        /// <summary>
-        /// 发起支付请求
-        /// </summary>
-        /// <param name="tradeno">外部订单号，商户网站订单系统中唯一的订单号</param>
-        /// <param name="subject">订单名称</param>
-        /// <param name="totalAmout">付款金额</param>
-        /// <param name="itemBody">商品描述</param>
-        /// <returns></returns>
+        //支付宝支付
         [HttpPost]
-        public async Task<IActionResult> PayRequest(string tradeno, string subject, string totalAmout, string itemBody)
+        public async Task<IActionResult> PayRequest([FromForm] AlipayDTO alipayDTO)
         {
-            // 组装业务参数model
+            var order = await _dbContext.ORDERS.FirstOrDefaultAsync(o => o.ORDER_ID == alipayDTO.orderID);
+            var product = await _dbContext.PRODUCTS.FirstOrDefaultAsync(o => o.PRODUCT_ID == order.PRODUCT_ID);
+
+            //组装业务参数model
             AlipayTradePagePayModel model = new AlipayTradePagePayModel
             {
-                Body = itemBody,
-                Subject = subject,
-                TotalAmount = totalAmout,
-                OutTradeNo = tradeno,
+                Body = product.DESCRIBTION,        //商品描述
+                Subject = product.PRODUCT_NAME,    //商品名称
+                TotalAmount = alipayDTO.actualPay, //付款价格
+                OutTradeNo = alipayDTO.orderID,    //订单号
                 ProductCode = "FAST_INSTANT_TRADE_PAY"
             };
 
             AlipayTradePagePayRequest request = new AlipayTradePagePayRequest();
-            // 设置同步回调地址
-            request.SetReturnUrl($"http://{Request.Host}/Pay/Callback");
-            // 设置异步通知接收地址
-            //request.SetNotifyUrl("");
-            // 将业务model载入到request
+
+            //设置同步回调地址
+            request.SetReturnUrl(alipayDTO.returnUrl);
+           
+            //将业务model载入到request
             request.SetBizModel(model);
 
             var response = _alipayService.SdkExecute(request);
-            Console.WriteLine($"订单支付发起成功，订单号：{tradeno}");
-            // Response.Headers["Access-Control-Allow-Origin"] = "*";
-            // Response.Headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS";
-            // Response.Headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization";
+
             //跳转支付宝支付
-            //Response.Redirect(_alipayService.Options.Gatewayurl + "?" + response.Body);
             return Ok(_alipayService.Options.Gatewayurl + "?" + response.Body);
         }
-
-        #endregion
     }
 }
