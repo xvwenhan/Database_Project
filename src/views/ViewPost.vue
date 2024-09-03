@@ -296,9 +296,9 @@ function submitReason(){
         console.error(error);
       });
 }
-function submitReplyReason(id){
+function submitReplyReason(reply){
   const formData = new FormData();
-      formData.append('commentId',id );
+      formData.append('commentId',reply.id );
       if (post.value.reason) {
         formData.append('reportReason', post.value.reason);
       } else if (post.value.reason_else) {
@@ -310,8 +310,9 @@ function submitReplyReason(id){
         message: '举报成功',
         type: 'success',
         });
-
-        console.log(response.data);
+        resetForm(); 
+        reply.dialogVisible_sub=false;
+        console.log(response.data,"评论举报");
       }).catch(error => {
         console.error(error);
       });
@@ -571,7 +572,7 @@ const handleChange = (currentIndex) => {
       <el-input v-if="post.reason === '5' "v-model="post.reason_else" placeholder="请输入原因"></el-input>
   <el-divider></el-divider>
   <div slot="footer" class="dialog-footer">
-    <el-button type="primary" @click="submitReplyReason(reply.id)">确 定</el-button>
+    <el-button type="primary" @click="submitReplyReason(reply)">确 定</el-button>
     </div>
 </el-dialog>
 <div v-if="hasSubComments(reply.id)">
