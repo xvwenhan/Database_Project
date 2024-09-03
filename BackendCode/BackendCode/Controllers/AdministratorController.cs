@@ -102,17 +102,54 @@ namespace Administrator.Controllers
             
         }
 
+        //向拥有指定类型商品的商家发送邀请
+        [HttpPost("InviteStores")]
+        public async Task<IActionResult> InviteStores([FromBody] ISModel model)
+        {
+            //根据传入的小类Id找到小类名称
+            var result = await _dbContext.SUB_CATEGORYS
+                .Where(c => c.SUBCATEGORY_ID == model.InviteTag)
+                .FirstOrDefaultAsync();
+            if (result == null)
+            {
+                return Ok("传入错误的小分类Id");
+            }
+
+            string searchString = result.CATEGORY_NAME + result.SUBCATEGORY_NAME;
+            //新版找商家：
+            var storeIds = await _dbContext.STORE_BUSINESS_DIRECTIONS
+                         .Where(st => st.BUSINESS_TAG.Contains(searchString))
+                         .Select(st => st.STORE_ID)
+                         .Distinct()
+                         .ToListAsync();
+
+            foreach (var storeId in storeIds)
+            {
+                _dbContext.MARKET_STORES.Add(new BackendCode.Models.MARKET_STORE()
+                {
+                    MARKET_ID = model.MarketId,
+                    STORE_ACCOUNT_ID = storeId,
+                    IN_OR_NOT = false,
+                });
+            }
+
+            try
+            {
+                await _dbContext.SaveChangesAsync();
+                return Ok($"邀请商家成功，邀请Tag为{searchString}");
+            }
+            catch (DbUpdateException ex)
+            {
+                // 捕获数据库更新异常并返回错误消息
+                return StatusCode(500, $"邀请商家时出现错误: {ex.Message}");
+            }
+        }
 
 
         //添加市集并发出邀请
         [HttpPut("AddMarket")]
         public async Task<IActionResult> AddMarket([FromForm] AMModel model)
         {
-           /* Random random = new();
-            int _marketId = random.Next(1, 10000000);
-            string uidb = _marketId.ToString();
-            uidb = "M" + uidb;*/
-
             string uidb = YitIdHelper.NextId().ToString();
             uidb = "M" + uidb;
             string pic_id = YitIdHelper.NextId().ToString();
@@ -159,7 +196,7 @@ namespace Administrator.Controllers
                         }*/
             //考虑邀请接口单独拆开？考虑传入字符串直接匹配商家经营方向？
             //现在接口传入的是小类ID
-            var result = await _dbContext.SUB_CATEGORYS
+            /*var result = await _dbContext.SUB_CATEGORYS
                 .Where(c => c.SUBCATEGORY_ID == model.option)
                 .FirstOrDefaultAsync();
             string searchString = result.CATEGORY_NAME+ result.SUBCATEGORY_NAME;
@@ -177,7 +214,7 @@ namespace Administrator.Controllers
                     STORE_ACCOUNT_ID = storeId,
                     IN_OR_NOT = false,
                 });
-            }
+            }*/
 
 
             try

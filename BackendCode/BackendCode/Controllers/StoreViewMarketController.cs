@@ -100,6 +100,10 @@ namespace StoreViewMarket.Controllers
                 else
                 {
                     marketStore.IN_OR_NOT = request.InOrOut;
+                    /*if (request.InOrOut)
+                    {
+
+                    }*/
                 }
 
                 await _dbContext.SaveChangesAsync();
