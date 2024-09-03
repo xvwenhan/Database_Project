@@ -5,7 +5,7 @@
         public string name { get; set; }
         public decimal? score { get; set; }
         public string? address { get; set; }
-        public byte[]? picture { get; set; }
+        public StoreInfoImageModel? picture { get; set; }
     }
 
     public class AuthenticationInfoDTO
@@ -65,7 +65,7 @@
     {
         public string OrderId { get; set; }
         public string? BuyerName { get; set; }
-        public byte[]? BuyerAvatar { get; set; }
+        public BuyerInfoImageModel? BuyerAvatar { get; set; }
         public decimal OrderScore { get; set; }
         public string? OrderRemark { get; set; }
     }

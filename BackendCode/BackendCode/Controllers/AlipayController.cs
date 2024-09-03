@@ -70,10 +70,5 @@ namespace BackendCode.Controllers
         }
 
         #endregion
-        
-  
-
-
     }
-        
 }

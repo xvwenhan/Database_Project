@@ -32,13 +32,15 @@ namespace BackendCode.Controllers
                 return NotFound("未找到该店铺");
             }
 
+            var storeAvatar = new StoreInfoImageModel { ImageId = store.ACCOUNT_ID };
+
             /* 返回商家信息 */
             var storeInfo = new StoreInfoDTO
             {
                 name = store.STORE_NAME, 
                 score = store.STORE_SCORE,
                 address = store.ADDRESS,
-                picture = store.PHOTO
+                picture = storeAvatar
             };
 
             return Ok(storeInfo); //返回店铺信息
@@ -349,7 +351,7 @@ namespace BackendCode.Controllers
                 {
                     OrderId = o.ORDER_ID,
                     BuyerName = o.BUYER.USER_NAME,
-                    BuyerAvatar = o.BUYER.PHOTO,
+                    BuyerAvatar = new BuyerInfoImageModel { ImageId = o.BUYER.ACCOUNT_ID },
                     OrderScore = o.SCORE,
                     OrderRemark = o.REMARK
                 })
