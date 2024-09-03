@@ -1,6 +1,6 @@
 <template>
   <Navbar />
-  <div class="market-page">
+  <div class="market-page" style="font-family: 'Regular';">
     <div class="left-panel">
       <h2 class="market-title">
         <span class="market-back" @click="goBackToMarketList">市集</span>
