@@ -44,7 +44,7 @@ namespace BackendCode.Controllers
         /// <param name="itemBody">商品描述</param>
         /// <returns></returns>
         [HttpPost]
-        public void PayRequest(string tradeno, string subject, string totalAmout, string itemBody)
+        public async Task<IActionResult> PayRequest(string tradeno, string subject, string totalAmout, string itemBody)
         {
             // 组装业务参数model
             AlipayTradePagePayModel model = new AlipayTradePagePayModel
@@ -70,7 +70,8 @@ namespace BackendCode.Controllers
             // Response.Headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS";
             // Response.Headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization";
             //跳转支付宝支付
-            Response.Redirect(_alipayService.Options.Gatewayurl + "?" + response.Body);
+            //Response.Redirect(_alipayService.Options.Gatewayurl + "?" + response.Body);
+            return Ok(_alipayService.Options.Gatewayurl + "?" + response.Body);
         }
 
         #endregion
