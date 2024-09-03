@@ -6,13 +6,19 @@ import 'element-plus/dist/index.css';
 import axiosInstance from '../components/axios';
 import router from '@/router';
 const commentId=ref('');
-
+const afterReload=ref('');
+afterReload.value = (localStorage.getItem('afterReload')!);
+console.log("获取当前：",afterReload.value);
+const option = ref<number>(afterReload.value !== null ? (Number(afterReload.value) || 1) : 1);
+  console.log("实际当前：",option.value);
 interface commentMessage {
   id:string;
+  pic:string;
   author: string;
   time: string;
   content: string;
   postTitle:string;
+  postId:string;
 }
 const way=ref('message');
 const myCommentsMessage = ref<{
@@ -43,6 +49,8 @@ const fetchComment = async () => {
         myCommentsMessage.value = {
           comments: data.data.map(comment => ({
             id:comment.commentId||'',
+            pic:comment.authorPhoto.imageUrl,
+            postId:comment.postId,
             author: comment.authorName || '匿名',
             time: convertToReadableTime(comment.commentTime) || '',
             content: comment.commentContent || '',
@@ -67,6 +75,8 @@ const fetchCommentOld = async () => {
         myCommentsMessageOld.value = {
           comments: data.data.map(comment => ({
             id:comment.commentId||'',
+            pic:comment.authorPhoto.imageUrl,
+            postId:comment.postId,
             author: comment.authorName || '匿名',
             time: convertToReadableTime(comment.commentTime) || '',
             content: comment.commentContent || '',
@@ -162,6 +172,8 @@ const fetchSubComment = async () => {
         mySubCommentsMessage.value = {
           comments: data.data.map(comment => ({
             id:comment.commentId||'',
+            pic:comment.authorPhoto.imageUrl,
+            postId:comment.postId,
             author: comment.authorName || '匿名',
             time: convertToReadableTime(comment.commentTime) || '',
             content: comment.commentContent || '',
@@ -186,6 +198,8 @@ const fetchSubCommentOld = async () => {
         mySubCommentsMessageOld.value = {
           comments: data.data.map(comment => ({
             id:comment.commentId||'',
+            pic:comment.authorPhoto.imageUrl,
+            postId:comment.postId,
             author: comment.authorName || '匿名',
             time: convertToReadableTime(comment.commentTime) || '',
             content: comment.commentContent || '',
@@ -234,10 +248,11 @@ fetchSubCommentOld();
 //     router.push('/forum'); // 跳转回 /forum 页面
 //   }
 // };
-function markAsRead(id) {
-  commentId.value=id;
+function markAsRead(postId,commentId) {
+  commentId.value=commentId;
   console.log(commentId.value);
   isRead();
+  viewPost(postId);
 }
 const isRead=async()=>{
   axiosInstance.post(`/Post/mark_comment/${ commentId.value}`).then(response => {
@@ -246,6 +261,8 @@ const isRead=async()=>{
         message: '已读',
         type: 'success',
         });
+        localStorage.setItem('afterReload', String(option.value));
+        location.reload();
       }).catch(error => {
         console.log("失败已读");
       });
@@ -258,8 +275,7 @@ function viewPost(id,event)
   router.push( 'viewpost'); // 跳转至 /viewpost 页面
 };
 
-const activeIndex = ref('1');
-const option=ref(1);
+const activeIndex = ref(option.value);
 // const storedValue = localStorage.getItem('option');
 // const option = ref(storedValue !== null ? parseInt(storedValue, 10) : 1);
 const menuItems = ref([
@@ -374,10 +390,13 @@ function deletePost(id,event)
   <div class="container">
     <el-row>
       <el-col :span="24">
-        <div v-for="(comment, index) in myCommentsMessage.comments" :key="index" class="comment-item" @click="markAsRead(comment.id)">
-          <div>
+        <div v-for="(comment, index) in myCommentsMessage.comments" :key="index">
+            <div class="avatar-container">
+              <img :src="comment.pic" alt="user avatar" class="avatar">
             <span class="author">{{ comment.author }}</span>
-            <span class="time">回复了我的帖子：{{ comment.postTitle }}</span>
+            </div>
+            <div class="comment-item">
+            <div class="title" @click="markAsRead(comment.postId,comment.id)">回复了我的帖子：{{ comment.postTitle }}</div>
             <div class="comment-body">{{ comment.content }}</div>
             <div class="time">{{ comment.time }}</div>
           </div>
@@ -396,10 +415,13 @@ function deletePost(id,event)
         <div class="container">
     <el-row>
       <el-col :span="24">
-        <div v-for="(comment, index) in myCommentsMessageOld.comments" :key="index" class="comment-item" >
-          <div>
+        <div v-for="(comment, index) in myCommentsMessageOld.comments" :key="index"  >
+          <div class="avatar-container">
+            <img :src="comment.pic" alt="user avatar" class="avatar">
             <span class="author">{{ comment.author }}</span>
-            <span class="time">回复了我的帖子：{{ comment.postTitle }}</span>
+          </div>
+          <div class="comment-item"> 
+            <div class="title" @click="viewPost(comment.postId)">回复了我的帖子：{{ comment.postTitle }}</div>
             <div class="comment-body">{{ comment.content }}</div>
             <div class="time">{{ comment.time }}</div>
           </div>
@@ -413,10 +435,13 @@ function deletePost(id,event)
         <div class="container">
     <el-row>
       <el-col :span="24">
-        <div v-for="(comment, index) in mySubCommentsMessage.comments" :key="index" class="comment-item" @click="markAsRead(comment.id)">
-          <div>
+        <div v-for="(comment, index) in mySubCommentsMessage.comments" :key="index">
+            <div class="avatar-container">
+              <img :src="comment.pic" alt="user avatar" class="avatar">
             <span class="author">{{ comment.author }}</span>
-            <span class="time">回复了我的评论</span>
+            </div>
+            <div class="comment-item">
+            <div class="title" @click="markAsRead(comment.postId,comment.id)">回复了我的评论</div>
             <div class="comment-body">{{ comment.content }}</div>
             <div class="time">{{ comment.time }}</div>
           </div>
@@ -433,10 +458,13 @@ function deletePost(id,event)
         <div class="container">
     <el-row>
       <el-col :span="24">
-        <div v-for="(comment, index) in mySubCommentsMessageOld.comments" :key="index" class="comment-item">
-          <div>
+        <div v-for="(comment, index) in mySubCommentsMessageOld.comments" :key="index">
+            <div class="avatar-container">
+              <img :src="comment.pic" alt="user avatar" class="avatar">
             <span class="author">{{ comment.author }}</span>
-            <span class="time">回复了我的评论</span>
+            </div>
+            <div class="comment-item">
+            <div class="title" @click="viewPost(comment.postId)">回复了我的评论</div>
             <div class="comment-body">{{ comment.content }}</div>
             <div class="time">{{ comment.time }}</div>
           </div>
@@ -459,6 +487,19 @@ function deletePost(id,event)
 </template>
 
 <style scoped>
+.avatar-container {
+  margin-right: 1rem; /* 调整头像与内容之间的间距 */
+  display: flex;
+  flex-direction: row;
+  margin-top: 1rem;
+}
+
+.avatar {
+  width: 50px; /* 调整头像的大小 */
+  height: 50px; /* 调整头像的大小 */
+  border-radius: 50%; /* 使图像呈圆形 */
+  object-fit: cover; /* 确保图像在容器内完整显示 */
+}
 .deleteButton{
   color: #82111f ;
 }
@@ -468,10 +509,17 @@ function deletePost(id,event)
 .author{
   font-size:large;
   /* color: #808080; */
+  margin-top: 1vh;
+  margin-left: 2vh;
 }
 .time{
   font-size: small;
   color: #808080;
+}
+.title{
+  font-size: small;
+  color: #82111f;
+  cursor: pointer;
 }
 .container {
   width: 100vh; /* 你可以根据需要调整宽度 */
@@ -481,7 +529,11 @@ function deletePost(id,event)
   flex-direction: column;
   align-items: start;
 }
-
+.comment-item div {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* 确保所有内容左对齐 */
+}
 .comment-item {
   padding: 10px 0;
 }
@@ -489,12 +541,6 @@ function deletePost(id,event)
 .comment-body {
   font-size: 16px;
   margin: 5px 0;
-}
-
-.comment-item div {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start; /* 确保所有内容左对齐 */
 }
 
 .bottom-border {

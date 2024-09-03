@@ -95,6 +95,7 @@ class="input_content">
     </div> -->
     <div class="publish-button-container">
   <el-button 
+    :class="{'btn-custom': !isPublishing}"
     :type="isPublishing ? 'info' : 'danger'"
     :disabled="isPublishing"
     @click="confirm"
@@ -203,6 +204,10 @@ const confirm = async () => {
 
 
 <style scoped>
+.btn-custom {
+  background-color: #82111f !important; /* 设置为你需要的颜色 */
+  color: white !important; /* 设置文字颜色为白色 */
+}
 .image-upload-container {
   padding: 20px;
   margin-left: 14vh;
