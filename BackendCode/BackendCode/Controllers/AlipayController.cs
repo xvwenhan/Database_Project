@@ -65,6 +65,9 @@ namespace BackendCode.Controllers
 
             var response = _alipayService.SdkExecute(request);
             Console.WriteLine($"订单支付发起成功，订单号：{tradeno}");
+            Response.Headers["Access-Control-Allow-Origin"] = "*";
+            Response.Headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS";
+            Response.Headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization";
             //跳转支付宝支付
             Response.Redirect(_alipayService.Options.Gatewayurl + "?" + response.Body);
         }
