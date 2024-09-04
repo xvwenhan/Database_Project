@@ -355,24 +355,17 @@ namespace StoreViewProductController.Controllers
 
         //post接口，新建商品
         [HttpPost("addProduct")]
-        [Authorize]
+       // [Authorize]
         public async Task<IActionResult> AddProduct([FromForm] Product1DTO newProduct)
         {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+/*            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if(userId == null) { return NotFound("请先登录"); }
             var userRole = User.FindFirst("UserRole")?.Value;
-            if (userRole != "商家") { return Unauthorized("必须为商家才能发布商品！"); }
+            if (userRole != "商家") { return Unauthorized("必须为商家才能发布商品！"); }*/
             try
             {
                 // 生成唯一的 PRODUCT_ID
                 string productId = "p"+YitIdHelper.NextId().ToString();//修改商品id生成方法
-/*                do
-                {
-                    productId = "P" + new Random().Next(1000000, 9999999).ToString();
-
-                } while (await _dbContext.PRODUCTS.AnyAsync(p => p.PRODUCT_ID == productId));*/
-
-
                 var product = new PRODUCT
                 {
                     PRODUCT_ID = productId,
@@ -382,12 +375,12 @@ namespace StoreViewProductController.Controllers
                     TAG = newProduct.Tag,
                     SUB_TAG = newProduct.SubTag,//新增加
                     DESCRIBTION = newProduct.Description,
-                    ACCOUNT_ID = userId,
+                    ACCOUNT_ID = newProduct.storeId,
                     STORE_TAG = newProduct.StoreTag,
                     
                 };
                 _dbContext.PRODUCTS.Add(product);
-                await _dbContext.SaveChangesAsync();
+                //await _dbContext.SaveChangesAsync();
 
                 // 处理图片上传
                 //.Any检查集合中是否有任何元素（防止是空集）
@@ -412,7 +405,7 @@ namespace StoreViewProductController.Controllers
                 }
                 // 处理商品详情
                 //.Any检查集合中是否有任何元素（防止是空集）
-                if (newProduct.PicDes != null && newProduct.PicDes.Any())
+/*                if (newProduct.PicDes != null && newProduct.PicDes.Any())
                 {
                     foreach (var picdes in newProduct.PicDes)
                     {
@@ -431,7 +424,7 @@ namespace StoreViewProductController.Controllers
                             _dbContext.PRODUCT_DETAILS.Add(productDetail);
                         }
                     }
-                }
+                }*/
 
                 //记录商家的运营方向：
                 var result = await _dbContext.SUB_CATEGORYS
@@ -441,13 +434,13 @@ namespace StoreViewProductController.Controllers
                 if ( result == null) { return NotFound(new {Message="子分类不存在！"}); }
                 // 检查该商家的TAG是否已经存在
                 var existingTag = await _dbContext.STORE_BUSINESS_DIRECTIONS
-                    .FirstOrDefaultAsync(st => st.STORE_ID == userId && st.BUSINESS_TAG == newProduct.Tag+ result);
+                    .FirstOrDefaultAsync(st => st.STORE_ID == newProduct.storeId && st.BUSINESS_TAG == newProduct.Tag+ result);
                 if (existingTag == null)
                 {
                     // 如果TAG不存在，添加新记录到STORE_TAG表
                     var newStoreTag = new STORE_BUSINESS_DIRECTION
                     {
-                        STORE_ID = userId,
+                        STORE_ID = newProduct.storeId,
                         BUSINESS_TAG = newProduct.Tag + result,
                         LINK_COUNT = 1,
                     };

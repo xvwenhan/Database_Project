@@ -11,4 +11,9 @@
         public string CategoryDescription { get; set; }
         public CategoryImageModel CategoryPhoto { get; set; }
     }
+    public class UploadCategoryPic
+    {
+        public string CategoryName { get; set; }
+        public IFormFile CategoryPhoto { get; set; }
+    }
 }
