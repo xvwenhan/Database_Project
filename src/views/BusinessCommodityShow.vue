@@ -1294,8 +1294,8 @@ const addNewProduct = async () => {
   formData.append('Description', newProduct.value.description || '');
   formData.append('StoreTag', newProduct.value.categoryInit || '');
   // 上传商品图片文件
-  newProduct.value.images.forEach((file) => {
-    formData.append(`ProductImages`, file); // 确保是 File 对象
+  newProduct.value.images.forEach((file, index) => {
+    formData.append("ProductImages", file); // 确保是 File 对象
   });
   //打印测试
   //   formData.forEach((value, key) => {
@@ -1309,7 +1309,14 @@ const addNewProduct = async () => {
   //   formData.append(`PicDes[${index}].Description`, item.text);
   // });
 
+  const storeId = localStorage.getItem('userId');
+  if (!storeId) {
+    ElMessage.error('未找到有效的 storeId');
+    return;
+  }
+  formData.append('storeId', storeId  || ''); // 添加此行
   try {
+    console.log('zheshiformdata',formData.getAll('ProductImages'))
     const response = await axiosInstance.post(`/StoreViewProduct/addProduct`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
       // params: { storeId: storeId }
