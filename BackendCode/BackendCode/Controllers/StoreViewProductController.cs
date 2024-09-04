@@ -469,6 +469,56 @@ namespace StoreViewProductController.Controllers
             }
         }
 
+        //给一个商品添加详情图片和描述文字
+        [HttpPost("AddDetailedPicDes")]
+        public async Task<IActionResult> AddDetailedPicDes([FromForm]ADPDModel model)
+        {
+            try
+            {
+                // 假设 productId 是你要检查的 ID
+                var productIdExists = await _dbContext.PRODUCTS
+                    .AnyAsync(st => st.PRODUCT_ID == model.ProductId);
+                if (productIdExists)
+                {
+                    if (model.PD != null)
+                    {
+                        foreach (var picdes in model.PD)
+                        {
+                            using (var ms = new MemoryStream())
+                            {
+                                string imageId = YitIdHelper.NextId().ToString();
+                                await picdes.DetailPic.CopyToAsync(ms);
+                                var imageData = ms.ToArray();
+                                var productDetail = new PRODUCT_DETAIL
+                                {
+                                    PRODUCT_ID = model.ProductId,
+                                    IMAGE_ID = imageId,
+                                    IMAGE = imageData,
+                                    DESCRIPTION = picdes.Description ?? null ,
+                                };
+                                _dbContext.PRODUCT_DETAILS.Add(productDetail);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        return Ok("图片描述列表为空！");
+                    }
+                }
+                else
+                {
+                    return NotFound(new { message = "不存在该商品" });
+                }
+                await _dbContext.SaveChangesAsync();
+                return Ok("添加商品详情成功！");
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"添加商品详情图片及描述时发生错误: {ex.Message}");
+            }
+        }
+
         //首页图
         [HttpGet("getProductImages/{productId}")]
         [Authorize]

@@ -41,6 +41,12 @@
         public ImageModel DetailPic { get; set; }
 
     }
+
+    public class ADPDModel
+    {
+        public string ProductId { get; set; }
+        public List<PicDes> PD { get; set; }
+    }
     public class Product1DTO
     {
         public string? ProductName { get; set; }
