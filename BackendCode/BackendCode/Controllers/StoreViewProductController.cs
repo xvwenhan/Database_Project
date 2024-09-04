@@ -453,7 +453,7 @@ namespace StoreViewProductController.Controllers
                 }
 
                 await _dbContext.SaveChangesAsync();
-                return Ok("Product added successfully.");
+                return Ok(productId);
 
             }
             catch (Exception ex)
