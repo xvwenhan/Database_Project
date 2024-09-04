@@ -527,7 +527,7 @@ namespace StoreViewProductController.Controllers
 
         //添加商品图片
         [HttpPost("addProductImage")]
-        public async Task<IActionResult> AddProductImage([FromBody] ProductImageDto model)
+        public async Task<IActionResult> AddProductImage([FromForm] ProductImageDto model)
         {
             try
             {
