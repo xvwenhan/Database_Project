@@ -192,21 +192,21 @@
           <el-input v-model="newProduct.name"></el-input>
         </el-form-item>
         <el-form-item label="系统分类" prop="categorySys">
-          <el-select v-model="newProduct.categorySys">
-            <el-option-group
-              v-for="group in categories"
-              :key="group.largeCategoryName"
-              :label="group.largeCategoryName"
-            >
-              <el-option
-                v-for="item in group.subCategories"
-                :key="item.subCategoryId"
-                :label="item.subCategoryName"
-                :value="item.subCategoryId"
-              />
-            </el-option-group>
-          </el-select>
-        </el-form-item>
+  <el-select v-model="newProduct.categorySys" @change="updateTag">
+    <el-option-group
+      v-for="group in categories"
+      :key="group.largeCategoryName"
+      :label="group.largeCategoryName"
+    >
+      <el-option
+        v-for="item in group.subCategories"
+        :key="item.subCategoryId"
+        :label="item.subCategoryName"
+        :value="item.subCategoryId"
+      />
+    </el-option-group>
+  </el-select>
+</el-form-item>
         <el-form-item label="商家分类" prop="categoryInit">
           <el-input v-model="newProduct.categoryInit"></el-input>
         </el-form-item>
@@ -221,7 +221,7 @@
   <div v-if="newProduct.images.length > 0" class="image-preview">
     <div v-for="(image, index) in newProduct.images" :key="index" class="image-item">
       <img
-        :src="image.url"
+         :src="generateImageURL(image)"
         alt="图片"
         style="width: 100px; height: 100px; object-fit: cover; margin-right: 5px;"
       />
@@ -232,7 +232,7 @@
 
 <!-- 瑕疵图文描述 -->
 <el-form-item label="瑕疵图文描述（图文一一对应）" prop="imagesWithText">
-  <div v-for="(item, index) in newProduct.imagesWithText" :key="index" class="image-text-item" style="display: flex; flex-direction: column; align-items: center; margin-bottom: 10px;">
+  <div v-for="(item, index) in newProduct.imagesWithText" :key="index" class="image-text-item" style="display: flex; flex-direction: column; align-items: center; margin-bottom: 10px;margin-right: 10px">
     <img
       :src="item.image"
       alt="瑕疵图片"
@@ -256,13 +256,13 @@
   </div>
 </el-form-item>
       </el-form>
+
       <div style="margin-top: 20px; display: flex; justify-content: flex-end;">
         <el-button type="primary" @click="addNewProduct">添加</el-button>
         <el-button type="default" @click="() => addDialogVisible = false" style="margin-left: 10px;">取消</el-button>
       </div>
     </div>
   </div>
-
 
   <!-- 添加商品和批量删除按钮 -->
   <div id="BottomButton">
@@ -606,9 +606,6 @@ const getCategoryLabel = (value) => {
     }
   ]
     };
-
-
-
    
     // 编辑
     const removeSelectedImage = (index) => {
@@ -1073,32 +1070,42 @@ const previewDefectImageURL = ref('');
         price: null,
         description: '',
         images: [], // 存储多个商品图片
-        imagesWithText: []
+        imagesWithText: [],
+         Tag: ''
       };
       previewImageURL.value = '';
   previewDefectImageURL.value = '';
   addDialogVisible.value = true;
     };
-    const onFileChange = (event) => {
+//     const onFileChange = (event) => {
+//   const files = event.target.files;
+//   if (files.length > 0) {
+//     const fileArray = Array.from(files);
+//     const promises = fileArray.map(file => {
+//       return new Promise((resolve, reject) => {
+//         const reader = new FileReader();
+//         reader.onload = () => {
+//           resolve({ file: file, url: reader.result });
+//         };
+//         reader.onerror = reject;
+//         reader.readAsDataURL(file);
+//       });
+//     });
+
+//     Promise.all(promises).then(results => {
+//       newProduct.value.images = results;
+//     }).catch(error => {
+//       console.error('读取文件失败:', error);
+//     });
+//   } else {
+//     console.log('没有选择文件');
+//   }
+// };
+const onFileChange = (event) => {
   const files = event.target.files;
   if (files.length > 0) {
     const fileArray = Array.from(files);
-    const promises = fileArray.map(file => {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => {
-          resolve({ file: file, url: reader.result });
-        };
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
-    });
-
-    Promise.all(promises).then(results => {
-      newProduct.value.images = results;
-    }).catch(error => {
-      console.error('读取文件失败:', error);
-    });
+    newProduct.value.images = fileArray; // 直接存储 File 对象
   } else {
     console.log('没有选择文件');
   }
@@ -1109,11 +1116,30 @@ const handleFileChange = (event) => {
     newImageFile.value = file;
   }
 };
+const generateImageURL = (file) => {
+  return URL.createObjectURL(file);
+};
 // 添加瑕疵图文描述
+// const addImageWithText = () => {
+//   if (newImageFile.value && newImageText.value.trim() !== '') {
+//     const imageUrl = window.URL.createObjectURL(newImageFile.value);
+//     newProduct.value.imagesWithText.push({ image: imageUrl, text: newImageText.value.trim() });
+//     newImageFile.value = null; // 清空图片文件
+//     newImageText.value = ''; // 清空文字描述
+//     previewDefectImageURL.value = ''; // 清空预览
+//     // 清空文件输入框的值（可选）
+//     const fileInput = document.getElementById('defect-image-input');
+//     if (fileInput) {
+//       fileInput.value = '';
+//     }
+//   } else {
+//     ElMessage.warning('请先选择瑕疵图片并输入描述');
+//   }
+// };
 const addImageWithText = () => {
   if (newImageFile.value && newImageText.value.trim() !== '') {
-    const imageUrl = window.URL.createObjectURL(newImageFile.value);
-    newProduct.value.imagesWithText.push({ image: imageUrl, text: newImageText.value.trim() });
+    const imageUrl = URL.createObjectURL(newImageFile.value);
+    newProduct.value.imagesWithText.push({ image: newImageFile.value, text: newImageText.value.trim() });
     newImageFile.value = null; // 清空图片文件
     newImageText.value = ''; // 清空文字描述
     previewDefectImageURL.value = ''; // 清空预览
@@ -1126,36 +1152,103 @@ const addImageWithText = () => {
     ElMessage.warning('请先选择瑕疵图片并输入描述');
   }
 };
+//添加tag
+const updateTag = (selectedSubCategoryId) => {
+  // 查找选中的系统分类对应的大标题名字
+  const selectedCategory = categories.find(group =>
+    group.subCategories.some(item => item.subCategoryId === selectedSubCategoryId)
+  );
+
+  // 更新 Tag 字段
+  newProduct.value.Tag = selectedCategory ? selectedCategory.largeCategoryName : '';
+};
 // 添加新商品
+// const addNewProduct = async () => {
+//   const formData = new FormData();
+//   formData.append('ProductName', newProduct.value.name || '');
+//   formData.append('ProductPrice', newProduct.value.price || '');
+//   formData.append('StoreTag', newProduct.value.categoryInit || '');
+//   formData.append('Description', newProduct.value.description || '');
+//   formData.append('SubTag', newProduct.value.categorySys || '');
+//   formData.append('Tag', newProduct.value.Tag || ''); // 添加此行
+
+//   // 上传商品图片文件
+//   newProduct.value.images.forEach((file, index) => {
+//     formData.append(`ProductImages[${index}]`, file);
+//   });
+
+//   // 上传瑕疵图片和描述
+//   newProduct.value.imagesWithText.forEach((item, index) => {
+//     formData.append(`PicDes[${index}].detailPic`, item.image); // 确保 item.image 是文件对象
+//     formData.append(`PicDes[${index}].description`, item.text);
+//   });
+
+//   const storeId = localStorage.getItem('userId');
+//   if (!storeId) {
+//     ElMessage.error('未找到有效的 storeId');
+//     return;
+//   }
+
+//   try {
+//     const response = await axiosInstance.post(`/StoreViewProduct/addProduct`, formData, {
+//       headers: { 'Content-Type': 'multipart/form-data' },
+//       // params: { storeId: storeId }
+//     });
+
+//     if (response.status === 200) {
+//       fetchProducts();
+//       ElMessage.success('商品已添加');
+//       newProduct.value = {
+//         name: '',
+//         categorySys: '',
+//         categoryInit: '',
+//         price: null,
+//         description: '',
+//         images: [],
+//         imagesWithText: [],
+//         Tag: ''
+//       };
+//       previewImageURL.value = '';
+//       previewDefectImageURL.value = '';
+//       addDialogVisible.value = false;
+//     } else {
+//       ElMessage.error('添加商品失败');
+//     }
+//   } catch (error) {
+//     console.error('添加商品失败:', error.response ? error.response.data : error.message);
+//     ElMessage.error('添加商品失败: ' + error.message);
+//   }
+// };
 const addNewProduct = async () => {
   const formData = new FormData();
   formData.append('ProductName', newProduct.value.name || '');
   formData.append('ProductPrice', newProduct.value.price || '');
   formData.append('StoreTag', newProduct.value.categoryInit || '');
   formData.append('Description', newProduct.value.description || '');
-  formData.append('Tag', newProduct.value.categorySys || '');
+  formData.append('SubTag', newProduct.value.categorySys || '');
+  formData.append('Tag', newProduct.value.Tag || ''); // 添加此行
 
   // 上传商品图片文件
   newProduct.value.images.forEach((file, index) => {
-    formData.append(`ProductImages[${index}]`, file);
+    formData.append(`ProductImages[${index}]`, file); // 确保是 File 对象
   });
 
   // 上传瑕疵图片和描述
-  newProduct.value.imagesWithText.forEach((item, index) => {
-    formData.append(`PicDes[${index}].detailPic`, item.image); // 确保 item.image 是文件对象
-    formData.append(`PicDes[${index}].description`, item.text);
-  });
+  // newProduct.value.imagesWithText.forEach((item, index) => {
+  //   formData.append(`PicDes[${index}].DetailPic`, item.image); // 确保 item.image 是 File 对象
+  //   formData.append(`PicDes[${index}].Description`, item.text);
+  // });
 
   const storeId = localStorage.getItem('userId');
   if (!storeId) {
     ElMessage.error('未找到有效的 storeId');
     return;
   }
-
+  formData.append('storeId', storeId  || ''); // 添加此行
   try {
     const response = await axiosInstance.post(`/StoreViewProduct/addProduct`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
-      params: { storeId: storeId }
+      // params: { storeId: storeId }
     });
 
     if (response.status === 200) {
@@ -1168,7 +1261,8 @@ const addNewProduct = async () => {
         price: null,
         description: '',
         images: [],
-        imagesWithText: []
+        imagesWithText: [],
+        Tag: ''
       };
       previewImageURL.value = '';
       previewDefectImageURL.value = '';
@@ -1312,7 +1406,9 @@ const deleteSelectedCommodities = async () => {
       selectedDefectImages,
       deletedDefectImages,
       categories,
-      message01
+      message01,
+      updateTag,
+      generateImageURL
     };
   }
 }
