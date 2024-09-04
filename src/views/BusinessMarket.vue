@@ -1,3 +1,4 @@
+<!-- 商家界面参与市集的总览界面 -->
 <template>
   <div class="BusinessMarket">
     <Sidebar />

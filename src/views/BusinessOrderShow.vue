@@ -1,5 +1,5 @@
+<!-- 商家界面的订单管理的内容界面 -->
 <template>
-
   <div class="CommodityShow">
     <div class="SearchContainer">
       <el-input v-model="searchOrder" placeholder="请输入订单ID（在全部订单中搜索）" style="display: inline-block;"></el-input>
@@ -113,9 +113,9 @@ export default {
     const searchTime = ref('');
     const products = ref([]);
 
+    //展示订单状态展示订单
     const fetchOrders = async () => {
-      const storeId = localStorage.getItem('userId');  // 替换为实际的 storeId
-      // const storeId = 'S1234567';
+      const storeId = localStorage.getItem('userId');  
 
       try {
         const response = await axiosInstance.get('/StoreOrder/GetOrders', {
@@ -125,12 +125,9 @@ export default {
           },
         });
 
-        console.log('Backend Response:', response.data);
-
         if (Array.isArray(response.data)) {
           const processedOrders = response.data
             .map(order => {
-              console.log('Original Order Data:', order);
 
               // 确保字段存在并转换正确
               const creationTime = order.creatE_TIME ? new Date(order.creatE_TIME).toLocaleString() : 'N/A';
@@ -175,7 +172,18 @@ export default {
         console.error('获取订单数据失败:', error);
       }
     };
-
+    const handleChange = (viewTypeValue) => {
+      orderStatus.value = viewTypeValue;
+      fetchOrders();
+    };
+    //根据订单Id搜索订单
+    const searchOrderById = () => {
+      if (searchOrder.value.trim() !== '') {
+        fetchOrderById(searchOrder.value.trim());
+      } else {
+        fetchOrders();
+      }
+    };
     const fetchOrderById = async (orderId) => {
       const storeId = localStorage.getItem('userId'); // 替换为实际的 storeId
       try {
@@ -228,9 +236,16 @@ export default {
         console.error('通过订单ID获取订单数据失败:', error);
       }
     };
-
+    //根据创建时间筛选订单
+    const searchOrderByTime = () => {
+      if (searchTime.value.trim() !== '') {
+        fetchOrderByTime(searchTime.value.trim());
+      } else {
+        fetchOrders();
+      }
+    };
     const fetchOrderByTime = async (date) => {
-      const storeId =localStorage.getItem('userId');  // 替换为实际的 storeId
+      const storeId =localStorage.getItem('userId');
       try {
         const response = await axiosInstance.get('/StoreOrder/GetOrdersByDate', {
           params: {
@@ -238,8 +253,6 @@ export default {
             date: date
           }
         });
-
-        console.log(response.data); // 打印数据以检查字段名称和数据格式
 
         if (response.data && Array.isArray(response.data)) {
           const orders = response.data
@@ -285,38 +298,17 @@ export default {
         console.error('通过日期获取订单数据失败:', error);
       }
     };
-
-    const handleChange = (viewTypeValue) => {
-      orderStatus.value = viewTypeValue;
-      fetchOrders();
-    };
-
-    const searchOrderById = () => {
-      if (searchOrder.value.trim() !== '') {
-        fetchOrderById(searchOrder.value.trim());
-      } else {
-        fetchOrders();
-      }
-    };
-
-    const searchOrderByTime = () => {
-      if (searchTime.value.trim() !== '') {
-        fetchOrderByTime(searchTime.value.trim());
-      } else {
-        fetchOrders();
-      }
-    };
-
+    //查看买家评价
     const handleCheck = (row) => {
       currentProduct.value = row;
       dialogVisible.value = true;
     };
-
+    //查看快递单号
     const handleCheckTwo = (row) => {
       currentProduct.value = { ...row, deliveryNumberInput: '' };
       dialogVisibleTwo.value = true;
     };
-
+    //更新快递单号
     const updateDeliveryNumber = async () => {
       if (!currentProduct.value.deliveryNumberInput) {
         ElMessage({
@@ -362,43 +354,43 @@ export default {
         });
       }
     };
-
+    //同意退货请求
     const handleReturnRequest = async (row) => {
-  if (row.returnRequested && row.returnStatus === '待同意') {
-    try {
-      const storeId = localStorage.getItem('userId'); // 替换为实际的 storeId 变量
-      const orderId = row.id;
+    if (row.returnRequested && row.returnStatus === '待同意') {
+      try {
+        const storeId = localStorage.getItem('userId'); // 替换为实际的 storeId 变量
+        const orderId = row.id;
 
-      // 发送请求到后端确认退货
-      const response = await axiosInstance.put('/StoreOrder/ConfirmReturn', null, {
-        params: {
-          storeId: storeId,
-          orderId: orderId,
+        // 发送请求到后端确认退货
+        const response = await axiosInstance.put('/StoreOrder/ConfirmReturn', null, {
+          params: {
+            storeId: storeId,
+            orderId: orderId,
+          }
+        });                               
+
+        if (response.status === 200) {
+          row.returnStatus = '已同意';
+          ElMessage({
+            message: '退货请求已成功确认。',
+            type: 'success'
+          });
+        } else {
+          ElMessage({
+            message: '退货请求确认失败',
+            type: 'error'
+          });
         }
-      });                               
-
-      if (response.status === 200) {
-        row.returnStatus = '已同意';
+      } catch (error) {
+        console.error('确认退货时发生错误:', error.response ? error.response.data : error.message);
         ElMessage({
-          message: '退货请求已成功确认。',
-          type: 'success'
-        });
-      } else {
-        ElMessage({
-          message: '退货请求确认失败',
+          message: '退货请求确认失败: ' + error.message,
           type: 'error'
         });
       }
-    } catch (error) {
-      console.error('确认退货时发生错误:', error.response ? error.response.data : error.message);
-      ElMessage({
-        message: '退货请求确认失败: ' + error.message,
-        type: 'error'
-      });
     }
-  }
-};
-
+    };
+    //翻页
     const pageSize = 20;
     const currentPage = ref(1);
     const totalProducts = computed(() => products.value.length);
@@ -407,11 +399,9 @@ export default {
       const end = Math.min(start + pageSize, totalProducts.value);
       return products.value.slice(start, end);
     });
-
     const handlePageChange = (page) => {
       currentPage.value = page;
     };
-
     onMounted(() => {
       fetchOrders();
     });

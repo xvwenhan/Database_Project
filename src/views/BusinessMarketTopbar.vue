@@ -1,6 +1,6 @@
+<!-- 商家界面的顶部栏 -->
 <template>
     <div class="CommodityTopbar">
-        
     </div>
 </template>
 
@@ -16,18 +16,4 @@
     right: 0;
     bottom: 0;
 }
-
-/* .ButtonA {
-    width: 10%;
-    height: 4vh; 
-}
-
-.ButtonA:hover {
-    background-color: #51a88e;
-}
-
-.Buttondes {
-    padding: 1vh;
-} */
-
 </style>

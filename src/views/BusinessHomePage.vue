@@ -1,7 +1,6 @@
 <!-- 商家首页 -->
 <template>
-  <div class="whole">
-    <Sidebar />
+  <Sidebar />
   <div class="Background">
     <hr>
     <div class="BlockOne">
@@ -22,7 +21,7 @@
           <br>
           <span class="Frame">待发货</span>
           <span>待售后</span>
-      </el-card>
+        </el-card>
       </span>
       <span class="BlockThree">
         <el-card>
@@ -71,7 +70,6 @@
         <OrderStatisticsChart :data="orderData" :labels="lastSevenDays" />
       </el-card>
     </div>
-    </div>
   </div>
 </template>
 
@@ -99,8 +97,9 @@ export default {
     };
   },
   methods: {
+    //获取（待办订单、相关市集、今日总览）
     async fetchOrderStats() {
-      const storeId = localStorage.getItem('userId'); // 替换为实际的 storeId
+      const storeId = localStorage.getItem('userId'); 
       const today = this.formatDate(new Date());
 
       try {
@@ -110,22 +109,22 @@ export default {
             date: today,
           },
         });
-
         // 更新组件数据
         this.stats = response.data;
       } catch (error) {
         console.error('Error fetching order stats:', error);
       }
     },
+    //获取七天前的日期
     getLastWeekDate() {
     const date = new Date();
     date.setDate(date.getDate() - 7); // 设置为今天之前的第七天
     return this.formatDate(date); // 格式化日期
     },
+    //获取折线图数据
     async fetchWeeklyOrderCount() {
       const storeId = localStorage.getItem('userId'); // 替换为实际的 storeId
       const lastWeekDate = this.getLastWeekDate();
-
       try {
         const response = await axiosInstance.get('/StoreFront/GetWeeklyOrderCount', {
           params: {
@@ -134,9 +133,6 @@ export default {
           },
         });
 
-        console.log('Weekly order count response:', response.data);
-
-
         // 更新订单数据
         this.orderData = response.data.map(item => item.count);
         this.lastSevenDays = this.getLastSevenDays(); // 更新日期标签
@@ -144,6 +140,7 @@ export default {
         console.error('Error fetching weekly order count:', error);
       }
     },
+    //获取过去七天的日期
     getLastSevenDays() {
       const days = [];
       const today = new Date();
@@ -157,6 +154,7 @@ export default {
 
       return days.reverse(); // 反转数组使日期按顺序排列
     },
+    //格式化日期格式
     formatDate(date) {
       const year = date.getFullYear();
       const month = String(date.getMonth() + 1).padStart(2, '0');
