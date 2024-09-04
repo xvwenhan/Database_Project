@@ -37,7 +37,7 @@
     }
     public class SubmitAuthenticationRequest
     {
-        public string PhotoBase64 { get; set; }
+        public IFormFile Photo { get; set; }
         public string Authentication { get; set; }
     }
 

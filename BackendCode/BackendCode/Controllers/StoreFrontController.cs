@@ -12,6 +12,7 @@ using BackendCode.DTOs.Store;
 using BackendCode.Models;
 using BackendCode.DTOs;
 using Alipay.AopSdk.Core.Domain;
+using Yitter.IdGenerator;
 
 namespace StoreFrontController.Controllers
 {
@@ -280,11 +281,6 @@ namespace StoreFrontController.Controllers
                 return BadRequest("Store ID is required.");
             }
 
-            if (string.IsNullOrEmpty(request.PhotoBase64))
-            {
-                return BadRequest("Photo is required.");
-            }
-
             if (string.IsNullOrEmpty(request.Authentication))
             {
                 return BadRequest("Authentication string is required.");
@@ -320,8 +316,10 @@ namespace StoreFrontController.Controllers
                     }
                 }
 
-                // 将 Base64 编码的照片字符串转换为字节数组
-                byte[] photoBytes = Convert.FromBase64String(request.PhotoBase64);
+                var ms = new MemoryStream();
+                string uidb = YitIdHelper.NextId().ToString();
+                await request.Photo.CopyToAsync(ms);
+                var imageData = ms.ToArray();
 
                 // 创建新的提交验证记录
                 var submitAuthentication = new SUBMIT_AUTHENTICATION
@@ -330,7 +328,7 @@ namespace StoreFrontController.Controllers
                     ADMINISTRATOR_ACCOUNT_ID = randomAdmin.ACCOUNT_ID,
                     AUTHENTICATION = request.Authentication,
                     STATUS = "待审核",
-                    PHOTO = photoBytes
+                    PHOTO = imageData
                 };
 
                 // 添加到数据库并保存
