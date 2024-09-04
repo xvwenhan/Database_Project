@@ -1309,7 +1309,6 @@ const addNewProduct = async () => {
   //   formData.append(`PicDes[${index}].Description`, item.text);
   // });
 
-  const storeId = localStorage.getItem('userId');
   if (!storeId) {
     ElMessage.error('未找到有效的 storeId');
     return;
