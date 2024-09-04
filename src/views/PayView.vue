@@ -1,7 +1,6 @@
 <template>
-  <Loading v-show="isLoading" />
-
-  <div v-show="!isLoading" class="Pcontainer">
+  <Loading v-show="isLoading||(!isLoading&&isAlipayLoading)" />
+  <div v-show="!isLoading&&!isAlipayLoading" class="Pcontainer">
       <div ></div>
       <div class="procedure" >
           <div class="procedure1">
@@ -228,6 +227,7 @@ import Loading from '../views/templates/4.vue';
 import { useRoute } from 'vue-router';
 //页面加载
 const isLoading=ref(true);
+const isAlipayLoading=ref(false);
 const route = useRoute();
 // const productId='555555';
 const productid = localStorage.getItem('productIdOfDetail');
@@ -466,6 +466,8 @@ const openPay=async()=>{
     payChoiceVisible.value=false;
     payVisible.value=true;
   }else{
+    isAlipayLoading.value=true;
+    console.log(`isLoading||(!isLoading&&isAlipayLoading) is ${isLoading.value||(!isLoading.value&&isAlipayLoading.value)}`)
     aliPay();
   }
 }
