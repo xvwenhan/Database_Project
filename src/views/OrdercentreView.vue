@@ -238,6 +238,7 @@ function gotoDetail(order:Order){
   product.value.finalPrice=order.actualPay;
   console.log(product.value);
   const productStr = JSON.stringify(product.value);//序列化对象
+  console.log("序列化",productStr);
   localStorage.setItem('productIdOfDetail',order.productId);
   localStorage.setItem('routerPath','/ordercentre');
   if(order.status=='待付款'){
