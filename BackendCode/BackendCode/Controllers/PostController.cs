@@ -66,7 +66,6 @@ namespace BackendCode.Controllers
             };
 
             _context.POSTS.Add(newPost);
-            await _context.SaveChangesAsync();
 
             // 处理图片上传
             //.Any检查集合中是否有任何元素（防止是空集）
@@ -88,8 +87,9 @@ namespace BackendCode.Controllers
                         _context.POST_IMAGES.Add(postImage);
                     }
                 }
-                await _context.SaveChangesAsync();
             }
+
+            await _context.SaveChangesAsync();
 
             return Ok(new { message = "帖子上传成功！", postId = newPost.POST_ID }); // 返回信息中含有帖子ID
         }
