@@ -1230,7 +1230,7 @@ const addNewProduct = async () => {
 
   // 上传商品图片文件
   newProduct.value.images.forEach((file, index) => {
-    formData.append(`ProductImages[${index}]`, file); // 确保是 File 对象
+    formData.append("ProductImages", file); // 确保是 File 对象
   });
 
   // 上传瑕疵图片和描述
@@ -1246,6 +1246,7 @@ const addNewProduct = async () => {
   }
   formData.append('storeId', storeId  || ''); // 添加此行
   try {
+    console.log('zheshiformdata',formData.getAll('ProductImages'))
     const response = await axiosInstance.post(`/StoreViewProduct/addProduct`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
       // params: { storeId: storeId }
