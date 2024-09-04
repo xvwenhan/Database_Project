@@ -4,6 +4,7 @@
       <el-input v-model="searchTopic" placeholder="请输入市集主题" style="display: inline-block;"></el-input>
       <el-button type="primary" @click="filterMarkets">搜索</el-button>
     </div>
+    <!-- 市集表格 -->
     <div class="TableContainer">
       <el-table :data="currentPageData" class="CommodityTable" height="760">
         <el-table-column type="index" />
@@ -28,33 +29,35 @@
         </el-table-column>
       </el-table>
     </div>  
-
+    
+    <!-- 市集详情页面 -->
     <div v-if="dialogVisible" class="SettingPopUp">
-  <div v-if="currentMarket">
-    <div class="container-block">
-      <img src="@/assets/mmy/blue_background.jpg">
-      <div class="inner-block">
-        <div class="slider-top-right">
-          <div class="picture-and-text">
-            <transition class="animate__animated animate__fadeInDown">
-              <img class="picture" :src="currentMarket.posterImg" alt="MarketPoster">
-            </transition>
-            <transition class="animate__animated animate__fadeInUp">
-              <div class="text">
-                <span class="close" @click="dialogVisible = false">&times;</span>
-                <br>
-                <h2> {{ currentMarket.theme }}</h2>
-                <p style="text-align: end;font-size: 8px;"> {{ currentMarket.startTime }}-{{ currentMarket.endTime }}</p>
-                <p style="font-size: 16px;">{{ currentMarket.detail }}</p>
+      <div v-if="currentMarket">
+        <div class="container-block">
+          <img src="@/assets/mmy/blue_background.jpg">
+          <div class="inner-block">
+            <div class="slider-top-right">
+              <div class="picture-and-text">
+                <transition class="animate__animated animate__fadeInDown">
+                  <img class="picture" :src="currentMarket.posterImg" alt="MarketPoster">
+                </transition>
+                <transition class="animate__animated animate__fadeInUp">
+                  <div class="text">
+                    <span class="close" @click="dialogVisible = false">&times;</span>
+                    <br>
+                    <h2> {{ currentMarket.theme }}</h2>
+                    <p style="text-align: end;font-size: 8px;"> {{ currentMarket.startTime }}-{{ currentMarket.endTime }}</p>
+                    <p style="font-size: 16px;">{{ currentMarket.detail }}</p>
+                  </div>
+                </transition>
               </div>
-            </transition>
+            </div>
           </div>
-        </div>
+        </div> 
       </div>
-    </div> 
-  </div>
-</div>
+    </div>
 
+    <!-- 翻页 -->
     <div class="paginationContainer">
       <el-pagination
         v-model:current-page="currentPage"
@@ -141,8 +144,9 @@ export default {
       currentPage.value = page;
     };
 
-    const fetchMarkets = async () => {
-  const storeId = localStorage.getItem('userId'); // 替换为实际的 storeId
+//获取全部市集
+const fetchMarkets = async () => {
+  const storeId = localStorage.getItem('userId'); 
 
   try {
     const response = await axiosInstance.get('/StoreViewMarket/GetMarketsByStoreId', {
@@ -151,12 +155,8 @@ export default {
       },
     });
 
-    console.log('Backend Response:', response.data);
-
     if (Array.isArray(response.data)) {
       const processedMarkets = response.data.map(market => {
-        console.log('Original Market Data:', market);
-
         // 确保字段存在并转换正确
         const startTime = market.startTime ? new Date(market.startTime).toLocaleString() : 'N/A';
         const endTime = market.endTime ? new Date(market.endTime).toLocaleString() : 'N/A';
@@ -174,9 +174,7 @@ export default {
           isStoreParticipating: market.isStoreParticipating !== undefined ? market.isStoreParticipating : false,
         };
       });
-
-      console.log('Processed Markets:', processedMarkets);
-      markets.value = processedMarkets; // 确保 markets 是 Vue 的响应式对象
+      markets.value = processedMarkets; 
     } else {
       console.error('Unexpected response format:', response.data);
     }
@@ -184,14 +182,21 @@ export default {
     console.error('Error fetching markets:', error);
   }
 };
-
+//根据市集主题搜索市集
+const filterMarkets = () => {
+  if (searchTopic.value.trim() !== '') {
+    fetchMarketByTheme(searchTopic.value.trim());
+  } else {
+    fetchMarkets();
+  }
+};
 const fetchMarketByTheme = async (theme) => {
-  const storeId = localStorage.getItem('userId'); // 替换为实际的 storeId
+  const storeId = localStorage.getItem('userId'); 
   try {
     const response = await axiosInstance.get('/StoreViewMarket/searchMarket', {
       params: {
         storeId: storeId,
-        theme: theme || '', // 允许 theme 参数为空
+        theme: theme || '', 
       }
     });
 
@@ -214,7 +219,7 @@ const fetchMarketByTheme = async (theme) => {
         };
       });
 
-      markets.value = processedMarkets; // 确保 markets 是 Vue 的响应式对象
+      markets.value = processedMarkets; 
     } else {
       console.error('Unexpected response format:', response.data);
     }
@@ -223,34 +228,26 @@ const fetchMarketByTheme = async (theme) => {
   }
 };
 
-const filterMarkets = () => {
-  if (searchTopic.value.trim() !== '') {
-    fetchMarketByTheme(searchTopic.value.trim());
-  } else {
-    fetchMarkets();
-  }
+onMounted(() => {
+  fetchMarkets();
+});
+
+return {
+  value,
+  dialogVisible,
+  currentMarket,
+  searchTopic,
+  markets,
+  pageSize,
+  currentPage,
+  totalMarkets,
+  currentPageData,
+  handleCheck,
+  toggleParticipation,
+  handlePageChange,
+  filterMarkets,
 };
-
-    onMounted(() => {
-      fetchMarkets();
-    });
-
-    return {
-      value,
-      dialogVisible,
-      currentMarket,
-      searchTopic,
-      markets,
-      pageSize,
-      currentPage,
-      totalMarkets,
-      currentPageData,
-      handleCheck,
-      toggleParticipation,
-      handlePageChange,
-      filterMarkets,
-    };
-  },
+},
 };
 </script>
   

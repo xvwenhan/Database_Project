@@ -1,3 +1,4 @@
+<!-- 商家界面商品管理的页面切换顶栏 -->
 <template>
     <div class="CommodityTopbar">
       <button @click="changeView(1)" class="ButtonA" id="Button1">
@@ -10,7 +11,7 @@
         <span class="Buttondes">未售商品</span>
       </button>
     </div>
-  </template>
+  </template>   
  
 <script>
 export default {
