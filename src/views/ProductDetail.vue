@@ -24,7 +24,7 @@
         </el-button>
     </div>
     <div class="storeContent">
-        <img :src="product.storeAvatar" class="Avatar" />
+        <img :src="product.storeAvatar?product.storeAvatar.imageUrl:''" class="Avatar" />
         <div class="storeName">&nbsp{{ product.storeName }}</div>
         <div class="storeScore">评分：{{  product.score}}</div>
         <!-- 店铺收藏按钮，与商品收藏差不多 -->
@@ -297,7 +297,7 @@
       score: 0,
       isProductStared: false,
       isStoreStared:false,
-      storeAvatar:'',
+      storeAvatar:{},
       finalPrice:0,
       imageAndText:[]
     }) ;

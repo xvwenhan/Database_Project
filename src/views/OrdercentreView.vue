@@ -27,6 +27,7 @@ interface Order {
   totalPay: number;
   actualPay: number;
   pic: string;
+  picId:string;
   dialogVisible: boolean;
   dialogVisible_order: boolean;
   isStar:boolean,
@@ -49,7 +50,7 @@ const filteredOrders = computed(() => {
       return myOrders.value.filter(order => order.status === statusMapping[option.value]);
     });
 const myOrders = ref<Order[]>([]);
-  const getMyPost = async () => {
+  const getMyOrder = async () => {
   axiosInstance.get('/Payment/GetAllOrders', {
         params: {
        buyerId: userId
@@ -58,10 +59,6 @@ const myOrders = ref<Order[]>([]);
     .then(response => {
         const data = response.data;
         console.log('Raw response data: ', response.data);
-        if (data.length === 0) {
-          isNoData.value=true;
-          isLoading.value=false;
-        }
         if (data && Array.isArray(data)) {
           myOrders.value = data.map((order: any) => ({
             id: order.orderId || '',
@@ -73,7 +70,8 @@ const myOrders = ref<Order[]>([]);
             price:order.price||0,
             totalPay: order.totalPay || 0,
             actualPay: order.actualPay || 0,
-            pic: order.picture || '',
+            pic: order.picture?.imageUrl || '', // 使用可选链操作符来安全地访问 imageUrl
+            picId:order.picture?.imageId || '',
             star: null,
             dialogVisible: false,
             dialogVisible_order:false,
@@ -99,7 +97,7 @@ const myOrders = ref<Order[]>([]);
         }
     });
 };
-getMyPost();
+getMyOrder();
 const isStarred = async (order: Order) => {
   axiosInstance.get('/Shopping/CheckOrderRemark', {
         params: {
@@ -218,20 +216,27 @@ function resetStar(order)
 //   this.filteredOrders = this.filteredOrders.filter(order => order !== row);
 // }
 const product = ref({
-      name: '',
-      picture: '',
-      price: 0,//原价格
-      storeName: '',
-      discountPrice: 0,//折后价格
-      finalPrice:0,//最终支付的价格，考虑到会有积分使用
+  name: '',
+  pictures: [ // 将 picture 改为 pictures 数组
+    {
+      imageId: '',
+      imageUrl: ''
+    }
+  ],
+  price: 0, // 原价格
+  storeName: '',
+  discountPrice: 0, // 折后价格
+  finalPrice: 0, // 最终支付的价格，考虑到会有积分使用
 });
 function gotoDetail(order:Order){
   product.value.name=order.product;
-  product.value.picture=order.pic;
+  product.value.pictures[0].imageId=order.picId;
+  product.value.pictures[0].imageUrl=order.pic;
   product.value.price=order.price;
   product.value.storeName=order.store;
   product.value.discountPrice=order.totalPay;
   product.value.finalPrice=order.actualPay;
+  console.log(product.value);
   const productStr = JSON.stringify(product.value);//序列化对象
   localStorage.setItem('productIdOfDetail',order.productId);
   localStorage.setItem('routerPath','/ordercentre');
@@ -310,7 +315,8 @@ const menuChange = (index) => {
         <p>{{ scope.row.time }} 订单号: {{ scope.row.id }}</p>
       </div>
       <div style="display: flex;">
-        <img :src="`data:image/png;base64,${scope.row.pic}`" style="max-width: 100px; max-height: 100px; margin-bottom: 5px;" />
+        <!-- <img :src="`data:image/png;base64,${scope.row.pic}`" style="max-width: 100px; max-height: 100px; margin-bottom: 5px;" /> -->
+        <img :src="scope.row.pic" alt="Order Image" style="max-width: 100px; max-height: 100px; margin-bottom: 5px;" />
         <div style="margin-left: 10px;">
           <p>{{ scope.row.productName }}</p>
           <p>价格:{{ scope.row.actualPay }}</p>
