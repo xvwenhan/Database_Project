@@ -57,7 +57,7 @@
         public string? Description { get; set; }
         public string? StoreTag { get; set; }
         public List<IFormFile>? ProductImages { get; set; }
-       // public List<PicDes>? PicDes { get; set; }
+        public List<PicDes>? PicDes { get; set; }
     }
     public class Product2DTO
     {
@@ -72,5 +72,38 @@
 /*        public List<string> ProductPics { get; set; }//新增首页图
         public List<PicDes> ProductDes { get; set; }//新增详情图文*/
     }
+
+
+    //////////////////////////我新增加的商品DTO
+    public class AddProductDTO
+    {
+        public string storeId { get; set; }
+        public string? ProductName { get; set; }
+        public decimal ProductPrice { get; set; }
+        public string? Tag { get; set; }
+        public string SubTag { get; set; }//新增加！！！
+        public string? Description { get; set; }
+        public string? StoreTag { get; set; }
+        public List<IFormFile>? ProductImages { get; set; }
+    }
+
+    public class AddProductDetailDTO
+    {
+        public string productId { get; set; }
+        public string Description { get; set; }
+        public IFormFile Image { get; set; }
+    }
+
+    public class ProductDetailDTO
+    {
+        public string Description { get; set; }
+        public ImageModel Image { get; set; }
+    }
+
+
+
+
+
+
 }
 
