@@ -448,7 +448,6 @@ const rules = {
           }, trigger: 'blur' }],
       isOnSale: [{ required: true, message: '请选择是否出售', trigger: 'change' }],
       description: [{ required: true, message: '请输入商品描述', trigger: 'blur' }],
-      // image: [{ required: true, message: '请上传商品图片', trigger: 'change' }],
       images: [
     { validator: (rule, value, callback) => {
       if (value.length === 0) {
@@ -1047,63 +1046,71 @@ const updateTag = (selectedSubCategoryId) => {
 };
 //添加商品总接口
 const addNewProduct = async () => {
-  const formData = new FormData();
-  const storeId = localStorage.getItem('userId');
-  if (!storeId) {
-    ElMessage.error('未找到有效的 storeId');
-    return;
-  }
-  formData.append('storeId', storeId  || ''); // 添加此行
-  formData.append('ProductName', newProduct.value.name || '');
-  formData.append('ProductPrice', newProduct.value.price || '');
-  formData.append('Tag', newProduct.value.Tag || ''); // 添加此行
-  formData.append('SubTag', newProduct.value.categorySys || '');
-  formData.append('Description', newProduct.value.description || '');
-  formData.append('StoreTag', newProduct.value.categoryInit || '');
-  // 上传商品图片文件
-  newProduct.value.images.forEach((file, index) => {
-    formData.append("ProductImages", file); // 确保是 File 对象
-  });
-  //上传瑕疵图片和描述
-  newProduct.value.imagesWithText.forEach((item, index) => {
-    formData.append(`PicDes[${index}].DetailPic`, item.image); // 确保 item.image 是 File 对象
-    formData.append(`PicDes[${index}].Description`, item.text);
-  });
+  // 先验证表单
+  if (form.value) {
+    form.value.validate(async (valid) => {
+      if (valid) {
+        const formData = new FormData();
+        const storeId = localStorage.getItem('userId');
+        if (!storeId) {
+          ElMessage.error('未找到有效的 storeId');
+          return;
+        }
+        formData.append('storeId', storeId || ''); // 添加 storeId
+        formData.append('ProductName', newProduct.value.name || '');
+        formData.append('ProductPrice', newProduct.value.price || '');
+        formData.append('Tag', newProduct.value.Tag || ''); // 添加 Tag
+        formData.append('SubTag', newProduct.value.categorySys || '');
+        formData.append('Description', newProduct.value.description || '');
+        formData.append('StoreTag', newProduct.value.categoryInit || '');
 
-  if (!storeId) {
-    ElMessage.error('未找到有效的 storeId');
-    return;
-  }
-  formData.append('storeId', storeId  || ''); // 添加此行
-  try {
-    const response = await axiosInstance.post(`/StoreViewProduct/addProduct`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
+        // 上传商品图片文件
+        newProduct.value.images.forEach((file, index) => {
+          formData.append("ProductImages", file); // 确保是 File 对象
+        });
+
+        // 上传瑕疵图片和描述
+        newProduct.value.imagesWithText.forEach((item, index) => {
+          formData.append(`PicDes[${index}].DetailPic`, item.image); // 确保 item.image 是 File 对象
+          formData.append(`PicDes[${index}].Description`, item.text);
+        });
+
+        try {
+          const response = await axiosInstance.post(`/StoreViewProduct/addProduct`, formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+          });
+
+          if (response.status === 200) {
+            fetchProducts();
+            ElMessage.success('商品已添加');
+            newProduct.value = {
+              name: '',
+              categorySys: '',
+              categoryInit: '',
+              price: null,
+              description: '',
+              images: [],
+              imagesWithText: [],
+              Tag: ''
+            };
+            previewImageURL.value = '';
+            previewDefectImageURL.value = '';
+            addDialogVisible.value = false;
+          } else {
+            ElMessage.error('添加商品失败');
+          }
+        } catch (error) {
+          console.error('添加商品失败:', error.response ? error.response.data : error.message);
+          ElMessage.error('添加商品失败: ' + error.message);
+        }
+      } else {
+        ElMessage.error('请完善表单内容');
+      }
     });
-
-    if (response.status === 200) {
-      fetchProducts();
-      ElMessage.success('商品已添加');
-      newProduct.value = {
-        name: '',
-        categorySys: '',
-        categoryInit: '',
-        price: null,
-        description: '',
-        images: [],
-        imagesWithText: [],
-        Tag: ''
-      };
-      previewImageURL.value = '';
-      previewDefectImageURL.value = '';
-      addDialogVisible.value = false;
-    } else {
-      ElMessage.error('添加商品失败');
-    }
-  } catch (error) {
-    console.error('添加商品失败:', error.response ? error.response.data : error.message);
-    ElMessage.error('添加商品失败: ' + error.message);
+  } else {
+    ElMessage.error('未找到表单引用');
   }
-};
+}
 
 return {
   value,
