@@ -356,7 +356,6 @@ namespace StoreViewProductController.Controllers
 
         //post接口，新建商品
         [HttpPost("addProduct")]
-       // [Authorize]
         public async Task<IActionResult> AddProduct([FromForm] Product1DTO newProduct)
         {
 /*            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -465,7 +464,6 @@ namespace StoreViewProductController.Controllers
 
         //首页图
         [HttpGet("getProductImages/{productId}")]
-        [Authorize]
         public async Task<IActionResult> GetProductImages(string productId)
         {
             try
@@ -493,7 +491,6 @@ namespace StoreViewProductController.Controllers
 
 
         [HttpDelete("deleteProductImage/{productId}/{imageId}")]
-        [Authorize]
         public async Task<IActionResult> DeleteProductImage(string productId, string imageId)
         {
             try
@@ -528,19 +525,18 @@ namespace StoreViewProductController.Controllers
             }
         }
 
-
-        [HttpPost("addProductImage/{productId}")]
-        [Authorize]
-        public async Task<IActionResult> AddProductImage(string productId, [FromForm] List<IFormFile> images)
+        //添加商品图片
+        [HttpPost("addProductImage")]
+        public async Task<IActionResult> AddProductImage([FromBody] ProductImageDto model)
         {
             try
             {
-                if (images == null || !images.Any())
+                if (model.ProductImages == null || !model.ProductImages.Any())
                 {
                     return BadRequest("No images uploaded.");
                 }
 
-                foreach (var image in images)
+                foreach (var image in model.ProductImages)
                 {
                     using (var ms = new MemoryStream())
                     {
@@ -551,7 +547,7 @@ namespace StoreViewProductController.Controllers
                         // 新增到 PRODUCT_IMAGES 表
                         var productImage = new PRODUCT_IMAGE
                         {
-                            PRODUCT_ID = productId,
+                            PRODUCT_ID = model.ProductId,
                             IMAGE_ID = imageId,
                             IMAGE = imageData
                         };
@@ -569,69 +565,6 @@ namespace StoreViewProductController.Controllers
             }
         }
 
-
-
-        [HttpGet("getProductDescription")]
-        public async Task<IActionResult> GetProductDescription(string imageId)
-        {
-            try
-            {
-                var productDetails = await _dbContext.PRODUCT_DETAILS
-                    .Where(p => p.IMAGE_ID == imageId)
-                    .ToListAsync();
-
-                if (productDetails == null || !productDetails.Any())
-                {
-                    return NotFound("No details found for the given product ID.");
-                }
-
-                var descriptions = productDetails.Select(pd => new
-                {
-                    pd.DESCRIPTION
-                }).ToList();
-
-                return Ok(descriptions);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
-        public class UpdateDescriptionRequest
-        {
-            public string ImageId { get; set; }
-            public string Description { get; set; }
-        }
-
-        [HttpPost("updateProductDescription")]
-        public async Task<IActionResult> UpdateProductDescription([FromBody] UpdateDescriptionRequest request)
-        {
-            try
-            {
-                var detail = await _dbContext.PRODUCT_DETAILS
-                    .FirstOrDefaultAsync(p => p.IMAGE_ID == request.ImageId);
-
-                if (detail == null)
-                {
-                    return NotFound("No details found for the given image ID.");
-                }
-
-                detail.DESCRIPTION = request.Description;
-
-                await _dbContext.SaveChangesAsync();
-
-                return Ok("Product description updated successfully.");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
-
-
-
-
-        ///////////////////////////以下新增部分：
         //新接口！新建立一个商品，同时添加商品的展示图片（相当于之前添加商品的轻量版）
         [HttpPost("addNewProduct")]
         public async Task<IActionResult> NewAddProduct([FromForm] AddProductDTO newProduct)
@@ -797,6 +730,32 @@ namespace StoreViewProductController.Controllers
             }
         }
 
+        //修改某个图文详情中的文字描述
+        [HttpPost("updateProductDescription")]
+        public async Task<IActionResult> UpdateProductDescription([FromBody] UpdateDescriptionRequest request)
+        {
+            try
+            {
+                var detail = await _dbContext.PRODUCT_DETAILS
+                    .FirstOrDefaultAsync(p => p.IMAGE_ID == request.ImageId);
+
+                if (detail == null)
+                {
+                    return NotFound("No details found for the given image ID.");
+                }
+
+                detail.DESCRIPTION = request.Description;
+
+                await _dbContext.SaveChangesAsync();
+
+                return Ok("Product description updated successfully.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
 
         //给一个商品添加详情图片和描述文字
         /*        [HttpPost("AddDetailedPicDes")]
@@ -895,6 +854,34 @@ namespace StoreViewProductController.Controllers
             return StatusCode(500, $"Internal server error: {ex.Message}");
         }
     }*/
+
+        /*
+        [HttpGet("getProductDescription")]
+        public async Task<IActionResult> GetProductDescription(string imageId)
+        {
+            try
+            {
+                var productDetails = await _dbContext.PRODUCT_DETAILS
+                    .Where(p => p.IMAGE_ID == imageId)
+                    .ToListAsync();
+
+                if (productDetails == null || !productDetails.Any())
+                {
+                    return NotFound("No details found for the given product ID.");
+                }
+
+                var descriptions = productDetails.Select(pd => new
+                {
+                    pd.DESCRIPTION
+                }).ToList();
+
+                return Ok(descriptions);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }*/
     }
 }
 

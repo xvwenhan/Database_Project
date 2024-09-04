@@ -41,12 +41,6 @@
         public ImageModel DetailPic { get; set; }
 
     }
-
-    public class ADPDModel
-    {
-        public string ProductId { get; set; }
-        public List<PicDes> PD { get; set; }
-    }
     public class Product1DTO
     {
         public string storeId { get; set; }///！！！！！！！！
@@ -73,8 +67,6 @@
         public List<PicDes> ProductDes { get; set; }//新增详情图文*/
     }
 
-
-    //////////////////////////我新增加的商品DTO
     public class AddProductDTO
     {
         public string storeId { get; set; }
@@ -101,9 +93,17 @@
     }
 
 
+    public class UpdateDescriptionRequest
+    {
+        public string ImageId { get; set; }
+        public string Description { get; set; }
+    }
 
-
-
+    public class ProductImageDto
+    {
+        public string ProductId { get; set; }
+        public List<IFormFile>? ProductImages { get; set; }
+    }
 
 }
 
