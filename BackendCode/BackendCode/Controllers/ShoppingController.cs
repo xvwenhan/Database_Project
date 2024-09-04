@@ -229,7 +229,7 @@ namespace BackendCode.Controllers
                 .Where(pd => pd.PRODUCT_ID == productId)
                 .Select(pd => new ImageAndTextDetailDTO
                 {
-                    Url = $"https://47.97.5.21:5173/api/images/product/{pd.IMAGE_ID}",
+                    Url = $"http://47.97.5.21:5173/api/images/product/{pd.IMAGE_ID}",
                     Description = pd.DESCRIPTION
                 })
                 .ToListAsync();
