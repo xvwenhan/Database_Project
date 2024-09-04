@@ -216,19 +216,20 @@
         <el-form-item label="商品描述" prop="description">
           <el-input v-model="newProduct.description"></el-input>
         </el-form-item>
-       <!-- 商品图片展示 -->
-       <el-form-item label="商品图片" prop="images">
-  <div v-if="newProduct.images.length > 0" class="image-preview">
-    <div v-for="(image, index) in newProduct.images" :key="index" class="image-item">
-      <img
-         :src="generateImageURL(image)"
-        alt="图片"
-        style="width: 100px; height: 100px; object-fit: cover; margin-right: 5px;"
-      />
+
+  <!-- 商品图片展示 -->
+  <el-form-item label="商品图片" prop="images">
+    <div v-if="newProduct.images.length > 0" class="image-preview">
+      <div v-for="(image, index) in newProduct.images" :key="index" class="image-item">
+        <img
+          :src="generateImageURL(image)"
+          alt="图片"
+          style="width: 100px; height: 100px; object-fit: cover; margin-right: 5px;"
+        />
+      </div>
     </div>
-  </div>
-  <input type="file" multiple @change="onFileChange" accept="image/*" />
-</el-form-item>
+    <input type="file" @change="onFileChange" accept="image/*" />
+  </el-form-item>
 
 <!-- 瑕疵图文描述 -->
 <el-form-item label="瑕疵图文描述（图文一一对应）" prop="imagesWithText">
@@ -1105,7 +1106,8 @@ const onFileChange = (event) => {
   const files = event.target.files;
   if (files.length > 0) {
     const fileArray = Array.from(files);
-    newProduct.value.images = fileArray; // 直接存储 File 对象
+    // 将新选择的文件追加到现有的 images 数组中
+    newProduct.value.images = [...newProduct.value.images, ...fileArray];
   } else {
     console.log('没有选择文件');
   }
