@@ -181,9 +181,9 @@ namespace StoreViewProductController.Controllers
 
         //Put接口传入product_id和store_id和更改属性及值
         [HttpPut("editProduct")]
-        public async Task<IActionResult> EditProduct(string storeId, [FromBody] Product2DTO updatedProduct)
+        public async Task<IActionResult> EditProduct([FromBody] Product2DTO updatedProduct)
         {
-            var product = await _dbContext.PRODUCTS.FirstOrDefaultAsync(p => p.PRODUCT_ID == updatedProduct.ProductId && p.ACCOUNT_ID == storeId);
+            var product = await _dbContext.PRODUCTS.FirstOrDefaultAsync(p => p.PRODUCT_ID == updatedProduct.ProductId && p.ACCOUNT_ID == updatedProduct.storeId);
             if (product == null)
             {
                 return NotFound("Product not found or does not belong to the store.");
@@ -202,7 +202,7 @@ namespace StoreViewProductController.Controllers
                 if (result == null) { return NotFound(new { Message = "子分类不存在！" }); }
                 // 检查该商家的TAG是否已经存在
                 var existingTag = await _dbContext.STORE_BUSINESS_DIRECTIONS
-                    .FirstOrDefaultAsync(st => st.STORE_ID == storeId && st.BUSINESS_TAG == product.TAG + result);
+                    .FirstOrDefaultAsync(st => st.STORE_ID == updatedProduct.storeId && st.BUSINESS_TAG == product.TAG + result);
                 if (existingTag == null)
                 {
                     ;
@@ -225,13 +225,13 @@ namespace StoreViewProductController.Controllers
                 if (result == null) { return NotFound(new { Message = "子分类不存在！" }); }
                 // 检查该商家的TAG是否已经存在
                 var newTag = await _dbContext.STORE_BUSINESS_DIRECTIONS
-                    .FirstOrDefaultAsync(st => st.STORE_ID == storeId && st.BUSINESS_TAG == product.TAG + result);
+                    .FirstOrDefaultAsync(st => st.STORE_ID == updatedProduct.storeId && st.BUSINESS_TAG == product.TAG + result);
                 if (existingTag == null)
                 {
                     // 如果TAG不存在，添加新记录到STORE_TAG表
                     var newStoreTag = new STORE_BUSINESS_DIRECTION
                     {
-                        STORE_ID = storeId,
+                        STORE_ID = updatedProduct.storeId,
                         BUSINESS_TAG = product.TAG + result,
                         LINK_COUNT = 1,
                     };
@@ -707,7 +707,7 @@ namespace StoreViewProductController.Controllers
         }
 
         //新接口！为某商品删除一个图文详情
-        [HttpPost("deleteProductDetail===/{imageId}")]
+        [HttpPost("deleteProductDetail/{imageId}")]
         public async Task<IActionResult> NewDeleteProductDetail(string imageId)
         {
             try
