@@ -1219,19 +1219,87 @@ const updateTag = (selectedSubCategoryId) => {
 //     ElMessage.error('添加商品失败: ' + error.message);
 //   }
 // };
+//////////////////////////////wy原版
+// const addNewProduct = async () => {
+//   const formData = new FormData();
+//   formData.append('ProductName', newProduct.value.name || '');
+//   formData.append('ProductPrice', newProduct.value.price || '');
+//   formData.append('StoreTag', newProduct.value.categoryInit || '');
+//   formData.append('Description', newProduct.value.description || '');
+//   formData.append('SubTag', newProduct.value.categorySys || '');
+//   formData.append('Tag', newProduct.value.Tag || ''); // 添加此行
+
+//   // 上传商品图片文件
+//   newProduct.value.images.forEach((file, index) => {
+//     formData.append(`ProductImages[${index}]`, file); // 确保是 File 对象
+//   });
+
+//   // 上传瑕疵图片和描述
+//   // newProduct.value.imagesWithText.forEach((item, index) => {
+//   //   formData.append(`PicDes[${index}].DetailPic`, item.image); // 确保 item.image 是 File 对象
+//   //   formData.append(`PicDes[${index}].Description`, item.text);
+//   // });
+
+//   const storeId = localStorage.getItem('userId');
+//   if (!storeId) {
+//     ElMessage.error('未找到有效的 storeId');
+//     return;
+//   }
+//   formData.append('storeId', storeId  || ''); // 添加此行
+//   try {
+//     const response = await axiosInstance.post(`/StoreViewProduct/addProduct`, formData, {
+//       headers: { 'Content-Type': 'multipart/form-data' },
+//       // params: { storeId: storeId }
+//     });
+
+//     if (response.status === 200) {
+//       fetchProducts();
+//       ElMessage.success('商品已添加');
+//       newProduct.value = {
+//         name: '',
+//         categorySys: '',
+//         categoryInit: '',
+//         price: null,
+//         description: '',
+//         images: [],
+//         imagesWithText: [],
+//         Tag: ''
+//       };
+//       previewImageURL.value = '';
+//       previewDefectImageURL.value = '';
+//       addDialogVisible.value = false;
+//     } else {
+//       ElMessage.error('添加商品失败');
+//     }
+//   } catch (error) {
+//     console.error('添加商品失败:', error.response ? error.response.data : error.message);
+//     ElMessage.error('添加商品失败: ' + error.message);
+//   }
+// };
+/////////////////////////////修改版
 const addNewProduct = async () => {
   const formData = new FormData();
+  const storeId = localStorage.getItem('userId');
+  if (!storeId) {
+    ElMessage.error('未找到有效的 storeId');
+    return;
+  }
+  formData.append('storeId', storeId  || ''); // 添加此行
   formData.append('ProductName', newProduct.value.name || '');
   formData.append('ProductPrice', newProduct.value.price || '');
-  formData.append('StoreTag', newProduct.value.categoryInit || '');
-  formData.append('Description', newProduct.value.description || '');
-  formData.append('SubTag', newProduct.value.categorySys || '');
   formData.append('Tag', newProduct.value.Tag || ''); // 添加此行
-
+  formData.append('SubTag', newProduct.value.categorySys || '');
+  formData.append('Description', newProduct.value.description || '');
+  formData.append('StoreTag', newProduct.value.categoryInit || '');
   // 上传商品图片文件
   newProduct.value.images.forEach((file, index) => {
     formData.append("ProductImages", file); // 确保是 File 对象
   });
+  //打印测试
+  //   formData.forEach((value, key) => {
+  //     console.log(key, value);
+  //  });
+  //  console.log('newProduct.value.images:', newProduct.value.images);
 
   // 上传瑕疵图片和描述
   // newProduct.value.imagesWithText.forEach((item, index) => {
