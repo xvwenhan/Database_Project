@@ -86,14 +86,14 @@
               <input type="file" @change="handleFile" multiple />
             </el-form-item>
           </el-form-item>
-          <el-form-item label="瑕疵图片及描述">
+          <el-form-item label="商品图片及描述">
           <!-- 显示已存在的瑕疵图片和描述 -->
           <div v-if="preProduct.defectImages && preProduct.defectImages.length" style="display: flex; flex-wrap: wrap;">
             <div v-for="(defect, index) in preProduct.defectImages" :key="defect.imageId" style="position: relative; margin-right: 10px; margin-bottom: 20px; text-align: center;">
               <!-- 图片显示 -->
               <img :src="defect.imageUrl" alt="瑕疵图片" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;" />
               <!-- 输入框，显示在图片底部 -->
-              <el-input v-model="defect.description" placeholder="输入瑕疵描述" style="width: 100px; margin-top: 5px; display: block; margin: 5px auto;"></el-input>
+              <el-input v-model="defect.description" placeholder="输入描述" style="width: 100px; margin-top: 5px; display: block; margin: 5px auto;"></el-input>
               <!-- 叉号，显示在图片右上角 -->
               <span class="close" style="position: absolute; top: 2px; right: 2px; color: #82111f; cursor: pointer;" @click="removeDefectImage(index)">&times;</span>
             </div>
@@ -171,7 +171,7 @@
               <input type="file" @change="onFileChange" accept="image/*" />
             </el-form-item>
             <!-- 瑕疵图文描述展示 -->
-            <el-form-item label="瑕疵图文描述（图文一一对应）" prop="imagesWithText">
+            <el-form-item label="商品图文描述（图文一一对应）" prop="imagesWithText">
               <div v-for="(item, index) in newProduct.imagesWithText" :key="index" class="image-text-item" style="display: flex; flex-direction: column; align-items: center; margin-bottom: 10px; margin-right: 10px;">
                 <img
                   :src="generateImageURL(item.image)"
@@ -189,7 +189,7 @@
                   type="textarea"
                   :rows="3"
                   v-model="newImageText"
-                  placeholder="输入瑕疵文字描述"
+                  placeholder="输入文字描述"
                   style="margin-left: 10px; flex: 1;"
                 ></el-input>
                 <el-button type="primary" @click="addImageWithText" style="margin-left: 10px;">添加</el-button>
@@ -489,7 +489,7 @@ const rules = {
       imagesWithText: [
     { validator: (rule, value, callback) => {
         if (!Array.isArray(value) || value.length === 0) {
-          callback(new Error('请添加至少一组瑕疵描述'));
+          callback(new Error('请添加至少一组图文描述'));
         } else {
           callback();
         }
@@ -536,7 +536,7 @@ const removeSelectedDefectImage = (index) => {
     }
   } else {
     ElMessage({
-      message: '至少需要保留一张瑕疵图片',
+      message: '至少需要保留一张详细图片',
       type: 'warning'
     });
   }
@@ -636,13 +636,13 @@ const handleEdit = async (item) => {
       console.log('Defect Images:', preProduct.value.defectImages);
     } else {
       ElMessage({
-        message: '获取瑕疵图片失败',
+        message: '获取详细图片失败',
         type: 'error'
       });
     }
   } catch (error) {
     ElMessage({
-      message: '获取瑕疵图片失败，本商品可能不存在瑕疵图片',
+      message: '获取详细图片失败，本商品可能不存在详细图片',
       type: 'error'
     });
     console.log('error', error);
@@ -668,19 +668,19 @@ const updateDefectDescription = async () => {
     const allSuccessful = responses.every(response => response.status === 200);
     if (allSuccessful) {
       ElMessage({
-        message: '瑕疵图片文字描述已更新',
+        message: '详细图片文字描述已更新',
         type: 'success'
       });
     } else {
       ElMessage({
-        message: '更新瑕疵图片文字描述失败',
+        message: '更新详细图片文字描述失败',
         type: 'error'
       });
     }
   } catch (error) {
-    console.error('更新瑕疵图片文字描述时发生错误:', error.response ? error.response.data : error.message);
+    console.error('更新详细图片文字描述时发生错误:', error.response ? error.response.data : error.message);
     ElMessage({
-      message: '更新瑕疵图片文字描述失败',
+      message: '更新详细图片文字描述失败',
       type: 'error'
     });
   }
@@ -748,12 +748,12 @@ const submitDefectUpload = async () => {
         // 处理响应
         if (response.status === 200) {
           ElMessage({
-            message: `瑕疵图片 "${image.file.name}" 上传成功`,
+            message: `详细图片 "${image.file.name}" 上传成功`,
             type: 'success'
           });
         } else {
           ElMessage({
-            message: `瑕疵图片 "${image.file.name}" 上传失败`,
+            message: `详细图片 "${image.file.name}" 上传失败`,
             type: 'error'
           });
         }
@@ -763,9 +763,9 @@ const submitDefectUpload = async () => {
       selectedDefectImages.value = [];
 
     } catch (error) {
-      console.error('上传瑕疵图片时发生错误:', error.response ? error.response.data : error.message);
+      console.error('上传详细图片时发生错误:', error.response ? error.response.data : error.message);
       ElMessage({
-        message: '瑕疵图片上传失败',
+        message: '详细图片上传失败',
         type: 'error'
       });
     }
@@ -851,13 +851,13 @@ const onsubmit = async () => {
                       // 处理 401 响应，表示所有瑕疵图片已被删除
                       if (response.status === 401) {
                         ElMessage({
-                          message: '所有瑕疵图片已被删除',
+                          message: '所有详细图片已被删除',
                           type: 'warning'
                         });
                       } else {
                         // 如果删除成功，可根据需求处理成功逻辑
                         ElMessage({
-                          message: '瑕疵图片已成功删除',
+                          message: '详细图片已成功删除',
                           type: 'success'
                         });
                       }
@@ -866,13 +866,13 @@ const onsubmit = async () => {
                     // 针对 401 错误进行处理
                     if (error.response && error.response.status === 401) {
                       ElMessage({
-                        message: '所有瑕疵图片已被删除',
+                        message: '所有详细图片已被删除',
                         type: 'warning'
                       });
                     } else {
                       // 处理其他非401错误
                       ElMessage({
-                        message: '删除瑕疵图片时发生错误',
+                        message: '删除详细图片时发生错误',
                         type: 'error'
                       });
                     }
@@ -1101,7 +1101,7 @@ const addImageWithText = () => {
       fileInput.value = '';
     }
   } else {
-    ElMessage.warning('请先选择瑕疵图片并输入描述');
+    ElMessage.warning('请先选择详细图片并输入描述');
   }
 };
 //给后端传大分类名称Tag
