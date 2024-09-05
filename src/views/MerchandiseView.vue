@@ -240,7 +240,8 @@ const getProducts = async (Id) => {
 
 onMounted(()=>{
   getCategories();
-  // getProducts(nowSubCategoryId);
+  getProducts("03000");
+  
   // getProducts();
   // getCategory(currentType.value);
   // getCommodity(currentType.value);
