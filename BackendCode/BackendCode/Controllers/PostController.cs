@@ -814,10 +814,10 @@ namespace BackendCode.Controllers
 
             var subComments = await subCommentsQuery.ToListAsync();
 
-            if (!subComments.Any())
+/*            if (!subComments.Any())
             {
                 return NotFound(new { Message = "子评论不存在" });
-            }
+            }*/
 
             return Ok(new { Message = "查询成功！", Data = subComments });
         }

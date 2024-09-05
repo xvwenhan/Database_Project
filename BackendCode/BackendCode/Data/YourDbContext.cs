@@ -638,7 +638,7 @@ namespace BackendCode.Data
                     .IsRequired();
 
                 entity.Property(e => e.POST_CONTENT)
-                    .HasMaxLength(200)
+                    .HasMaxLength(400)
                     .IsRequired();
 
                 entity.Property(p => p.NUMBER_OF_LIKES)
@@ -655,7 +655,7 @@ namespace BackendCode.Data
                     .IsRequired();
 
                 entity.Property(p => p.POST_TITLE)
-                         .HasMaxLength(40)
+                         .HasMaxLength(60)
                          .IsRequired();
 
                 //实验：
