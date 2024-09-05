@@ -87,23 +87,29 @@
             </el-form-item>
           </el-form-item>
           <el-form-item label="瑕疵图片及描述">
-            <!-- 显示已存在的瑕疵图片和描述 -->
-            <div v-if="preProduct.defectImages && preProduct.defectImages.length" style="display: flex; flex-wrap: wrap;">
-              <div v-for="(defect, index) in preProduct.defectImages" :key="defect.imageId" style="position: relative; margin-right: 10px; margin-bottom: 20px;">
-                <img :src="defect.imageUrl" alt="瑕疵图片" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;" />
-                <el-input v-model="defect.description" placeholder="输入瑕疵描述" style="width: 150px; margin-top: 5px;"></el-input>
-                <span class="close" style="position: absolute; top: 0; right: 5px; color: #82111f; cursor: pointer;" @click="removeDefectImage(index)">&times;</span>
-              </div>
+          <!-- 显示已存在的瑕疵图片和描述 -->
+          <div v-if="preProduct.defectImages && preProduct.defectImages.length" style="display: flex; flex-wrap: wrap;">
+            <div v-for="(defect, index) in preProduct.defectImages" :key="defect.imageId" style="position: relative; margin-right: 10px; margin-bottom: 20px; text-align: center;">
+              <!-- 图片显示 -->
+              <img :src="defect.imageUrl" alt="瑕疵图片" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;" />
+              <!-- 输入框，显示在图片底部 -->
+              <el-input v-model="defect.description" placeholder="输入瑕疵描述" style="width: 100px; margin-top: 5px; display: block; margin: 5px auto;"></el-input>
+              <!-- 叉号，显示在图片右上角 -->
+              <span class="close" style="position: absolute; top: 2px; right: 2px; color: #82111f; cursor: pointer;" @click="removeDefectImage(index)">&times;</span>
             </div>
-            
-            <!-- 显示选择的瑕疵图片 -->
-            <div v-if="selectedDefectImages.length" style="display: flex; flex-wrap: wrap;">
-              <div v-for="(image, index) in selectedDefectImages" :key="index" style="position: relative; margin-right: 10px; margin-bottom: 20px;">
-                <img :src="image.url" alt="选择的瑕疵图片" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;" />
-                <input type="text" v-model="image.description" placeholder="输入图片描述" style="width: 150px; margin-top: 5px;" />
-                <span class="close" style="position: absolute; top: 0; right: 5px; color: #82111f; cursor: pointer;" @click="removeSelectedDefectImage(index)">&times;</span>
-              </div>
+          </div>
+
+          <!-- 显示选择的瑕疵图片 -->
+          <div v-if="selectedDefectImages.length" style="display: flex; flex-wrap: wrap;">
+            <div v-for="(image, index) in selectedDefectImages" :key="index" style="position: relative; margin-right: 10px; margin-bottom: 20px; text-align: center;">
+              <!-- 图片显示 -->
+              <img :src="image.url" alt="选择的瑕疵图片" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;" />
+              <!-- 输入框，显示在图片底部 -->
+              <el-input v-model="image.description" placeholder="输入图片描述" style="width: 100px; margin-top: 5px; display: block; margin: 5px auto;"></el-input>
+              <!-- 叉号，显示在图片右上角 -->
+              <span class="close" style="position: absolute; top: 2px; right: 2px; color: #82111f; cursor: pointer;" @click="removeSelectedDefectImage(index)">&times;</span>
             </div>
+          </div>
             
             <!-- 上传瑕疵图片 -->
             <el-form-item label="">
@@ -294,7 +300,7 @@ const fetchProducts = async () => {
         id: product.productId || 'N/A',
         name: product.productName || 'Unknown',
         categoryInit: product.storeTag || 'Unknown',
-        categorySys: product.tag || 'Unknown',
+        categorySys: findSubCategoryName(product.subTag) || 'Unknown',
         price: product.productPrice || 0,
         isOnSale: product.saleOrNot !== undefined ? product.saleOrNot : false,
         description: product.description || 'No description available',
@@ -424,9 +430,9 @@ const fetchCategories = async () => {
     ElMessage.error('获取分类数据失败，请稍后再试');
   }
 };
-onMounted(() => {
-  fetchProducts();
-  fetchCategories();
+onMounted(async () => {
+    await fetchCategories(); // 确保分类数据已加载
+    await fetchProducts(); // 分类数据加载完成后获取商品数据
 });
 //查看商品具体信息
 const handleCheck = (item) => {
@@ -519,8 +525,7 @@ const handleCancel = () => {
   selectedImages.value = [];
   // 清空 deletedImages 数组
   deletedImages.value = [];
-  // 清空选择的瑕疵图片
-  selectedDefectImages = [];
+
   // 清空 deletedDefectImages 数组
   deletedDefectImages.value= [];
   // 关闭对话框
@@ -548,6 +553,21 @@ const handleDefectFile = (event) => {
     }));
     selectedDefectImages.value = [...selectedDefectImages.value, ...newImages];
   }
+};
+//编辑系统分类-获取小分类名
+const findSubCategoryName = (subCategoryId) => {
+  if (!Array.isArray(categories.value)) {
+    console.error('categories.value 不是数组');
+    return 'Unknown';
+  }
+
+  for (const group of categories.value) {
+    const subCategory = group.subCategories.find(sub => sub.subCategoryId === subCategoryId);
+    if (subCategory) {
+      return subCategory.subCategoryName;
+    }
+  }
+  return 'Unknown';
 };
 //编辑商品框  
 const handleEdit = async (item) => {

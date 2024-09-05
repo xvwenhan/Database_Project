@@ -294,7 +294,7 @@ export default {
         },
         //更新商家信息
         async updateBusinessInfo() {
-            const storeId = localStorage.getItem('userId'); // 替换为实际的 storeId
+            const storeId = localStorage.getItem('userId'); 
             this.loading = true;
             this.error = null;
             
@@ -303,13 +303,19 @@ export default {
                 // this.$message.error('所有字段都必须填写');
                 return;
             }
+            const requestBody = {
+                accountId: storeId || null, // 如果 storeId 不存在，传递 null
+                userName: this.businessInfo.username || null, // 如果 username 不存在，传递 null
+                storeName: this.businessInfo.username || null, // 如果 username 也作为 storeName 使用
+                address: this.businessInfo.address || null // 如果 address 不存在，传递 null
+            };
+
 
             try {
-                const response = await axiosInstance.post('/Account/modify_seller_message', {
-                accountId: storeId, // 传递 accountId 参数
-                userName: String(this.businessInfo.username), // 传递 userName 参数
-                storeName: String(this.businessInfo.username), // 传递 storeName 参数
-                address: String(this.businessInfo.address), // 传递 address 参数
+                const response = await axiosInstance.post('/Account/modify_seller_message', requestBody, {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
                 });
                 console.log('Update response:', response.data); // 打印响应数据
                 this.$message.success('商家信息更新成功');
