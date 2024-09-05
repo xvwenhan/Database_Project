@@ -96,7 +96,9 @@ onMounted(() => {
           <p class="product-price">
             <span class="special-price">价格</span> ¥{{ product.productPrice }}
           </p>
-          <h2 class="product-name">【{{ product.productName }}】{{ product.description }}</h2>
+          <h2 class="product-name">【{{ product.productName }}】
+            <!-- {{ product.description }} -->
+          </h2>
         </div>
       </div>
       <!-- 底部显示“已经到底了” -->
@@ -125,12 +127,12 @@ onMounted(() => {
   padding-left: 100px;
   padding-right: 100px;
   background-image: url('@/assets/wy/background.jpg'); background-size: cover; background-position: center; height: 100%; overflow-x: hidden;
-  
+  align-items: stretch; /* 使每个商品容器拉伸到相同高度 */
 }
 
 .product-item {
   width: calc(25% - 20px); /* 每行显示四个商品，减去间隙 */
-  height:310px;
+  height:300px;
   padding: 20px;
   border: 1px solid #e7e7e7;
   border-radius: 10px;
@@ -147,16 +149,17 @@ onMounted(() => {
 }
 
 .product-image {
-  width: 100%;
-  height: 200px;
-  object-fit: cover;
+  width: 258px; /* 固定宽度 */
+  height: 170px; /* 固定高度 */
+  object-fit: cover; /* 保持图片比例并裁剪超出部分 */
+  /* object-fit: cover; */
   border-radius: 10px;
   margin-bottom: 10px;
 }
 
 .product-info {
   text-align: center;
-  padding-bottom: 10px;
+  /* padding-bottom: 10px; */
 }
 
 .product-name {
