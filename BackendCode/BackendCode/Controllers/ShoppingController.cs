@@ -40,7 +40,8 @@ namespace BackendCode.Controllers
                 name = store.STORE_NAME, 
                 score = store.STORE_SCORE,
                 address = store.ADDRESS,
-                picture = storeAvatar
+                picture = storeAvatar,
+                description = store.DESCRIBTION //商家简介
             };
 
             return Ok(storeInfo); //返回店铺信息
