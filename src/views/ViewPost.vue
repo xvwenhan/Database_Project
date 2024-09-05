@@ -124,8 +124,21 @@ function fetchPost (){
           })),
           images: images.map(image => image.imageUrl) // 提取每个图片的 URL
         });
+         // 恢复 collapsed 状态
+         const state = localStorage.getItem('state');
+        if (state !== null) {
+          post.value.collapsed = (state === 'true');
+        }
+
         console.log("成功获取");
         getSub();
+        // 恢复每个 comment.subCollapsed 状态
+        const commentsState = JSON.parse(localStorage.getItem('commentsState') || '{}');
+        post.value.comments.forEach(comment => {
+          if (commentsState[comment.id] !== undefined) {
+            comment.subCollapsed = commentsState[comment.id];
+          }
+        });
         console.log("加载完毕");
 
       } else {
@@ -139,10 +152,8 @@ function fetchPost (){
           isLoading.value = false; // 更新加载状态，无论成功或失败都会执行这一步
     });
 }
-onMounted(() => {
-      fetchPost(); // 组件挂载时调用数据获取方法
-});
 
+fetchPost(); 
 function fetchComment () {
   console.log("正在获取二级");
   axiosInstance.get(`/Post/get_sub_comments/${ subId.value}`)
@@ -219,7 +230,16 @@ function submitReply (){
         type: 'success',
         });
         console.log("评论成功");
-        location.reload();
+        // location.reload();
+        localStorage.setItem('state', String(post.value.collapsed));
+      const commentsState = post.value.comments.reduce((acc, comment) => {
+        acc[comment.id] = comment.subCollapsed;
+        return acc;
+      }, {});
+      localStorage.setItem('commentsState', JSON.stringify(commentsState));
+        fetchPost();
+        
+        inputComment.value='';
       }).catch(error => {
         console.error(error);
       });
@@ -246,7 +266,15 @@ function submitSubReply(){
         type: 'success',
         });
         console.log("评论成功");
-        location.reload();
+        // location.reload();
+        localStorage.setItem('state', String(post.value.collapsed));
+      const commentsState = post.value.comments.reduce((acc, comment) => {
+        acc[comment.id] = comment.subCollapsed;
+        return acc;
+      }, {});
+      localStorage.setItem('commentsState', JSON.stringify(commentsState));
+        fetchPost();
+        inputComment.value='';
       }).catch(error => {
         console.error(error);
       });
@@ -344,7 +372,14 @@ function like(){
         message: '点赞成功',
         type: 'success',
         });
-        location.reload();
+        // location.reload();
+        localStorage.setItem('state', String(post.value.collapsed));
+      const commentsState = post.value.comments.reduce((acc, comment) => {
+        acc[comment.id] = comment.subCollapsed;
+        return acc;
+      }, {});
+      localStorage.setItem('commentsState', JSON.stringify(commentsState));
+        fetchPost();
       }).catch(error => {
         console.error(error);
       });
@@ -360,7 +395,14 @@ function like(){
         message: '取消点赞',
         type: 'success',
         });
-        location.reload();
+        // location.reload();
+        localStorage.setItem('state', String(post.value.collapsed));
+      const commentsState = post.value.comments.reduce((acc, comment) => {
+        acc[comment.id] = comment.subCollapsed;
+        return acc;
+      }, {});
+      localStorage.setItem('commentsState', JSON.stringify(commentsState));
+        fetchPost();
       }).catch(error => {
         console.error(error);
       });
@@ -548,8 +590,8 @@ const handleChange = (currentIndex) => {
           placeholder="请输入"
           v-model="inputComment">
           </el-input>
-          <el-button type="primary" plain @click="submitReply()">确认</el-button>
-          <el-button type="danger" plain @click="cancel()">取消</el-button>
+          <el-button class="custom-confirm-button"  @click="submitReply()">确认</el-button>
+          <el-button class="custom-cancel-button" @click="cancel()">取消</el-button>
       </div>
       <!-- <button @click="toggleReplies(post)" class="show_reply">显示/隐藏回复</button> -->
       <el-button type="text" v-if="post.collapsed==false" @click="toggleReplies(post)" class="show_reply">隐藏回复</el-button>
@@ -623,8 +665,8 @@ const handleChange = (currentIndex) => {
           placeholder="请输入"
           v-model="inputComment">
           </el-input>
-          <el-button type="primary" plain @click="submit(reply.id)">确认</el-button>
-          <el-button type="danger" plain @click="cancelSub(reply.id)">取消</el-button>
+          <el-button class="custom-confirm-button"  @click="submit(reply.id)">确认</el-button>
+          <el-button  class="custom-cancel-button" @click="cancelSub(reply.id)">取消</el-button>
       </div>
     </el-container>
 </div>
@@ -636,6 +678,19 @@ const handleChange = (currentIndex) => {
 </template>
 
 <style scoped>
+.custom-confirm-button {
+    background-color: #B71C1C;
+    border-color: #B71C1C;
+    color: white;
+    margin-left: 2vh;
+}
+
+.custom-cancel-button {
+    background-color: #bdaead ;
+    border-color: #bdaead    ;
+    color: white;
+    
+}
 .avatar-container {
   margin-right: 1rem; /* 调整头像与内容之间的间距 */
   display: flex;

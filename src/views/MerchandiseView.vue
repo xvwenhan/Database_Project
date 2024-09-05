@@ -221,7 +221,9 @@ const getProducts = async (Id) => {
         displayProducts.splice(0, displayProducts.length);
       }
       response.data.forEach(product => {
-        displayProducts.push(product);
+        if(!product.saleOrNot){
+          displayProducts.push(product);
+        }
       });
 
       console.log(`displayProducts is ${JSON.stringify(displayProducts, null, 2)}`)
