@@ -1,5 +1,6 @@
 <!-- 设置界面的我的钱包 -->
 <template>
+
     <div class="container">
       <SettingSidebar />
       <div class="main-content">
@@ -50,7 +51,7 @@ export default {
     name:'WalletSetting',
     components:{
         SettingSidebar,
-        SettingHeader
+        SettingHeader,
     },
     data() {
         return {
@@ -115,7 +116,15 @@ export default {
             // } catch (error) {
             //     console.error('请求失败:', error);
             //     this.$message.error('请求失败，请稍后再试');                               
-            // }
+            // } 
+              // 显示加载页面
+                const loading = this.$loading({
+                    lock: true,
+                    text: '正在充值，请稍候...',
+                    spinner: 'el-icon-loading',
+                    background: 'rgba(0, 0, 0, 0.7)'
+                });
+                console.log('Loading started');
             try {
                 const response = await axiosInstance.put('/Alipay/RechargeWallet', formData, {
                 headers: {
@@ -135,7 +144,12 @@ export default {
                 }
                 // ElMessage.error(message.value);
             }
+            finally {
+            // 关闭加载页面
+            console.log('Loading closed');
+            loading.close();
             this.recharge.amount = 0; // 重置充值金额
+        }
         },
     },
     mounted() {

@@ -444,7 +444,26 @@ const handleCheck = (item) => {
     router.push('/productdetail');
 };
 const rules = {
-      name: [{ required: true, message: '请输入商品名称', trigger: 'blur' }],
+      // name: [{ required: true, message: '请输入商品名称', trigger: 'blur' }],
+      name: [
+    { required: true, message: '请输入商品名称', trigger: 'blur' },
+    { 
+      validator: (rule, value, callback) => {
+        if (!value) {
+          callback(new Error('请输入商品名称'));
+        } else {
+          // 计算中文字符的长度
+          const length = Array.from(value).length;
+          if (length > 16) {
+            callback(new Error('商品名称不能超过16个汉字'));
+          } else {
+            callback();
+          }
+        }
+      }, 
+      trigger: 'blur'
+    }
+  ],
       categorySys: [{ required: true, message: '请输入系统分类', trigger: 'blur' }],
       categoryInit: [{ required: true, message: '请输入商家分类', trigger: 'blur' }],
       price: [{ required: true, message: '请输入商品价格', trigger: 'blur' } ,
