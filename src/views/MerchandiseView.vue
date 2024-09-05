@@ -133,7 +133,7 @@ const picUrl=ref('');
 // const nowSubCategoryId=ref('05000')
 
 //swiper滑动实现
-const currentSumCategory=ref(0);
+const currentSumCategory=ref(3);
 const mySwiper=ref(null);
 let swiperInstance = null;
 const onSwiper = (swiper) => {
@@ -241,7 +241,7 @@ const getProducts = async (Id) => {
 onMounted(()=>{
   getCategories();
   getProducts("03000");
-  
+
   // getProducts();
   // getCategory(currentType.value);
   // getCommodity(currentType.value);
