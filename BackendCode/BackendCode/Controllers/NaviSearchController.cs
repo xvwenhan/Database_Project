@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using BackendCode.DTOs.ProductDTO;
 using BackendCode.DTOs;
+using BackendCode.Models;
 
 namespace NaviSearchController.Controllers
 {
@@ -99,15 +100,8 @@ namespace NaviSearchController.Controllers
                         StoreId = s.ACCOUNT_ID,
                         StoreName = s.STORE_NAME,
                         StoreScore = s.STORE_SCORE,
-                        StorePhoto = _dbContext.ACCOUNTS
-                            .Where(p => p.ACCOUNT_ID == s.ACCOUNT_ID)
-                            .Select(p => new ImageModel
-                            {
-                                ImageId = p.ACCOUNT_ID // 假设 `p.PHOTO` 存储的是图片的 ID
-                            })
-                            .FirstOrDefault() ?? new ImageModel { ImageId = "0000000000" }, // 若没有图片则返回默认图片的ID
-
-                        HomeProducts = _dbContext.PRODUCTS
+                        StorePhoto = new StoreInfoImageModel { ImageId = s.ACCOUNT_ID },
+                            HomeProducts = _dbContext.PRODUCTS
                             .Where(p => p.ACCOUNT_ID == s.ACCOUNT_ID && !p.SALE_OR_NOT)
                             .Take(4)
                             .Select(p => new
