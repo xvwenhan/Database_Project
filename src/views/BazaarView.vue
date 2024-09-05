@@ -106,7 +106,9 @@ h2 {
   margin-bottom: 20px;
 }
 .market-title{
-  padding-top: 20px;
+  font-family: 'Long Cang', cursive;
+  font-size: 48px; /* 可根据需要调整字体大小 */
+  color: #333; /* 可根据需要调整颜色 */
 }
 
 /* 轮播容器样式 */

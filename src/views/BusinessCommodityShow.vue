@@ -44,8 +44,8 @@
           <el-form-item label="商品价格" prop="price">
             <el-input v-model.number="preProduct.price"></el-input>
           </el-form-item>
-          <el-form-item label="系统分类" prop="categorySys">
-              <el-select v-model="preProduct.categorySys">
+          <el-form-item label="系统分类" prop="categorySys" >
+              <el-select v-model="preProduct.categorySys" @change="updateTagT">
                 <el-option-group
                         v-for="group in categories"
                         :key="group.largeCategoryName"
@@ -70,14 +70,14 @@
             <!-- 显示已存在的图片 -->
             <div v-if="preProduct.images && preProduct.images.length" style="display: flex; flex-wrap: wrap;">
               <div v-for="(image, index) in preProduct.images" :key="image.imageId" style="position: relative; margin-right: 10px;">
-                <img :src="image.imageUrl" alt="商品图片" style="margin-top:10px;width: 150px; height: 150px; object-fit: cover;border-radius: 8px;" />
+                <img :src="image.imageUrl" alt="商品图片" style="margin-top:10px;width: 100px; height: 100px; object-fit: cover;border-radius: 8px;" />
                 <span class="close" style="position: absolute; margin-top:10px; top: 0; right: 5px; color: #82111f;" @click="removeImage(index)">&times;</span>
               </div>
             </div>
             <!-- 显示选择的图片 -->
             <div v-if="selectedImages.length" style="display: flex; flex-wrap: wrap;">
               <div v-for="(image, index) in selectedImages" :key="index" style="position: relative; margin-right: 10px;">
-                <img :src="image.url" alt="选择的图片" style="margin-top:10px;width: 150px; height: 150px; object-fit: cover;border-radius: 8px;" />
+                <img :src="image.url" alt="选择的图片" style="margin-top:10px;width: 100px; height: 100px; object-fit: cover;border-radius: 8px;" />
                 <span class="close" style="position: absolute; margin-top:10px; top: 0; right: 5px; color: #82111f;" @click="removeSelectedImage(index)">&times;</span>
               </div>
             </div>
@@ -87,23 +87,29 @@
             </el-form-item>
           </el-form-item>
           <el-form-item label="瑕疵图片及描述">
-            <!-- 显示已存在的瑕疵图片和描述 -->
-            <div v-if="preProduct.defectImages && preProduct.defectImages.length" style="display: flex; flex-wrap: wrap;">
-              <div v-for="(defect, index) in preProduct.defectImages" :key="defect.imageId" style="position: relative; margin-right: 10px; margin-bottom: 20px;">
-                <img :src="defect.imageUrl" alt="瑕疵图片" style="width: 150px; height: 150px; object-fit: cover; border-radius: 8px;" />
-                <el-input v-model="defect.description" placeholder="输入瑕疵描述" style="width: 150px; margin-top: 5px;"></el-input>
-                <span class="close" style="position: absolute; top: 0; right: 5px; color: #82111f; cursor: pointer;" @click="removeDefectImage(index)">&times;</span>
-              </div>
+          <!-- 显示已存在的瑕疵图片和描述 -->
+          <div v-if="preProduct.defectImages && preProduct.defectImages.length" style="display: flex; flex-wrap: wrap;">
+            <div v-for="(defect, index) in preProduct.defectImages" :key="defect.imageId" style="position: relative; margin-right: 10px; margin-bottom: 20px; text-align: center;">
+              <!-- 图片显示 -->
+              <img :src="defect.imageUrl" alt="瑕疵图片" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;" />
+              <!-- 输入框，显示在图片底部 -->
+              <el-input v-model="defect.description" placeholder="输入瑕疵描述" style="width: 100px; margin-top: 5px; display: block; margin: 5px auto;"></el-input>
+              <!-- 叉号，显示在图片右上角 -->
+              <span class="close" style="position: absolute; top: 2px; right: 2px; color: #82111f; cursor: pointer;" @click="removeDefectImage(index)">&times;</span>
             </div>
-            
-            <!-- 显示选择的瑕疵图片 -->
-            <div v-if="selectedDefectImages.length" style="display: flex; flex-wrap: wrap;">
-              <div v-for="(image, index) in selectedDefectImages" :key="index" style="position: relative; margin-right: 10px; margin-bottom: 20px;">
-                <img :src="image.url" alt="选择的瑕疵图片" style="width: 150px; height: 150px; object-fit: cover; border-radius: 8px;" />
-                <input type="text" v-model="image.description" placeholder="输入图片描述" style="width: 150px; margin-top: 5px;" />
-                <span class="close" style="position: absolute; top: 0; right: 5px; color: #82111f; cursor: pointer;" @click="removeSelectedDefectImage(index)">&times;</span>
-              </div>
+          </div>
+
+          <!-- 显示选择的瑕疵图片 -->
+          <div v-if="selectedDefectImages.length" style="display: flex; flex-wrap: wrap;">
+            <div v-for="(image, index) in selectedDefectImages" :key="index" style="position: relative; margin-right: 10px; margin-bottom: 20px; text-align: center;">
+              <!-- 图片显示 -->
+              <img :src="image.url" alt="选择的瑕疵图片" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;" />
+              <!-- 输入框，显示在图片底部 -->
+              <el-input v-model="image.description" placeholder="输入图片描述" style="width: 100px; margin-top: 5px; display: block; margin: 5px auto;"></el-input>
+              <!-- 叉号，显示在图片右上角 -->
+              <span class="close" style="position: absolute; top: 2px; right: 2px; color: #82111f; cursor: pointer;" @click="removeSelectedDefectImage(index)">&times;</span>
             </div>
+          </div>
             
             <!-- 上传瑕疵图片 -->
             <el-form-item label="">
@@ -294,12 +300,13 @@ const fetchProducts = async () => {
         id: product.productId || 'N/A',
         name: product.productName || 'Unknown',
         categoryInit: product.storeTag || 'Unknown',
+        categorySys: findSubCategoryName(product.subTag) || 'Unknown',
         price: product.productPrice || 0,
         isOnSale: product.saleOrNot !== undefined ? product.saleOrNot : false,
         description: product.description || 'No description available',
       };
     });
-    // console.log('Processed Products:', processedProducts);
+    console.log('Processed Products:', processedProducts);
 
     products.value = processedProducts; 
     totalProducts.value = processedProducts.length;
@@ -423,9 +430,9 @@ const fetchCategories = async () => {
     ElMessage.error('获取分类数据失败，请稍后再试');
   }
 };
-onMounted(() => {
-  fetchProducts();
-  fetchCategories();
+onMounted(async () => {
+    await fetchCategories(); // 确保分类数据已加载
+    await fetchProducts(); // 分类数据加载完成后获取商品数据
 });
 //查看商品具体信息
 const handleCheck = (item) => {
@@ -518,13 +525,13 @@ const handleCancel = () => {
   selectedImages.value = [];
   // 清空 deletedImages 数组
   deletedImages.value = [];
-  // 清空选择的瑕疵图片
-  selectedDefectImages = [];
+
   // 清空 deletedDefectImages 数组
   deletedDefectImages.value= [];
   // 关闭对话框
   dialogVisibleTwo.value = false;
 };
+//处理商品图片
 const handleFile = (event) => {
       const files = event.target.files;
   if (files.length > 0) {
@@ -535,6 +542,7 @@ const handleFile = (event) => {
     selectedImages.value = [...selectedImages.value, ...newImages];
   }
     };
+//处理瑕疵图文
 const handleDefectFile = (event) => {
   const files = event.target.files;
   if (files.length > 0) {
@@ -546,7 +554,22 @@ const handleDefectFile = (event) => {
     selectedDefectImages.value = [...selectedDefectImages.value, ...newImages];
   }
 };
-   
+//编辑系统分类-获取小分类名
+const findSubCategoryName = (subCategoryId) => {
+  if (!Array.isArray(categories.value)) {
+    console.error('categories.value 不是数组');
+    return 'Unknown';
+  }
+
+  for (const group of categories.value) {
+    const subCategory = group.subCategories.find(sub => sub.subCategoryId === subCategoryId);
+    if (subCategory) {
+      return subCategory.subCategoryName;
+    }
+  }
+  return 'Unknown';
+};
+//编辑商品框  
 const handleEdit = async (item) => {
       if (item.isOnSale) {
         ElMessage({
@@ -565,7 +588,7 @@ const handleEdit = async (item) => {
         description: item.description,
         images: [],
         defectImages:[],
-        // defectDescription: '',  
+
       };
 
        // 获取商品图片
@@ -620,6 +643,7 @@ const handleEdit = async (item) => {
         
       dialogVisibleTwo.value = true;
 };
+//更新瑕疵描述
 const updateDefectDescription = async () => {
   try {
     // 遍历 preProduct.defectImages，准备更新描述
@@ -659,8 +683,9 @@ const submitUpload = async () => {
   if (selectedImages.value.length > 0) { 
     const formData = new FormData();
     selectedImages.value.forEach(image => {
-      formData.append('images', image.file); // 从 selectedImages.value 中添加文件
+      formData.append('ProductImages', image.file); // 从 selectedImages.value 中添加文件
     });
+    formData.append('ProductId',preProduct.value.id);
     const uploadUrl = `/StoreViewProduct/addProductImage`;
     try {
       const response = await axiosInstance.post(uploadUrl, formData, {
@@ -688,36 +713,48 @@ const submitUpload = async () => {
     }
   }
 };
+// 上传瑕疵图文
 const submitDefectUpload = async () => {
   if (selectedDefectImages.value.length > 0) {
-    const formData = new FormData();
-
-    // 添加文件到 FormData
-    selectedDefectImages.value.forEach(image => {
-      formData.append('images', image.file);
-    });
-
-    // 添加描述信息到 FormData
-    const descriptions = selectedDefectImages.value.map(image => image.description || '无');
-    formData.append('descriptions', JSON.stringify(descriptions)); // 将描述信息作为 JSON 字符串添加
-    
-    const uploadUrl = `/StoreViewProduct/addDetailImage/${preProduct.value.id}`;
     try {
-      const response = await axiosInstance.post(uploadUrl, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-      if (response.status === 200) {
-        ElMessage({
-          message: '瑕疵图片上传成功',
-          type: 'success'
+      // 遍历每个选中的瑕疵图片，逐个上传
+      for (const image of selectedDefectImages.value) {
+        const formData = new FormData();
+        
+        // 添加文件到 FormData
+        formData.append('Image', image.file); // 确保 image.file 是 File 对象
+
+        // 添加描述信息到 FormData
+        formData.append('Description', image.description || '无');
+
+        // 添加 productId 到 FormData
+        formData.append('productId', preProduct.value.id);
+
+        // 上传的接口地址
+        const uploadUrl = `/StoreViewProduct/addProductDetail`;
+
+        // 发起上传请求
+        const response = await axiosInstance.post(uploadUrl, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
         });
-        selectedDefectImages.value = [];
-      } else {
-        ElMessage({
-          message: '瑕疵图片上传失败',
-          type: 'error'
-        });
+
+        // 处理响应
+        if (response.status === 200) {
+          ElMessage({
+            message: `瑕疵图片 "${image.file.name}" 上传成功`,
+            type: 'success'
+          });
+        } else {
+          ElMessage({
+            message: `瑕疵图片 "${image.file.name}" 上传失败`,
+            type: 'error'
+          });
+        }
       }
+
+      // 清空已上传的图片数组
+      selectedDefectImages.value = [];
+
     } catch (error) {
       console.error('上传瑕疵图片时发生错误:', error.response ? error.response.data : error.message);
       ElMessage({
@@ -725,8 +762,19 @@ const submitDefectUpload = async () => {
         type: 'error'
       });
     }
-  }
+  } 
 };
+//给后端传大分类名称Tag
+const updateTagT = (selectedSubCategoryId) => {
+  // 查找选中的系统分类对应的大标题名字
+  const selectedCategory = categories.find(group =>
+    group.subCategories.some(item => item.subCategoryId === selectedSubCategoryId)
+  );
+
+  // 更新 Tag 字段
+  preProduct.value.tag = selectedCategory ? selectedCategory.largeCategoryName : '';
+};
+//提交
 const onsubmit = async () => {
   editForm.value.validate(async (valid) => {
     if (valid) {
@@ -735,7 +783,8 @@ const onsubmit = async () => {
       formData.append('productName', preProduct.value.name);
       formData.append('productPrice', preProduct.value.price);
       formData.append('storeTag', preProduct.value.categoryInit);
-      //formData.append('tag', preProduct.value.categorySys);
+      formData.append('tag', preProduct.value.Tag || ''); 
+      formData.append('subTagId', preProduct.value.categorySys || '');
       formData.append('description', preProduct.value.description);
       const userId = localStorage.getItem('userId'); 
       formData.append('storeId', userId);
@@ -767,47 +816,57 @@ const onsubmit = async () => {
             }
           } catch (error) {
             if (error.response && error.response.status === 401) {
-    ElMessage({
-      message: '所有图片已被删除',
-      type: 'warning'
-    });
-  } else {
-    // 处理其他非401错误
-    ElMessage({
-      message: '删除图片时发生错误',
-      type: 'error'
-    });
-  }
+            ElMessage({
+              message: '所有图片已被删除',
+              type: 'warning'
+            });
+          } else {
+            // 处理其他非401错误
+            ElMessage({
+              message: '删除图片时发生错误',
+              type: 'error'
+            });
+          }
           }
           // 清空 deletedImages 数组
           deletedImages.value = [];
           //上传瑕疵图片
           await submitDefectUpload();
-            // 删除瑕疵图片
-            try {
-                        for (const defectImage of deletedDefectImages.value) {
-                            const response = await axiosInstance.delete(`/StoreViewProduct/deleteDetailImage/${preProduct.value.id}/${defectImage.imageId}`);
-                            if (response.status === 401) {
-                                ElMessage({
-                                    message: '所有瑕疵图片已被删除',
-                                    type: 'warning'
-                                });
-                            }
-                        }
-                    } catch (error) {
-                        if (error.response && error.response.status === 401) {
-                            ElMessage({
-                                message: '所有瑕疵图片已被删除',
-                                type: 'warning'
-                            });
-                        } else {
-                            ElMessage({
-                                message: '删除瑕疵图片时发生错误',
-                                type: 'error'
-                            });
-                        }
+         // 删除瑕疵图片
+                  try {
+                    for (const defectImage of deletedDefectImages.value) {
+                      // 发起删除请求，使用 defectImage.imageId 作为 Path 参数
+                      const response = await axiosInstance.post(`/StoreViewProduct/deleteProductDetail/${defectImage.imageId}`);
+
+                      // 处理 401 响应，表示所有瑕疵图片已被删除
+                      if (response.status === 401) {
+                        ElMessage({
+                          message: '所有瑕疵图片已被删除',
+                          type: 'warning'
+                        });
+                      } else {
+                        // 如果删除成功，可根据需求处理成功逻辑
+                        ElMessage({
+                          message: '瑕疵图片已成功删除',
+                          type: 'success'
+                        });
+                      }
                     }
-                    
+                  } catch (error) {
+                    // 针对 401 错误进行处理
+                    if (error.response && error.response.status === 401) {
+                      ElMessage({
+                        message: '所有瑕疵图片已被删除',
+                        type: 'warning'
+                      });
+                    } else {
+                      // 处理其他非401错误
+                      ElMessage({
+                        message: '删除瑕疵图片时发生错误',
+                        type: 'error'
+                      });
+                    }
+                  }
                     // 清空 deletedDefectImages 数组
                     deletedDefectImages.value = [];
           //更新瑕疵图文描述
@@ -972,7 +1031,8 @@ const newProduct = ref({
   price: null,
   description: '',
   images: [],
-  imagesWithText: []
+  imagesWithText: [],
+  Tag: ''
 });
 // 定义用于瑕疵图文描述的变量
 const newImageText = ref('');
@@ -1165,6 +1225,7 @@ return {
   categories,
   message01,
   updateTag,
+  updateTagT,
   generateImageURL
 };
 }
