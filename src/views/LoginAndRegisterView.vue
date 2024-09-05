@@ -49,8 +49,8 @@
         <div>
           <label class="forget-password" @click="handleForgetPassword">忘记密码?</label>
           <!-- 两功能测试 -->
-          <!-- <label class="forget-password" @click="show_protected">点击访问受保护数据</label>
-          <label class="forget-password" @click="log_out">点击登出</label> -->
+          <!-- <label class="forget-password" @click="show_protected">点击访问受保护数据</label> -->
+          <!-- <label class="forget-password" @click="log_out">点击登出</label> -->
 
         </div>
           <el-button type="success" round 
@@ -265,19 +265,19 @@ const clearData=()=>{
 //   console.log(message.value);
 // };
 // ////////////////////////////////////////////登出功能测试，后续可加在别的地方
-// const log_out = async () => {
-//   try {
-//     const response = await axiosInstance.post('/Account/logout');
-//     message.value = response.data.message;
-//   } catch (error) {
-//     if (error.response) {
-//       message.value = error.response.data.message;
-//     } else {
-//       message.value = '登出账号失败';
-//     }
-//   }
-//   console.log(message.value);
-// };
+const log_out = async () => {
+  try {
+    const response = await axiosInstance.post('/Account/logout');
+    message.value = response.data.message;
+  } catch (error) {
+    if (error.response) {
+      message.value = error.response.data.message;
+    } else {
+      message.value = '登出账号失败';
+    }
+  }
+  console.log(message.value);
+};
 const isRegistered=async()=>{
   console.log(`进入isRegistered`);
   try {

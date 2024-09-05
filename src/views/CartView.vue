@@ -418,7 +418,7 @@ onMounted(() => {
   flex-direction: column;
   align-items: center;
   width: 150px;
-  height: 200px;
+  height: 210px;
 }
 
 .product-image {
