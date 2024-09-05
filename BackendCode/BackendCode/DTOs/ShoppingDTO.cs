@@ -6,6 +6,7 @@
         public decimal? score { get; set; }
         public string? address { get; set; }
         public StoreInfoImageModel? picture { get; set; }
+        public string? description { get; set; }
     }
 
     public class AuthenticationInfoDTO
