@@ -274,9 +274,9 @@ namespace StoreFrontController.Controllers
         }
         //Post提交审核接口
         [HttpPost("SubmitAuthentication")]
-        public async Task<IActionResult> SubmitAuthentication(string storeId, [FromBody] SubmitAuthenticationRequest request)
+        public async Task<IActionResult> SubmitAuthentication([FromForm] SubmitAuthenticationRequest request)
         {
-            if (string.IsNullOrEmpty(storeId))
+            if (string.IsNullOrEmpty(request.storeId))
             {
                 return BadRequest("Store ID is required.");
             }
@@ -300,7 +300,7 @@ namespace StoreFrontController.Controllers
 
                 // 查找是否已存在记录
                 var existingRecord = await _dbContext.SUBMIT_AUTHENTICATIONS
-                    .FirstOrDefaultAsync(sa => sa.STORE_ACCOUNT_ID == storeId);
+                    .FirstOrDefaultAsync(sa => sa.STORE_ACCOUNT_ID == request.storeId);
 
                 if (existingRecord != null)
                 {
@@ -324,7 +324,7 @@ namespace StoreFrontController.Controllers
                 // 创建新的提交验证记录
                 var submitAuthentication = new SUBMIT_AUTHENTICATION
                 {
-                    STORE_ACCOUNT_ID = storeId,
+                    STORE_ACCOUNT_ID = request.storeId,
                     ADMINISTRATOR_ACCOUNT_ID = randomAdmin.ACCOUNT_ID,
                     AUTHENTICATION = request.Authentication,
                     STATUS = "待审核",
@@ -345,7 +345,7 @@ namespace StoreFrontController.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error submitting authentication for store {storeId}", storeId);
+                _logger.LogError(ex, "Error submitting authentication for store {storeId}", request.storeId);
                 return StatusCode(500, "Internal server error");
             }
         }
