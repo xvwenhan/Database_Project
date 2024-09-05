@@ -180,6 +180,7 @@ namespace ClassificationController.Controllers
                             ProductId = p.PRODUCT_ID,
                             ProductName = p.PRODUCT_NAME,
                             ProductPrice = p.PRODUCT_PRICE,
+                            SaleOrNot = p.SALE_OR_NOT,//新增
                             SubCategoryName = _dbContext.SUB_CATEGORYS
                                 .Where(sc => sc.SUBCATEGORY_ID == p.TAG)
                                 .Select(sc => sc.SUBCATEGORY_NAME)
