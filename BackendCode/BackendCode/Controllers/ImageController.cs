@@ -49,7 +49,7 @@ namespace BackendCode.Controllers
         public IActionResult GetAccountImage(string accountId)
         {
             var image = _context.ACCOUNTS.FirstOrDefault(pd => pd.ACCOUNT_ID == accountId);
-            if (image != null)
+            if (image.PHOTO != null)
             {
                 return File(image.PHOTO, "image/jpeg"); //根据图片类型调整MIME类型
             }
@@ -67,7 +67,6 @@ namespace BackendCode.Controllers
         [HttpGet("market/{imageId}")]
         public IActionResult GetMarketImage(string imageId)
         {
-            Console.WriteLine("hhhhhhhhhh\n");
             var image = _context.MARKETS.FirstOrDefault(pd => pd.IMAGE_ID == imageId);
             if (image != null)
             {
@@ -93,7 +92,7 @@ namespace BackendCode.Controllers
         public IActionResult GetBuyerInfoImage(string imageId)
         {
             var image = _context.BUYERS.FirstOrDefault(pd => pd.ACCOUNT_ID == imageId);
-            if (image != null)
+            if (image.PHOTO != null)
             {
                 return File(image.PHOTO, "image/jpeg"); //根据图片类型调整MIME类型
             }
@@ -128,7 +127,7 @@ namespace BackendCode.Controllers
         public IActionResult GetStoreInfoImage(string imageId)
         {
             var image = _context.STORES.FirstOrDefault(pd => pd.ACCOUNT_ID == imageId);
-            if (image != null)
+            if (image.PHOTO != null)
             {
                 return File(image.PHOTO, "image/jpeg"); //根据图片类型调整MIME类型
             }
