@@ -8,6 +8,8 @@ using BackendCode.DTOs;
 using Alipay.AopSdk.Core.Domain;
 using System.Linq;
 using BackendCode.Services;
+using Alipay.AopSdk.AspnetCore;
+using Alipay.AopSdk.Core.Request;
 
 namespace BackendCode.Controllers
 {
@@ -291,7 +293,7 @@ namespace BackendCode.Controllers
             sellerWallet.BALANCE += orderConfirmDTO.actual_pay;
 
             int a = (int)(orderConfirmDTO.total_pay - orderConfirmDTO.actual_pay);
-            buyer.TOTAL_CREDITS -= 100 * a; //更新买家计分
+            buyer.TOTAL_CREDITS -= 100 * a; //更新买家积分
 
             /* 完善订单信息 */
             order.USERNAME = orderConfirmDTO.username; //收件人昵称
@@ -301,7 +303,7 @@ namespace BackendCode.Controllers
             order.ORDER_STATUS = "已付款"; //订单状态
             order.BONUS_CREDITS = (int)orderConfirmDTO.actual_pay; //订单积分
 
-            buyer.TOTAL_CREDITS += order.BONUS_CREDITS; //更新买家计分
+            buyer.TOTAL_CREDITS += order.BONUS_CREDITS; //更新买家积分
 
             await _dbContext.SaveChangesAsync(); //保存数据库上下文中的更改到数据库
 
@@ -348,7 +350,7 @@ namespace BackendCode.Controllers
             sellerWallet.BALANCE += orderConfirmDTO.actual_pay;
 
             int a = (int)(orderConfirmDTO.total_pay - orderConfirmDTO.actual_pay);
-            buyer.TOTAL_CREDITS -= 100 * a; //更新买家计分
+            buyer.TOTAL_CREDITS -= 100 * a; //更新买家积分
 
             /* 完善订单信息 */
             order.USERNAME = orderConfirmDTO.username; //收件人昵称
@@ -358,7 +360,7 @@ namespace BackendCode.Controllers
             order.ORDER_STATUS = "已付款"; //订单状态
             order.BONUS_CREDITS = (int)orderConfirmDTO.actual_pay; //订单积分
 
-            buyer.TOTAL_CREDITS += order.BONUS_CREDITS; //更新买家计分
+            buyer.TOTAL_CREDITS += order.BONUS_CREDITS; //更新买家积分
 
             await _dbContext.SaveChangesAsync(); //保存数据库上下文中的更改到数据库
 
@@ -409,32 +411,6 @@ namespace BackendCode.Controllers
             await _dbContext.SaveChangesAsync(); //保存更改至数据库
 
             return Ok("订单已删除"); //返回成功信息
-        }
-
-        /********************************/
-        /* 买家充值 更新钱包余额接口    */
-        /********************************/
-        [HttpPut("RechargeWallet")]
-        public async Task<IActionResult> RechargeWalletAsync([FromForm] RechargeDTO rechargeDto)
-        {
-            /* 获取买家钱包信息 */
-            var wallet = await _dbContext.WALLETS.FirstOrDefaultAsync(w => w.ACCOUNT_ID == rechargeDto.BuyerId);
-            if (wallet == null)
-            {
-                return NotFound("未找到钱包");
-            }
-
-            wallet.BALANCE += rechargeDto.Amount; //更新钱包余额
-
-            await _dbContext.SaveChangesAsync(); //保存更改
-
-            var rechargedWallet = new RechargedWalletDTO
-            {
-                BuyerId = wallet.ACCOUNT_ID,
-                Balance = wallet.BALANCE
-            };
-
-            return Ok(rechargedWallet); //返回充值成功的响应，包括充值后的钱包余额
         }
 
         /********************************/

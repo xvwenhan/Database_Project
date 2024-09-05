@@ -48,6 +48,7 @@
     {
         public string BuyerId { get; set; }
         public decimal Amount { get; set; }
+        public string returnUrl { get; set; }
     }
 
     public class RechargedWalletDTO
