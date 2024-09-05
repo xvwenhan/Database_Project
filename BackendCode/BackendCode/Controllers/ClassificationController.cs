@@ -224,7 +224,7 @@ namespace ClassificationController.Controllers
 
         //自用接口：上传大类的图片
         [HttpPost("SetCategoryPic")]
-        public async Task<IActionResult> SetCatrgoryPic(UploadCategoryPic model)
+        public async Task<IActionResult> SetCatrgoryPic([FromForm]UploadCategoryPic model)
         {
             try
             {
