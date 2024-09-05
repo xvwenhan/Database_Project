@@ -1,4 +1,4 @@
-
+<!-- 商家商品汇总页面 -->
 <template>
   <div class="BusinessCommodity">
     <Sidebar />

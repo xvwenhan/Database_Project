@@ -24,7 +24,7 @@
         </el-button>
     </div>
     <div class="storeContent">
-        <img :src="product.storeAvatar" class="Avatar" />
+        <img :src="product.storeAvatar?product.storeAvatar.imageUrl:''" class="Avatar" />
         <div class="storeName">&nbsp{{ product.storeName }}</div>
         <div class="storeScore">评分：{{  product.score}}</div>
         <!-- 店铺收藏按钮，与商品收藏差不多 -->
@@ -252,7 +252,7 @@
     <div class="detailContent">
       <h2>图文详情</h2>
       <div
-            v-for="(item, index) in imagesWithDescriptions.slice(0, 4)"
+            v-for="(item, index) in imagesWithDescriptions"
             :key="index"
             class="image-and-text"
           >
@@ -297,7 +297,7 @@
       score: 0,
       isProductStared: false,
       isStoreStared:false,
-      storeAvatar:'',
+      storeAvatar:{},
       finalPrice:0,
       imageAndText:[]
     }) ;
@@ -335,6 +335,7 @@
         product.value=response.data;
         product.value.finalPrice=product.value.discountPrice;
         imagesWithDescriptions.value = product.value.imageAndText || [];
+        console.log(`imagesWithDescriptions is ${JSON.stringify(imagesWithDescriptions.value,null,2)}`);
         productImages.value=product.value.pictures || [];
         console.log(`productImages.value is ${JSON.stringify(productImages.value, null, 2)}`)
         currentImage.value = productImages.value[0] || null;

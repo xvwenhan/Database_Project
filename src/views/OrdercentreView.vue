@@ -27,6 +27,7 @@ interface Order {
   totalPay: number;
   actualPay: number;
   pic: string;
+  picId:string;
   dialogVisible: boolean;
   dialogVisible_order: boolean;
   isStar:boolean,
@@ -70,6 +71,7 @@ const myOrders = ref<Order[]>([]);
             totalPay: order.totalPay || 0,
             actualPay: order.actualPay || 0,
             pic: order.picture?.imageUrl || '', // 使用可选链操作符来安全地访问 imageUrl
+            picId:order.picture?.imageId || '',
             star: null,
             dialogVisible: false,
             dialogVisible_order:false,
@@ -214,21 +216,29 @@ function resetStar(order)
 //   this.filteredOrders = this.filteredOrders.filter(order => order !== row);
 // }
 const product = ref({
-      name: '',
-      picture: '',
-      price: 0,//原价格
-      storeName: '',
-      discountPrice: 0,//折后价格
-      finalPrice:0,//最终支付的价格，考虑到会有积分使用
+  name: '',
+  pictures: [ // 将 picture 改为 pictures 数组
+    {
+      imageId: '',
+      imageUrl: ''
+    }
+  ],
+  price: 0, // 原价格
+  storeName: '',
+  discountPrice: 0, // 折后价格
+  finalPrice: 0, // 最终支付的价格，考虑到会有积分使用
 });
 function gotoDetail(order:Order){
   product.value.name=order.product;
-  product.value.picture=order.pic;
+  product.value.pictures[0].imageId=order.picId;
+  product.value.pictures[0].imageUrl=order.pic;
   product.value.price=order.price;
   product.value.storeName=order.store;
   product.value.discountPrice=order.totalPay;
   product.value.finalPrice=order.actualPay;
+  console.log(product.value);
   const productStr = JSON.stringify(product.value);//序列化对象
+  console.log("序列化",productStr);
   localStorage.setItem('productIdOfDetail',order.productId);
   localStorage.setItem('routerPath','/ordercentre');
   if(order.status=='待付款'){

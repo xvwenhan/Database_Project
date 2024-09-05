@@ -1,6 +1,5 @@
+ <!-- 这里是商品管理界面的内容区域 -->
 <template>
-  
-  <!-- 这里是商品管理界面的内容区域 -->
   <div class="CommodityShow">
     <!-- 搜索和筛选按钮 --> 
     <div class="SearchContainer">
@@ -9,67 +8,36 @@
       <el-input v-model="searchcategoryInit" placeholder="请输入商家分类（在全部商品中搜索）" style="display: inline-block;"></el-input>
       <el-button type="primary" @click="filterProductsTag">筛选</el-button>
     </div>
-
     <!-- 表格 -->
-  <div class="TableContainer">
-    <el-table :data="currentPageData" class="CommodityTable" height="760"@selection-change="handleSelectionChange">
-      <el-table-column type="selection" />
-      <el-table-column prop="id" label="商品ID"></el-table-column>
-      <el-table-column prop="name" label="商品名称" ></el-table-column>
-      <el-table-column prop="categoryInit" label="商家分类" ></el-table-column>
-      <el-table-column prop="price" label="商品价格" width="100"></el-table-column>
-      <el-table-column prop="isOnSale" label="是否出售" width="100">
-        <template #default="scope">
-          <el-tag type="success" v-if="scope.row.isOnSale">是</el-tag>
-          <el-tag type="info" v-else>否</el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column label="操作">
-        <template #default="scope">
-          <el-button-group>
-            <el-button size='small' type="primary" icon="check" @click="handleCheck(scope.row)">查看</el-button>
-            <el-button size='small' type="primary" icon="Edit" @click="handleEdit(scope.row)">编辑</el-button>
-            <el-button size='small' type="danger" icon="Delete" @click="handleDelete(scope.row)">删除</el-button>
-          </el-button-group>
-        </template>
-      </el-table-column>
-    </el-table>
-  </div>
+    <div class="TableContainer">
+      <el-table :data="currentPageData" class="CommodityTable" height="760"@selection-change="handleSelectionChange">
+        <el-table-column type="selection" />
+        <el-table-column prop="id" label="商品ID"></el-table-column>
+        <el-table-column prop="name" label="商品名称" ></el-table-column>
+        <el-table-column prop="categoryInit" label="商家分类" ></el-table-column>
+        <el-table-column prop="price" label="商品价格" width="100"></el-table-column>
+        <el-table-column prop="isOnSale" label="是否出售" width="100">
+          <template #default="scope">
+            <el-tag type="success" v-if="scope.row.isOnSale">是</el-tag>
+            <el-tag type="info" v-else>否</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作">
+          <template #default="scope">
+            <el-button-group>
+              <el-button size='small' type="primary" icon="check" @click="handleCheck(scope.row)">查看</el-button>
+              <el-button size='small' type="primary" icon="Edit" @click="handleEdit(scope.row)">编辑</el-button>
+              <el-button size='small' type="danger" icon="Delete" @click="handleDelete(scope.row)">删除</el-button>
+            </el-button-group>
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>  
 
-  <!-- 查看 -->
-  <div v-if="dialogVisible" class="SettingPopUp">
-      <div v-if="currentProduct">
-        <div class="container-block">
-          <img src="@/assets/mmy/blue_background.jpg">
-          <div class="inner-block">
-            <div class="slider-top-right">
-              <div class="picture-and-text">
-                <transition class="animate__animated animate__fadeInDown">
-                  <img class="picture":src="currentProduct.images" alt="ProductImage" >
-                </transition>
-                <transition class="animate__animated animate__fadeInUp">
-                  <div class="text">
-                    <span class="close" @click="dialogVisible = false">&times;</span>
-                    <h2>商品名称: {{ currentProduct.name }}</h2>
-                    <br>
-                    <p>系统分类: {{ getCategoryLabel(currentProduct.categorySys) }}</p>
-                    <p>商家分类: {{ currentProduct.categoryInit }}</p>
-                    <p>商品价格: {{ currentProduct.price }}</p>
-                    <p>是否出售: {{ currentProduct.isOnSale ? '是' : '否' }}</p>
-                    <p>商品具体描述: {{ currentProduct.description}}</p>
-                  </div>
-                </transition>
-              </div>
-            </div>
-          </div>
-        </div> 
-      </div>
-  </div>   
-
-  <!-- 编辑 -->
-  <div v-if="dialogVisibleTwo" class="SettingPopUp">
+    <!-- 编辑 -->
+    <div v-if="dialogVisibleTwo" class="SettingPopUp">
       <div v-if="preProduct" class="SettingContent" >
-        <el-form ref="editForm"  :rules="rules" :model="preProduct">
+        <el-form ref="editForm" :rules="rules" :model="preProduct">
           <el-form-item label="商品名称" prop="name">
             <el-input v-model="preProduct.name"></el-input>
           </el-form-item>
@@ -89,211 +57,173 @@
                           :label="item.subCategoryName"
                           :value="item.subCategoryId"
                         />
-                      </el-option-group>
+                </el-option-group>
               </el-select>
-            </el-form-item>
-            <el-form-item label="商家分类" prop="categoryInit">
+          </el-form-item>
+          <el-form-item label="商家分类" prop="categoryInit">
             <el-input v-model.number="preProduct.categoryInit"></el-input>
           </el-form-item>
           <el-form-item label="商品具体描述" prop="description">
             <el-input v-model="preProduct.description"></el-input>
           </el-form-item>
-          <!-- <el-form-item label="商品图片(.jpg)" prop="image">
-            <img :src="preProduct.image" alt="当前图片" v-if="preProduct.image" style="width: 200px; height: 200px;" />
-            <input type="file" @change="(e) => onFileChange(e, 'preProduct')">
-          </el-form-item> -->
           <el-form-item label="商品图片">
-
-    
-
-   <!-- 显示已存在的图片 -->
-   <div v-if="preProduct.images && preProduct.images.length" style="display: flex; flex-wrap: wrap;">
-      <div v-for="(image, index) in preProduct.images" :key="image.imageId" style="position: relative; margin-right: 10px;">
-        <img :src="image.imageUrl" alt="商品图片" style="margin-top:10px;width: 150px; height: 150px; object-fit: cover;border-radius: 8px;" />
-        <span class="close" style="position: absolute; margin-top:10px; top: 0; right: 5px; color: #82111f;" @click="removeImage(index)">&times;</span>
-      </div>
-    </div>
-<!-- 显示选择的图片 -->
-<div v-if="selectedImages.length" style="display: flex; flex-wrap: wrap;">
-  <div v-for="(image, index) in selectedImages" :key="index" style="position: relative; margin-right: 10px;">
-    <img :src="image.url" alt="选择的图片" style="margin-top:10px;width: 150px; height: 150px; object-fit: cover;border-radius: 8px;" />
-    <span class="close" style="position: absolute; margin-top:10px; top: 0; right: 5px; color: #82111f;" @click="removeSelectedImage(index)">&times;</span>
-  </div>
-</div>
-        <!-- 上传新图片 -->
-<el-form-item label="">
-  <input type="file" @change="handleFile" multiple />
-</el-form-item>
-      </el-form-item>
-
-      <!-- <el-form-item label="瑕疵图片文字描述" prop="defectDescription">
-  <el-input v-model="preProduct.defectDescription"></el-input>
-</el-form-item> -->
-<el-form-item label="瑕疵图片及描述">
-  <div v-if="preProduct.defectImages && preProduct.defectImages.length" style="display: flex; flex-wrap: wrap;">
-    <div v-for="(defect, index) in preProduct.defectImages" :key="defect.imageId" style="position: relative; margin-right: 10px;">
-      <img :src="defect.image" alt="瑕疵图片" style="margin-top:10px;width: 150px; height: 150px; object-fit: cover; border-radius: 8px;" />
-      <el-input v-model="defect.description" placeholder="输入瑕疵描述" style="width: 150px; margin-top: 5px;"></el-input>
-      <span class="close" style="position: absolute; margin-top: 10px; top: 0; right: 5px; color: #82111f;" @click="removeDefectImage(index)">&times;</span>
-    </div>
-  </div>
-</el-form-item>
-
-
-<!-- 显示选择的瑕疵图片 -->
-<!-- <div v-if="selectedDefectImages.length" style="display: flex; flex-wrap: wrap;">
-  <div v-for="(image, index) in selectedDefectImages" :key="index" style="position: relative; margin-right: 10px;">
-    <img :src="image.url" alt="选择的瑕疵图片" style="margin-top:10px;width: 150px; height: 150px; object-fit: cover;border-radius: 8px;" />
-    <span class="close" style="position: absolute; margin-top:10px; top: 0; right: 5px; color: #82111f;" @click="removeSelectedDefectImage(index)">&times;</span>
-  </div>
-</div> -->
-
-
-<!-- 上传瑕疵图片 -->
-<!-- <el-form-item label="">
-  <input type="file" @change="handleDefectFile" multiple />
-</el-form-item> -->
-<!-- <el-form-item label="">
-  <input type="file" @change="handleDefectFile" multiple />
-  <div v-for="(image, index) in selectedDefectImages" :key="index" class="defect-image-item">
-    <img :src="image.url" alt="Defect Image" style="width: 100px; height: 100px;"/>
-    <input type="text" v-model="image.description" placeholder="输入图片描述" />
-    <el-button @click="removeSelectedDefectImage(index)">删除</el-button>
-  </div>
-</el-form-item> -->
-
-<!-- 显示选择的瑕疵图片和描述输入框 -->
-<div v-if="selectedDefectImages.length" style="display: flex; flex-wrap: wrap;">
-  <div v-for="(image, index) in selectedDefectImages" :key="index" style="position: relative; margin-right: 10px;">
-    <img :src="image.url" alt="选择的瑕疵图片" style="margin-top:10px;width: 150px; height: 150px; object-fit: cover;border-radius: 8px;" />
-    <input type="text" v-model="image.description" placeholder="输入图片描述" style="width: 150px; margin-top: 5px;" />
-    <span class="close" style="position: absolute; top: 0; right: 5px; color: #82111f; cursor: pointer;" @click="removeSelectedDefectImage(index)">&times;</span>
-  </div>
-</div> 
-
-<!-- 上传瑕疵图片 -->
-<el-form-item label="">
-  <input type="file" @change="handleDefectFile" multiple />
-</el-form-item>
+            <!-- 显示已存在的图片 -->
+            <div v-if="preProduct.images && preProduct.images.length" style="display: flex; flex-wrap: wrap;">
+              <div v-for="(image, index) in preProduct.images" :key="image.imageId" style="position: relative; margin-right: 10px;">
+                <img :src="image.imageUrl" alt="商品图片" style="margin-top:10px;width: 150px; height: 150px; object-fit: cover;border-radius: 8px;" />
+                <span class="close" style="position: absolute; margin-top:10px; top: 0; right: 5px; color: #82111f;" @click="removeImage(index)">&times;</span>
+              </div>
+            </div>
+            <!-- 显示选择的图片 -->
+            <div v-if="selectedImages.length" style="display: flex; flex-wrap: wrap;">
+              <div v-for="(image, index) in selectedImages" :key="index" style="position: relative; margin-right: 10px;">
+                <img :src="image.url" alt="选择的图片" style="margin-top:10px;width: 150px; height: 150px; object-fit: cover;border-radius: 8px;" />
+                <span class="close" style="position: absolute; margin-top:10px; top: 0; right: 5px; color: #82111f;" @click="removeSelectedImage(index)">&times;</span>
+              </div>
+            </div>
+            <!-- 上传新图片 -->
+            <el-form-item label="">
+              <input type="file" @change="handleFile" multiple />
+            </el-form-item>
+          </el-form-item>
+          <el-form-item label="瑕疵图片及描述">
+            <!-- 显示已存在的瑕疵图片和描述 -->
+            <div v-if="preProduct.defectImages && preProduct.defectImages.length" style="display: flex; flex-wrap: wrap;">
+              <div v-for="(defect, index) in preProduct.defectImages" :key="defect.imageId" style="position: relative; margin-right: 10px; margin-bottom: 20px;">
+                <img :src="defect.imageUrl" alt="瑕疵图片" style="width: 150px; height: 150px; object-fit: cover; border-radius: 8px;" />
+                <el-input v-model="defect.description" placeholder="输入瑕疵描述" style="width: 150px; margin-top: 5px;"></el-input>
+                <span class="close" style="position: absolute; top: 0; right: 5px; color: #82111f; cursor: pointer;" @click="removeDefectImage(index)">&times;</span>
+              </div>
+            </div>
+            
+            <!-- 显示选择的瑕疵图片 -->
+            <div v-if="selectedDefectImages.length" style="display: flex; flex-wrap: wrap;">
+              <div v-for="(image, index) in selectedDefectImages" :key="index" style="position: relative; margin-right: 10px; margin-bottom: 20px;">
+                <img :src="image.url" alt="选择的瑕疵图片" style="width: 150px; height: 150px; object-fit: cover; border-radius: 8px;" />
+                <input type="text" v-model="image.description" placeholder="输入图片描述" style="width: 150px; margin-top: 5px;" />
+                <span class="close" style="position: absolute; top: 0; right: 5px; color: #82111f; cursor: pointer;" @click="removeSelectedDefectImage(index)">&times;</span>
+              </div>
+            </div>
+            
+            <!-- 上传瑕疵图片 -->
+            <el-form-item label="">
+              <input type="file" @change="handleDefectFile" multiple />
+            </el-form-item>
+            </el-form-item>
 
           <div style="display: flex;justify-content: center;margin-top: 30px">
             <el-button type="primary" @click="onsubmit()">保存</el-button>
             <el-button  type="primary"  @click="handleCancel">取消</el-button>
           </div>
-    </el-form>
-  </div>
-  </div>   
+        </el-form>
+       </div>
+    </div>   
 
- <!-- 添加商品对话框 -->
- <div v-if="addDialogVisible" class="SettingPopUp">
-    <div class="SettingContent">
-      <el-form :model="newProduct" :rules="rules" ref="form">
-        <el-form-item label="商品名称" prop="name">
-          <el-input v-model="newProduct.name"></el-input>
-        </el-form-item>
-        <el-form-item label="系统分类" prop="categorySys">
-          <el-select v-model="newProduct.categorySys">
-            <el-option-group
-              v-for="group in categories"
-              :key="group.largeCategoryName"
-              :label="group.largeCategoryName"
-            >
-              <el-option
-                v-for="item in group.subCategories"
-                :key="item.subCategoryId"
-                :label="item.subCategoryName"
-                :value="item.subCategoryId"
-              />
-            </el-option-group>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="商家分类" prop="categoryInit">
-          <el-input v-model="newProduct.categoryInit"></el-input>
-        </el-form-item>
-        <el-form-item label="商品价格" prop="price">
-          <el-input v-model.number="newProduct.price"></el-input>
-        </el-form-item>
-        <el-form-item label="商品描述" prop="description">
-          <el-input v-model="newProduct.description"></el-input>
-        </el-form-item>
-       <!-- 商品图片展示 -->
-       <el-form-item label="商品图片" prop="images">
-  <div v-if="newProduct.images.length > 0" class="image-preview">
-    <div v-for="(image, index) in newProduct.images" :key="index" class="image-item">
-      <img
-        :src="image.url"
-        alt="图片"
-        style="width: 100px; height: 100px; object-fit: cover; margin-right: 5px;"
-      />
-    </div>
-  </div>
-  <input type="file" multiple @change="onFileChange" accept="image/*" />
-</el-form-item>
-
-<!-- 瑕疵图文描述 -->
-<el-form-item label="瑕疵图文描述（图文一一对应）" prop="imagesWithText">
-  <div v-for="(item, index) in newProduct.imagesWithText" :key="index" class="image-text-item" style="display: flex; flex-direction: column; align-items: center; margin-bottom: 10px;">
-    <img
-      :src="item.image"
-      alt="瑕疵图片"
-      style="width: 50px; height: 50px; object-fit: cover; margin-bottom: 5px;"
-    />
-    <p>{{ item.text }}</p>
-  </div>
-</el-form-item>
-
-<el-form-item>
-  <div style="display: flex; align-items: center; margin-bottom: 10px;">
-    <input type="file" @change="handleFileChange" id="defect-image-input" accept="image/*" />
-    <el-input
-      type="textarea"
-      :rows="2"
-      v-model="newImageText"
-      placeholder="输入瑕疵文字描述"
-      style="margin-left: 10px; flex: 1;"
-    ></el-input>
-    <el-button type="primary" @click="addImageWithText" style="margin-left: 10px;">添加</el-button>
-  </div>
-</el-form-item>
-      </el-form>
-      <div style="margin-top: 20px; display: flex; justify-content: flex-end;">
-        <el-button type="primary" @click="addNewProduct">添加</el-button>
-        <el-button type="default" @click="() => addDialogVisible = false" style="margin-left: 10px;">取消</el-button>
-      </div>
-    </div>
-  </div>
-
-
-  <!-- 添加商品和批量删除按钮 -->
-  <div id="BottomButton">
-    <el-button size='small' type='primary' icon="Edit" @click="showAddDialog()">添加商品</el-button>
-    <el-button size='small' type='danger' icon="Delete" @click="confirmBatchDelete()">批量删除</el-button>
-  </div>
-
-  
-  
-
-  <!-- 确认批量删除对话框 -->
-  <div v-if="confirmDialogVisible" class="SettingPopUp">
+    <!--添加商品对话框-->
+    <div v-if="addDialogVisible" class="SettingPopUp">
       <div class="SettingContent">
-        <span class="close" @click="confirmDialogVisible = false">&times;</span>
-        <span>您确定要删除选中的商品吗？此操作不可撤销。</span>
-        <el-button type="primary" @click="deleteSelectedCommodities">确认</el-button>
-        <el-button @click="confirmDialogVisible = false">取消</el-button>
+        <el-form :model="newProduct" :rules="rules" ref="form">
+            <el-form-item label="商品名称" prop="name">
+              <el-input v-model="newProduct.name"></el-input>
+            </el-form-item>
+            <el-form-item label="系统分类" prop="categorySys">
+              <el-select v-model="newProduct.categorySys" @change="updateTag">
+                  <el-option-group
+                    v-for="group in categories"
+                    :key="group.largeCategoryName"
+                    :label="group.largeCategoryName"
+                  >
+                    <el-option
+                      v-for="item in group.subCategories"
+                      :key="item.subCategoryId"
+                      :label="item.subCategoryName"
+                      :value="item.subCategoryId"
+                    />
+                  </el-option-group>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="商家分类" prop="categoryInit">
+              <el-input v-model="newProduct.categoryInit"></el-input>
+            </el-form-item>
+            <el-form-item label="商品价格" prop="price">
+              <el-input v-model.number="newProduct.price"></el-input>
+            </el-form-item>
+            <el-form-item label="商品描述" prop="description">
+              <el-input v-model="newProduct.description"></el-input>
+            </el-form-item>
+            <!-- 商品图片展示 -->
+            <el-form-item label="商品图片" prop="images">
+              <div v-if="newProduct.images.length > 0" class="image-preview">
+                <div v-for="(image, index) in newProduct.images" :key="index" class="image-item">
+                  <img
+                    :src="generateImageURL(image)"
+                    alt="图片"
+                    style="width: 100px; height: 100px; object-fit: cover; margin-right: 5px;"
+                  />
+                </div>
+              </div>
+              <input type="file" @change="onFileChange" accept="image/*" />
+            </el-form-item>
+            <!-- 瑕疵图文描述展示 -->
+            <el-form-item label="瑕疵图文描述（图文一一对应）" prop="imagesWithText">
+              <div v-for="(item, index) in newProduct.imagesWithText" :key="index" class="image-text-item" style="display: flex; flex-direction: column; align-items: center; margin-bottom: 10px; margin-right: 10px;">
+                <img
+                  :src="generateImageURL(item.image)"
+                  alt="瑕疵图片"
+                  style="width: 50px; height: 50px; object-fit: cover; margin-bottom: 5px;"
+                />
+                <p>{{ item.text }}</p>
+              </div>
+            </el-form-item>
+            <!-- 瑕疵图文添加 -->
+            <el-form-item>
+              <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                <input type="file" @change="handleFileChange" id="defect-image-input" accept="image/*" />
+                <el-input
+                  type="textarea"
+                  :rows="3"
+                  v-model="newImageText"
+                  placeholder="输入瑕疵文字描述"
+                  style="margin-left: 10px; flex: 1;"
+                ></el-input>
+                <el-button type="primary" @click="addImageWithText" style="margin-left: 10px;">添加</el-button>
+              </div>
+            </el-form-item>
+        </el-form>
+
+        <div style="margin-top: 20px; display: flex; justify-content: flex-end;">
+          <el-button type="primary" @click="addNewProduct">添加</el-button>
+          <el-button type="default" @click="() => addDialogVisible = false" style="margin-left: 10px;">取消</el-button>
+        </div>
       </div>
-  </div>   
+    </div>
 
-  <!-- 翻页 -->
-  <div class="paginationContainer">
-    <el-pagination
-      v-model:current-page="currentPage"
-      :page-size="pageSize"
-      :total="totalProducts"
-      layout="total, prev, pager, next, jumper"
-      @current-change="handlePageChange">
-    </el-pagination>
-  </div>
+    <!-- 添加商品和批量删除按钮 -->
+    <div id="BottomButton">
+      <el-button size='small' type='primary' icon="Edit" @click="showAddDialog()">添加商品</el-button>
+      <el-button size='small' type='danger' icon="Delete" @click="confirmBatchDelete()">批量删除</el-button>
+    </div>
 
+    <!-- 确认批量删除对话框 -->
+    <div v-if="confirmDialogVisible" class="SettingPopUp">
+        <div class="SettingContent">
+          <span>您确定要删除选中的商品吗？此操作不可撤销。</span>
+          <el-button type="primary" @click="deleteSelectedCommodities">确认</el-button>
+          <el-button @click="confirmDialogVisible = false">取消</el-button>
+        </div>
+    </div>   
+
+    <!-- 翻页 -->
+    <div class="paginationContainer">
+      <el-pagination
+        v-model:current-page="currentPage"
+        :page-size="pageSize"
+        :total="totalProducts"
+        layout="total, prev, pager, next, jumper"
+        @current-change="handlePageChange">
+      </el-pagination>
+    </div>
+    
   </div>
 </template>
 
@@ -326,10 +256,10 @@ export default{
     const preProduct = ref({});
     const currentProduct = ref({});
     const editForm = ref(null);
-    const products=ref([]);
+    const products=ref([]);//记录商品数据
     const pageSize = 20;
     const currentPage = ref(1);
-    const totalProducts = ref(0);
+    const totalProducts = ref(0);//记录商品总数
     const addDialogVisible = ref(false);
     const form = ref(null);
     const confirmDialogVisible = ref(false);
@@ -342,9 +272,10 @@ export default{
     const deletedDefectImages= ref([]);  
     const categories = reactive([]);
     const message01 = ref('');
-  
-    const fetchProducts = async () => {
-  const storeId = localStorage.getItem('userId'); // 替换为实际的 storeId
+
+//根据商品是否售出展示商品
+const fetchProducts = async () => {
+  const storeId = localStorage.getItem('userId'); 
 
   try {
   const response = await axiosInstance.get('/StoreViewProduct/GetProductsByStoreIdAndViewType', {
@@ -353,42 +284,45 @@ export default{
       ViewType: viewType.value
     },
   });
-
-  console.log('Backend Response:', response.data);
-
+  // console.log('Backend Response:', response.data);
 
   if (Array.isArray(response.data)) {
     const processedProducts = response.data.map(product => {
-      console.log('Original Product Data:', product);
-
-      // 确保字段存在并转换正确
-      const image = product.productPic ? `data:image/jpeg;base64,${product.productPic}` : '';
+      // console.log('Original Product Data:', product);
 
       return {
         id: product.productId || 'N/A',
         name: product.productName || 'Unknown',
-        categorySys: product.tag || 'Unknown',
         categoryInit: product.storeTag || 'Unknown',
         price: product.productPrice || 0,
         isOnSale: product.saleOrNot !== undefined ? product.saleOrNot : false,
         description: product.description || 'No description available',
-        image: image,
       };
     });
+    // console.log('Processed Products:', processedProducts);
 
-    console.log('Processed Products:', processedProducts);
-    products.value = processedProducts; // 确保 products 是 Vue 的响应式对象
+    products.value = processedProducts; 
     totalProducts.value = processedProducts.length;
   } else {
     console.error('Unexpected response format:', response.data);
+  }} catch (error) {
+    console.error('获取商品数据失败:', error);
   }
-} catch (error) {
-  console.error('获取商品数据失败:', error);
-}
 };
-
+const handleChange = (viewTypeValue) => {
+      viewType.value = viewTypeValue;
+      fetchProducts();
+};
+//根据商品名称搜索商品
+const filterProducts = () => {
+      if (searchName.value.trim() !== '') {
+        fetchProductByName(searchName.value.trim());
+      } else {
+        fetchProducts();
+      }
+};
 const fetchProductByName = async (keyword) => {
-  const storeId = localStorage.getItem('userId'); // 替换为实际的 storeId
+  const storeId = localStorage.getItem('userId'); 
   try {
     const response = await axiosInstance.get('/StoreViewProduct/search', {
       params: {
@@ -399,7 +333,6 @@ const fetchProductByName = async (keyword) => {
 
     if (Array.isArray(response.data)) {
       const processedProducts = response.data.map(product => {
-        const image = product.productPic ? `data:image/jpeg;base64,${product.productPic}` : '';
 
         return {
         id: product.productId || 'N/A',
@@ -409,7 +342,6 @@ const fetchProductByName = async (keyword) => {
         price: product.productPrice || 0,
         isOnSale: product.saleOrNot !== undefined ? product.saleOrNot : false,
         description: product.description || 'No description available',
-        image: image,
         };
       });
 
@@ -421,9 +353,16 @@ const fetchProductByName = async (keyword) => {
     console.error('通过商品名称获取商品数据失败:', error);
   }
 };
-
+//根据商品分类搜索商品
+const filterProductsTag = () => {
+      if (searchcategoryInit.value.trim() !== '') {
+        fetchProductByTag(searchcategoryInit.value.trim());
+      } else {
+        fetchProducts();
+      }
+};
 const fetchProductByTag = async (storeTag) => {
-  const storeId = localStorage.getItem('userId'); // 替换为实际的 storeId
+  const storeId = localStorage.getItem('userId'); 
   try {
     const response = await axiosInstance.get('/StoreViewProduct/searchByStoreTag', {
       params: {
@@ -434,7 +373,6 @@ const fetchProductByTag = async (storeTag) => {
 
     if (Array.isArray(response.data)) {
       const processedProducts = response.data.map(product => {
-        const image = product.productPic ? `data:image/jpeg;base64,${product.productPic}` : '';
 
         return {
         id: product.productId || 'N/A',
@@ -444,7 +382,6 @@ const fetchProductByTag = async (storeTag) => {
         price: product.productPrice || 0,
         isOnSale: product.saleOrNot !== undefined ? product.saleOrNot : false,
         description: product.description || 'No description available',
-        image: image,
         };
       });
 
@@ -456,33 +393,27 @@ const fetchProductByTag = async (storeTag) => {
     console.error('通过商品名称获取商品数据失败:', error);
   }
 };
-
-    const filterProducts = () => {
-      if (searchName.value.trim() !== '') {
-        fetchProductByName(searchName.value.trim());
-      } else {
-        fetchProducts();
-      }
-    };
-
-    const filterProductsTag = () => {
-      if (searchcategoryInit.value.trim() !== '') {
-        fetchProductByTag(searchcategoryInit.value.trim());
-      } else {
-        fetchProducts();
-      }
-    };
-
-    const handleChange = (viewTypeValue) => {
-      viewType.value = viewTypeValue;
-      fetchProducts();
-    };
-    const fetchCategories = async () => {
+//获取商品系统分类并过滤
+const fetchCategories = async () => {
   try {
     const response = await axiosInstance.get('/Classification/GetAllCategories');
-    categories.splice(0, categories.length, ...response.data.categories);
+
+    // 要过滤掉的subCategoryId列表
+    const idsToRemove = ['00000', '01000', '02000', '03000', '04000'];
+    
+    // 处理过滤操作
+    const filteredCategories = response.data.categories.map(category => {
+      return {
+        ...category,
+        subCategories: category.subCategories.filter(subCategory => !idsToRemove.includes(subCategory.subCategoryId))
+      };
+    });
+    
+    // 更新 categories
+    categories.splice(0, categories.length, ...filteredCategories);
+    
     message01.value = '已获取系统分类数据';
-    console.log(categories);
+    // console.log(categories);
   } catch (error) {
     if (error.response) {
       message01.value = error.response.data;
@@ -491,86 +422,18 @@ const fetchProductByTag = async (storeTag) => {
     }
     ElMessage.error('获取分类数据失败，请稍后再试');
   }
-  console.log(message01.value);
 };
-    onMounted(() => {
-      fetchProducts();
-      fetchCategories();
-    });
-
-    const options = [
-  {
-    label: '服装',
-    children: [
-      { value: '001', label: '汉族传统服饰' },
-      { value: '002', label: '少数民族服饰' },
-      { value: '003', label: '地方特色服装' }
-    ]
-  },
-  {
-    label: '首饰',
-    children: [
-      { value: '004', label: '银饰' },
-      { value: '005', label: '玉饰' },
-      { value: '006', label: '宝石首饰' },
-      { value: '007', label: '民族特色首饰' }
-    ]
-  },
-  {
-    label: '家具',
-    children: [
-      { value: '008', label: '床榻类' },
-      { value: '009', label: '桌案类' },
-      { value: '010', label: '椅凳类' },
-      { value: '011', label: '柜架类' },
-      { value: '012', label: '屏风类' }
-    ]
-  },
-  {
-    label: '工艺品',
-    children: [
-      { value: '013', label: '陶瓷' },
-      { value: '014', label: '漆器' },
-      { value: '015', label: '刺绣' },
-      { value: '016', label: '景泰蓝' }
-    ]
-  },
-  {
-    label: '小物件',
-    children: [
-      { value: '017', label: '文房四宝' },
-      { value: '018', label: '剪纸艺术' },
-      { value: '019', label: '竹编' }
-    ]
-  }
-];
-
-// 获取标签的方法
-const getCategoryLabel = (value) => {
-      for (const category of options) {
-        const found = category.children.find(child => child.value === value);
-        if (found) {
-          return found.label;
-        }
-      }
-      return '未知分类';
-    };
-
-    const OnOrNot = [
-      {value: true, label: '是'},
-      {value: false, label: '否'}
-    ] 
-
-    // 查看
-    const handleCheck = (item) => {
-      currentProduct.value = item;
-      // dialogVisible.value = true;
-      // console.log(currentProduct.value);
-      localStorage.setItem('productIdOfDetail', item.id);
-      router.push('/productdetail');
-    };
-
-    const rules = {
+onMounted(() => {
+  fetchProducts();
+  fetchCategories();
+});
+//查看商品具体信息
+const handleCheck = (item) => {
+    currentProduct.value = item;
+    localStorage.setItem('productIdOfDetail', item.id);
+    router.push('/productdetail');
+};
+const rules = {
       name: [{ required: true, message: '请输入商品名称', trigger: 'blur' }],
       categorySys: [{ required: true, message: '请输入系统分类', trigger: 'blur' }],
       categoryInit: [{ required: true, message: '请输入商家分类', trigger: 'blur' }],
@@ -585,7 +448,6 @@ const getCategoryLabel = (value) => {
           }, trigger: 'blur' }],
       isOnSale: [{ required: true, message: '请选择是否出售', trigger: 'change' }],
       description: [{ required: true, message: '请输入商品描述', trigger: 'blur' }],
-      // image: [{ required: true, message: '请上传商品图片', trigger: 'change' }],
       images: [
     { validator: (rule, value, callback) => {
       if (value.length === 0) {
@@ -605,20 +467,15 @@ const getCategoryLabel = (value) => {
       }, trigger: 'change'
     }
   ]
-    };
-
-
-
-   
-    // 编辑
-    const removeSelectedImage = (index) => {
+};
+//编辑商品
+//移除新选中的商品图片
+const removeSelectedImage = (index) => {
   selectedImages.value.splice(index, 1);
 };
-const removeSelectedDefectImage = (index) => {
-  selectedDefectImages.value.splice(index, 1);
-};
-    const removeImage = (index) => {
-      if (preProduct.value.images.length > 1) {
+//编辑中删除服务器中的商品图片
+const removeImage = (index) => {
+    if (preProduct.value.images.length > 1) {
     // 从显示的图片数组中移除
     const removedImage = preProduct.value.images.splice(index, 1)[0]; // 从 preProduct.images 中移除图片，并获取该图片对象
 
@@ -632,15 +489,20 @@ const removeSelectedDefectImage = (index) => {
       type: 'warning'
     });
   }
-    };
-    const removeDefectImage = (index) => {
-    // 确保至少保留一张瑕疵图片
-    if (preProduct.value.defectImages.length > 1) {
-    // 从显示的瑕疵图片数组中移除
-    const removedImage = preProduct.value.defectImages.splice(index, 1)[0];
+};
+//移除新选中的瑕疵图文
+const removeSelectedDefectImage = (index) => {
+  selectedDefectImages.value.splice(index, 1);
+};
+//编辑中删除服务器中的瑕疵图片
+  const removeDefectImage = (index) => {
+  // 确保至少保留一张瑕疵图片
+  if (preProduct.value.defectImages.length > 1) {
+  // 从显示的瑕疵图片数组中移除
+  const removedImage = preProduct.value.defectImages.splice(index, 1)[0];
     
-    // 将已删除的瑕疵图片对象添加到 deletedDefectImages 数组中
-    if (removedImage) {
+  // 将已删除的瑕疵图片对象添加到 deletedDefectImages 数组中
+  if (removedImage) {
       deletedDefectImages.value.push(removedImage);
     }
   } else {
@@ -650,15 +512,20 @@ const removeSelectedDefectImage = (index) => {
     });
   }
 };
-    const handleCancel = () => {
-  // 清空选择的图片
+//取消编辑
+const handleCancel = () => {
+  // 清空选择的商品图片
   selectedImages.value = [];
-    // 清空 deletedImages 数组
+  // 清空 deletedImages 数组
   deletedImages.value = [];
+  // 清空选择的瑕疵图片
+  selectedDefectImages = [];
+  // 清空 deletedDefectImages 数组
+  deletedDefectImages.value= [];
   // 关闭对话框
   dialogVisibleTwo.value = false;
 };
-    const handleFile = (event) => {
+const handleFile = (event) => {
       const files = event.target.files;
   if (files.length > 0) {
     const newImages = Array.from(files).map(file => ({
@@ -668,7 +535,7 @@ const removeSelectedDefectImage = (index) => {
     selectedImages.value = [...selectedImages.value, ...newImages];
   }
     };
-    const handleDefectFile = (event) => {
+const handleDefectFile = (event) => {
   const files = event.target.files;
   if (files.length > 0) {
     const newImages = Array.from(files).map(file => ({
@@ -680,7 +547,7 @@ const removeSelectedDefectImage = (index) => {
   }
 };
    
-    const handleEdit = async (item) => {
+const handleEdit = async (item) => {
       if (item.isOnSale) {
         ElMessage({
           message: '该商品已经出售，无法编辑',
@@ -702,61 +569,58 @@ const removeSelectedDefectImage = (index) => {
       };
 
        // 获取商品图片
-  try {
-    const response = await axiosInstance.get(`/StoreViewProduct/getProductImages/${preProduct.value.id}`);
-    if (response.status === 200) {
-      preProduct.value.images = response.data;  // 将图片数据赋值给 preProduct.images
+        try {
+          const response = await axiosInstance.get(`/StoreViewProduct/getProductImages/${preProduct.value.id}`);
+          if (response.status === 200) {
+            preProduct.value.images = response.data;  // 将图片数据赋值给 preProduct.images
+          } else {
+            ElMessage({
+              message: '获取商品图片失败else',
+              type: 'error'
+            });
+          }
+        } catch (error) {
+          
+          ElMessage({
+            message: '获取商品图片失败，本商品可能不存在图片',
+            type: 'error'
+          });
+        }
+        //获取瑕疵图文
+        try {
+    const productDetailsResponse = await axiosInstance.get(`/StoreViewProduct/getProductDetails/${preProduct.value.id}`);
+    if (productDetailsResponse.status === 200) {
+      const productDetails = productDetailsResponse.data;
+      console.log('productDetails', productDetails);
+
+      // 确保 data 中的 image 和 description 存在且是数组
+      const defectImagesData = productDetails.map(detail => ({
+        imageId: detail.image.imageId,
+        imageUrl: detail.image.imageUrl,
+        description: detail.description || '描述获取失败'
+      }));
+
+      // 更新 defectImages
+      preProduct.value.defectImages = defectImagesData;
+
+      console.log('Defect Images:', preProduct.value.defectImages);
     } else {
       ElMessage({
-        message: '获取商品图片失败else',
+        message: '获取瑕疵图片失败',
         type: 'error'
       });
     }
   } catch (error) {
-    
     ElMessage({
-      message: '获取商品图片失败，本商品可能不存在图片',
+      message: '获取瑕疵图片失败，本商品可能不存在瑕疵图片',
       type: 'error'
     });
+    console.log('error', error);
   }
-  try {
-  const defectImagesResponse = await axiosInstance.get(`/StoreViewProduct/getDetailImages/${preProduct.value.id}`);
-  if (defectImagesResponse.status === 200) {
-    preProduct.value.defectImages = defectImagesResponse.data;
-
-    // 遍历每个瑕疵图片，获取其对应的描述
-    await Promise.all(preProduct.value.defectImages.map(async (defectImage) => {
-      try {
-        const descriptionResponse = await axiosInstance.get(`/StoreViewProduct/getProductDescription`, {
-          params: { imageId: defectImage.imageId }
-        });
-        if (descriptionResponse.status === 200) {
-          defectImage.description = descriptionResponse.data.length > 0 ? descriptionResponse.data[0].description : '';
-          console.log('Defect Images:', preProduct.value.defectImages);
-        } else {
-          defectImage.description = '描述获取失败';
-        }
-      } catch (error) {
-        defectImage.description = '描述获取失败';
-      }
-    }));
-  } else {
-    ElMessage({
-      message: '获取瑕疵图片失败',
-      type: 'error'
-    });
-  }
-} catch (error) {
-  ElMessage({
-    message: '获取瑕疵图片失败，本商品可能不存在瑕疵图片',
-    type: 'error'
-  });
-}
-  
-      
+        
       dialogVisibleTwo.value = true;
-    };
-    const updateDefectDescription = async () => {
+};
+const updateDefectDescription = async () => {
   try {
     // 遍历 preProduct.defectImages，准备更新描述
     const updateRequests = preProduct.value.defectImages.map(defectImage => {
@@ -790,15 +654,14 @@ const removeSelectedDefectImage = (index) => {
     });
   }
 };
+//上传商品图片
 const submitUpload = async () => {
-  if (selectedImages.value.length > 0) { // 使用 selectedImages.value 而不是 fileList.value
+  if (selectedImages.value.length > 0) { 
     const formData = new FormData();
-    
     selectedImages.value.forEach(image => {
       formData.append('images', image.file); // 从 selectedImages.value 中添加文件
     });
-    console.log(preProduct.value.id);
-    const uploadUrl = `/StoreViewProduct/addProductImage/${preProduct.value.id}`;
+    const uploadUrl = `/StoreViewProduct/addProductImage`;
     try {
       const response = await axiosInstance.post(uploadUrl, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
@@ -864,36 +727,30 @@ const submitDefectUpload = async () => {
     }
   }
 };
-    const onsubmit = async () => {
-    editForm.value.validate(async (valid) => {
-        if (valid) {
-            const formData = new FormData();
-            
-            // 将数据添加到 FormData 对象
-            formData.append('productId', preProduct.value.id);
-            formData.append('productName', preProduct.value.name);
-            formData.append('productPrice', preProduct.value.price);
-            formData.append('storeTag', preProduct.value.categoryInit);
-            formData.append('tag', preProduct.value.categorySys);
-            formData.append('description', preProduct.value.description);
-            const userId = localStorage.getItem('userId'); 
-            try {
-                const response = await axiosInstance.put('/StoreViewProduct/editProduct', formData, {
-                    params: {
-                        storeId: userId // 替换为实际的 storeId
-                    },
-                });
+const onsubmit = async () => {
+  editForm.value.validate(async (valid) => {
+    if (valid) {
+      const formData = new FormData();
+      formData.append('productId', preProduct.value.id);
+      formData.append('productName', preProduct.value.name);
+      formData.append('productPrice', preProduct.value.price);
+      formData.append('storeTag', preProduct.value.categoryInit);
+      //formData.append('tag', preProduct.value.categorySys);
+      formData.append('description', preProduct.value.description);
+      const userId = localStorage.getItem('userId'); 
+      formData.append('storeId', userId);
+        try {
+          const response = await axiosInstance.put('/StoreViewProduct/editProduct', formData);
 
-                // 处理响应
-                if (response.status === 200) {
-                dialogVisibleTwo.value = false;
-                currentProduct.value=preProduct.value;
-                fetchProducts();
-                ElMessage({
-                    message: '商品信息已更新',
-                    type: 'success'
-                });
-                  // 上传图片
+          if (response.status === 200) {
+            dialogVisibleTwo.value = false;
+            currentProduct.value=preProduct.value;
+            fetchProducts();
+            ElMessage({
+              message: '商品信息已更新',
+              type: 'success'
+            });
+          //上传商品图片
           if (selectedImages.value.length > 0) {
             await submitUpload();
           }
@@ -976,18 +833,17 @@ const submitDefectUpload = async () => {
         }
     });
 };
-    // 翻页
-    const currentPageData = computed(() => {
-    const start = (currentPage.value - 1) * pageSize;
-    const end = Math.min(start + pageSize, totalProducts.value);
-    return products.value.slice(start, end);
-    });
-    const handlePageChange = (page) => {
-      currentPage.value = page;
-    };
-
-    //删除单个
-    const handleDelete = async (row) => {
+//翻页
+const currentPageData = computed(() => {
+const start = (currentPage.value - 1) * pageSize;
+const end = Math.min(start + pageSize, totalProducts.value);
+  return products.value.slice(start, end);
+});
+const handlePageChange = (page) => {
+  currentPage.value = page;
+};
+//删除单个商品
+const handleDelete = async (row) => {
   if (row.isOnSale) {
     ElMessage({
       message: '该商品已经出售，无法删除',
@@ -1003,15 +859,14 @@ const submitDefectUpload = async () => {
       type: 'warning'
     });
 
-    const storeId = localStorage.getItem('userId');; // 替换为实际的storeId
+    const storeId = localStorage.getItem('userId');; 
     const productId = row.id;
 
-    // 发送请求到后端删除单个商品
     const response = await axiosInstance.delete('/StoreViewProduct/deleteProducts', {
       params: {
         storeId: storeId
       },
-      data: [productId] // 传递请求体为数组
+      data: [productId] 
     });
 
     if (response.status === 200) {
@@ -1024,7 +879,6 @@ const submitDefectUpload = async () => {
           currentPage.value--;
         }
       }
-
       ElMessage({
         message: '商品已删除',
         type: 'success'
@@ -1034,10 +888,9 @@ const submitDefectUpload = async () => {
         message: '删除商品失败',
         type: 'error'
       });
-    }
-  } catch (error) {
+    }}catch (error) {
     if (error !== 'cancel') {
-      console.error('删除商品失败:', error.response ? error.response.data : error.message);
+      // console.error('删除商品失败:', error.response ? error.response.data : error.message);
       ElMessage({
         message: '删除商品失败: ' + error.message,
         type: 'error'
@@ -1045,144 +898,7 @@ const submitDefectUpload = async () => {
     }
   }
 };
-
-
-    // 添加商品
-    const newProduct = ref({
-      name: '',
-      categorySys: '',
-      categoryInit: '',
-      price: null,
-      description: '',
-      images: [], // 存储多个商品图片
-      imagesWithText: []
-    });
-    const newImage = ref('');
-// 定义用于瑕疵图文描述的变量
-const newImageText = ref('');
-const newImageFile = ref(null);
-
-// 定义用于预览的URL
-const previewImageURL = ref('');
-const previewDefectImageURL = ref('');
-    const showAddDialog = () => {
-      newProduct.value = {
-        name: '',
-        categorySys: '',
-        categoryInit: '',
-        price: null,
-        description: '',
-        images: [], // 存储多个商品图片
-        imagesWithText: []
-      };
-      previewImageURL.value = '';
-  previewDefectImageURL.value = '';
-  addDialogVisible.value = true;
-    };
-    const onFileChange = (event) => {
-  const files = event.target.files;
-  if (files.length > 0) {
-    const fileArray = Array.from(files);
-    const promises = fileArray.map(file => {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => {
-          resolve({ file: file, url: reader.result });
-        };
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
-    });
-
-    Promise.all(promises).then(results => {
-      newProduct.value.images = results;
-    }).catch(error => {
-      console.error('读取文件失败:', error);
-    });
-  } else {
-    console.log('没有选择文件');
-  }
-};
-const handleFileChange = (event) => {
-  const file = event.target.files[0];
-  if (file) {
-    newImageFile.value = file;
-  }
-};
-// 添加瑕疵图文描述
-const addImageWithText = () => {
-  if (newImageFile.value && newImageText.value.trim() !== '') {
-    const imageUrl = window.URL.createObjectURL(newImageFile.value);
-    newProduct.value.imagesWithText.push({ image: imageUrl, text: newImageText.value.trim() });
-    newImageFile.value = null; // 清空图片文件
-    newImageText.value = ''; // 清空文字描述
-    previewDefectImageURL.value = ''; // 清空预览
-    // 清空文件输入框的值（可选）
-    const fileInput = document.getElementById('defect-image-input');
-    if (fileInput) {
-      fileInput.value = '';
-    }
-  } else {
-    ElMessage.warning('请先选择瑕疵图片并输入描述');
-  }
-};
-// 添加新商品
-const addNewProduct = async () => {
-  const formData = new FormData();
-  formData.append('ProductName', newProduct.value.name || '');
-  formData.append('ProductPrice', newProduct.value.price || '');
-  formData.append('StoreTag', newProduct.value.categoryInit || '');
-  formData.append('Description', newProduct.value.description || '');
-  formData.append('Tag', newProduct.value.categorySys || '');
-
-  // 上传商品图片文件
-  newProduct.value.images.forEach((file, index) => {
-    formData.append(`ProductImages[${index}]`, file);
-  });
-
-  // 上传瑕疵图片和描述
-  newProduct.value.imagesWithText.forEach((item, index) => {
-    formData.append(`PicDes[${index}].detailPic`, item.image); // 确保 item.image 是文件对象
-    formData.append(`PicDes[${index}].description`, item.text);
-  });
-
-  const storeId = localStorage.getItem('userId');
-  if (!storeId) {
-    ElMessage.error('未找到有效的 storeId');
-    return;
-  }
-
-  try {
-    const response = await axiosInstance.post(`/StoreViewProduct/addProduct`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-      params: { storeId: storeId }
-    });
-
-    if (response.status === 200) {
-      fetchProducts();
-      ElMessage.success('商品已添加');
-      newProduct.value = {
-        name: '',
-        categorySys: '',
-        categoryInit: '',
-        price: null,
-        description: '',
-        images: [],
-        imagesWithText: []
-      };
-      previewImageURL.value = '';
-      previewDefectImageURL.value = '';
-      addDialogVisible.value = false;
-    } else {
-      ElMessage.error('添加商品失败');
-    }
-  } catch (error) {
-    console.error('添加商品失败:', error.response ? error.response.data : error.message);
-    ElMessage.error('添加商品失败: ' + error.message);
-  }
-};
-
-//删除多个
+//删除多个商品
 const handleSelectionChange = (selection) => {
   selectedProducts.value = selection;
 };
@@ -1207,14 +923,7 @@ const confirmBatchDelete = () => {
 const deleteSelectedCommodities = async () => {
   if (selectedProducts.value.length > 0) {
     try {
-      // 确认对话框
-      // await ElMessageBox.confirm('此操作将永久删除所选商品, 是否继续?', '提示', {
-      //   confirmButtonText: '确定',
-      //   cancelButtonText: '取消',
-      //   type: 'warning'
-      // });
-
-      const storeId = localStorage.getItem('userId'); // 替换为实际的storeId
+      const storeId = localStorage.getItem('userId'); 
       const productIds = selectedProducts.value.map(product => product.id);
 
       // 发送请求到后端批量删除商品
@@ -1255,66 +964,210 @@ const deleteSelectedCommodities = async () => {
     });
   }
 };
-
-    return {
-      value,
-      options,
-      products,
-      dialogVisible,
-      dialogVisibleTwo,
-      currentProduct,
-      totalProducts,
-      currentPageData,
-      // totalPageCount,
-      pageSize,
-      OnOrNot,
-      preProduct,
-      newProduct,
-      newImage,
-      newImageText,
-      addDialogVisible,
-      confirmDialogVisible,
-      selectedProducts,
-      handleCheck,
-      handleDelete,
-      handlePageChange,
-      handleEdit,
-      onsubmit,
-      showAddDialog,
-      addNewProduct,
-      handleSelectionChange,
-      confirmBatchDelete,
-      deleteSelectedCommodities,
-      rules,
-      form,
-      editForm,
-      searchName,
-      searchcategoryInit,
-      fetchProducts,
-      viewType,
-      handleChange,
-      filterProducts,
-      filterProductsTag,
-      onFileChange,
-      addImageWithText,
-      handleFileChange,
-      getCategoryLabel,
-      removeImage,
-      handleFile,
-      removeSelectedImage,
-      selectedImages,
-      handleCancel,
-      deletedImages,
-      handleDefectFile,
-      removeSelectedDefectImage,
-      submitDefectUpload,
-      removeDefectImage,
-      selectedDefectImages,
-      deletedDefectImages,
-      categories,
-      message01
-    };
+//添加商品
+const newProduct = ref({
+  name: '',
+  categorySys: '',
+  categoryInit: '',
+  price: null,
+  description: '',
+  images: [],
+  imagesWithText: []
+});
+// 定义用于瑕疵图文描述的变量
+const newImageText = ref('');
+const newImageFile = ref(null);
+// 定义用于预览的URL
+const previewImageURL = ref('');
+const previewDefectImageURL = ref('');
+//打开添加商品的窗口
+const showAddDialog = () => {
+  newProduct.value = {
+    name: '',
+    categorySys: '',
+    categoryInit: '',
+    price: null,
+    description: '',
+    images: [], // 存储多个商品图片
+    imagesWithText: [],
+    Tag: ''
+  };
+  previewImageURL.value = '';
+  previewDefectImageURL.value = '';
+  addDialogVisible.value = true;
+};
+//处理商品图片的添加
+const onFileChange = (event) => {
+  const files = event.target.files;
+  if (files.length > 0) {
+    const fileArray = Array.from(files);
+    // 将新选择的文件追加到现有的 images 数组中
+    newProduct.value.images = [...newProduct.value.images, ...fileArray];
+  } else {
+    console.log('没有选择文件');
   }
+};
+//处理瑕疵图片的添加
+const handleFileChange = (event) => {
+  const file = event.target.files[0];
+  if (file) {
+    newImageFile.value = file;
+  }
+};
+//处理前端图片的展示
+const generateImageURL = (file) => {
+  return URL.createObjectURL(file);
+};
+//处理瑕疵图文的添加
+const addImageWithText = () => {
+  if (newImageFile.value && newImageText.value.trim() !== '') {
+    // 直接使用 File 对象存储到 imagesWithText 数组中
+    newProduct.value.imagesWithText.push({ image: newImageFile.value, text: newImageText.value.trim() });
+    newImageFile.value = null; // 清空图片文件
+    newImageText.value = ''; // 清空文字描述
+    // 清空文件输入框的值
+    const fileInput = document.getElementById('defect-image-input');
+    if (fileInput) {
+      fileInput.value = '';
+    }
+  } else {
+    ElMessage.warning('请先选择瑕疵图片并输入描述');
+  }
+};
+//给后端传大分类名称Tag
+const updateTag = (selectedSubCategoryId) => {
+  // 查找选中的系统分类对应的大标题名字
+  const selectedCategory = categories.find(group =>
+    group.subCategories.some(item => item.subCategoryId === selectedSubCategoryId)
+  );
+
+  // 更新 Tag 字段
+  newProduct.value.Tag = selectedCategory ? selectedCategory.largeCategoryName : '';
+};
+//添加商品总接口
+const addNewProduct = async () => {
+  // 先验证表单
+  if (form.value) {
+    form.value.validate(async (valid) => {
+      if (valid) {
+        const formData = new FormData();
+        const storeId = localStorage.getItem('userId');
+        if (!storeId) {
+          ElMessage.error('未找到有效的 storeId');
+          return;
+        }
+        formData.append('storeId', storeId || ''); // 添加 storeId
+        formData.append('ProductName', newProduct.value.name || '');
+        formData.append('ProductPrice', newProduct.value.price || '');
+        formData.append('Tag', newProduct.value.Tag || ''); // 添加 Tag
+        formData.append('SubTag', newProduct.value.categorySys || '');
+        formData.append('Description', newProduct.value.description || '');
+        formData.append('StoreTag', newProduct.value.categoryInit || '');
+
+        // 上传商品图片文件
+        newProduct.value.images.forEach((file, index) => {
+          formData.append("ProductImages", file); // 确保是 File 对象
+        });
+
+        // 上传瑕疵图片和描述
+        newProduct.value.imagesWithText.forEach((item, index) => {
+          formData.append(`PicDes[${index}].DetailPic`, item.image); // 确保 item.image 是 File 对象
+          formData.append(`PicDes[${index}].Description`, item.text);
+        });
+
+        try {
+          const response = await axiosInstance.post(`/StoreViewProduct/addProduct`, formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+          });
+
+          if (response.status === 200) {
+            fetchProducts();
+            ElMessage.success('商品已添加');
+            newProduct.value = {
+              name: '',
+              categorySys: '',
+              categoryInit: '',
+              price: null,
+              description: '',
+              images: [],
+              imagesWithText: [],
+              Tag: ''
+            };
+            previewImageURL.value = '';
+            previewDefectImageURL.value = '';
+            addDialogVisible.value = false;
+          } else {
+            ElMessage.error('添加商品失败');
+          }
+        } catch (error) {
+          console.error('添加商品失败:', error.response ? error.response.data : error.message);
+          ElMessage.error('添加商品失败: ' + error.message);
+        }
+      } else {
+        ElMessage.error('请完善表单内容');
+      }
+    });
+  } else {
+    ElMessage.error('未找到表单引用');
+  }
+}
+
+return {
+  value,
+  products,
+  dialogVisible,
+  dialogVisibleTwo,
+  currentProduct,
+  totalProducts,
+  currentPageData,
+  pageSize,
+  preProduct,
+  newProduct,
+  newImageText,
+  addDialogVisible,
+  confirmDialogVisible,
+  selectedProducts,
+  handleCheck,
+  handleDelete,
+  handlePageChange,
+  handleEdit,
+  onsubmit,
+  showAddDialog,
+  addNewProduct,
+  handleSelectionChange,
+  confirmBatchDelete,
+  deleteSelectedCommodities,
+  rules,
+  form,
+  editForm,
+  searchName,
+  searchcategoryInit,
+  fetchProducts,
+  viewType,
+  handleChange,
+  filterProducts,
+  filterProductsTag,
+  onFileChange,
+  addImageWithText,
+  handleFileChange,
+  removeImage,
+  handleFile,
+  removeSelectedImage,
+  selectedImages,
+  handleCancel,
+  deletedImages,
+  handleDefectFile,
+  removeSelectedDefectImage,
+  submitDefectUpload,
+  removeDefectImage,
+  selectedDefectImages,
+  deletedDefectImages,
+  categories,
+  message01,
+  updateTag,
+  generateImageURL
+};
+}
 }
 </script>
 

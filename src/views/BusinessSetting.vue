@@ -1,3 +1,4 @@
+<!-- 废除页面 -->
 <template>
   <div class="business-setting">
     <el-tabs v-model="activeTab">
