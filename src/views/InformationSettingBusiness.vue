@@ -68,10 +68,10 @@
                             </div>
                             <div v-else-if="certificationStatus === '审核通过'">
                             <p>您的认证资料已通过审核。</p>
-                            <div v-for="(image, index) in certificationUp.images" :key="index" style="margin-bottom: 10px;">
+                            <div v-for="(image, index) in certificationUp.images" :key="index" style="margin-bottom: 2px;">
                                 <img :src="image" alt="认证图片" style="width: 40px; height: 40px;" />
                             </div>
-                            <p>{{ certificationUp.description }}</p>
+                            <p>相关文字描述：{{ certificationUp.description }}</p>
                             </div>
                         </el-card>
                     </div>
@@ -370,20 +370,20 @@ export default {
                 this.$message.error('获取认证状态失败，请稍后再试');
             }
         },
-        //获取认证资料图片
+        // 获取认证资料图片和文字描述
         async fetchCertificationImageAndText(storeId) {
             try {
                 const response = await axiosInstance.get('/StoreFront/GetStoreAuthImg', {
-                params: { storeId }
+                    params: { storeId }
                 });
 
                 const { authentication, photo } = response.data;
-                this.certificationUp.image = `data:image/jpeg;base64,${photo}`;
-                this.certificationUp.description = authentication;
+                // 处理 photo 中的 imageUrl 字段
+                this.certificationUp.images = [photo.imageUrl]; // 存储图片 URL 到数组
+                this.certificationUp.description = authentication; // 存储认证资料文字描述
 
                 console.log('获取到的认证图片和文字描述:', this.certificationUp);
             } catch (error) {
-
                 console.error('获取认证图片和文字描述失败:', error);
                 this.$message.error('获取认证图片和文字描述失败，请稍后再试');
             }
