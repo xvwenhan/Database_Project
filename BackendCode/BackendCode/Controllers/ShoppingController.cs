@@ -207,8 +207,8 @@ namespace BackendCode.Controllers
             /* 查询市集相关信息 */
             var marketProduct = await _dbContext.MARKET_PRODUCTS.FirstOrDefaultAsync(mp => mp.PRODUCT_ID == productId);
 
-            /* 计算折扣价格 */
-            decimal discountPrice = marketProduct != null ? (product.PRODUCT_PRICE * marketProduct.DISCOUNT_PRICE) : product.PRODUCT_PRICE;
+            /* 商品折扣 */
+            decimal discountPrice = marketProduct != null ? marketProduct.DISCOUNT_PRICE : 1;
 
             /* 查询用户是否收藏该商品 */
             var isProductStared = await _dbContext.BUYER_PRODUCT_BOOKMARKS
@@ -252,7 +252,7 @@ namespace BackendCode.Controllers
                 Description = product.DESCRIBTION, //商品描述
                 StoreName = store.STORE_NAME, //店铺名称
                 StoreId = store.ACCOUNT_ID, //店铺ID
-                DiscountPrice = discountPrice, //折扣价格
+                DiscountPrice = discountPrice, //商品折扣（没有参与市集为1）
                 FromWhere = store.ADDRESS, //发货地
                 Score = store.STORE_SCORE, //店铺评分
                 IsProductStared = isProductStared, //商品是否被收藏
