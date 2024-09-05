@@ -102,10 +102,10 @@
         <div class="overlay">细节描述：{{ product.description }}</div> -->
       </div>
       <div class="text">
-        <div v-show="product.discountPrice===product.price" class="price">￥{{ product.price }}</div>
-        <div v-show="product.discountPrice!==product.price" class="doubleprice">
+        <div v-show="product.discountPrice===0" class="price">￥{{ product.price }}</div>
+        <div v-show="product.discountPrice!==0" class="doubleprice">
           <div class="discountPrice">￥{{ product.price }}</div>
-          <div class="price">￥{{ product.discountPrice }}</div>
+          <div class="price">￥{{ product.finalPrice }}</div>
         </div>
         <div class="name">{{ product.name }}</div>
         <div class="description">（细节描述）{{ product.description }}</div>
@@ -333,15 +333,15 @@
         });
         isLoading.value=false;
         product.value=response.data;
-        product.value.finalPrice=product.value.discountPrice;
+        product.value.finalPrice=parseFloat((product.value.discountPrice*product.value.price).toFixed(2));
         imagesWithDescriptions.value = product.value.imageAndText || [];
-        console.log(`imagesWithDescriptions is ${JSON.stringify(imagesWithDescriptions.value,null,2)}`);
+        console.log(`product is ${JSON.stringify(product.value,null,2)}`);
+        // console.log(`imagesWithDescriptions is ${JSON.stringify(imagesWithDescriptions.value,null,2)}`);
         productImages.value=product.value.pictures || [];
-        console.log(`productImages.value is ${JSON.stringify(productImages.value, null, 2)}`)
+        // console.log(`productImages.value is ${JSON.stringify(productImages.value, null, 2)}`)
         currentImage.value = productImages.value[0] || null;
-
         showProducts();
-        console.log('页面加载完成');
+        // console.log('页面加载完成');
         ////////////////////////////////折扣测试
         // product.value.discountPrice=3;
         // console.log(product.value);
@@ -357,7 +357,7 @@
           }
         });
         isAbleBuy.value=!response.data;
-        console.log(`isAbleBuy.value is ${isAbleBuy.value}`);
+        // console.log(`isAbleBuy.value is ${isAbleBuy.value}`);
         } catch (error) {
         }
     }
@@ -370,7 +370,7 @@
     }
     const starProduct = async() => {
       if(product.value.isProductStared===false){
-        console.log('进入收藏');
+        // console.log('进入收藏');
         try {
           const response = await axiosInstance.post('/Favourite/BookmarkProduct', null, {
               params: {
@@ -494,7 +494,7 @@
         // product.productPic = `data:image/png;base64,${product.productPic}`;
         displayProducts.push(product);
       });
-      console.log(`displayProducts is ${JSON.stringify(displayProducts, null, 2)}`)
+      // console.log(`displayProducts is ${JSON.stringify(displayProducts, null, 2)}`)
     } catch (error) {
       if (error.response) {
         message.value = error.response.data;
@@ -831,6 +831,7 @@ transform: scale(0.95); /* 点击时缩小效果 */
 .displayProductItem:hover{
   transform: translateY(-2px);
 }
+
 .product-image{
   border-radius: 15px; 
   width:100%;
@@ -849,6 +850,12 @@ transform: scale(0.95); /* 点击时缩小效果 */
 
 .product-text{
   align-self: end;
+}
+.product-text h2{
+  font-size:18px;
+}
+.product-text p{
+  font-size:auto;
 }
 .shop-remarks{
   background-color: #fff;
