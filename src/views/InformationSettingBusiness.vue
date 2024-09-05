@@ -8,22 +8,22 @@
         <div class="content">
           <div class="main-container">
         
-            <h2>店铺基础信息管理</h2>
-            <div class="user-info">
-                <el-card class="custom-card-width">
-                    <el-form :model="businessInfo" label-width="80px" class="user-form">
-                        <el-form-item label="店铺名" :rules="[{ required: true, message: '请输入店铺名', trigger: 'blur' }]">
-                            <el-input v-model="businessInfo.username" placeholder="请输入店铺名"></el-input>
-                        </el-form-item>
-                        <el-form-item label="商家地址" :rules="[{ required: true, message: '请输入商家地址', trigger: 'blur' }]">
-                            <el-input v-model="businessInfo.address" placeholder="请输入商家地址"></el-input>
-                        </el-form-item>
-                        <div class="form-footer">
-                            <el-button type="primary" @click="updateBusinessInfo">保存</el-button>
-                        </div>
-                    </el-form>
-                </el-card>
-            </div>
+                <h2>店铺基础信息管理</h2>
+                <div class="user-info">
+                    <el-card class="custom-card-width">
+                        <el-form :model="businessInfo" label-width="80px" class="user-form">
+                            <el-form-item label="店铺名" :rules="[{ required: true, message: '请输入店铺名', trigger: 'blur' }]">
+                                <el-input v-model="businessInfo.username" placeholder="请输入店铺名"></el-input>
+                            </el-form-item>
+                            <el-form-item label="商家地址" :rules="[{ required: true, message: '请输入商家地址', trigger: 'blur' }]">
+                                <el-input v-model="businessInfo.address" placeholder="请输入商家地址"></el-input>
+                            </el-form-item>
+                            <div class="form-footer">
+                                <el-button type="primary" @click="updateBusinessInfo">保存</el-button>
+                            </div>
+                        </el-form>
+                    </el-card>
+                </div>
 
                 <h2>店铺头像简介上传</h2>
                 <div class="user-info">
@@ -44,35 +44,39 @@
                 </div>
 
                 <h2>店铺认证资料管理</h2>
-            <div class="user-info">
-                <el-card class="custom-card-width">
-                    <div v-if="certificationStatus === '请求上传'">
-                        <el-form :model="certificationUp" :rules="rules" ref="form" class="user-form">
-                            <el-form-item label="认证资料图片上传(.jpg)" prop="image">
-                                <img :src="certificationUp.image" alt="当前图片" v-if="certificationUp.image" style="width: 40px; height: 40px;" />
-                                <input type="file" @change="handleFileChange" accept=".jpg" />
-                            </el-form-item>
-                            <el-form-item label="认证资料文字描述" prop="description">
-                                <el-input v-model="certificationUp.description"></el-input>
-                            </el-form-item>
-                        </el-form>
-                        <div class="form-footer">
-                            <el-button type="primary" @click="handleCertificationUpload">上传认证资料(图片和文字)</el-button>
-                        </div>
+                    <div class="user-info">
+                        <el-card class="custom-card-width">
+                            <div v-if="certificationStatus === '请求上传'">
+                                <el-form :model="certificationUp" ref="form" class="user-form">
+                                    <el-form-item label="认证资料图片上传(.jpg)" prop="image">
+                                    <div v-for="(image, index) in certificationUp.images" :key="index" style="margin-bottom: 10px; position: relative; display: inline-block;">
+                                        <img :src="image" alt="当前图片" style="width: 40px; height: 40px; display: block;margin-right: 8px" />
+                                        <span class="close" @click="removeImage(index)">&times;</span>
+                                    </div>
+                                    <input type="file" @change="handleFileChange" accept=".jpg,.png" />
+                                    </el-form-item>
+                                    <el-form-item label="认证资料文字描述" prop="description">
+                                    <el-input v-model="certificationUp.description"></el-input>
+                                    </el-form-item>
+                                </el-form>
+                                <div class="form-footer">
+                                    <el-button type="primary" @click="handleCertificationUpload">上传认证资料(图片和文字)</el-button>
+                                </div>
+                            </div>
+                            <div v-else-if="certificationStatus === '正在审核'">
+                            <p>您的认证资料正在审核中，请稍等。</p>
+                            </div>
+                            <div v-else-if="certificationStatus === '审核通过'">
+                            <p>您的认证资料已通过审核。</p>
+                            <div v-for="(image, index) in certificationUp.images" :key="index" style="margin-bottom: 10px;">
+                                <img :src="image" alt="认证图片" style="width: 40px; height: 40px;" />
+                            </div>
+                            <p>{{ certificationUp.description }}</p>
+                            </div>
+                        </el-card>
                     </div>
-                    <div v-else-if="certificationStatus === '正在审核'">      
-                        <p>您的认证资料正在审核中，请稍等。</p>
-                    </div>
-                    <div v-else-if="certificationStatus === '审核通过'">
-                        <p>您的认证资料已通过审核。</p>
-                        <img :src="certificationUp.image" alt="认证图片" style="width: 40px; height: 40px;" />
-                        <p>{{ certificationUp.description }}</p>
-                    </div>
-                </el-card>
-            </div>
-          </div>
 
-          
+            </div>
         </div>
       </div>
     </div>
@@ -82,8 +86,8 @@
 <script>
 import SettingSidebar from '../components/SettingSidebarbusiness.vue'
 import SettingHeader from '../components/SettingHeader.vue'
-import { reactive, ref, computed, onMounted  } from 'vue';
-import { ElTable, ElTableColumn, ElPagination, ElButton, ElDialog, ElForm, ElFormItem, ElInput, ElRow, ElCol, ElSelect, ElOption, ElMessage } from 'element-plus';
+import { ElButton, ElForm, ElFormItem, ElInput} from 'element-plus';
+import { Close } from '@element-plus/icons-vue';
 import 'element-plus/dist/index.css';
 import axiosInstance from '../components/axios';
 
@@ -91,15 +95,17 @@ export default {
     name:'InformationSettingBusiness',
     components:{
         SettingSidebar,
-        SettingHeader
+        SettingHeader,
+        Close,
     },
     data() {
         return {
             //认证资料
             certificationStatus: '请求上传', // '请求上传', '正在审核', '审核通过'
-            certificationUp:{
-                image:'',
-                description:''
+            certificationUp: {
+                imageFiles: [], // 存储多个 File 对象
+                images: [], // 存储多个图片的 URL
+                description: '', // 认证资料描述
             },
             passStatus:false,
             rules: {
@@ -129,33 +135,39 @@ export default {
     this.updateBusinessInfo();  
    },
     methods: {
+        //处理认证资料上传
         handleFileChange(event) {
             const file = event.target.files[0];
             if (file) {
-                console.log('Selected file:', file); // 输出文件信息
                 const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
                 if (validTypes.includes(file.type)) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    this.certificationUp.image = e.target.result;
-                };
-                reader.readAsDataURL(file);
+                // 添加 File 对象到数组
+                this.certificationUp.imageFiles.push(file);
+                // 生成并添加图片 URL 到数组
+                this.certificationUp.images.push(this.generateImageURL(file));
                 } else {
                 this.$message.error('请上传正确格式的图片 (.jpg 或 .png)');
                 }
+            } else {
+                this.$message.error('未选择任何文件');
             }
         },
+        //处理前端图片的展示
+        generateImageURL(file) {
+            return URL.createObjectURL(file);
+        },
+        //处理头像上传
         handleFile(event) {
-    const file = event.target.files[0];
-    if (file) {
-        console.log('选中的文件:', file);
-        this.userimades.file = file;
-        this.userimades.ima = URL.createObjectURL(file);
-        console.log('userfile',file,'userima',this.userimades.ima);
-    } else {
-        console.log('文件选择失败或无效');
-    }
-},
+            const file = event.target.files[0];
+            if (file) {
+                console.log('选中的文件:', file);
+                this.userimades.file = file;
+                this.userimades.ima = URL.createObjectURL(file);
+                console.log('userfile',file,'userima',this.userimades.ima);
+            } else {
+                console.log('文件选择失败或无效');
+            }
+        },
         //获取头像简介
         async fetchImageAndText(id) {
             try {
@@ -214,43 +226,49 @@ export default {
         this.$message.error('请求失败，请稍后再试');
     }
 },
-        //上传认证资料
+       // 上传认证资料
         async handleCertificationUpload() {
-            try {
-                if (!this.certificationUp.image) {
-                this.$message.error('请提供图片');
-                return;
-                }
-
-                // 从图片数据中去除 Base64 前缀
-                const photoBase64 = this.certificationUp.image.split(',')[1]; 
-                const authentication = this.certificationUp.description;
-                const storeId = localStorage.getItem('userId'); 
-
-                if (!photoBase64 || !authentication) {
-                this.$message.error('请提供图片和认证资料');
-                return;
-                }
-
-                const response = await axiosInstance.post('/StoreFront/SubmitAuthentication', {
-                photoBase64,
-                authentication,
-                }, {
-                params: {
-                    storeId,
-                },
-                });
-
-                if (response.status === 200) {
-                this.$message.success('认证资料上传成功，请刷新网页以查看最新状态');
-                // this.certificationStatus = '正在审核'; 
-                } else {
-                this.$message.error(`上传失败: ${response.data.message}`);
-                }
-            } catch (error) {
-                console.error('请求失败:认证资料上传', error.response ? error.response.data : error.message);
-                this.$message.error('请求失败，请稍后再试');
+        try {
+            if (!this.certificationUp.imageFiles.length) {
+            this.$message.error('请至少上传一张图片');
+            return;
             }
+
+            const storeId = localStorage.getItem('userId');
+            if (!storeId || !this.certificationUp.description) {
+            this.$message.error('请提供图片和认证资料');
+            return;
+            }
+
+            const formData = new FormData();
+
+            // 循环添加所有图片文件到 FormData
+            this.certificationUp.imageFiles.forEach((file) => {
+            formData.append('Photo', file); // 改成 'Photo'
+            });
+
+            formData.append('Authentication', this.certificationUp.description); // 添加认证资料描述
+            formData.append('storeId', storeId); // 将 storeId 作为 body 参数传递
+
+            const response = await axiosInstance.post('/StoreFront/SubmitAuthentication', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+            });
+
+            if (response.status === 200) {
+            this.$message.success('认证资料上传成功，请刷新网页以查看最新状态');
+            } else {
+            this.$message.error(`上传失败: ${response.data.message}`);
+            }
+        } catch (error) {
+            console.error('认证资料上传失败', error);
+            this.$message.error('请求失败，请稍后再试');
+        }
+        },
+        removeImage(index) {
+        this.certificationUp.imageFiles.splice(index, 1);  // 删除对应的 File 对象
+        this.certificationUp.images.splice(index, 1);  // 删除对应的图片 URL
         },
         //获取商家信息
         async getUserInfo(userId) {
@@ -440,6 +458,15 @@ export default {
 .form-footer {
   display: flex;
   justify-content: flex-end;
+}
+
+.close {
+  position: absolute;
+  top: -8px;
+  right: 0px;
+  color: red;
+  font-size: 20px;
+  cursor: pointer;
 }
   
 </style>
