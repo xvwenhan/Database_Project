@@ -122,8 +122,8 @@
               <div class="text-price1" >价格明细</div>
           </div>
           <div class="text-price">商品原价：&#8201;&#8201;{{ (product.price) }}元</div>
-          <div class="text-price">活动折扣：&#8201;&#8201;{{ product.discountPrice===product.price?'本商品未参与活动': '* '+product.discount*100+'%'}}</div>
-          <div class="text-price">折后价格：&#8201;&#8201;{{ product.discountPrice }}元</div>
+          <div class="text-price">活动折扣：&#8201;&#8201;{{ product.discountPrice===0?'本商品未参与活动': '* '+product.discountPrice*100+'%'}}</div>
+          <div class="text-price">折后价格：&#8201;&#8201;{{ product.finalPrice }}元</div>
           <div v-show="creditPrice!==0">
               <div class="useCredit">
                   <div class="text-price-active">是否使用积分</div>
@@ -176,7 +176,7 @@
               <div class="text-price1" >价格明细</div>
           </div>
           <div class="text-price">商品原价：&#8201;&#8201;{{ (product.price) }}元</div>
-          <div class="text-price">活动折扣：&#8201;&#8201;{{ product.discountPrice===product.price?'本商品未参与活动': '* '+product.discount*100+'%'}}</div>
+          <div class="text-price">活动折扣：&#8201;&#8201;{{ product.discountPrice===0?'本商品未参与活动': '* '+product.discountPrice*100+'%'}}</div>
           <div class="text-price">折后价格：&#8201;&#8201;{{ product.discountPrice }}元</div>
           <div class="text-price-active">积分抵扣：&#8201;&#8201;{{ product.discountPrice-product.finalPrice }}元</div>
           <div class="text-price-active">价格合计：{{ product.finalPrice }}元</div>
