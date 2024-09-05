@@ -277,7 +277,7 @@ export default {
                 
                 if (response.data.message === '用户查找成功！') { // 根据实际响应内容调整
                 this.businessInfo = {
-                    // username: response.data.target_user.useR_NAME,
+                    username: response.data.target_user.useR_NAME,
                     // gender: response.data.target_user.gender,
                     email: response.data.target_user.email,
                     address:response.data.target_user.address
@@ -327,24 +327,24 @@ export default {
             }
         },
         //获取商家信息
-        async fetchStoreName() {
-            const storeId = localStorage.getItem('userId'); // 替换为实际的 storeid
-            this.loading = true;
-            this.error = null;
-            this.storeScoreName = null;
+        // async fetchStoreName() {
+        //     const storeId = localStorage.getItem('userId'); 
+        //     this.loading = true;
+        //     this.error = null;
+        //     this.storeScoreName = null;
 
-            try {
-                const response = await axiosInstance.get('/StoreFront/UpdateStoreScore', {
-                params: { storeId }
-                });
-                this.businessInfo.username = response.data.storeName;
-            } catch (error) {
-                this.error = 'Failed to fetch store score';
-                console.error('Error fetching store score:', error);
-            } finally {
-                this.loading = false;
-            }
-        },
+        //     try {
+        //         const response = await axiosInstance.get('/StoreFront/UpdateStoreScore', {
+        //         params: { storeId }
+        //         });
+        //         this.businessInfo.username = response.data.storeName;
+        //     } catch (error) {
+        //         this.error = 'Failed to fetch store score';
+        //         console.error('Error fetching store score:', error);
+        //     } finally {
+        //         this.loading = false;
+        //     }
+        // },
         //获取认证资料状态
         async checkCertificationStatus() {
             const storeId =  localStorage.getItem('userId');  // 替换为实际的 storeId
@@ -398,7 +398,7 @@ export default {
     mounted() {          
         const userId = localStorage.getItem('userId');
         this.getUserInfo(userId);
-        this.fetchStoreName();
+        // this.fetchStoreName();
         this.checkCertificationStatus(); 
         this.fetchImageAndText(userId);
     }

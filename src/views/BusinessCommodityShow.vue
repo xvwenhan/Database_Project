@@ -300,7 +300,7 @@ const fetchProducts = async () => {
         id: product.productId || 'N/A',
         name: product.productName || 'Unknown',
         categoryInit: product.storeTag || 'Unknown',
-        categorySys: findSubCategoryName(product.subTag) || 'Unknown',
+        categorySys: product.subTag || 'Unknown',
         price: product.productPrice || 0,
         isOnSale: product.saleOrNot !== undefined ? product.saleOrNot : false,
         description: product.description || 'No description available',
@@ -344,7 +344,7 @@ const fetchProductByName = async (keyword) => {
         return {
         id: product.productId || 'N/A',
         name: product.productName || 'Unknown',
-        categorySys: product.tag || 'Unknown',
+        categorySys: product.subTag || 'Unknown',
         categoryInit: product.storeTag || 'Unknown',
         price: product.productPrice || 0,
         isOnSale: product.saleOrNot !== undefined ? product.saleOrNot : false,
@@ -384,7 +384,7 @@ const fetchProductByTag = async (storeTag) => {
         return {
         id: product.productId || 'N/A',
         name: product.productName || 'Unknown',
-        categorySys: product.tag || 'Unknown',
+        categorySys: product.subTag || 'Unknown',
         categoryInit: product.storeTag || 'Unknown',
         price: product.productPrice || 0,
         isOnSale: product.saleOrNot !== undefined ? product.saleOrNot : false,
@@ -418,6 +418,9 @@ const fetchCategories = async () => {
     
     // 更新 categories
     categories.splice(0, categories.length, ...filteredCategories);
+
+     // 调试输出
+     console.log('Updated categories:', categories);
     
     message01.value = '已获取系统分类数据';
     // console.log(categories);
@@ -553,21 +556,6 @@ const handleDefectFile = (event) => {
     }));
     selectedDefectImages.value = [...selectedDefectImages.value, ...newImages];
   }
-};
-//编辑系统分类-获取小分类名
-const findSubCategoryName = (subCategoryId) => {
-  if (!Array.isArray(categories.value)) {
-    console.error('categories.value 不是数组');
-    return 'Unknown';
-  }
-
-  for (const group of categories.value) {
-    const subCategory = group.subCategories.find(sub => sub.subCategoryId === subCategoryId);
-    if (subCategory) {
-      return subCategory.subCategoryName;
-    }
-  }
-  return 'Unknown';
 };
 //编辑商品框  
 const handleEdit = async (item) => {
@@ -772,7 +760,7 @@ const updateTagT = (selectedSubCategoryId) => {
   );
 
   // 更新 Tag 字段
-  preProduct.value.tag = selectedCategory ? selectedCategory.largeCategoryName : '';
+  preProduct.value.Tag = selectedCategory ? selectedCategory.largeCategoryName : '';
 };
 //提交
 const onsubmit = async () => {
@@ -788,6 +776,9 @@ const onsubmit = async () => {
       formData.append('description', preProduct.value.description);
       const userId = localStorage.getItem('userId'); 
       formData.append('storeId', userId);
+      for (const [key, value] of formData.entries()) {
+    console.log(`${key}: ${value}`);
+  }
         try {
           const response = await axiosInstance.put('/StoreViewProduct/editProduct', formData);
 
