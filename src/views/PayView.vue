@@ -122,8 +122,8 @@
               <div class="text-price1" >价格明细</div>
           </div>
           <div class="text-price">商品原价：&#8201;&#8201;{{ (product.price) }}元</div>
-          <div class="text-price">活动折扣：&#8201;&#8201;{{ product.discountPrice===0?'本商品未参与活动': '* '+product.discountPrice*100+'%'}}</div>
-          <div class="text-price">折后价格：&#8201;&#8201;{{ product.finalPrice }}元</div>
+          <div class="text-price">活动折扣：&#8201;&#8201;{{ product.discountPrice===1?'本商品未参与活动': '* '+product.discountPrice*100+'%'}}</div>
+          <div class="text-price">折后价格：&#8201;&#8201;{{ parseFloat((product.price*product.discountPrice).toFixed(2)) }}元</div>
           <div v-show="creditPrice!==0">
               <div class="useCredit">
                   <div class="text-price-active">是否使用积分</div>
@@ -292,9 +292,11 @@ onMounted(async () => {
   // console.log(`productId is ${productId}`);
   // console.log(`userId is ${userId}`);
   // console.log(`creditPrice is ${JSON.stringify(creditPrice, null, 2)}`);
-  if(isPaid==false){
-    product.value.finalPrice=product.value.discountPrice;
-  }
+
+  //////////可以删
+  // if(isPaid==false){
+  //   product.value.finalPrice=product.value.discountPrice;
+  // }
   const formData = new FormData();
   formData.append('BuyerId',userId);
   formData.append('ProductId',productId);
@@ -341,13 +343,13 @@ console.log(address1);
 //根据积分计算最终价格
 const priceCalculate=()=>{
   // 确保 discountPrice 和 creditPrice 是数字进行计算
-  const discount = parseFloat(product.value.discountPrice);
+  const afterDiscount=parseFloat((product.value.price*product.value.discountPrice).toFixed(2));
   const credits = creditPrice.value;
   console.log(`isUseCredits.value is ${isUseCredits.value}`);
   if (isUseCredits.value === 'yes') {
-      product.value.finalPrice = parseInt((discount - credits).toFixed(2)); // 计算最终价格并保留两位小数
+      product.value.finalPrice =afterDiscount- credits; // 计算最终价格并保留两位小数
   } else {
-      product.value.finalPrice = parseInt(discount.toFixed(2)); // 如果不使用积分，最终价格就是折扣价格
+      product.value.finalPrice = afterDiscount; // 如果不使用积分，最终价格就是折扣价格
   }
   if(product.value.finalPrice<0){
       product.value.finalPrice=0;
