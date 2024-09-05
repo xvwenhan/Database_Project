@@ -102,8 +102,8 @@
         <div class="overlay">细节描述：{{ product.description }}</div> -->
       </div>
       <div class="text">
-        <div v-show="product.discountPrice===0" class="price">￥{{ product.price }}</div>
-        <div v-show="product.discountPrice!==0" class="doubleprice">
+        <div v-show="product.discountPrice===1" class="price">￥{{ product.price }}</div>
+        <div v-show="product.discountPrice!==1" class="doubleprice">
           <div class="discountPrice">￥{{ product.price }}</div>
           <div class="price">￥{{ product.finalPrice }}</div>
         </div>
