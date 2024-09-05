@@ -36,8 +36,9 @@ class="input_content">
   </div> -->
   <div class="post-container">
     <div class="header">
-      <button :style="{ backgroundImage: `url(${buttons[1].background})`, 
-      backgroundColor: buttons[1].backgroundColor }" @click="buttonClick(buttons[1])" class="back_button" ></button>
+      <!-- <button :style="{ backgroundImage: `url(${buttons[1].background})`, 
+      backgroundColor: buttons[1].backgroundColor }" @click="buttonClick(buttons[1])" class="back_button" ></button> -->
+       <img class="back_button" src="@/assets/czw/back.svg" alt="back" @click="buttonClick(1)"  />
       <p>发布新帖</p>
     </div>
     <div class="content">
@@ -159,8 +160,8 @@ const getImageURL = (file) => {
 //   }
 // };
 
-const buttonClick = (button) => {
-  if(button.id==2){
+const buttonClick = (id) => {
+  if(id==1){
     router.push('/forum'); // 跳转回 /forum 页面
   }
 };
