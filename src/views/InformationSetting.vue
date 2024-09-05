@@ -151,24 +151,32 @@ export default {
                 return;
             }
 
-            try {
-                const response = await axiosInstance.post('/Account/modify_buyer_message', {
-                accountId: userId, // 替换为实际的 accountId
-                userName: this.userInfo.username,
-                gender: this.userInfo.gender,
-                age: this.userInfo.age,
-                address: this.address.detail
-                });
+              // 准备请求体
+                const requestBody = {
+                    accountId: userId || null, // 如果 userId 不存在，传递 null
+                    userName: this.userInfo.username || null, // 如果 username 不存在，传递 null
+                    gender: this.userInfo.gender || null, // 如果 gender 不存在，传递 null
+                    age: (this.userInfo.age >= 0 && Number.isInteger(this.userInfo.age)) ? this.userInfo.age : null, // 如果 age 不符合要求，传递 null
+                    address: this.address.detail || null // 如果 address 不存在，传递 null
+                };
 
-                if (response.data.message === "用户信息修改成功！") { 
-                this.$message.success('用户信息更新成功');
-                } else {
-                this.$message.error(`用户信息更新失败: ${response.data.detail}`);
+
+            try {
+                const response = await axiosInstance.post('/Account/modify_buyer_message', requestBody, {
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    if (response.data.message === "用户信息修改成功！") { 
+                        this.$message.success('用户信息更新成功');
+                    } else {
+                        this.$message.error(`用户信息更新失败: ${response.data.detail}`);
+                    }
+                } catch (error) {
+                    console.error('请求失败:', error); // 输出错误信息
+                    this.$message.error('请求失败，请稍后再试');
                 }
-            } catch (error) {
-                console.error('请求失败:', error); // 输出错误信息
-                this.$message.error('请求失败，请稍后再试');
-            }
         },
         //获取消费积分
         async getBuyerCredits(userId) {
@@ -191,16 +199,16 @@ export default {
         },
         //上传头像简介
         handleFile(event) {
-    const file = event.target.files[0];
-    if (file) {
-        console.log('选中的文件:', file);
-        this.userimades.file = file;
-        this.userimades.ima = URL.createObjectURL(file);
-        console.log('userfile',file,'userima',this.userimades.ima);
-    } else {
-        console.log('文件选择失败或无效');
-    }
-},
+            const file = event.target.files[0];
+            if (file) {
+                console.log('选中的文件:', file);
+                this.userimades.file = file;
+                this.userimades.ima = URL.createObjectURL(file);
+                console.log('userfile',file,'userima',this.userimades.ima);
+            } else {
+                console.log('文件选择失败或无效');
+            }
+        },
         handleFileChange(event) {
             const file = event.target.files[0];
             if (file) {
@@ -221,18 +229,17 @@ export default {
         //上传头像简介
         async handleUpload() {
     try {
-        if (!this.userimades.file) {
-            this.$message.error('请提供图片');
-            return;
-        }
+       
 
         const formData = new FormData();
         const Photo = this.userimades.file;
         const Describtion = this.userimades.descri;
         const Id = localStorage.getItem('userId');
+        if (this.userimades.file) {
+            formData.append('Photo', Photo); // 确保这是 File 对象
+        }
 
         formData.append('Id', Id);
-        formData.append('Photo', Photo); // 确保这是 File 对象
         formData.append('Describtion', Describtion);
 
         // 打印 FormData 内容

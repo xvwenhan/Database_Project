@@ -132,7 +132,7 @@ const picUrl=ref('');
 // const nowSubCategoryId=ref('05000')
 
 //swiper滑动实现
-const currentSumCategory=ref(0);
+const currentSumCategory=ref(3);
 const mySwiper=ref(null);
 let swiperInstance = null;
 const onSwiper = (swiper) => {
@@ -239,7 +239,8 @@ const getProducts = async (Id) => {
 
 onMounted(()=>{
   getCategories();
-  // getProducts(nowSubCategoryId);
+  getProducts("03000");
+
   // getProducts();
   // getCategory(currentType.value);
   // getCommodity(currentType.value);
@@ -470,6 +471,7 @@ height: 100%;
   text-align: center;
   z-index: 2;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor:pointer;
 }
 .b1 { background-image: url('@/assets/categories/b1.png');    background-size: cover; }
 .b2 { background-image: url('@/assets/categories/b2.png');    background-size: cover; }
@@ -598,6 +600,7 @@ height: 100%;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
   transition: transform 0.3s, box-shadow 0.3s;
   height: 250px;
+  cursor: pointer;
 }
 
 .product-image {

@@ -29,8 +29,8 @@
           <img :src="product.productPics.length ? product.productPics[0].imageUrl : ''"  :alt="product.name" class="product-image" />
           <div class="product-info">
             <p class="product-price">
-              <span class="special-price">特卖价</span> ¥{{ product.price }}
-              <span class="original-price">¥{{ product.originalPrice }}</span>
+              <span class="special-price">特卖价</span> ¥{{ Number(product.price).toFixed(1) }}
+              <span class="original-price">¥{{Number(product.originalPrice).toFixed(1) }}</span>
               <span class="discount">{{ product.discount }}折</span>
             </p>
             <h2 class="product-name">【{{ product.tag }}】{{ product.name }} {{ product.description }}</h2>

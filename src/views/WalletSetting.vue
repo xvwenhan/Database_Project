@@ -1,5 +1,6 @@
 <!-- 设置界面的我的钱包 -->
 <template>
+
     <div class="container">
       <SettingSidebar />
       <div class="main-content">
@@ -50,7 +51,7 @@ export default {
     name:'WalletSetting',
     components:{
         SettingSidebar,
-        SettingHeader
+        SettingHeader,
     },
     data() {
         return {
@@ -81,38 +82,74 @@ export default {
                 this.$message.error('请求失败，请稍后再试');
             }
         },
+        
         //充值钱包
         async rechargeBalance() {
+
             if (this.recharge.amount <= 0) {
                 this.$message.error('充值金额必须大于零');
                 return;
             }
-
             const userId = localStorage.getItem('userId'); // 获取当前用户 ID
+
             // 创建 FormData 对象
             const formData = new FormData();
             formData.append('BuyerId', userId); // 假设这是当前用户的 ID
             formData.append('Amount', this.recharge.amount);
+            formData.append('returnUrl', 'http://47.97.5.21:17990/BuyerWallet');
+            formData.forEach((value, key) => {
+                console.log(key, value);
+             });
+            // try {
+                // const response = await axiosInstance.put('/Payment/RechargeWallet', formData, {
+                // headers: {
+                //     'Content-Type': 'multipart/form-data'
+                // }
+                // });
 
+            //     if (response.status === 200 || response.data.success || response.data.code === 0) {
+            // this.$message.success('充值成功');
+            // this.balance += this.recharge.amount; // 充值成功后更新余额
+            // } else {
+            // this.$message.error(`充值失败: ${response.data.message || '未知错误'}`);
+            // }
+            // } catch (error) {
+            //     console.error('请求失败:', error);
+            //     this.$message.error('请求失败，请稍后再试');                               
+            // } 
+              // 显示加载页面
+                const loading = this.$loading({
+                    lock: true,
+                    text: '正在充值，请稍候...',
+                    spinner: 'el-icon-loading',
+                    background: 'rgba(0, 0, 0, 0.7)'
+                });
+                console.log('Loading started');
             try {
-                const response = await axiosInstance.put('/Payment/RechargeWallet', formData, {
+                const response = await axiosInstance.put('/Alipay/RechargeWallet', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
                 });
-
-                if (response.status === 200 || response.data.success || response.data.code === 0) {
-            this.$message.success('充值成功');
-            this.balance += this.recharge.amount; // 充值成功后更新余额
-            } else {
-            this.$message.error(`充值失败: ${response.data.message || '未知错误'}`);
-            }
+                console.log(response.data);
+                window.location.assign(response.data);
             } catch (error) {
-                console.error('请求失败:', error);
-                this.$message.error('请求失败，请稍后再试');                               
+                //检查是否重定向
+                if (error.response&&error.response.status===302) {
+                    const location=error.response.headers.location;
+                    //手动处理重定向
+                    window.location.href=location;
+                } else {
+                    console.error('error:',error.message);
+                }
+                // ElMessage.error(message.value);
             }
-
+            finally {
+            // 关闭加载页面
+            console.log('Loading closed');
+            loading.close();
             this.recharge.amount = 0; // 重置充值金额
+        }
         },
     },
     mounted() {

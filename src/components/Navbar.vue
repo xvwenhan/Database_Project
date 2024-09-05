@@ -79,25 +79,25 @@ const userId=localStorage.getItem('userId')|| 'we0';
 // 获取用户信息，包括头像（Base64 格式）
 const fetchUserProfilePhoto = async () => {
   try {
-    const response = await axiosInstance.get(`/Account/get_user_message/${userId}`);
-    const userInfo = response.data.target_user;
+    const response = await axiosInstance.post('/UserInfo/GetPhotoAndDescribtion', {
+      id: userId,
+    });
+    console.log(response.data);
+    const userInfo = response.data;
 
-    // 如果返回的数据中有头像字段，则将其赋值给 userProfilePhoto
-    if (userInfo && userInfo.photo) {
-      // 假设头像是 Base64 格式的字符串，且是 JPEG 格式
-      userProfilePhoto.value = `data:image/jpeg;base64,${userInfo.photo}`;
+    // 检查接口是否返回了头像 URL
+    if (userInfo && userInfo.photo && userInfo.photo.imageUrl) {
+      userProfilePhoto.value = userInfo.photo.imageUrl;
     } else {
-      // console.log("123");
-      // 如果没有头像字段，使用默认头像
-      userProfilePhoto.value = defaultProfilePhoto;  // 使用 import 引入图片
+      // 如果 photo 是 null，使用默认头像
+      userProfilePhoto.value = defaultProfilePhoto;
     }
   } catch (error) {
-    // console.log("userId:",userId);
     console.error('获取用户信息失败', error);
-    // 在失败的情况下使用默认头像
-    userProfilePhoto.value = defaultProfilePhoto;  // 使用 import 引入图片
+    userProfilePhoto.value = defaultProfilePhoto;
   }
 };
+
 
 
 const menuItems = reactive([

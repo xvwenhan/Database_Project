@@ -6,6 +6,7 @@ import 'element-plus/dist/index.css';
 import axiosInstance from '../components/axios';
 import router from '@/router';
 const commentId=ref('');
+const postId=ref('');
 const afterReload=ref('');
 afterReload.value = (localStorage.getItem('afterReload')!);
 console.log("获取当前：",afterReload.value);
@@ -248,10 +249,12 @@ fetchSubCommentOld();
 //     router.push('/forum'); // 跳转回 /forum 页面
 //   }
 // };
-function markAsRead(postId,commentId) {
-  commentId.value=commentId;
+function markAsRead(postId,comment) {
+ 
+  commentId.value=comment;
   console.log(commentId.value);
   isRead();
+  postId.value=postId;
   viewPost(postId);
 }
 const isRead=async()=>{
