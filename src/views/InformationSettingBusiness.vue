@@ -191,19 +191,19 @@ export default {
         //上传头像简介
         async handleUpload() {
     try {
-        if (!this.userimades.file) {
-            this.$message.error('请提供图片');
-            return;
-        }
+
 
         const formData = new FormData();
         const Photo = this.userimades.file;
         const Describtion = this.userimades.descri;
         const Id = localStorage.getItem('userId');
 
+        if (this.userimades.file) {
+            formData.append('Photo', Photo); // 确保这是 File 对象
+        }
         formData.append('Id', Id);
-        formData.append('Photo', Photo); // 确保这是 File 对象
         formData.append('Describtion', Describtion);
+        
 
         // 打印 FormData 内容
         for (const pair of formData.entries()) {
