@@ -141,22 +141,25 @@ const onSwiper = (swiper) => {
 const activeSlideIndex=ref(0);
 function onSlideChange(swiper) {
   activeSlideIndex.value = swiper.activeIndex;
-  console.log(`activeSlideIndex.value is ${activeSlideIndex.value}`);
+  // console.log(`activeSlideIndex.value is ${activeSlideIndex.value}`);
 }
 const goToTop = () =>{
   swiperInstance.slideTo(0);
 };
 const typeChange = (id,name) =>{
   pageSize.value=4; //进入“全部”分类，每页4个商品
+  if(name=="其他"){
+    pageSize.value=8; //进入“其他-全部”分类，每页8个商品
+  }
   currentPage.value=1; //重置分页器当前页数
 
   getCategoryDetail(name); //获取当前大分类描述
 
-  console.log(swiperInstance,'swiperInstance');
+  // console.log(swiperInstance,'swiperInstance');
   currentSumCategory.value=id;
   swiperInstance.slideTo(1);
   selectedCategory.value=0;
-  console.log(`AllCategories[currentSumCategory.value].subCategories[selectedCategory.value].subCategoryId is ${AllCategories[currentSumCategory.value].subCategories[selectedCategory.value].subCategoryId}`);
+  // console.log(`AllCategories[currentSumCategory.value].subCategories[selectedCategory.value].subCategoryId is ${AllCategories[currentSumCategory.value].subCategories[selectedCategory.value].subCategoryId}`);
   getProducts(AllCategories[currentSumCategory.value].subCategories[selectedCategory.value].subCategoryId);
   //wqy
   currentType.value = name;
@@ -197,7 +200,7 @@ const filter = (subCategory,index) => {
   console.log(`selectedCategory is ${selectedCategory.value}`);
 
   currentPage.value=1; //重置分页器当前页数
-  if(selectedCategory.value==0){ //进入“全部”分类，每页4个商品
+  if(selectedCategory.value==0&&subCategory.subCategoryId!='05000'){ //进入“全部”分类，每页4个商品
     pageSize.value=4;
   }
   else{ //其余小分类，每页展示8个商品
@@ -225,7 +228,7 @@ const getProducts = async (Id) => {
         }
       });
 
-      console.log(`displayProducts is ${JSON.stringify(displayProducts, null, 2)}`)
+      // console.log(`displayProducts is ${JSON.stringify(displayProducts, null, 2)}`)
 
     } catch (error) {
       if (error.response) {
@@ -395,7 +398,7 @@ const getCategoryDetail = async (name) => {
   text.value = response.data.categoryDescription;
   picUrl.value = response.data.categoryPhoto.imageUrl;
 
-  console.log(`CategoryDetail is ${JSON.stringify(response, null, 2)}`)
+  // console.log(`CategoryDetail is ${JSON.stringify(response, null, 2)}`)
   } catch (error) {
     if (error.response) {
       message.value = error.response.data;
