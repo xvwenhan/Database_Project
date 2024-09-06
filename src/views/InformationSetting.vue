@@ -65,8 +65,14 @@
                                 <img v-if="userimades.ima" :src="userimades.ima" alt="当前图片" style="width: 40px; height: 40px;border-radius: 50%;" />
                                 <input type="file" @change="handleFile" accept="image/*" />
                             </el-form-item>
-                            <el-form-item label="上传简介" prop="description">
-                                <el-input v-model="userimades.descri"></el-input>
+                            <el-form-item 
+                                label="上传简介" 
+                                prop="description"
+                                :rules="[
+                                        { required: true, message: '请输入简介', trigger: 'blur' },
+                                        { validator: validateDescription, trigger: 'blur' }
+                                    ]">
+                                <el-input v-model="userimades.descri" maxlength="20" show-word-limit></el-input>
                             </el-form-item>
                 </el-form>
                 <div class="form-footer">
