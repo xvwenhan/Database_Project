@@ -34,7 +34,7 @@ namespace BackendCode.DTOs.PostModel
         public string AuthorName { get; set; }
         public string PostTitle { get; set; }
         public string PostContent { get; set; }
-        public DateTime? ReleaseTime { get; set; }
+        public string? ReleaseTime { get; set; }
         public int? NumberOfLikes { get; set; }
         public int? NumberOfComments { get; set; }
         public PostImageModel Image { get; set; }
@@ -54,7 +54,7 @@ namespace BackendCode.DTOs.PostModel
         public BuyerInfoImageModel AuthorPhoto { get; set; }
         public string PostTitle { get; set; }
         public string PostContent { get; set; }
-        public DateTime? ReleaseTime { get; set; }
+        public string? ReleaseTime { get; set; }
         public int? NumberOfLikes { get; set; }
         public int? NumberOfComments { get; set; }
         public List<PostImageModel>? Images { get; set; }
@@ -67,7 +67,7 @@ namespace BackendCode.DTOs.PostModel
     {
         public string PostId { get; set; }
         public string PostTitle { get; set; }
-        public DateTime? PostReleaseTime { get; set; }
+        public string? PostReleaseTime { get; set; }
         public string AuthorId { get; set; }
     }
 

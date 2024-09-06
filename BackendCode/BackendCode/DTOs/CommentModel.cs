@@ -41,7 +41,7 @@ namespace BackendCode.DTOs.CommentModel
         public string? AuthorName { get; set; }
         public BuyerInfoImageModel AuthorPhoto { get; set; }
         public string CommentedCommentId { get; set; }
-        public DateTime CommentTime { get; set; }
+        public string CommentTime { get; set; }
         public string? CommentContent { get; set; }
     }
 
@@ -52,7 +52,7 @@ namespace BackendCode.DTOs.CommentModel
         public string? AuthorName { get; set; }
         public BuyerInfoImageModel AuthorPhoto { get; set; }
 
-        public DateTime CommentTime { get; set; }
+        public string CommentTime { get; set; }
         public string PostId { get; set; }
         public string CommentContent { get; set; }
         public string PostTitle { get; set; }
@@ -65,7 +65,7 @@ namespace BackendCode.DTOs.CommentModel
         public string? AuthorName { get; set; }
         public BuyerInfoImageModel AuthorPhoto { get; set; }
         public string CommentContent { get; set; }
-        public DateTime CommentTime { get; set; }
+        public string CommentTime { get; set; }
         public string CommentedCommentId { get; set; }
 
     }

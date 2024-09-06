@@ -480,7 +480,7 @@ namespace BackendCode.Controllers
                     PostTitle = p.POST_TITLE,
                     NumberOfLikes=p.NUMBER_OF_LIKES,
                     NumberOfComments=p.NUMBER_OF_COMMENTS,
-                    ReleaseTime=p.RELEASE_TIME,
+                    ReleaseTime=p.RELEASE_TIME.ToString("yyyy年MM月dd日 HH:mm:ss"),
                     CoverImageId = _context.POST_IMAGES
                 .Where(pi => pi.POST_ID == p.POST_ID)
                 .Select(pi => new PostImageModel { ImageId=pi.IMAGE_ID })
@@ -548,7 +548,7 @@ namespace BackendCode.Controllers
                              {
                                  PostId=post.POST_ID,
                                  PostTitle=post.POST_TITLE,
-                                 ReleaseTime=post.RELEASE_TIME,
+                                 ReleaseTime=post.RELEASE_TIME.ToString("yyyy年MM月dd日 HH:mm:ss"),
                                  NumberOfLikes=post.NUMBER_OF_LIKES,
                                  NumberOfComments=post.NUMBER_OF_COMMENTS,
                                  AuthorId = buyer.ACCOUNT_ID,
@@ -656,7 +656,7 @@ namespace BackendCode.Controllers
                                    {
                                        CommentId = cc.COMMENT_ID,
                                        CommentContent = cc.COMMENT_CONTENT,
-                                       CommentTime = cc.COMMENT_TIME,
+                                       CommentTime = cc.COMMENT_TIME.ToString("yyyy年MM月dd日 HH:mm:ss"),
                                        AuthorId = b.ACCOUNT_ID,
                                        AuthorName = b.USER_NAME,
                                        CommentedCommentId= cc.COMMENTED_COMMENT_ID
@@ -684,7 +684,7 @@ namespace BackendCode.Controllers
                 PostContent = postDetail.PostContent,
                 AuthorId = postDetail.AccountId,
                 AuthorName = postDetail.UserName,
-                ReleaseTime = postDetail.ReleaseTime,
+                ReleaseTime = postDetail.ReleaseTime.ToString("yyyy年MM月dd日 HH:mm:ss"),
                 NumberOfComments = postDetail.NumberOfComments,
                 NumberOfLikes = postDetail.NumberOfLikes,
                 Images = images,
@@ -724,7 +724,7 @@ namespace BackendCode.Controllers
                                 PostContent = p.POST_CONTENT,
                                 AccountId=p.ACCOUNT_ID,
                                 UserName=b.USER_NAME,
-                                ReleaseTime=p.RELEASE_TIME,
+                                ReleaseTime=p.RELEASE_TIME.ToString("yyyy年MM月dd日 HH:mm:ss"),
                                 NumberOfComments = p.NUMBER_OF_COMMENTS,
                                 NumberOfLikes = p.NUMBER_OF_LIKES,
                             };
@@ -805,7 +805,7 @@ namespace BackendCode.Controllers
                                    {
                                        CommentId = cc.COMMENT_ID,
                                        CommentContent = cc.COMMENT_CONTENT,
-                                       CommentTime = cc.COMMENT_TIME,
+                                       CommentTime = cc.COMMENT_TIME.ToString("yyyy年MM月dd日 HH:mm:ss"),
                                        AuthorId = b.ACCOUNT_ID,
                                        AuthorName = b.USER_NAME,
                                        CommentedCommentId = cc.COMMENTED_COMMENT_ID,
@@ -839,8 +839,8 @@ namespace BackendCode.Controllers
                         {
                             PostId=post.POST_ID,
                             PostTitle = post.POST_TITLE,
-                            ReleaseTime =post.RELEASE_TIME,
-                            PostContent=post.POST_CONTENT,
+                            ReleaseTime =post.RELEASE_TIME.ToString("yyyy年MM月dd日 HH:mm:ss"),
+                            PostContent =post.POST_CONTENT,
                             NumberOfLikes=post.NUMBER_OF_LIKES,
                             NumberOfComments=post.NUMBER_OF_COMMENTS,
                             AuthorId=post.ACCOUNT_ID,
@@ -862,10 +862,10 @@ namespace BackendCode.Controllers
 
             var posts = await query.ToListAsync();
             var count = posts.Count;
-            if (count == 0)
+/*            if (count == 0)
             {
                 return NotFound(new { message = "没有找到匹配的帖子。" });
-            }
+            }*/
             return Ok(new { message = "搜索成功！", target_posts=posts,amount=count });
         }
 
@@ -891,10 +891,10 @@ namespace BackendCode.Controllers
                 })
                 .ToListAsync();
             var count = buyers.Count;
-            if (count == 0)
+/*            if (count == 0)
             {
                 return NotFound(new { message = "没有找到匹配的用户！" });
-            }
+            }*/
 
             return Ok(new {message="搜索成功！",target_users=buyers,amount=count});
         }
@@ -923,8 +923,8 @@ namespace BackendCode.Controllers
                                       AuthorPhoto = new BuyerInfoImageModel { ImageId = cp.BUYER_ACCOUNT_ID },//新增加
                                       AuthorName =b.USER_NAME,
                                       CommentContent= cp.EVALUATION_CONTENT,
-                                      CommentTime=cp.EVALUATION_TIME,
-                                      
+                                      CommentTime=cp.EVALUATION_TIME.ToString("yyyy年MM月dd日 HH:mm:ss"),
+
                                   }).ToListAsync();
 
             if (comments == null || !comments.Any())
@@ -958,7 +958,7 @@ namespace BackendCode.Controllers
                                       AuthorPhoto = new BuyerInfoImageModel { ImageId = cp.BUYER_ACCOUNT_ID },//新增加
                                       AuthorName = b.USER_NAME,
                                       CommentContent = cp.EVALUATION_CONTENT,
-                                      CommentTime = cp.EVALUATION_TIME,
+                                      CommentTime = cp.EVALUATION_TIME.ToString("yyyy年MM月dd日 HH:mm:ss"),
 
                                   }).ToListAsync();
 
@@ -993,7 +993,7 @@ namespace BackendCode.Controllers
                                       AuthorName = b.USER_NAME,
                                       AuthorPhoto = new BuyerInfoImageModel { ImageId = cp.BUYER_ACCOUNT_ID },//新增加
                                       CommentContent = cp.EVALUATION_CONTENT,
-                                      CommentTime = cp.EVALUATION_TIME,
+                                      CommentTime = cp.EVALUATION_TIME.ToString("yyyy年MM月dd日 HH:mm:ss"),
 
                                   }).ToListAsync();
 
@@ -1027,7 +1027,7 @@ namespace BackendCode.Controllers
                                       AuthorName = b.USER_NAME,
                                       AuthorPhoto = new BuyerInfoImageModel { ImageId = cc.ACCOUNT_ID },//新增加
                                       CommentContent = cc.COMMENT_CONTENT,
-                                      CommentTime = cc.COMMENT_TIME,
+                                      CommentTime = cc.COMMENT_TIME.ToString("yyyy年MM月dd日 HH:mm:ss"),
                                       PostId = p.POST_ID,//新增加
                                   }).ToListAsync();
 
@@ -1061,7 +1061,7 @@ namespace BackendCode.Controllers
                                       AuthorName = b.USER_NAME,
                                       AuthorPhoto = new BuyerInfoImageModel { ImageId = cc.ACCOUNT_ID },//新增加
                                       CommentContent = cc.COMMENT_CONTENT,
-                                      CommentTime = cc.COMMENT_TIME,
+                                      CommentTime = cc.COMMENT_TIME.ToString("yyyy年MM月dd日 HH:mm:ss"),
                                       PostId = p.POST_ID,//新增加
                                   }).ToListAsync();
 
@@ -1091,8 +1091,8 @@ namespace BackendCode.Controllers
                                     {
                                         PostId = lp.POST_ID,
                                         PostTitle = p.POST_TITLE,
-                                        PostReleaseTime= p.RELEASE_TIME,
-                                        AuthorId=p.ACCOUNT_ID
+                                        PostReleaseTime= p.RELEASE_TIME.ToString("yyyy年MM月dd日 HH:mm:ss"),
+                                        AuthorId =p.ACCOUNT_ID
                                     }).ToListAsync();
 
             if (likedPosts == null || !likedPosts.Any())
