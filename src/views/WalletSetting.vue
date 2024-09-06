@@ -122,6 +122,7 @@ export default {
                 });
                 console.log(response.data);
                 window.location.assign(response.data);
+
             } catch (error) {
                 //检查是否重定向
                 if (error.response&&error.response.status===302) {
@@ -135,7 +136,6 @@ export default {
             }
             finally {
             // 关闭加载页面
-            this.isLoading = false; // 结束加载动画
             this.recharge.amount = 0;
         }
         },

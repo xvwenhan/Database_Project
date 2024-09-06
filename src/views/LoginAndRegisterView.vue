@@ -111,13 +111,23 @@
         show-password
         style="width: 250px;margin-left: 10px;margin-top: 20px"
       ></el-input>
-      <el-input 
+      <el-input v-show="!isChangePsw"
         v-model="confirmPassword" 
         placeholder="请再次输入新密码" 
         clearable 
         show-password
         style="width: 250px;margin-left: 10px;margin-top: 20px"
+        @keyup.enter="register"
       ></el-input>
+      <el-input v-show="isChangePsw"
+        v-model="confirmPassword" 
+        placeholder="请再次输入新密码" 
+        clearable 
+        show-password
+        style="width: 250px;margin-left: 10px;margin-top: 20px"
+        @keyup.enter="changPsw"
+      ></el-input>
+
       <el-button v-show="!isChangePsw" type="success" round style="background-color: #82111f; letter-spacing: 5px; width: 250px; margin-left: 10px;margin-top: 30px" @click="register" >
         注册
       </el-button>
@@ -343,6 +353,7 @@ const startCountdown = () => {
 };
 
 const register= async () =>{
+  console.log('在注册');
   if(!registerEmail.value||!newPassword.value||!confirmPassword.value||!verificationCode.value){
         ElMessage.error('请保证不为空');
       } else if(!validateEmail(registerEmail.value)){
@@ -372,6 +383,7 @@ const register= async () =>{
       }
 }
 const changPsw=async ()=>{
+  console.log('在改密码');
   if(!registerEmail.value||!newPassword.value||!confirmPassword.value||!verificationCode.value){
         ElMessage.error('请保证不为空');
       } else if(!validateEmail(registerEmail.value)){
