@@ -91,6 +91,7 @@ const myOrders = ref<Order[]>([]);
         }
     }).catch(error => {
         console.error(error);
+        isLoading.value=false;
         if (error.response && error.response.status === 404) {
           isNoData.value=true;
           isLoading.value=false;
