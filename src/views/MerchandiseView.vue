@@ -240,7 +240,7 @@ const getProducts = async (Id) => {
 onMounted(()=>{
   getCategories();
   getProducts("03000");
-
+  getCategoryDetail('金彩流光'); //获取当前大分类描述
   // getProducts();
   // getCategory(currentType.value);
   // getCommodity(currentType.value);
