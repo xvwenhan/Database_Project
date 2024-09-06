@@ -71,8 +71,7 @@
               <div class="slider-top-right">
                 <div class="picture-and-text">
                     <div class="category_text" >{{ AllCategories.length > 0 ? AllCategories[currentSumCategory].largeCategoryName : '' }}</div>
-                    <!-- <img class="picture" src="picUrl"> -->
-                    <img class="picture" src="@/assets/mmy/product.png">
+                    <img :src="picUrl" class="picture">
                     <div class="text">
                       <p>{{ text }}</p>
                     </div>
@@ -127,7 +126,7 @@ import axiosInstance from '../components/axios';
 
 import Loading from '../views/templates/4.vue';
 import Container from '../views/templates/2.vue'
-const text=ref('瓷器，也做“磁器” 。是由瓷石、高岭土、石英石、莫来石等烧制而成，外表施有玻璃质釉或彩绘的物器。瓷器的成形要通过在窑内经过高温（约1280℃～1400℃）烧制，瓷器表面的釉色会因为温度的不同从而发生各种化学变化，是中华文明展示的瑰宝。中国是瓷器的故乡，瓷器是古代劳动人民的一个重要的创造。谢肇淛在《五杂俎》记载：“今俗语窑器谓之磁器者，盖磁州窑最多，故相延名之，如银称米提，墨称腴糜之类也。”当时出现的以“磁器”代窑器是由磁州窑产量最多所致。这是迄今发现最早使用瓷器称谓的史料。');
+const text=ref('');
 const picUrl=ref('');
 
 // const nowSubCategoryId=ref('05000')
@@ -472,6 +471,7 @@ height: 100%;
   text-align: center;
   z-index: 2;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor:pointer;
 }
 .b1 { background-image: url('@/assets/categories/b1.png');    background-size: cover; }
 .b2 { background-image: url('@/assets/categories/b2.png');    background-size: cover; }
@@ -600,6 +600,7 @@ height: 100%;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
   transition: transform 0.3s, box-shadow 0.3s;
   height: 250px;
+  cursor: pointer;
 }
 
 .product-image {

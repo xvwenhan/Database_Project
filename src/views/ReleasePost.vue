@@ -46,7 +46,7 @@ class="input_content">
 type="text"
 placeholder="请输入标题(不能为空)"
 v-model="inputTitle"
-maxlength="10"
+maxlength="15"
 show-word-limit
 ></el-input>
 <div class="spacer"></div> 

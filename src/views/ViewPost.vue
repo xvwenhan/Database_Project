@@ -1,6 +1,6 @@
 <!-- 论坛的查看具体帖子页面 -->
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive,} from 'vue';
 import {  ElButton, ElInput, ElCarousel, ElCarouselItem, ElImage,ElRow,ElCol,ElMessage, } from 'element-plus';
 import 'element-plus/dist/index.css';
 import router from '@/router';
@@ -8,13 +8,6 @@ import 'animate.css';
 import axiosInstance from '../components/axios';
 import Loading from '../views/templates/4.vue';
 
-
-import likeB from '@/assets/czw/like.svg';
-import replyB from '@/assets/czw/reply.svg';
-import backB from '@/assets/czw/back.svg';
-import likedB from '@/assets/czw/liked.svg';
-import showReplyB from '@/assets/czw/show_reply.svg';
-import hideReplyB from '@/assets/czw/hide_reply.svg';
 
 // 假设这些数据是从服务器获取的
 const dialogVisible =ref(false);
@@ -47,7 +40,8 @@ interface Comment {
   content: string;
   isSubMakeComment: boolean,
   subCollapsed: boolean,
-  dialogVisible_sub:boolean
+  dialogVisible_sub:boolean,
+  subComments:Array<subComment>,
 }
 const post = ref<{
   title: string,
@@ -131,7 +125,7 @@ function fetchPost (){
         }
 
         console.log("成功获取");
-        getSub();
+       
         // 恢复每个 comment.subCollapsed 状态
         const commentsState = JSON.parse(localStorage.getItem('commentsState') || '{}');
         post.value.comments.forEach(comment => {
@@ -139,6 +133,8 @@ function fetchPost (){
             comment.subCollapsed = commentsState[comment.id];
           }
         });
+        getSub();
+        
         console.log("加载完毕");
 
       } else {
@@ -173,6 +169,7 @@ function fetchComment () {
         console.log("成功获得二级评论");
         allSubComments.push(...subComments.value.sub);
         console.log(allSubComments);
+        
       } else {
         console.error('Invalid data format.');
       }
@@ -353,14 +350,14 @@ function submitReplyReason(reply){
         console.error(error);
       });
 }
-const button = reactive([
-  { id: 1, text: 'like', background: likeB, backgroundColor: 'transparent' },
-  { id: 2, text: 'like', background: replyB, backgroundColor: 'transparent' },
-  { id: 3, text: 'like', background: backB, backgroundColor: 'transparent' },
-  { id: 4, text: 'liked', background: likedB, backgroundColor: 'transparent' },
-  { id: 5, text: 'liked', background: showReplyB, backgroundColor: 'transparent' },
-  { id: 6, text: 'liked', background: hideReplyB, backgroundColor: 'transparent' },
-]);
+// const button = reactive([
+//   { id: 1, text: 'like', background: likeB, backgroundColor: 'transparent' },
+//   { id: 2, text: 'like', background: replyB, backgroundColor: 'transparent' },
+//   { id: 3, text: 'like', background: backB, backgroundColor: 'transparent' },
+//   { id: 4, text: 'liked', background: likedB, backgroundColor: 'transparent' },
+//   { id: 5, text: 'liked', background: showReplyB, backgroundColor: 'transparent' },
+//   { id: 6, text: 'liked', background: hideReplyB, backgroundColor: 'transparent' },
+// ]);
 function like(){
   if(post.value.liked==false){
   const formData = new FormData();
@@ -452,6 +449,7 @@ function resetPost(event) {
 const handleChange = (currentIndex) => {
       console.log("Current carousel item index:", currentIndex);
     };
+
 </script>
 
 <template>
@@ -468,14 +466,14 @@ const handleChange = (currentIndex) => {
     <el-row :gutter="130">
       <el-col :span="12">
         <div v-if="post.images.length > 0">
-        <el-carousel @change="handleChange"> 
+        <el-carousel  @change="handleChange"> 
           <el-carousel-item v-for="image in post.images" :key="image">
             <div class="image-container">
             <el-image 
-              style="width: 100%; height: 100%; object-fit: cover; "
+              style="width: 100%; height: 100%;"
               :src="image"
               alt="示例图片"
-              fit="cover"></el-image></div>
+              fit="contain"></el-image></div>
           </el-carousel-item>
         </el-carousel>
         </div>
@@ -484,7 +482,7 @@ const handleChange = (currentIndex) => {
         <div class="post-content">
           <div class="fixed-text-area">
           <p class="post-title">{{post.title}}</p>
-          <p>{{post.content}}</p>
+          <p class="post_content">{{post.content}}</p>
         </div>
           <div class="post-details">
             <div class="author">
@@ -536,7 +534,7 @@ const handleChange = (currentIndex) => {
         <div class="post-content">
           <div class="fixed-text-area">
           <p class="post-title">{{post.title}}</p>
-          <p>{{post.content}}</p>
+          <p class="post_content">{{post.content}}</p>
         </div>
           <div class="post-details">
             <div class="author">
@@ -632,9 +630,9 @@ const handleChange = (currentIndex) => {
     <el-button type="primary" @click="submitReplyReason(reply)">确 定</el-button>
     </div>
 </el-dialog>
-<div v-if="hasSubComments(reply.id)">
-<el-button type="text" v-if="hasSubComments(reply.id)&&reply.subCollapsed==false" @click="toggleSubComments(reply.id)" class="buttons">隐藏回复</el-button>
-<el-button type="text" v-if="hasSubComments(reply.id)&&reply.subCollapsed==true" @click="toggleSubComments(reply.id)" class="buttons">展开回复</el-button>
+<div>
+<el-button type="text" v-if="reply.subCollapsed==false" @click="toggleSubComments(reply.id)" class="buttons">隐藏回复</el-button>
+<el-button type="text" v-if="reply.subCollapsed==true" @click="toggleSubComments(reply.id)" class="buttons">展开回复</el-button>
 <!-- </div> -->
 </div>
 </div>
@@ -709,16 +707,15 @@ const handleChange = (currentIndex) => {
     width: 100%;
     height: 100%;
 }
-
-.image-container img {
+.el-carousel {
+  width: 100%;
+  height: 100%;
+}
+/* .image-container img {
     width: 100%;
     height: 100%;
     transition: transform 0.3s ease;
-}
-
-.image-container:hover img {
-    transform: scale(1.2);  /* Adjust the scale value as needed */
-}
+} */
 .buttons{
   margin-left: 2vh;
   color: #82111f ;
@@ -881,10 +878,15 @@ const handleChange = (currentIndex) => {
   border: none;
   padding: 20px;
   background: #fff;
+  
 }
 .post-content {
   display: flex;
   flex-direction: column;
+}
+.post_content{
+  margin-top:2vh ;
+  font-size:2vh ;
 }
 .post-title {
   display: flex;
@@ -896,8 +898,7 @@ const handleChange = (currentIndex) => {
   flex-direction: column;
 }
 .fixed-text-area { /* 固定大小的显示区域 */
-  max-height: 300px; /* 设置最大高度 */
-  min-height: 300px;
+  height: 300px; 
   overflow-y: auto; /* 内容溢出时自动滚动 */
   border-bottom: 1px solid #ddd; /* 底部灰色横线 */
   padding-bottom: 10px; /* 文字内容和横线之间的间距 */

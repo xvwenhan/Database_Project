@@ -38,6 +38,7 @@
                 <div class="other-info">
                     <span>本店评分：{{shopinfo.storeScore}}</span>
                     <span>本店地址：{{shopinfo.Address}}</span>
+                    <span>本店简介：{{shopinfo.description}}</span>
                 </div>
             </div>
           </div>
@@ -170,7 +171,7 @@ const role=localStorage.getItem('role');
 // const role="商家";
 const storeId = localStorage.getItem('storeIdOfDetail');
 
-const shopinfo = reactive({avatar:"",storeId:"",storeName:"",storeScore:0,Address:""});
+const shopinfo = reactive({avatar:"",storeId:"",storeName:"",storeScore:0,Address:"",description:""});
 shopinfo.storeId = storeId;
 const isFavorite = ref(0);
 const categories = ref([
@@ -273,6 +274,7 @@ const fetchStoreInfo = async () => {
     shopinfo.storeScore = response.data.score;
     shopinfo.Address = response.data.address;
     shopinfo.avatar = response.data.picture.imageUrl;
+    shopinfo.description = response.data.description;
     message1.value = '已获取店铺信息';
     checkLoadingStatus(); //检查加载状态
   } catch (error) {
@@ -670,7 +672,7 @@ onMounted(() => {
   transition: transform 0.3s, box-shadow 0.3s;
   display: grid;
   width: 221px;
-  height: 274px;
+  height: 280px;
 }
 
 
