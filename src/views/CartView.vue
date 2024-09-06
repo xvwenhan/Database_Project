@@ -322,6 +322,7 @@ onMounted(() => {
 }
 
 .product-item {
+  cursor: pointer;
   flex: 0 0 23%;
   background-color: #fff;
   padding: 10px;
@@ -377,6 +378,7 @@ onMounted(() => {
   margin-right: 10px;
   margin-bottom: 10px;
   height: 240px;
+  cursor: pointer;
 }
 
 .store-content {
