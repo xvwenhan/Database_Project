@@ -104,7 +104,15 @@
           class="animate__animated animate__slideInUp">
           <img src="@/assets/mmy/fan_down.png" class="fan_down">
           </transition>
-
+          <div class="text1">
+            <h2>市场背景</h2>
+            <p>&nbsp;&nbsp;由于非遗产品多为手工制作，制作过程中的微瑕疵不可避免。这些微瑕产品虽然具有独特的美感和个性，却在传统市场中难以得到充分认可，面临销售困难。</p>
+            <p>&nbsp;&nbsp;同时，伴随消费者对环保和可持续发展的关注度增加，许多人开始接受并欣赏这些“有瑕疵的美”，认为这些微瑕产品展示了手工艺品的真实制作过程和独特魅力。然而，现有市场和销售渠道尚未充分发掘这一特点的市场潜力，大量微瑕非遗产品因缺乏适当的推广平台而无法找到理想的买家。因此，设立本交易平台能够精准匹配这些微瑕非遗产品与追求个性化的消费者，填补市场空白，提升微瑕产品的经济价值，并推动非遗文化在现代市场中的传播与发展。</p>
+          </div>
+          <div class="text2">
+            <h2>产品定位</h2>
+            <p>&nbsp;&nbsp;本平台作为支持微瑕非遗交易的电商平台，相比淘宝、天猫等成熟等电商平台，在产品定位策略上天然拥有精细化特点。我们深度挖掘并精准定位了微瑕非遗产品的独特价值与市场需求，旨在打造一个既尊重传统又拥抱创新，同时能够满足消费者个性化追求的文化消费空间，进而促进微瑕非遗交易的普及化以及微瑕非遗产品的接续流通，保证微瑕非遗市场的可持续发展。</p>
+          </div>
 
 
       </div>
@@ -573,6 +581,61 @@ font-size: 16px;
 .police{
 display: flex;
 flex-direction: row;
+}
+.text1,.text2{
+  overflow: auto;
+  z-index:4;
+  position:fixed;
+}
+.text1{
+  width: 42%;
+  height:37%;
+  right:20px;
+  top:30px;
+}
+.text2{
+  width: 37%;
+  height:37%;
+  left:40px;
+  bottom:30px;
+}
+.text1 h2,.text2 h2{
+  font-family: 'SJxingshu';
+  color:white;
+  font-size:30px;
+}
+.text1 p,.text2 p{
+  font-family: 'Noto Serif SC', serif;
+  color:white;
+  font-size:20px;
+  text-align: left;
+
+}
+.text1::-webkit-scrollbar {
+  width: 10px;
+}
+
+.text1::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.text1::-webkit-scrollbar-thumb {
+  background: #5f697a;
+  border-radius: 10px;
+}
+.text2::-webkit-scrollbar {
+  width: 10px;
+}
+
+.text2::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.text2::-webkit-scrollbar-thumb {
+  background: #5f697a;
+  border-radius: 10px;
 }
 
 </style>
