@@ -90,14 +90,14 @@ namespace StoreViewMarket.Controllers
 
                 if (marketStore == null)
                 {
-                    // 如果未找到匹配项，则创建一个新条目
+/*                    // 如果未找到匹配项，则创建一个新条目
                     marketStore = new MARKET_STORE
                     {
                         MARKET_ID = request.MarketId,
                         STORE_ACCOUNT_ID = request.StoreId,
                         IN_OR_NOT = request.InOrOut
                     };
-                    _dbContext.MARKET_STORES.Add(marketStore);
+                    _dbContext.MARKET_STORES.Add(marketStore);*/
                 }
                 else
                 {
