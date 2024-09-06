@@ -644,8 +644,8 @@ namespace BackendCode.Controllers
                                     AuthorId =b.ACCOUNT_ID,
                                     AuthorName=b.USER_NAME,
                                     CommentContent=cp.EVALUATION_CONTENT,
-                                    CommentTime=cp.EVALUATION_TIME,
-                                    SubComments= new List<SubCommentDetailModel>()
+                                    CommentTime=cp.EVALUATION_TIME.ToString("yyyy年MM月dd日 HH:mm:ss"),
+                                    SubComments = new List<SubCommentDetailModel>()
                                 };
 
             var subCommentsQuery = from cc in _context.COMMENT_COMMENTS
@@ -755,7 +755,7 @@ namespace BackendCode.Controllers
                                     AuthorName = b.USER_NAME,
                                     AuthorPhoto= new BuyerInfoImageModel { ImageId= b.ACCOUNT_ID },//新增加
                                     CommentContent = cp.EVALUATION_CONTENT,
-                                    CommentTime = cp.EVALUATION_TIME
+                                    CommentTime = cp.EVALUATION_TIME.ToString("yyyy年MM月dd日 HH:mm:ss"),
                                 };
 
             var images = await imagesQuery.ToListAsync();
