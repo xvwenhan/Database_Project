@@ -176,9 +176,9 @@
               <div class="text-price1" >价格明细</div>
           </div>
           <div class="text-price">商品原价：&#8201;&#8201;{{ (product.price) }}元</div>
-          <div class="text-price">活动折扣：&#8201;&#8201;{{ product.discountPrice===0?'本商品未参与活动': '* '+product.discountPrice*100+'%'}}</div>
-          <div class="text-price">折后价格：&#8201;&#8201;{{ product.discountPrice }}元</div>
-          <div class="text-price-active">积分抵扣：&#8201;&#8201;{{ product.discountPrice-product.finalPrice }}元</div>
+          <div class="text-price">活动折扣：&#8201;&#8201;{{ product.discountPrice===1?'本商品未参与活动': '* '+product.discountPrice*100+'%'}}</div>
+          <div class="text-price">折后价格：&#8201;&#8201;{{ parseFloat((product.price*product.discountPrice).toFixed(2)) }}元</div>
+          <div class="text-price-active">积分抵扣：&#8201;&#8201;{{ parseFloat((product.price*product.discountPrice).toFixed(2))-product.finalPrice }}元</div>
           <div class="text-price-active">价格合计：{{ product.finalPrice }}元</div>
       </div>
       <el-dialog 
@@ -285,6 +285,9 @@ onMounted(async () => {
   if (productStr) {
     product.value = JSON.parse(productStr);
     console.log(`product.value is ${JSON.stringify(product.value, null, 2)}`)
+    if(isPaid===false){
+      product.value.finalPrice=parseFloat((product.value.price*product.value.discountPrice).toFixed(2));
+    }
   }else {
     product.value = {}; // 确保对象是初始化的
   }
@@ -376,7 +379,11 @@ const aliPay=async()=>{
     formData1.append('order_address',customer.value.address);
     formData1.append('username',customer.value.name);
     formData1.append('actual_pay', product.value.finalPrice);//使用积分后的价格
-    formData1.append('total_pay',product.value.discountPrice);//打折后的价格
+    formData1.append('total_pay',parseFloat((product.value.price*product.value.discountPrice).toFixed(2)));//打折后的价格
+    //打印测试
+      formData1.forEach((value, key) => {
+        console.log(key, value);
+     });
     try {
     const response = await axiosInstance.put('Payment/ConfirmOrders', formData1, {
         headers: { 'Content-Type': 'multipart/form-data' }
@@ -438,7 +445,7 @@ const openPay=async()=>{
     formData.append('order_address',customer.value.address);
     formData.append('username',customer.value.name);
     formData.append('actual_pay', product.value.finalPrice);//使用积分后的价格
-    formData.append('total_pay',product.value.discountPrice);//打折后的价格
+    formData.append('total_pay',parseFloat((product.value.price*product.value.discountPrice).toFixed(2)));//打折后的价格
     formData.forEach((value, key) => {
         console.log(`${key}: ${value}`);
     });

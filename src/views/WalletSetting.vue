@@ -1,7 +1,10 @@
 <!-- 设置界面的我的钱包 -->
 <template>
 
-    <div class="container">
+     <!-- Loading 组件 -->
+    <Loading v-show="isLoading" />
+
+    <div class="container" v-show="!isLoading">
       <SettingSidebar />
       <div class="main-content">
         <SettingHeader />
@@ -30,7 +33,7 @@
                 </div>
                 
           </div>
-          <div class="bottom">SS1
+          <div class="bottom">
           </div>
           
         </div>
@@ -42,6 +45,7 @@
 <script>
 import SettingSidebar from '../components/SettingSidebar.vue'
 import SettingHeader from '../components/SettingHeader.vue'
+import Loading from '../views/templates/4.vue';
 import { reactive, ref, computed, onMounted  } from 'vue';
 import { ElTable, ElTableColumn, ElPagination, ElButton, ElDialog, ElForm, ElFormItem, ElInput, ElRow, ElCol, ElSelect, ElOption, ElMessage } from 'element-plus';
 import 'element-plus/dist/index.css';
@@ -52,9 +56,11 @@ export default {
     components:{
         SettingSidebar,
         SettingHeader,
+        Loading
     },
     data() {
         return {
+            isLoading: false, // 控制加载状态
             recharge: {
                 amount: 0
             },
@@ -100,30 +106,13 @@ export default {
             formData.forEach((value, key) => {
                 console.log(key, value);
              });
-            // try {
-                // const response = await axiosInstance.put('/Payment/RechargeWallet', formData, {
-                // headers: {
-                //     'Content-Type': 'multipart/form-data'
-                // }
-                // });
-
-            //     if (response.status === 200 || response.data.success || response.data.code === 0) {
-            // this.$message.success('充值成功');
-            // this.balance += this.recharge.amount; // 充值成功后更新余额
-            // } else {
-            // this.$message.error(`充值失败: ${response.data.message || '未知错误'}`);
-            // }
-            // } catch (error) {
-            //     console.error('请求失败:', error);
-            //     this.$message.error('请求失败，请稍后再试');                               
-            // } 
-              // 显示加载页面
-                const loading = this.$loading({
-                    lock: true,
-                    text: '正在充值，请稍候...',
-                    spinner: 'el-icon-loading',
-                    background: 'rgba(0, 0, 0, 0.7)'
+                // 开始加载动画
+                this.isLoading = true;
+                this.$nextTick(() => {
+                    console.log('Loading started');
                 });
+                // 刷新网页
+                // window.location.reload();
                 console.log('Loading started');
             try {
                 const response = await axiosInstance.put('/Alipay/RechargeWallet', formData, {
@@ -146,9 +135,8 @@ export default {
             }
             finally {
             // 关闭加载页面
-            console.log('Loading closed');
-            loading.close();
-            this.recharge.amount = 0; // 重置充值金额
+            this.isLoading = false; // 结束加载动画
+            this.recharge.amount = 0;
         }
         },
     },

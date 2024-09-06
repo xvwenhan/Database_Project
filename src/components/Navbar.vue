@@ -76,28 +76,39 @@ import defaultProfilePhoto from '@/assets/wy/profilephoto.jpg';
 // const userId = 'U00000013';
 const userId=localStorage.getItem('userId')|| 'we0';
 
-// 获取用户信息，包括头像（Base64 格式）
+
 const fetchUserProfilePhoto = async () => {
+  const cachedUserId = localStorage.getItem('cachedUserId');
+  const cachedProfilePhoto = localStorage.getItem(`userProfilePhoto_${userId}`);
+
+  // 检查缓存的 userId 是否和当前 userId 相同
+  if (cachedUserId === userId && cachedProfilePhoto) {
+    userProfilePhoto.value = cachedProfilePhoto;
+    return;  // 如果缓存的 userId 和当前用户一致，且有缓存的头像，直接使用
+  }
+
+  // 如果 userId 不同或者没有缓存头像，重新获取
   try {
     const response = await axiosInstance.post('/UserInfo/GetPhotoAndDescribtion', {
       id: userId,
     });
-    console.log(response.data);
     const userInfo = response.data;
 
-    // 检查接口是否返回了头像 URL
     if (userInfo && userInfo.photo && userInfo.photo.imageUrl) {
       userProfilePhoto.value = userInfo.photo.imageUrl;
+      localStorage.setItem(`userProfilePhoto_${userId}`, userInfo.photo.imageUrl);  // 缓存头像
+      localStorage.setItem('cachedUserId', userId);  // 记录当前 userId
     } else {
-      // 如果 photo 是 null，使用默认头像
       userProfilePhoto.value = defaultProfilePhoto;
+      localStorage.setItem(`userProfilePhoto_${userId}`, defaultProfilePhoto);  // 缓存默认头像
+      localStorage.setItem('cachedUserId', userId);  // 记录当前 userId
     }
   } catch (error) {
-    console.error('获取用户信息失败', error);
     userProfilePhoto.value = defaultProfilePhoto;
+    localStorage.setItem(`userProfilePhoto_${userId}`, defaultProfilePhoto);
+    localStorage.setItem('cachedUserId', userId);  // 记录当前 userId
   }
 };
-
 
 
 const menuItems = reactive([
@@ -116,19 +127,40 @@ const handleMenuClick = (link) => {
 
 // 获取天气信息
 const fetchWeather = async () => {
+  const cachedUserId = localStorage.getItem('cachedUserId');
+  const cachedWeather = localStorage.getItem(`weather_${userId}`);
+  const lastWeatherFetchTime = localStorage.getItem('lastWeatherFetchTime');
+
+  const currentTime = Date.now();
+  const tenMinutes = 10 * 60 * 1000; // 10分钟的毫秒数
+  console.log("currentTime - lastWeatherFetchTime",currentTime - lastWeatherFetchTime);
+
+  // 检查缓存的 userId 是否和当前 userId 相同，并且检查距离上次获取天气的时间是否超过十分钟
+  if (cachedUserId === userId && cachedWeather && lastWeatherFetchTime && (currentTime - lastWeatherFetchTime) < tenMinutes) {
+    weather.value = cachedWeather;
+    return;  // 如果缓存的 userId 和当前用户一致，且有缓存的天气信息，并且时间未超过十分钟，直接使用
+  }
+
+  // 如果 userId 不同、没有缓存天气，或距离上次获取天气超过十分钟，则重新获取
   try {
     const response = await axios.get('https://api.openweathermap.org/data/2.5/weather', {
       params: {
-        q: 'Shanghai', // 这里可以替换成您想获取天气的城市
-        appid: '5f274af243427c3098128d11ecd97cd9', // 您的OpenWeatherMap API key
-        lang: 'zh_cn' // 使用中文语言
+        q: 'Shanghai', 
+        appid: '5f274af243427c3098128d11ecd97cd9', 
+        lang: 'zh_cn' 
       }
     });
+    
     weather.value = `${response.data.weather[0].description}`;
+    localStorage.setItem(`weather_${userId}`, weather.value);  // 缓存天气信息
+    localStorage.setItem('cachedUserId', userId);  // 记录当前 userId
+    localStorage.setItem('lastWeatherFetchTime', currentTime);  // 记录获取天气的时间
+    console.log("已重新获取天气");
   } catch (error) {
     console.error('获取天气信息失败', error);
   }
 };
+
 
 onMounted(() => {
   // 检查当前路由路径是否为 "/bazaarmerchandise"
@@ -152,13 +184,31 @@ onMounted(() => {
   lunarDate.value = `${lunarInfo.lunarYear}${lunarInfo.dateStr}`;
   console.log('农历:', lunarDate.value);
 
-  fetchWeather();
-  fetchUserProfilePhoto(); // 组件挂载时获取用户头像
+  // fetchWeather();
+  // fetchUserProfilePhoto(); // 组件挂载时获取用户头像
 
-  // 每小时更新日期和天气
+  const cachedUserId = localStorage.getItem('cachedUserId');
+  const cachedProfilePhoto = localStorage.getItem(`userProfilePhoto_${userId}`);
+  const cachedWeather = localStorage.getItem(`weather_${userId}`);
+
+  // 如果缓存的 userId 和当前的 userId 一致，直接使用缓存
+  if (cachedUserId === userId && cachedProfilePhoto) {
+    userProfilePhoto.value = cachedProfilePhoto;
+  } else {
+    fetchUserProfilePhoto();  // 重新获取头像
+  }
+
+  fetchWeather();  // 重新获取天气
+  
+
+  /// 每小时更新日期和天气
   setInterval(() => {
     lunarDate.value = getLunar(year, month, date).dateStr;
-  }, 3600000);
+
+    // 每10分钟检查是否需要重新获取天气
+    fetchWeather();
+  }, 600000); // 10分钟的间隔（600000毫秒）
+  
 });
 
 watch(() => route.fullPath, () => {

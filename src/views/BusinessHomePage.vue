@@ -118,7 +118,7 @@ export default {
     //获取七天前的日期
     getLastWeekDate() {
     const date = new Date();
-    date.setDate(date.getDate() - 7); // 设置为今天之前的第七天
+    date.setDate(date.getDate() - 6); // 设置为今天之前的第七天
     return this.formatDate(date); // 格式化日期
     },
     //获取折线图数据
@@ -136,6 +136,8 @@ export default {
         // 更新订单数据
         this.orderData = response.data.map(item => item.count);
         this.lastSevenDays = this.getLastSevenDays(); // 更新日期标签
+        console.log('Response data:', response.data);
+
       } catch (error) {
         console.error('Error fetching weekly order count:', error);
       }

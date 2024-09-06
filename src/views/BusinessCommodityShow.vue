@@ -93,7 +93,7 @@
               <!-- 图片显示 -->
               <img :src="defect.imageUrl" alt="瑕疵图片" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;" />
               <!-- 输入框，显示在图片底部 -->
-              <el-input v-model="defect.description" placeholder="输入描述" style="width: 100px; margin-top: 5px; display: block; margin: 5px auto;"></el-input>
+              <el-input   @input="limitInputLength" v-model="defect.description" placeholder="输入描述" style="width: 100px; margin-top: 5px; display: block; margin: 5px auto;"maxlength="150" show-word-limit></el-input>
               <!-- 叉号，显示在图片右上角 -->
               <span class="close" style="position: absolute; top: 2px; right: 2px; color: #82111f; cursor: pointer;" @click="removeDefectImage(index)">&times;</span>
             </div>
@@ -105,7 +105,7 @@
               <!-- 图片显示 -->
               <img :src="image.url" alt="选择的瑕疵图片" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;" />
               <!-- 输入框，显示在图片底部 -->
-              <el-input v-model="image.description" placeholder="输入图片描述" style="width: 100px; margin-top: 5px; display: block; margin: 5px auto;"></el-input>
+              <el-input   @input="limitInputLength" v-model="image.description" placeholder="输入图片描述" style="width: 100px; margin-top: 5px; display: block; margin: 5px auto;"maxlength="150" show-word-limit></el-input>
               <!-- 叉号，显示在图片右上角 -->
               <span class="close" style="position: absolute; top: 2px; right: 2px; color: #82111f; cursor: pointer;" @click="removeSelectedDefectImage(index)">&times;</span>
             </div>
@@ -443,29 +443,54 @@ const handleCheck = (item) => {
     localStorage.setItem('productIdOfDetail', item.id);
     router.push('/productdetail');
 };
+function calculateByteLength(str) {
+  let length = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charAt(i);
+    if (/[\u0000-\u007F]/.test(char)) {
+      // 英文字符或数字，1字节
+      length += 1;
+    } else {
+      // 中文字符及其他，3字节
+      length += 3;
+    }
+  }
+  return length;
+}
 const rules = {
       // name: [{ required: true, message: '请输入商品名称', trigger: 'blur' }],
       name: [
-    { required: true, message: '请输入商品名称', trigger: 'blur' },
-    { 
-      validator: (rule, value, callback) => {
-        if (!value) {
-          callback(new Error('请输入商品名称'));
-        } else {
-          // 计算中文字符的长度
-          const length = Array.from(value).length;
-          if (length > 16) {
-            callback(new Error('商品名称不能超过16个汉字'));
-          } else {
-            callback();
+          { required: true, message: '请输入商品名称', trigger: 'blur' },
+          { 
+            validator: (rule, value, callback) => {
+              if (!value) {
+                callback(new Error('请输入商品名称'));
+              } else if (calculateByteLength(value) > 40) {
+                callback(new Error('商品名称过长'));
+              } else {
+                callback();
+              }
+            }, 
+            trigger: 'blur'
           }
-        }
-      }, 
-      trigger: 'blur'
-    }
-  ],
+        ],
       categorySys: [{ required: true, message: '请输入系统分类', trigger: 'blur' }],
-      categoryInit: [{ required: true, message: '请输入商家分类', trigger: 'blur' }],
+      // categoryInit: [{ required: true, message: '请输入商家分类', trigger: 'blur' }],
+      categoryInit: [
+          { required: true, message: '请输入商家分类', trigger: 'blur' },
+          { 
+            validator: (rule, value, callback) => {
+              if (!value) {
+                callback(new Error('请输入商家分类'));
+              } else if (calculateByteLength(value) > 40) {
+                callback(new Error('商家分类过长'));
+              } else {
+                callback();
+              }
+            }, 
+            trigger: 'blur'
+          }
+        ],
       price: [{ required: true, message: '请输入商品价格', trigger: 'blur' } ,
       { type: 'number', message: '价格必须为数字', trigger: 'blur' },
       { validator: (rule, value, callback) => {
@@ -476,7 +501,22 @@ const rules = {
             }
           }, trigger: 'blur' }],
       isOnSale: [{ required: true, message: '请选择是否出售', trigger: 'change' }],
-      description: [{ required: true, message: '请输入商品描述', trigger: 'blur' }],
+      // description: [{ required: true, message: '请输入商品描述', trigger: 'blur' }],
+      description: [
+          { required: true, message: '请输入商品描述', trigger: 'blur' },
+          { 
+            validator: (rule, value, callback) => {
+              if (!value) {
+                callback(new Error('请输入商品描述'));
+              } else if (calculateByteLength(value) > 190) {
+                callback(new Error('商品描述过长'));
+              } else {
+                callback();
+              }
+            }, 
+            trigger: 'blur'
+          }
+        ],
       images: [
     { validator: (rule, value, callback) => {
       if (value.length === 0) {
@@ -486,18 +526,51 @@ const rules = {
       }
     }, trigger: 'change' }
   ],
-      imagesWithText: [
-    { validator: (rule, value, callback) => {
-        if (!Array.isArray(value) || value.length === 0) {
-          callback(new Error('请添加至少一组图文描述'));
-        } else {
-          callback();
-        }
-      }, trigger: 'change'
-    }
-  ]
+  //     imagesWithText: [
+  //   { validator: (rule, value, callback) => {
+  //       if (!Array.isArray(value) || value.length === 0) {
+  //         callback(new Error('请添加至少一组图文描述'));
+  //       } else {
+  //         callback();
+  //       }
+  //     }, trigger: 'change'
+  //   }
+  // ]
+  imagesWithText: [
+          { 
+            validator: (rule, value, callback) => {
+              if (!Array.isArray(value) || value.length === 0) {
+                callback(new Error('请添加至少一组图文描述'));
+              } else {
+                let isValid = true;
+                for (let i = 0; i < value.length; i++) {
+                  const item = value[i];
+                  if (calculateByteLength(item.text) > 490) {
+                    callback(new Error(`图文描述的文本内容过长`));
+                    isValid = false;
+                    break;
+                  }
+                }
+                if (isValid) {
+                  callback();
+                }
+              }
+            },
+            trigger: 'change'
+          }
+        ]
 };
 //编辑商品
+// 限制输入字符长度的方法
+const limitInputLength = (event) => {
+  const maxLength = 150;
+  const input = event.target.value;
+
+  // 如果输入长度超过最大限制，截取前 maxLength 个字符
+  if (input.length > maxLength) {
+    description.value = input.slice(0, maxLength);
+  }
+};
 //移除新选中的商品图片
 const removeSelectedImage = (index) => {
   selectedImages.value.splice(index, 1);
@@ -1236,7 +1309,8 @@ return {
   message01,
   updateTag,
   updateTagT,
-  generateImageURL
+  generateImageURL,
+  limitInputLength
 };
 }
 }

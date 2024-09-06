@@ -65,8 +65,14 @@
                                 <img v-if="userimades.ima" :src="userimades.ima" alt="当前图片" style="width: 40px; height: 40px;border-radius: 50%;" />
                                 <input type="file" @change="handleFile" accept="image/*" />
                             </el-form-item>
-                            <el-form-item label="上传简介" prop="description">
-                                <el-input v-model="userimades.descri"></el-input>
+                            <el-form-item 
+                                label="上传简介" 
+                                prop="description"
+                                :rules="[
+                                        { required: true, message: '请输入简介', trigger: 'blur' },
+                                        { validator: validateDescription, trigger: 'blur' }
+                                    ]">
+                                <el-input v-model="userimades.descri" maxlength="20" show-word-limit></el-input>
                             </el-form-item>
                 </el-form>
                 <div class="form-footer">
@@ -254,6 +260,22 @@ export default {
 
         if (response.status === 200) {
             this.$message.success('上传成功，请刷新网页以查看最新状态');
+            console.log("response.data",response.data);
+            // 如果服务器没有返回 photo.imageUrl，则使用本地文件生成临时 URL
+            let newImageUrl;
+            if (response.data.photo && response.data.photo.imageUrl) {
+                newImageUrl = response.data.photo.imageUrl;
+            } else if (this.userimades.file) {
+                newImageUrl = URL.createObjectURL(this.userimades.file);
+            }
+
+            // 缓存头像 URL 到 localStorage
+            if (newImageUrl) {
+                localStorage.setItem(`userProfilePhoto_${Id}`, newImageUrl);
+
+                // 更新本地展示的头像
+                this.userimades.ima = newImageUrl;
+            }
         } else {
             this.$message.error(`上传失败: ${response.data.message}`);
         }

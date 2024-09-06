@@ -234,9 +234,17 @@ function gotoDetail(order:Order){
   product.value.pictures[0].imageUrl=order.pic;
   product.value.price=order.price;
   product.value.storeName=order.store;
-  product.value.discountPrice=order.totalPay;
+  
   product.value.finalPrice=order.actualPay;
-  console.log(product.value);
+
+  var totalPay = order.totalPay;
+  var price = order.price;
+
+// 计算折扣力度
+  var discountRate = (totalPay / price).toFixed(2);
+  product.value.discountPrice = parseFloat(discountRate);
+   
+  console.log("折扣力度",product.value.discountPrice);
   const productStr = JSON.stringify(product.value);//序列化对象
   console.log("序列化",productStr);
   localStorage.setItem('productIdOfDetail',order.productId);
