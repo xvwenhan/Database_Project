@@ -32,7 +32,14 @@ const fetchPost= async () =>{
             id: post.postId || '',
             title: post.postTitle || '',
             author: post.authorName || '匿名',
-            time: convertToReadableTime(post.releaseTime) || '',
+            time: new Date(post.releaseTime).toLocaleString('zh-CN', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    second: 'numeric',
+  }) || '',
             like:post.numberOfLikes || 0,
             comment:post.numberOfComments || 0,
             image: post.coverImageId.imageUrl,
@@ -41,7 +48,6 @@ const fetchPost= async () =>{
           // 设置总帖子数量
           totalPostNums.value = data.totalPostNums || 0;
           message.value="成功";
-          console.log(posts.value);
         } else {
           console.error('Invalid data format.');
         }
@@ -85,8 +91,6 @@ const displayedPosts=computed(()=> {
       // 根据当前页码和每页条数计算需要显示的文章列表
       if (isSearching.value==false||search.value=='') {
         fetchPost();
-        console.log(message.value);
-        console.log(sort.value);
         // 当不处于搜索状态时，返回所有帖子
         return posts.value;
     } else {
