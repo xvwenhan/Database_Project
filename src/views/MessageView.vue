@@ -264,7 +264,7 @@ const isRead=async()=>{
         message: '已读',
         type: 'success',
         });
-        localStorage.setItem('afterReload', String(option.value));
+        // localStorage.setItem('afterReload', String(option.value));
         location.reload();
       }).catch(error => {
         console.log("失败已读");
@@ -274,7 +274,7 @@ function viewPost(id,event)
 {
   localStorage.setItem('postId', id);
   localStorage.setItem('way', way.value);
-  // localStorage.setItem('option', String(option.value));
+  localStorage.setItem('afterReload', String(option.value));
   router.push( 'viewpost'); // 跳转至 /viewpost 页面
 };
 
