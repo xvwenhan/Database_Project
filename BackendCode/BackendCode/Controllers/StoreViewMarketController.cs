@@ -114,6 +114,7 @@ namespace StoreViewMarket.Controllers
                             {
                                 MARKET_ID = request.MarketId,
                                 PRODUCT_ID = product,
+                                DISCOUNT_PRICE=0.8M//写死
                             });
                         }
                     }
