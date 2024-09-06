@@ -176,7 +176,7 @@
               <div class="text-price1" >价格明细</div>
           </div>
           <div class="text-price">商品原价：&#8201;&#8201;{{ (product.price) }}元</div>
-          <div class="text-price">活动折扣：&#8201;&#8201;{{ product.discountPrice===0?'本商品未参与活动': '* '+product.discountPrice*100+'%'}}</div>
+          <div class="text-price">活动折扣：&#8201;&#8201;{{ product.discountPrice===1?'本商品未参与活动': '* '+product.discountPrice*100+'%'}}</div>
           <div class="text-price">折后价格：&#8201;&#8201;{{ parseFloat((product.price*product.discountPrice).toFixed(2)) }}元</div>
           <div class="text-price-active">积分抵扣：&#8201;&#8201;{{ parseFloat((product.price*product.discountPrice).toFixed(2))-product.finalPrice }}元</div>
           <div class="text-price-active">价格合计：{{ product.finalPrice }}元</div>
