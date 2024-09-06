@@ -675,6 +675,7 @@ onMounted(() => {
   display: grid;
   width: 221px;
   height: 280px;
+  cursor: pointer;
 }
 
 
