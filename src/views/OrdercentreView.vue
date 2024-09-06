@@ -16,6 +16,7 @@ const currentRow_cancel=ref(null);
 const isLoading = ref(true);
 const currentRow_return=ref(null);
 const currentRow_star=ref(null);
+const returnO=ref('');
 interface Order {
   id: string;
   product: string;
@@ -91,7 +92,6 @@ const myOrders = ref<Order[]>([]);
         }
     }).catch(error => {
         console.error(error);
-        isLoading.value=false;
         if (error.response && error.response.status === 404) {
           isNoData.value=true;
           isLoading.value=false;
@@ -138,6 +138,7 @@ const admit = async (order) => {
         message: '申请退货成功',
         type: 'success',
         });
+        getMyOrder();
     }).catch(error => {
       console.error('Error submitting return:', error);
     });
@@ -158,6 +159,7 @@ const admitOrder = async (order) => {
         message: '成功取消订单',
         type: 'success',
         });
+        getMyOrder();
     }).catch(error => {
       console.error('Error submitting return:', error);
     });
@@ -185,6 +187,7 @@ const confirmStar = async (order) => {
         message: '评价成功',
         type: 'success',
         });
+        getMyOrder();
     }).catch(error => {
       console.error('Error submitting rating:', error);
     });
@@ -211,6 +214,25 @@ function resetStar(order)
 {
   order.star=null;
   order.starVisible=false;
+}
+function confirmArrive(order)
+{
+  console.log(order.id)
+  axiosInstance.put('/Payment/MarkOrderReceived',null, {
+      params: {
+        orderId: order.id
+      }
+   })
+  .then(response => {
+    console.log('签收成功');
+    ElMessage({
+        message: '成功签收',
+        type: 'success',
+        });
+        getMyOrder();
+    }).catch(error => {
+      console.error('Error confirm:', error);
+    });
 }
 // function deleteRow(order) {
 //   this.orders = this.orders.filter(order => order !== row);
@@ -264,7 +286,7 @@ const menuItems = ref([
   { index: 2, title: '待付款' },
   { index: 3, title: '已付款' },
   { index: 4, title: '运输中' },
-  { index: 5, title: '已送达' },
+  { index: 5, title: '已签收' },
   { index: 6, title: '待退货' },
   { index: 7, title: '已退货' },
 ]);
@@ -311,7 +333,7 @@ const menuChange = (index) => {
       <span v-if="option === 2" style="font-size: 2vh; color: #333;">待付款</span>
       <span v-if="option === 3" style="font-size: 2vh; color: #333;">已付款</span>
       <span v-if="option === 4" style="font-size: 2vh; color: #333;">运输中</span>
-      <span v-if="option === 5" style="font-size: 2vh; color: #333;">已送达</span>
+      <span v-if="option === 5" style="font-size: 2vh; color: #333;">已签收</span>
       <span v-if="option === 6" style="font-size: 2vh; color: #333;">待退货</span>
       <span v-if="option === 7" style="font-size: 2vh; color: #333;">已退货</span>
     </div>
@@ -338,7 +360,7 @@ const menuChange = (index) => {
     <el-table-column prop="province" label="商品操作" width="160">
       <template  v-slot="scope">
       <div>
-      <el-button type="text" v-if="scope.row.status === '已送达'" @click="returnOrder(scope.row)">退货</el-button>
+      <el-button type="text" v-if="scope.row.status === '已签收'" @click="returnOrder(scope.row)">退货</el-button>
       </div>
       <div>
       <el-button type="text" v-if="scope.row.status === '已付款'" @click="cancelOrder(scope.row)">取消订单</el-button>
@@ -349,7 +371,8 @@ const menuChange = (index) => {
     <el-table-column prop="status" label="交易状态" width="160"></el-table-column>
     <el-table-column prop="zip" label="操作" width="160">
     <template v-slot="scope">
-      <el-button type="text" v-if="scope.row.isStar === false" @click="startRating(scope.row)">去评价</el-button>
+      <el-button type="text" v-if="scope.row.isStar === false&&scope.row.status === '已签收'" @click="startRating(scope.row)">去评价</el-button>
+      <el-button type="text" v-if="scope.row.status === '运输中'" @click="confirmArrive(scope.row)">确认收货</el-button>
     </template>
   </el-table-column>
   <el-table-column prop="o" label="订单详情" width="160">
@@ -414,6 +437,7 @@ const menuChange = (index) => {
       </el-select>
       <div style="margin-top: 10px;"></div>
       <el-input v-if="returnProduct === '其他' "v-model="returnProduct_else" placeholder="请输入原因"></el-input>
+      <el-input v-model="returnO" placeholder="请输入单号"></el-input>
       <el-divider></el-divider>
       <div slot="footer" class="dialog-footer">
     <el-button type="primary" @click="admit(currentRow_return)">确 定</el-button>

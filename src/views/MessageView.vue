@@ -53,7 +53,7 @@ const fetchComment = async () => {
             pic:comment.authorPhoto.imageUrl,
             postId:comment.postId,
             author: comment.authorName || '匿名',
-            time: convertToReadableTime(comment.commentTime) || '',
+            time:comment.commentTime,
             content: comment.commentContent || '',
             postTitle:comment.postTitle||'',
           })),
@@ -79,7 +79,7 @@ const fetchCommentOld = async () => {
             pic:comment.authorPhoto.imageUrl,
             postId:comment.postId,
             author: comment.authorName || '匿名',
-            time: convertToReadableTime(comment.commentTime) || '',
+            time: comment.commentTime,
             content: comment.commentContent || '',
             postTitle:comment.postTitle||'',
           })),
@@ -113,7 +113,7 @@ const fetchLike = async () => {
         myLikeMessage.value = {
           likes: data.data.map(comment => ({
             id: comment.postId || '',
-            time: convertToReadableTime(comment.postReleaseTime) || '',
+            time: comment.postReleaseTime,
             postTitle:comment.postTitle||'',
           })),
         };
@@ -136,7 +136,7 @@ const getMyPost = async () => {
             myPosts.value = data.target_posts.map(post => ({
                 id: post.postId || '',
                 title: post.postTitle || '',
-                time: convertToReadableTime(post.releaseTime) || '',
+                time: post.releaseTime,
                 like: post.numberOfLikes || 0,
                 comment: post.numberOfComments || 0,
                 image:post.coverImageId.imageUrl,
@@ -176,7 +176,7 @@ const fetchSubComment = async () => {
             pic:comment.authorPhoto.imageUrl,
             postId:comment.postId,
             author: comment.authorName || '匿名',
-            time: convertToReadableTime(comment.commentTime) || '',
+            time: comment.commentTime,
             content: comment.commentContent || '',
             postTitle:comment.commentedCommentId||'',
           })),
@@ -202,7 +202,7 @@ const fetchSubCommentOld = async () => {
             pic:comment.authorPhoto.imageUrl,
             postId:comment.postId,
             author: comment.authorName || '匿名',
-            time: convertToReadableTime(comment.commentTime) || '',
+            time: comment.commentTime,
             content: comment.commentContent || '',
             postTitle:comment.postTitle||'',
           })),
