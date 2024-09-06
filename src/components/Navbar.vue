@@ -129,13 +129,19 @@ const handleMenuClick = (link) => {
 const fetchWeather = async () => {
   const cachedUserId = localStorage.getItem('cachedUserId');
   const cachedWeather = localStorage.getItem(`weather_${userId}`);
+  const lastWeatherFetchTime = localStorage.getItem('lastWeatherFetchTime');
 
-  // 检查缓存的 userId 是否和当前 userId 相同
-  if (cachedUserId === userId && cachedWeather) {
+  const currentTime = Date.now();
+  const tenMinutes = 10 * 60 * 1000; // 10分钟的毫秒数
+  console.log("currentTime - lastWeatherFetchTime",currentTime - lastWeatherFetchTime);
+
+  // 检查缓存的 userId 是否和当前 userId 相同，并且检查距离上次获取天气的时间是否超过十分钟
+  if (cachedUserId === userId && cachedWeather && lastWeatherFetchTime && (currentTime - lastWeatherFetchTime) < tenMinutes) {
     weather.value = cachedWeather;
-    return;  // 如果缓存的 userId 和当前用户一致，且有缓存的天气信息，直接使用
+    return;  // 如果缓存的 userId 和当前用户一致，且有缓存的天气信息，并且时间未超过十分钟，直接使用
   }
 
+  // 如果 userId 不同、没有缓存天气，或距离上次获取天气超过十分钟，则重新获取
   try {
     const response = await axios.get('https://api.openweathermap.org/data/2.5/weather', {
       params: {
@@ -144,13 +150,17 @@ const fetchWeather = async () => {
         lang: 'zh_cn' 
       }
     });
+    
     weather.value = `${response.data.weather[0].description}`;
     localStorage.setItem(`weather_${userId}`, weather.value);  // 缓存天气信息
     localStorage.setItem('cachedUserId', userId);  // 记录当前 userId
+    localStorage.setItem('lastWeatherFetchTime', currentTime);  // 记录获取天气的时间
+    console.log("已重新获取天气");
   } catch (error) {
     console.error('获取天气信息失败', error);
   }
 };
+
 
 onMounted(() => {
   // 检查当前路由路径是否为 "/bazaarmerchandise"
@@ -188,16 +198,17 @@ onMounted(() => {
     fetchUserProfilePhoto();  // 重新获取头像
   }
 
-  if (cachedUserId === userId && cachedWeather) {
-    weather.value = cachedWeather;
-  } else {
-    fetchWeather();  // 重新获取天气
-  }
+  fetchWeather();  // 重新获取天气
+  
 
-  // 每小时更新日期和天气
+  /// 每小时更新日期和天气
   setInterval(() => {
     lunarDate.value = getLunar(year, month, date).dateStr;
-  }, 3600000);
+
+    // 每10分钟检查是否需要重新获取天气
+    fetchWeather();
+  }, 600000); // 10分钟的间隔（600000毫秒）
+  
 });
 
 watch(() => route.fullPath, () => {
