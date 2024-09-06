@@ -42,9 +42,11 @@ namespace StoreViewMarket.Controllers
                 {
                     var marketStore = await _dbContext.MARKET_STORES
                         .Where(ms => ms.MARKET_ID == market.MARKET_ID && ms.STORE_ACCOUNT_ID == storeID)
-                        .Select(ms => ms.IN_OR_NOT)
                         .FirstOrDefaultAsync();
-
+                    if (marketStore==null)
+                    {
+                        continue;
+                    }
                     var marketDTO = new MarketDTO
                     {
                         MarketId = market.MARKET_ID,
@@ -56,7 +58,7 @@ namespace StoreViewMarket.Controllers
                          .Where(img => img.MARKET_ID == market.MARKET_ID)
                          .Select(img => new MarketImageModel { ImageId = img.IMAGE_ID })
                          .ToList(),
-                        IsStoreParticipating = marketStore
+                        IsStoreParticipating = marketStore.IN_OR_NOT
                     };
 
                     marketDTOs.Add(marketDTO);
