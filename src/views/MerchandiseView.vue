@@ -64,7 +64,7 @@
         </aside>
         <div class="display-container">
           <div class="container-block"
-          v-show="AllCategories.length > 0&&AllCategories[currentSumCategory].subCategories[selectedCategory].subCategoryName==='全部'"
+          v-show="AllCategories.length > 0&&AllCategories[currentSumCategory].subCategories[selectedCategory].subCategoryName==='全部'&&AllCategories[currentSumCategory].largeCategoryName!=='其他'"
           >
             <img src="@/assets/mmy/blue_background.jpg">
             <div class="inner-block">
