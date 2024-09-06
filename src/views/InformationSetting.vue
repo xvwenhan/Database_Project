@@ -254,6 +254,22 @@ export default {
 
         if (response.status === 200) {
             this.$message.success('上传成功，请刷新网页以查看最新状态');
+            console.log("response.data",response.data);
+            // 如果服务器没有返回 photo.imageUrl，则使用本地文件生成临时 URL
+            let newImageUrl;
+            if (response.data.photo && response.data.photo.imageUrl) {
+                newImageUrl = response.data.photo.imageUrl;
+            } else if (this.userimades.file) {
+                newImageUrl = URL.createObjectURL(this.userimades.file);
+            }
+
+            // 缓存头像 URL 到 localStorage
+            if (newImageUrl) {
+                localStorage.setItem(`userProfilePhoto_${Id}`, newImageUrl);
+
+                // 更新本地展示的头像
+                this.userimades.ima = newImageUrl;
+            }
         } else {
             this.$message.error(`上传失败: ${response.data.message}`);
         }
