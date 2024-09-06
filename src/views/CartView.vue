@@ -76,17 +76,17 @@
                         </div>
                       </div>
                     </div>
+                    <div class="pagination">
+                        <button @click="storePageChange(currentPage2 - 1)" :disabled="currentPage2 === 1">上一页</button>
+                        <span>第 {{ currentPage2 }} 页 / 共 {{ storesPages }} 页</span>
+                        <button @click="storePageChange(currentPage2 + 1)" :disabled="currentPage2 === storesPages">下一页</button>
+                    </div>
                   </div>
                   <div v-else>
                     <span style="font-family: Arial, sans-serif; font-size: 20px; display: block; margin-bottom: 13px;">
                     暂无收藏店铺
                     </span>
                   </div>
-                </div>
-                <div class="pagination">
-                    <button @click="storePageChange(currentPage2 - 1)" :disabled="currentPage2 === 1">上一页</button>
-                    <span>第 {{ currentPage2 }} 页 / 共 {{ storesPages }} 页</span>
-                    <button @click="storePageChange(currentPage2 + 1)" :disabled="currentPage2 === storesPages">下一页</button>
                 </div>
             </div>
         </div>
@@ -96,6 +96,7 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { ElMessage } from 'element-plus';
 import Navbar from '../components/Navbar.vue';
 import Loading from '../views/templates/4.vue';
 import 'element-plus/dist/index.css';
@@ -146,6 +147,9 @@ const fetchProducts = async () => {
     } else {
       message01.value = '获取数据失败';
     }
+    // isLoading.value=false;
+    // if(response.status!=404)
+    //  ElMessage.info("获取数据失败，请稍后再试");
   }
   console.log(message01.value);
 };
@@ -186,16 +190,22 @@ const fetchStores = async () => {
     const response = await axiosInstance.post('/Favourite/GetFavoriteStores', {
       "userId": userId
     });
-    Stores.splice(0, Stores.length, ...response.data);
+    // Stores.splice(0, Stores.length, ...response.data);
+    response.data.forEach(store => {
+      Stores.push(store);
+    });
+    isLoading.value=false;
     message02.value = '已获取收藏店铺数据';
     console.log('收藏店铺数据：'+Stores.values);
-    isLoading.value=false;
   } catch (error) {
     if (error.response) {
       message02.value = error.response.data;
     } else {
       message02.value = '获取数据失败';
     }
+    isLoading.value=false;
+    // ElMessage.info("获取数据失败，请稍后再试");
+
   }
   console.log(message02.value);
 };
