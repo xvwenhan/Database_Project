@@ -42,9 +42,11 @@ namespace StoreViewMarket.Controllers
                 {
                     var marketStore = await _dbContext.MARKET_STORES
                         .Where(ms => ms.MARKET_ID == market.MARKET_ID && ms.STORE_ACCOUNT_ID == storeID)
-                        .Select(ms => ms.IN_OR_NOT)
                         .FirstOrDefaultAsync();
-
+                    if (marketStore==null)
+                    {
+                        continue;
+                    }
                     var marketDTO = new MarketDTO
                     {
                         MarketId = market.MARKET_ID,
@@ -56,7 +58,7 @@ namespace StoreViewMarket.Controllers
                          .Where(img => img.MARKET_ID == market.MARKET_ID)
                          .Select(img => new MarketImageModel { ImageId = img.IMAGE_ID })
                          .ToList(),
-                        IsStoreParticipating = marketStore
+                        IsStoreParticipating = marketStore.IN_OR_NOT
                     };
 
                     marketDTOs.Add(marketDTO);
@@ -88,14 +90,14 @@ namespace StoreViewMarket.Controllers
 
                 if (marketStore == null)
                 {
-                    // 如果未找到匹配项，则创建一个新条目
+/*                    // 如果未找到匹配项，则创建一个新条目
                     marketStore = new MARKET_STORE
                     {
                         MARKET_ID = request.MarketId,
                         STORE_ACCOUNT_ID = request.StoreId,
                         IN_OR_NOT = request.InOrOut
                     };
-                    _dbContext.MARKET_STORES.Add(marketStore);
+                    _dbContext.MARKET_STORES.Add(marketStore);*/
                 }
                 else
                 {
@@ -114,6 +116,7 @@ namespace StoreViewMarket.Controllers
                             {
                                 MARKET_ID = request.MarketId,
                                 PRODUCT_ID = product,
+                                DISCOUNT_PRICE=0.8M//写死
                             });
                         }
                     }

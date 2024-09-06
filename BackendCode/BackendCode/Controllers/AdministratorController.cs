@@ -125,7 +125,12 @@ namespace Administrator.Controllers
 
             foreach (var storeId in storeIds)
             {
-                _dbContext.MARKET_STORES.Add(new BackendCode.Models.MARKET_STORE()
+                var store = await _dbContext.MARKET_STORES
+                     .Where(st => st.STORE_ACCOUNT_ID==storeId&&st.MARKET_ID==model.MarketId)
+                     .FirstOrDefaultAsync();
+                if (store != null) { continue; }
+
+                _dbContext.MARKET_STORES.Add(new MARKET_STORE()
                 {
                     MARKET_ID = model.MarketId,
                     STORE_ACCOUNT_ID = storeId,
