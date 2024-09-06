@@ -57,6 +57,7 @@ namespace BackendCode.Controllers
             };
 
             order.ORDER_STATUS = "待退货"; //更新订单状态为“待退货” 等待商家处理
+            order.RETURN_OR_NOT = true; //已退货
 
             _dbContext.RETURNS.Add(returnRecord); //将退货记录对象添加到数据库上下文
 
@@ -108,6 +109,7 @@ namespace BackendCode.Controllers
             sellerWallet.BALANCE -= order.ACTUAL_PAY; //从卖家钱包中扣除订单实付金额
 
             order.ORDER_STATUS = "已退货"; //更新订单状态
+            //order.RETURN_OR_NOT = true; //已退货
            
             await _dbContext.SaveChangesAsync(); //保存数据库上下文中的更改到数据库
 
