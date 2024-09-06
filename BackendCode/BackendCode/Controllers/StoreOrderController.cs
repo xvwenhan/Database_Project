@@ -53,8 +53,8 @@ namespace StoreOrderController.Controllers
                         case 3: // 运输中
                             query = query.Where(o => o.ORDER_STATUS == "运输中" && o.DELIVERY_NUMBER != null);
                             break;
-                        case 4: // 已送达
-                            query = query.Where(o => o.ORDER_STATUS == "已送达");
+                        case 4: // 已签收
+                            query = query.Where(o => o.ORDER_STATUS == "已签收");
                             break;
                         case 5: // 待退货
                             query = query.Where(o => o.ORDER_STATUS == "待退货");

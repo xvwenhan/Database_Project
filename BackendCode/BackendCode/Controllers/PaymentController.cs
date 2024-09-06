@@ -483,5 +483,35 @@ namespace BackendCode.Controllers
 
             return Ok(orderInfos); //返回订单信息列表
         }
+
+        /********************************/
+        /* 买家确认收货接口             */
+        /* 传入orderId 修改订单状态     */
+        /********************************/
+        [HttpPut("MarkOrderReceived")]
+        public async Task<IActionResult> MarkOrderReceivedAsync(string orderId)
+        {
+            //检查订单号是否为空
+            if (string.IsNullOrEmpty(orderId))
+            {
+                return BadRequest("订单号不能为空");
+            }
+
+            //在数据库中查找订单
+            var order = await _dbContext.ORDERS.FirstOrDefaultAsync(o => o.ORDER_ID == orderId);
+            if (order == null) 
+            {
+                return NotFound("未找到订单");
+            }
+
+            //更新订单状态为“已签收”
+            order.ORDER_STATUS = "已签收";
+
+            //保存更改至数据库
+            await _dbContext.SaveChangesAsync();
+
+            return Ok("订单状态已更新为已签收"); //返回成功信息
+        }
+
     }
 }
