@@ -29,7 +29,8 @@
             <option value="product">商品</option>
             <option value="vendor">商家</option>
           </select>
-          <input type="text" v-model="searchText" placeholder="搜索..." class="search-input" />
+          <input type="text" v-model="searchText" placeholder="搜索..." class="search-input"  @keyup.enter="handleSearch"
+          />
           <button class="search-button" @click="handleSearch">
             <el-icon style="color: white;font-size: 15px;"><Search /></el-icon>
           </button>

@@ -81,6 +81,7 @@
               <el-input
                 placeholder="搜索本店商品"
                 v-model="searchQuery"
+                @keyup.enter="filterProducts(null,'Button')"
               >
               </el-input>
               <el-button @click="filterProducts(null,'Button')">搜索</el-button>
