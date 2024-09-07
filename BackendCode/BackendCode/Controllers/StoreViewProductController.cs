@@ -663,10 +663,10 @@ namespace StoreViewProductController.Controllers
                     })
                     .ToListAsync();
 
-                if (images == null || !images.Any())
+/*                if (images == null || !images.Any())
                 {
                     return NotFound("No images found for the given product ID.");
-                }
+                }*/
 
                 return Ok(images);
             }
