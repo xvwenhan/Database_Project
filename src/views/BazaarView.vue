@@ -1,7 +1,7 @@
 <template>
   <Navbar />
   <div class="market-page" >
-    <h2 class="market-title"><< 近期市集 >></h2>
+    <h2 class="market-title"> 近期市集 </h2>
     <button class="carousel-button left" @click="prevSlide">
       <img src="@/assets/wy/leftslide.png" alt="左翻按钮" class="icon"/>
     </button>
@@ -106,8 +106,11 @@ h2 {
   margin-bottom: 20px;
 }
 .market-title{
-  font-family: 'Long Cang', cursive;
-  font-size: 48px; /* 可根据需要调整字体大小 */
+  /* font-family: 'Long Cang', cursive; */
+  /* font-family: 'Noto Serif SC', serif; */
+  font-family: 'Regular';
+  /* font-weight:bold; */
+  font-size: 35px; /* 可根据需要调整字体大小 */
   color: #333; /* 可根据需要调整颜色 */
 }
 
