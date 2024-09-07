@@ -31,7 +31,7 @@
                 <el-table-column label="操作" width="400">
                 <template #default="scope">
                   <el-button @click="search(scope.row.reportId)" type="primary">举报详情</el-button>
-                  <el-button @click="auditReport(scope.row.reportId,'删除')" :disabled="scope.row.auditResults !== null" type="danger">删除帖子</el-button>
+                  <el-button @click="auditReport(scope.row.reportId,'删除')" :disabled="scope.row.auditResults !== null" type="danger">删除</el-button>
                   <el-button @click="auditReport(scope.row.reportId,'忽略')" :disabled="scope.row.auditResults !== null" type="warning">忽略</el-button>
                 </template>
               </el-table-column>

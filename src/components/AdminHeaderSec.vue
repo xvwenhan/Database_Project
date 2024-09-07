@@ -26,7 +26,10 @@
 import { ElDropdown, ElDropdownMenu, ElDropdownItem, ElIcon, ElMessage } from 'element-plus';
 import { ref } from 'vue';
 import { ArrowDown, CircleClose } from '@element-plus/icons-vue'
+import { useRouter } from 'vue-router';
 import axiosInstance from '../components/axios';
+
+const router = useRouter();
 
 const userId =localStorage.getItem('userId');
 
@@ -39,7 +42,7 @@ const logout = async () => {
     if (response.data.message === '登出账号成功！') {
       ElMessage.success('退出登录成功');
       localStorage.removeItem('userToken'); // 清除本地存储的用户信息
-      this.$router.push('/loginandregister');
+      router.push('/loginandregister');
     } else {
       ElMessage.error(`退出登录失败: ${response.data.message}`);
     }
