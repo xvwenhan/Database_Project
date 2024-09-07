@@ -26,7 +26,7 @@ namespace Market.Controllers
             {
                 var query = from m_p in _dbContext.MARKET_PRODUCTS
                             join p in _dbContext.PRODUCTS on m_p.PRODUCT_ID equals p.PRODUCT_ID
-                            where (m_p.MARKET_ID == model.MarketId&&p.SALE_OR_NOT==true)
+                            where (m_p.MARKET_ID == model.MarketId&&p.SALE_OR_NOT==false)
                             select new AllProductsDTO
                             {
                                 ProductId = m_p.PRODUCT_ID,
