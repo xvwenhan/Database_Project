@@ -835,11 +835,11 @@ namespace BackendCode.Controllers
             var query = from post in _context.POSTS
                         join buyer in _context.BUYERS on post.ACCOUNT_ID equals buyer.ACCOUNT_ID
                         where post.POST_TITLE.Contains(model.KeyWord) || buyer.USER_NAME.Contains(model.KeyWord)
-                        select new PostSimpleModel
+                        select new 
                         {
                             PostId=post.POST_ID,
                             PostTitle = post.POST_TITLE,
-                            ReleaseTime =post.RELEASE_TIME.ToString("yyyy年MM月dd日 HH:mm:ss"),
+                            ReleaseTime =post.RELEASE_TIME,
                             PostContent =post.POST_CONTENT,
                             NumberOfLikes=post.NUMBER_OF_LIKES,
                             NumberOfComments=post.NUMBER_OF_COMMENTS,
@@ -862,11 +862,23 @@ namespace BackendCode.Controllers
 
             var posts = await query.ToListAsync();
             var count = posts.Count;
-/*            if (count == 0)
+            var formattedPosts = posts.Select(p => new PostSimpleModel
             {
-                return NotFound(new { message = "没有找到匹配的帖子。" });
-            }*/
-            return Ok(new { message = "搜索成功！", target_posts=posts,amount=count });
+                PostId = p.PostId,
+                PostTitle = p.PostTitle,
+                ReleaseTime = p.ReleaseTime.ToString("yyyy年MM月dd日 HH:mm:ss"),  // 在这里格式化为字符串
+                PostContent = p.PostContent,
+                NumberOfLikes = p.NumberOfLikes,
+                NumberOfComments = p.NumberOfComments,
+                AuthorId = p.AuthorId,
+                AuthorName = p.AuthorName,
+                Image = p.Image
+            }).ToList();
+            /*            if (count == 0)
+                        {
+                            return NotFound(new { message = "没有找到匹配的帖子。" });
+                        }*/
+            return Ok(new { message = "搜索成功！", target_posts= formattedPosts, amount=count });
         }
 
         // 获取昵称或用户名或ID含关键词的用户
