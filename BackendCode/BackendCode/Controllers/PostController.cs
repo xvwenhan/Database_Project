@@ -548,7 +548,7 @@ namespace BackendCode.Controllers
                              {
                                  PostId=post.POST_ID,
                                  PostTitle=post.POST_TITLE,
-                                 ReleaseTime=post.RELEASE_TIME.ToString("yyyy年MM月dd日 HH:mm:ss"),
+                                 ReleaseTime=post.RELEASE_TIME,
                                  NumberOfLikes=post.NUMBER_OF_LIKES,
                                  NumberOfComments=post.NUMBER_OF_COMMENTS,
                                  AuthorId = buyer.ACCOUNT_ID,
@@ -579,7 +579,7 @@ namespace BackendCode.Controllers
                 {
                     p.PostId,
                     p.PostTitle,
-                    p.ReleaseTime,//这里参量的名称和表中列名一致，想重命名则在前加XXX=p.XXX
+                    ReleaseTime=p.ReleaseTime.ToString("yyyy年MM月dd日 HH:mm:ss"),//这里参量的名称和表中列名一致，想重命名则在前加XXX=p.XXX
                     p.NumberOfLikes,
                     p.NumberOfComments,
                     p.AuthorId,
@@ -724,7 +724,7 @@ namespace BackendCode.Controllers
                                 PostContent = p.POST_CONTENT,
                                 AccountId=p.ACCOUNT_ID,
                                 UserName=b.USER_NAME,
-                                ReleaseTime=p.RELEASE_TIME.ToString("yyyy年MM月dd日 HH:mm:ss"),
+                                ReleaseTime=p.RELEASE_TIME,
                                 NumberOfComments = p.NUMBER_OF_COMMENTS,
                                 NumberOfLikes = p.NUMBER_OF_LIKES,
                             };
@@ -769,7 +769,7 @@ namespace BackendCode.Controllers
                 AuthorId = postDetail.AccountId,
                 AuthorName = postDetail.UserName,
                 AuthorPhoto = new BuyerInfoImageModel { ImageId = postDetail.AccountId },//新增加
-                ReleaseTime = postDetail.ReleaseTime,
+                ReleaseTime = postDetail.ReleaseTime.ToString("yyyy年MM月dd日 HH:mm:ss"),
                 NumberOfComments = postDetail.NumberOfComments,
                 NumberOfLikes = postDetail.NumberOfLikes,
                 Images = images,
