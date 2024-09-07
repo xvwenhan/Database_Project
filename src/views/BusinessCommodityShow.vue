@@ -1324,11 +1324,13 @@ return {
   right: 0;
   bottom: 0;
   background-color: #DFCDC7  ;
+  overflow: auto;
 }
 
 .TableContainer {
   margin: 10px;
   margin-top: 0;
+  /* height:80%; */
 }
 
 .SearchContainer {

@@ -41,7 +41,7 @@ const logout = async () => {
     
     if (response.data.message === '登出账号成功！') {
       ElMessage.success('退出登录成功');
-      localStorage.removeItem('userToken'); // 清除本地存储的用户信息
+      //localStorage.removeItem('userToken'); 
       router.push('/loginandregister');
     } else {
       ElMessage.error(`退出登录失败: ${response.data.message}`);

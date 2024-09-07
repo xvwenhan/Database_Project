@@ -64,8 +64,8 @@
         </aside>
         <div class="display-container">
           <div class="container-block"
-          v-show="AllCategories.length > 0&&AllCategories[currentSumCategory].subCategories[selectedCategory].subCategoryName==='全部'&&AllCategories[currentSumCategory].largeCategoryName!=='其他'"
-          >
+            v-show="AllCategories.length > 0&&AllCategories[currentSumCategory].subCategories[selectedCategory].subCategoryName==='全部'&&AllCategories[currentSumCategory].largeCategoryName!=='其他'"
+            >
             <img src="@/assets/mmy/blue_background.jpg">
             <div class="inner-block">
               <div class="slider-top-right">
@@ -73,7 +73,7 @@
                     <div class="category_text" >{{ AllCategories.length > 0 ? AllCategories[currentSumCategory].largeCategoryName : '' }}</div>
                     <img :src="picUrl" class="picture">
                     <div class="text">
-                      <p>{{ text }}</p>
+                      <p>&nbsp;&nbsp;{{ text }}</p>
                     </div>
                 </div>
               </div>
@@ -593,6 +593,11 @@ height: 100%;
   flex-wrap: wrap;
   gap: 20px;
   min-height: 480px;
+  padding-top:20px;
+  padding-left:15px;
+  padding-right:15px;
+  justify-content: space-between;
+
 }
 
 .product-item {
@@ -610,6 +615,7 @@ height: 100%;
   max-height: 110px;
   max-width: 100%;
   object-fit: cover;
+  margin-top:20px;
   border-radius: 5px;
   margin-bottom: 10px;
   margin-left: 10px;
@@ -746,7 +752,7 @@ height: 100%;
 	display: inline-block;
 	margin: 10px;
 	width: 85%;
-  height:40%;
+  height:45%;
 	position: relative;	
 	&::before {
 		/* 特别修改1 */
@@ -786,6 +792,7 @@ height: 100%;
   flex: 1;
 	position: relative;	
   padding: 15px 15px;
+  background-image: url('../assets/mmy/background.jpg');
 }
 
 .slider-top-right:before,
@@ -863,10 +870,10 @@ height: 100%;
 	/* 华文宋 */
 	width: 45%;
 	font-family: 'Noto Serif SC', serif;
-	font-size: 20px;
+	font-size: 22px;
 	padding: 10px 10px 20px 50px;
 	overflow-y: auto; 
-	max-height: 100%; /* 限制最大高度为父容器高度 */
+	max-height: 93%; /* 限制最大高度为父容器高度 */
 	text-align: left;
 	
 }
