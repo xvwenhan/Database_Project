@@ -404,11 +404,12 @@ const aliPay=async()=>{
   }
 
   const path = routerPath ? routerPath : '/home'; 
-  if(path==='/ordercentre'){
-    returnUrl.value='http://47.97.5.21:17990/ordercentre';
-  }else{
-    returnUrl.value='http://47.97.5.21:17990/merchandise/1';
-  }
+  // if(path==='/ordercentre'){
+  //   returnUrl.value='http://47.97.5.21:17990/ordercentre';
+  // }else{
+  //   returnUrl.value='http://47.97.5.21:17990/merchandise/1';
+  // }
+  returnUrl.value='http://47.97.5.21:17990/ordercentre';
   console.log(`orderID is ${order.value.id}`);
   console.log(`actualPay is ${product.value.finalPrice}`);
   console.log(`returnUrl is ${returnUrl.value.toString()}`);
