@@ -594,9 +594,9 @@ height: 100%;
   gap: 20px;
   min-height: 480px;
   padding-top:20px;
-  padding-left:15px;
-  padding-right:15px;
-  justify-content: space-between;
+  padding-left:20px;
+  padding-right:20px;
+  /* justify-content: space-between; */
 
 }
 
