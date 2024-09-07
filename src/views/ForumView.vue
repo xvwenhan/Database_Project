@@ -292,7 +292,7 @@ const sortBy = (newSort) => {
 .forum_title {
   height: 10vh; /* 根据需求设置标题的高度 */
   font-size: calc(10vh * 0.8);  /* 根据需求设置标题的字体大小 */
-  background-color: #287658; /* 设置背景颜色 */
+  /* background-color: #287658;  */
   font-family: Arial, sans-serif;
   display: flex;
   align-items: center;

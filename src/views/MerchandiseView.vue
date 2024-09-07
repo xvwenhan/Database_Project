@@ -149,7 +149,7 @@ const goToTop = () =>{
 const typeChange = (id,name) =>{
   pageSize.value=4; //进入“全部”分类，每页4个商品
   if(name=="其他"){
-    pageSize.value=8; //进入“其他-全部”分类，每页8个商品
+    pageSize.value=12; //进入“其他-全部”分类，每页8个商品
   }
   currentPage.value=1; //重置分页器当前页数
 
@@ -204,7 +204,7 @@ const filter = (subCategory,index) => {
     pageSize.value=4;
   }
   else{ //其余小分类，每页展示8个商品
-    pageSize.value=8;
+    pageSize.value=12;
   }
   getProducts(AllCategories[currentSumCategory.value].subCategories[selectedCategory.value].subCategoryId);
   // getProducts(nowSubCategoryId);
@@ -591,11 +591,9 @@ height: 100%;
 .display-items{
   display: flex;
   flex-wrap: wrap;
-  gap: 20px;
+  gap: 10px;
   min-height: 480px;
-  padding-top:20px;
-  padding-left:20px;
-  padding-right:20px;
+  padding:20px 20px 10px 60px;
   /* justify-content: space-between; */
 
 }
