@@ -332,9 +332,9 @@ function submitReason(){
 function submitReplyReason(reply){
   const formData = new FormData();
       formData.append('commentId',reply.id );
-      if (post.value.reason) {
+      if (post.value.reason!="其他") {
         formData.append('reportReason', post.value.reason);
-      } else if (post.value.reason_else) {
+      } else(post.value.reason_else) {
         formData.append('reportReason', post.value.reason_else);
       }
       axiosInstance.post('/Post/report_comment', formData, {
@@ -507,14 +507,14 @@ const handleChange = (currentIndex) => {
 :draggable="true"
   v-model="dialogVisible" title="举报详情" width="460px" @close="resetForm">
   <el-select v-model="post.reason" placeholder="请选择原因">
-        <el-option label="违反法律法规" value="1"></el-option>
-        <el-option label="不实信息" value="2"></el-option>
-        <el-option label="侵犯个人权益" value="3"></el-option>
-        <el-option label="扰乱社区环境" value="4"></el-option>
-        <el-option label="其他" value="5"></el-option>
+        <el-option label="违反法律法规" value="违反法律法规"></el-option>
+        <el-option label="不实信息" value="不实信息"></el-option>
+        <el-option label="侵犯个人权益" value="侵犯个人权益"></el-option>
+        <el-option label="扰乱社区环境" value="扰乱社区环境"></el-option>
+        <el-option label="其他" value="其他"></el-option>
       </el-select>
       <div style="margin-top: 10px;"></div>
-      <el-input v-if="post.reason === '5' "v-model="post.reason_else" placeholder="请输入原因"></el-input>
+      <el-input v-if="post.reason === '其他' "v-model="post.reason_else" placeholder="请输入原因"></el-input>
   <el-divider></el-divider>
   <div slot="footer" class="dialog-footer">
     <el-button type="primary" @click="submitReason()">确 定</el-button>

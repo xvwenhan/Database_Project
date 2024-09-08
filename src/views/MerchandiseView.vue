@@ -250,48 +250,17 @@ onMounted(()=>{
   // console.log(1);
 })
 
-
-// const subCategoryNames = [
-//   { id: 1, parent:"服装",name: '汉族传统服饰' },
-//   { id: 2, parent:"服装", name: '少数民族服饰' },
-//   { id: 3, parent:"服装",name: '地方特色服饰' },
-//   { id: 4, parent:"首饰",name: '银饰' },
-//   { id: 5, parent:"首饰", name: '玉饰' },
-//   { id: 6, parent:"首饰", name: '宝石首饰' },
-//   { id: 7, parent:"首饰", name: '民族特使首饰' },
-//   { id: 8, parent:"家具", name: '床榻类' },
-//   { id: 9, parent:"家具", name: '桌案类' },
-//   { id: 10, parent:"家具", name: '椅凳类' },
-//   { id: 11, parent:"家具", name: '柜架类' },
-//   { id: 12, parent:"家具", name: '屏风类' },
-//   { id: 13, parent:"工艺品", name: '陶瓷' },
-//   { id: 14, parent:"工艺品", name: '漆器' },
-//   { id: 15, parent:"工艺品", name: '刺绣' },
-//   { id: 16, parent:"工艺品", name: '景泰蓝' },
-//   { id: 17, parent:"小物件", name: '文房四宝' },
-//   { id: 18, parent:"小物件", name: '剪纸艺术' },
-//   { id: 19, parent:"小物件", name: '竹编' },
-// ];
-
-
 const currentType = ref('服装')
+const router = useRouter();
 
 // const subCategoryNamesCopy = null;
 //这里是分类描述
 // var image = "";
-var description = "";
-// const products = ref([
-//   { id: 1, name: '景泰蓝花瓶', category: 4, price: 199, image: '/src/assets/example1.png' },
-//   { id: 2, name: '景德镇双耳陶瓷花瓶', category: 4, price: 59, image: '/src/assets/example1.png' },
-//   { id: 3, name: '云锦披肩', category: 1, price: 99, image: '/src/assets/example1.png' },
-//   { id: 4, name: '刺绣手帕', category: 1, price: 20, image: '/src/assets/example1.png' },
-//   { id: 5, name: '银手镯', category: 2, price: 150, image: '/src/assets/example1.png' },
-//   { id: 6, name: '木雕摆件', category: 3, price: 300, image: '/src/assets/example1.png' },
-// ]);
-const products = ref([])
+// var description = "";
+
+// const products = ref([])
 // const defaultImage = '/src/assets/example1.png'
 
-const router = useRouter();
 // const selectedCategory = computed(() => route.params.category);
 
 // const selectedCategoryName = computed(() => {
@@ -302,9 +271,6 @@ const router = useRouter();
 // const filterSubCategoryNames = computed(()=>{
 //     return subCategoryNames.filter(subCategory => subCategory.parent === currentType.value);
 // })
-
-
-
 
 
 // const categoryDate = ref({categorY_PIC:'',categorY_DESCRIPTION:''})
@@ -530,14 +496,6 @@ height: 100%;
   padding: 0;
   margin: 0;
 }
-
-
-
-
-
-
-
-
 
 .main-content {
   flex: 1;
