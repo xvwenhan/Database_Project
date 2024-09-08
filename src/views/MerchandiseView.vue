@@ -64,8 +64,8 @@
         </aside>
         <div class="display-container">
           <div class="container-block"
-          v-show="AllCategories.length > 0&&AllCategories[currentSumCategory].subCategories[selectedCategory].subCategoryName==='全部'&&AllCategories[currentSumCategory].largeCategoryName!=='其他'"
-          >
+            v-show="AllCategories.length > 0&&AllCategories[currentSumCategory].subCategories[selectedCategory].subCategoryName==='全部'&&AllCategories[currentSumCategory].largeCategoryName!=='其他'"
+            >
             <img src="@/assets/mmy/blue_background.jpg">
             <div class="inner-block">
               <div class="slider-top-right">
@@ -73,7 +73,7 @@
                     <div class="category_text" >{{ AllCategories.length > 0 ? AllCategories[currentSumCategory].largeCategoryName : '' }}</div>
                     <img :src="picUrl" class="picture">
                     <div class="text">
-                      <p>{{ text }}</p>
+                      <p>&nbsp;&nbsp;{{ text }}</p>
                     </div>
                 </div>
               </div>
@@ -149,7 +149,7 @@ const goToTop = () =>{
 const typeChange = (id,name) =>{
   pageSize.value=4; //进入“全部”分类，每页4个商品
   if(name=="其他"){
-    pageSize.value=8; //进入“其他-全部”分类，每页8个商品
+    pageSize.value=12; //进入“其他-全部”分类，每页8个商品
   }
   currentPage.value=1; //重置分页器当前页数
 
@@ -204,7 +204,7 @@ const filter = (subCategory,index) => {
     pageSize.value=4;
   }
   else{ //其余小分类，每页展示8个商品
-    pageSize.value=8;
+    pageSize.value=12;
   }
   getProducts(AllCategories[currentSumCategory.value].subCategories[selectedCategory.value].subCategoryId);
   // getProducts(nowSubCategoryId);
@@ -549,8 +549,11 @@ height: 100%;
 .display-items{
   display: flex;
   flex-wrap: wrap;
-  gap: 20px;
+  gap: 10px;
   min-height: 480px;
+  padding:20px 20px 10px 60px;
+  /* justify-content: space-between; */
+
 }
 
 .product-item {
@@ -568,6 +571,7 @@ height: 100%;
   max-height: 110px;
   max-width: 100%;
   object-fit: cover;
+  margin-top:20px;
   border-radius: 5px;
   margin-bottom: 10px;
   margin-left: 10px;
@@ -704,7 +708,7 @@ height: 100%;
 	display: inline-block;
 	margin: 10px;
 	width: 85%;
-  height:40%;
+  height:45%;
 	position: relative;	
 	&::before {
 		/* 特别修改1 */
@@ -744,6 +748,7 @@ height: 100%;
   flex: 1;
 	position: relative;	
   padding: 15px 15px;
+  background-image: url('../assets/mmy/background.jpg');
 }
 
 .slider-top-right:before,
@@ -821,10 +826,10 @@ height: 100%;
 	/* 华文宋 */
 	width: 45%;
 	font-family: 'Noto Serif SC', serif;
-	font-size: 20px;
+	font-size: 22px;
 	padding: 10px 10px 20px 50px;
 	overflow-y: auto; 
-	max-height: 100%; /* 限制最大高度为父容器高度 */
+	max-height: 93%; /* 限制最大高度为父容器高度 */
 	text-align: left;
 	
 }

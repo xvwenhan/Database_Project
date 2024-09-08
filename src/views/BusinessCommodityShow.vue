@@ -3,9 +3,11 @@
   <div class="CommodityShow">
     <!-- 搜索和筛选按钮 --> 
     <div class="SearchContainer">
-      <el-input v-model="searchName" placeholder="请输入商品名称(在全部商品中搜索)" style="display: inline-block;"></el-input>
+      <el-input v-model="searchName" placeholder="请输入商品名称(在全部商品中搜索)" style="display: inline-block;"
+         @keyup.enter="filterProducts"></el-input>
       <el-button type="primary" @click="filterProducts">搜索</el-button>
-      <el-input v-model="searchcategoryInit" placeholder="请输入商家分类（在全部商品中搜索）" style="display: inline-block;"></el-input>
+      <el-input v-model="searchcategoryInit" placeholder="请输入商家分类（在全部商品中搜索）" style="display: inline-block;"
+         @keyup.enter="filterProductsTag"></el-input>
       <el-button type="primary" @click="filterProductsTag">筛选</el-button>
     </div>
     <!-- 表格 -->
@@ -1324,11 +1326,13 @@ return {
   right: 0;
   bottom: 0;
   background-color: #DFCDC7  ;
+  overflow: auto;
 }
 
 .TableContainer {
   margin: 10px;
   margin-top: 0;
+  /* height:80%; */
 }
 
 .SearchContainer {

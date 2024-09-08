@@ -179,6 +179,7 @@ export default {
   left: 150px; 
   right: 0;
   bottom: 0;
+  overflow: auto;
 }
 
 .BlockOne {
