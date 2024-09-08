@@ -116,7 +116,10 @@ export default {
             passwordVisibility: {
                 new: false,
                 confirm: false
-            }
+            },
+            businessInfo: {
+                address: '',
+            },
         };
     },
     computed: {
@@ -162,6 +165,28 @@ export default {
             }
             }, 1000);
         },
+        //获取邮箱
+        async getUserInfo(userId) {
+            try {
+                const response = await axiosInstance.get(`/Account/get_user_message/${userId}`);
+                
+                if (response.data.message === '用户查找成功！') { // 根据实际响应内容调整
+                this.businessInfo = {
+                    // username: response.data.target_user.useR_NAME,
+                    // gender: response.data.target_user.gender,
+                    email: response.data.target_user.email,
+                    // address:response.data.target_user.address
+                };
+                
+                // this.currentPass=response.data.target_user.password;
+                } else {
+                this.$message.error('获取用户信息失败');
+                }
+            } catch (error) {
+                console.error('请求失败:获取商家信息', error);
+                this.$message.error('请求失败，请稍后再试');
+            }
+            },
         //更新密码
         async updateAccountInfo() {
             if ( this.password.new === '' || this.password.confirm === '') {
@@ -219,6 +244,11 @@ export default {
         return re.test(email);
         }
     },
+    mounted() {          
+         
+         const userId = localStorage.getItem('userId');
+         this.getUserInfo(userId);
+       }
 }
 </script>
   

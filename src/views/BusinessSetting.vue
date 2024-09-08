@@ -327,9 +327,9 @@ async handleCertificationUpload() {
             // username: response.data.target_user.useR_NAME,
             // gender: response.data.target_user.gender,
             email: response.data.target_user.email,
-            address:response.data.target_user.address
+            // address:response.data.target_user.address
           };
-
+          
           // this.currentPass=response.data.target_user.password;
         } else {
           this.$message.error('获取用户信息失败');

@@ -46,9 +46,11 @@
       </span>
       <ul>
           <li>
-            <router-link to="/BusinessInformation">
+            <!-- <router-link to="/BusinessInformation">
               <img src="@/assets/setting.svg" alt="Setting" id="Setting">
-            </router-link>
+            </router-link> -->
+          <img src="@/assets/setting.svg" alt="Setting" id="Setting" @click="enterBusinessInformation">
+
           </li>
       </ul>
       <div class="StoreScore">
@@ -97,6 +99,9 @@
     },
     closeModalT() {
       this.show = false;
+    },
+    enterBusinessInformation(){
+      this.$router.push('/BusinessInformation');
     },
     //获取头像简介
     async fetchImageAndText(id) {
@@ -185,9 +190,9 @@ mounted() {
   margin: 1vh;
 }
 
-.Topbar li:hover {
-  background-color: #0b8d77;
-}
+/* .Topbar li:hover {
+  background-color: #a85c5c;
+} */
 
 .sidebar {
   width: 150px;

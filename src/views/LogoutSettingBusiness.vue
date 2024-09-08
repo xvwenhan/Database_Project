@@ -50,7 +50,7 @@ export default {
                 // 检查响应内容并反馈给用户
                 if (response.data.message === '登出账号成功！') {
                 this.$message.success('退出登录成功');
-                localStorage.removeItem('userToken'); // 清除本地存储的用户信息
+                localStorage.removeItem('userId'); // 清除本地存储的用户信息
                 this.$router.push('/loginandregister');
                 } else {
                 this.$message.error(`退出登录失败: ${response.data.message}`);

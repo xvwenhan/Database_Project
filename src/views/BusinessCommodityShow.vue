@@ -359,6 +359,7 @@ const fetchProductByName = async (keyword) => {
       console.error('Unexpected response format:', response.data);
     }
   } catch (error) {
+    products.value = [];
     console.error('通过商品名称获取商品数据失败:', error);
   }
 };
@@ -399,6 +400,7 @@ const fetchProductByTag = async (storeTag) => {
       console.error('Unexpected response format:', response.data);
     }
   } catch (error) {
+    products.value = [];
     console.error('通过商品名称获取商品数据失败:', error);
   }
 };

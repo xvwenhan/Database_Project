@@ -46,7 +46,7 @@
                     <span class="close" @click="dialogVisible = false">&times;</span>
                     <br>
                     <h2> {{ currentMarket.theme }}</h2>
-                    <p style="text-align: end;font-size: 8px;"> {{ currentMarket.startTime }}-{{ currentMarket.endTime }}</p>
+                    <p style="text-align: end;font-size: 15px;	font-family: 'Noto Serif SC', serif;margin-bottom:3px;"> {{ currentMarket.startTime }}-{{ currentMarket.endTime }}</p>
                     <p style="font-size: 16px;">{{ currentMarket.detail }}</p>
                   </div>
                 </transition>
@@ -224,6 +224,7 @@ const fetchMarketByTheme = async (theme) => {
       console.error('Unexpected response format:', response.data);
     }
   } catch (error) {
+    markets.value = [];
     console.error('通过市集主题获取市集数据失败:', error);
   }
 };

@@ -233,6 +233,7 @@ export default {
           console.error('未找到订单');
         }
       } catch (error) {
+        products.value = [];
         console.error('通过订单ID获取订单数据失败:', error);
       }
     };
@@ -295,6 +296,7 @@ export default {
           console.error('未找到订单');
         }
       } catch (error) {
+        products.value = [];
         console.error('通过日期获取订单数据失败:', error);
       }
     };
@@ -375,6 +377,7 @@ export default {
             message: '退货请求已成功确认。',
             type: 'success'
           });
+          fetchOrders();
         } else {
           ElMessage({
             message: '退货请求确认失败',
