@@ -334,7 +334,7 @@ function submitReplyReason(reply){
       formData.append('commentId',reply.id );
       if (post.value.reason!="其他") {
         formData.append('reportReason', post.value.reason);
-      } else(post.value.reason_else) {
+      } else  {
         formData.append('reportReason', post.value.reason_else);
       }
       axiosInstance.post('/Post/report_comment', formData, {
