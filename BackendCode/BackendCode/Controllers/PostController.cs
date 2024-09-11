@@ -57,7 +57,7 @@ namespace BackendCode.Controllers
             var newPost = new POST()
             {
                 POST_ID = postIdGenerator.GetNextId(),
-                RELEASE_TIME = DateTime.UtcNow,
+                RELEASE_TIME = DateTime.Now,
                 POST_TITLE = post.PostTitle,
                 POST_CONTENT = post.PostContent,
                 NUMBER_OF_LIKES = 0,
@@ -155,7 +155,7 @@ namespace BackendCode.Controllers
                 COMMENT_ID = commentIdGenerator.GetNextId(),
                 BUYER_ACCOUNT_ID = userId,
                 POST_ID = comment.PostId,
-                EVALUATION_TIME = DateTime.UtcNow,
+                EVALUATION_TIME = DateTime.Now,
                 EVALUATION_CONTENT = comment.CommentContext,
                 NUMBER_OF_SUBCOMMENTS = 0
                 
@@ -195,7 +195,7 @@ namespace BackendCode.Controllers
                 COMMENT_ID = commentIdGenerator.GetNextId(),
                 ACCOUNT_ID = userId,
                 COMMENTED_COMMENT_ID = comment.CommentId,
-                COMMENT_TIME = DateTime.UtcNow,
+                COMMENT_TIME = DateTime.Now,
                 COMMENT_CONTENT = comment.CommentContext
             };
             _context.COMMENT_COMMENTS.Add(newcomment);
@@ -398,7 +398,7 @@ namespace BackendCode.Controllers
             {
                 REPORT_ID = reportIdGenerator.GetNextId(),
                 REPORT_REASON = reportModel.ReportReason, // 假设 reportModel 包含 ReportReason 字段
-                REPORT_TIME = DateTime.UtcNow
+                REPORT_TIME = DateTime.Now
             };
             _context.REPORTS.Add(report);
             //加入举报信息
@@ -442,7 +442,7 @@ namespace BackendCode.Controllers
             {
                 REPORT_ID = reportIdGenerator.GetNextId(),
                 REPORT_REASON = reportModel.ReportReason,
-                REPORT_TIME = DateTime.UtcNow
+                REPORT_TIME = DateTime.Now
             };
             _context.REPORTS.Add(report);
 
